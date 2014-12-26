@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="android-async-http-1.4.6">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/android-async-http-1.4.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
