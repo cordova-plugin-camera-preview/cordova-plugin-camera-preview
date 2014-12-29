@@ -64,8 +64,8 @@ Show camera preview popup on top of the HTML.<br/>
 <p>Please see the <a href="https://github.com/mbppower/CordovaCameraPreviewApp">CordovaCameraPreviewApp</a> for a complete working example for Android and iOS platforms.</p>
 
 <p><b>Android Screenshots:</b></p>
-<p><img src="https://github.com/mbppower/CordovaCameraPreview/blob/master/docs/img/android-1.png"/></p>
-<p><img src="https://github.com/mbppower/CordovaCameraPreview/blob/master/docs/img/android-2.png"/></p>
+<p><img src="https://raw.githubusercontent.com/mbppower/CordovaCameraPreview/master/docs/img/android-1.png"/></p>
+<p><img src="https://raw.githubusercontent.com/mbppower/CordovaCameraPreview/master/docs/img/android-2.png"/></p>
 
 
 
