@@ -12,13 +12,8 @@
 @property (nonatomic, weak) IBOutlet UIView *finalImageView;
 @property (nonatomic, weak) IBOutlet UIImageView *overlayFrameImageView;
 
-@property (nonatomic, strong) UIButton* lastClickedThumb;
-@property (nonatomic, assign) NSUInteger *currentCollectionIndex;
+
 @property (nonatomic, strong) NSString *frameImagePath;
-@property (nonatomic, strong) NSMutableDictionary* framesJSON;
-@property (nonatomic, strong) NSMutableDictionary* currentFrameCollection;
-
-
 @property (nonatomic, weak) IBOutlet AVCamPreviewView *previewView;
 
 -(void) hideCamera;
@@ -40,7 +35,7 @@
 @property (nonatomic) BOOL lockInterfaceRotation;
 @property (nonatomic) id runtimeErrorHandlingObserver;
 
-- (void)takePicture:(void(^)(UIImage*))callback ;
+- (void)takePicture:(void(^)(NSString*, NSString*))callback ;
 
 
 @end
