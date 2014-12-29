@@ -12,7 +12,7 @@ Show camera preview popup on top of the HTML.<br/>
   <li>Maintain HTML interactivity.</li>
 </ul>
 
-<p><b>Instalation:</b></p>
+<p><b>Installation:</b></p>
 
 <code>cordova plugin add https://github.com/mbppower/CordovaCameraPreview.git</code>
 
