@@ -1,0 +1,2 @@
+cordova plugin rm com.mbppower.camerapreview
+cordova plugin add ../CordovaCameraPreview

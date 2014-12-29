@@ -1,0 +1,15 @@
+{
+    "prepare_queue": {
+        "installed": [
+            {
+                "plugin": "com.mbppower.CameraPreview",
+                "vars": {},
+                "topLevel": true
+            }
+        ],
+        "uninstalled": []
+    },
+    "config_munge": {},
+    "installed_plugins": {},
+    "dependent_plugins": {}
+}
