@@ -4,8 +4,8 @@
     "cordova_name": "CameraPreview",
     "description": "Ionic Keyboard Plugin",
     "license": "Apache 2.0",
-    "repo": "https://github.com/mbppower/CameraPreview.git",
-    "issue": "https://github.com/mbppower/CameraPreview/issues",
+    "repo": "https://github.com/mbppower/CordovaCameraPreview.git",
+    "issue": "https://github.com/mbppower/CordovaCameraPreview/issues",
     "keywords": [
         "Ionic",
         "CameraPreview",
