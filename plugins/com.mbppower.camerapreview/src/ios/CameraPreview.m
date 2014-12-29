@@ -13,16 +13,8 @@
 
 @implementation CameraPreview
 
-	/*
-	 __weak IonicKeyboard* weakSelf = self;
-	[weakSelf.commandDelegate evalJs:[NSString stringWithFormat:@"cordova.plugins.Keyboard.isVisible = true; cordova.fireWindowEvent('native.keyboardshow', { 'keyboardHeight': %@ }); ", [@(keyboardFrame.size.height) stringValue]]];	
-	*/
-	
-- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
-    return NO;
-}
+
 -(void)startCamera:(CDVInvokedUrlCommand*)command{
-    NSLog(@"startCamera");
  
     CDVPluginResult *pluginResult;
     
@@ -32,6 +24,15 @@
         self.viewController.modalPresentationStyle = UIModalPresentationCurrentContext;
         [self.viewController presentViewController:self.cameraViewController animated:NO completion:nil];
         
+        self.cameraViewController.view.userInteractionEnabled = false;
+        CGFloat x = (CGFloat)[command.arguments[0] floatValue];
+        CGFloat y = (CGFloat)[command.arguments[1] floatValue];
+        CGFloat width = (CGFloat)[command.arguments[2] floatValue];
+        CGFloat height = (CGFloat)[command.arguments[3] floatValue];
+        
+        NSLog(@"startCamera: %f, %f, %f, %f", x, y, width, height);
+
+        self.cameraViewController.finalImageView.frame = CGRectMake(x, y, width, height);
 		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     }
 	else {
@@ -107,23 +108,20 @@
 -(void)takePicture:(CDVInvokedUrlCommand*)command{
     NSLog(@"takePicture");
     __block CDVPluginResult *pluginResult;
-    
-    if (command.arguments.count == 1){
-		if(self.cameraViewController != NULL){
-			//take picture
-			[self.cameraViewController takePicture: ^(UIImage* picture){
-				pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[self encodeToBase64String:picture]"];
-				[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-			}];
-		}
-		else{
-			pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Call startCamera first."];
-			[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-		}
+
+    if(self.cameraViewController != NULL){
+        //take picture
+        [self.cameraViewController takePicture: ^(NSString* originalPicturePath, NSString* previewPicturePath){
+            NSMutableArray *params = [[NSMutableArray alloc] init];
+            [params addObject:originalPicturePath];
+            [params addObject:previewPicturePath];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }];
     }
-	else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid number of parameters"];
-		[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    else{
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Call startCamera first."];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 

@@ -26,10 +26,7 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
 - (BOOL)disablesAutomaticKeyboardDismissal {
     return NO;
 }
-//disable interaction
-- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
-    return NO;
-}
+
 - (void)viewDidLoad{
     [super viewDidLoad];
     self.view.userInteractionEnabled = NO;
@@ -124,9 +121,6 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
     });
 }
 
-- (void)initCam {
- }
-
 - (BOOL)shouldAutorotate {
     return NO;
 }
@@ -157,15 +151,11 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
         BOOL isRunning = [change[NSKeyValueChangeNewKey] boolValue];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (isRunning)
-            {
-                //[[self switchCameraButton] setEnabled:YES];
-                //[[self shootButton] setEnabled:YES];
+            if (isRunning) {
+                //setEnabled:YES
             }
-            else
-            {
-                //[[self switchCameraButton] setEnabled:NO];
-                //[[self shootButton] setEnabled:NO];
+            else {
+                //setEnabled:NO
             }
         });
     }
@@ -176,8 +166,7 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
 }
 
 
-- (void)takePicture:(void(^)(UIImage*))callback {
-    
+- (void)takePicture:(void(^)(NSString*, NSString*))callback {
     dispatch_async([self sessionQueue], ^{
         // Update the orientation on the still image output video connection before capturing.
         [[[self stillImageOutput] connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] videoOrientation]];
@@ -205,7 +194,45 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
                 }
 				
 				//final picture callback
-                callback([self imageWithView:self.finalImageView]);
+                UIImage *finalPicture = [self imageWithView:self.finalImageView];
+                
+                ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+                
+                dispatch_group_t group = dispatch_group_create();
+                
+                __block NSString *originalPicturePath;
+                __block NSString *previewPicturePath;
+                
+                //task 1
+                dispatch_group_enter(group);
+                [library writeImageToSavedPhotosAlbum:[finalPicture CGImage] orientation:(ALAssetOrientation)[finalPicture imageOrientation] completionBlock:^(NSURL *assetURL, NSError *error) {
+                     if (error) {
+                         NSLog(@"FAILED to save Preview picture.");
+                     }
+                     else {
+                         previewPicturePath = [assetURL absoluteString];
+                         NSLog(@"previewPicturePath: %@", previewPicturePath);
+                         dispatch_group_leave(group);
+                    }
+                }];
+                
+                //task 2
+                dispatch_group_enter(group);
+                [library writeImageToSavedPhotosAlbum:[image CGImage] orientation:(ALAssetOrientation)[image imageOrientation] completionBlock:^(NSURL *assetURL, NSError *error) {
+                    if (error) {
+                        NSLog(@"FAILED to save Original picture.");
+                    }
+                    else {
+                        originalPicturePath = [assetURL absoluteString];
+                        NSLog(@"originalPicturePath: %@", originalPicturePath);
+                    }
+                    dispatch_group_leave(group);
+                }];
+                
+                dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                    NSLog(@"All pictures was saved!");
+                    callback(originalPicturePath, previewPicturePath);
+                });
             }
         }];
     });
@@ -336,8 +363,7 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
 
 -(void) switchCamera {
 
-    //[[self switchCameraButton] setEnabled:NO];
-    //[[self shootButton] setEnabled:NO];
+    //setEnabled:NO
     
     dispatch_async([self sessionQueue], ^{
         AVCaptureDevice *currentVideoDevice = [[self videoDeviceInput] device];
@@ -356,16 +382,7 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
                 preferredPosition = AVCaptureDevicePositionBack;
                 break;
         }
-		
-        if(preferredPosition == AVCaptureDevicePositionBack){
-			//callback
-            //[self.switchCameraButton setImage: [UIImage imageWithContentsOfFile:[self getResourcePath: @"img/icons/frames_rear_camera.png"]] forState:UIControlStateNormal];
-        }
-        else{
-			//callback
-            //[self.switchCameraButton setImage: [UIImage imageWithContentsOfFile:[self getResourcePath: @"img/icons/frames_front_camera.png"]] forState:UIControlStateNormal];
-        }
-		
+
         AVCaptureDevice *videoDevice = [CameraViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:preferredPosition];
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:nil];
         
@@ -389,38 +406,12 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
         [[self session] commitConfiguration];
         
         //dispatch_async(dispatch_get_main_queue(), ^{
-            //[[self switchCameraButton] setEnabled:YES];
-            //[[self shootButton] setEnabled:YES];
+            //setEnabled:YES
         //});
     });
 
 }
 
-
--(void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
-    
-    // Get a reference to the captured image
-    UIImage* imagePicker = [info objectForKey:UIImagePickerControllerOriginalImage];
-    UIImage *image = nil;
-    
-    //begin - get correct image size with exact size of the preview
-    CGRect screenRect = [[UIScreen mainScreen] bounds];
-    
-    image = [self imageWithImage:imagePicker scaledToHeight:screenRect.size.height];
-    
-    CGRect cropRect = CGRectMake(
-                                 image.size.width/2 - screenRect.size.width/2,
-                                 image.size.height/2 - screenRect.size.height/2,
-                                 screenRect.size.width,
-                                 screenRect.size.height
-                                 );
-    
-    if(picker.sourceType == UIImagePickerControllerSourceTypePhotoLibrary){
-        
-        [self.libraryImageView setImage:image];
-        [picker dismissViewControllerAnimated:true completion:nil];
-    }
-}
 
 #define rad(angle) ((angle) / 180.0 * M_PI)
 - (CGAffineTransform)orientationTransformedRectOfImage:(UIImage *)img {
@@ -443,14 +434,6 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
     return CGAffineTransformScale(rectTransform, img.scale, img.scale);
 }
 
-- (UIColor *)colorFromHexString:(NSString *)hexString {
-    unsigned rgbValue = 0;
-    NSScanner *scanner = [NSScanner scannerWithString:hexString];
-    [scanner setScanLocation:1]; // bypass '#' character
-    [scanner scanHexInt:&rgbValue];
-    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
-}
-
 -(UIImage *)croppedImage:(UIImage*)originalImage InRect:(CGRect)visibleRect{
     //transform visible rect to image orientation
     CGAffineTransform rectTransform = [self orientationTransformedRectOfImage:originalImage];
@@ -463,33 +446,6 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
     return result;
 }
 
--(UIImage*)imageWithImage: (UIImage*) sourceImage scaledToWidth: (float) i_width {
-    float oldWidth = sourceImage.size.width;
-    float scaleFactor = i_width / oldWidth;
-    
-    float newHeight = sourceImage.size.height * scaleFactor;
-    float newWidth = oldWidth * scaleFactor;
-    
-    UIGraphicsBeginImageContext(CGSizeMake(newWidth, newHeight));
-    [sourceImage drawInRect:CGRectMake(0, 0, newWidth, newHeight)];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return newImage;
-}
-
--(UIImage*)imageWithImage: (UIImage*) sourceImage scaledToHeight: (float) i_height {
-    float oldHeight = sourceImage.size.height;
-    float scaleFactor = i_height / oldHeight;
-    
-    float newWidth = sourceImage.size.width * scaleFactor;
-    float newHeight = oldHeight * scaleFactor;
-    
-    UIGraphicsBeginImageContext(CGSizeMake(newWidth, newHeight));
-    [sourceImage drawInRect:CGRectMake(0, 0, newWidth, newHeight)];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return newImage;
-}
 
 -(UIImage *)imageWithView:(UIView *)view{
     UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.opaque, 0.0);
@@ -497,16 +453,6 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
     UIImage * img = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return img;
-}
-
--(NSString*)getResourcePath:(NSString*) path{
-    NSString *imagePath = [NSString stringWithFormat:@"www/%@", path];
-    NSString* pathComponents = [imagePath stringByDeletingPathExtension];
-    NSString* dir = [pathComponents stringByDeletingLastPathComponent];
-    NSString* fileName = [pathComponents lastPathComponent];
-    NSString* extension = [imagePath pathExtension];
-    NSString* bundlePath = [[NSBundle mainBundle] pathForResource:fileName ofType:extension inDirectory:dir];
-    return bundlePath;
 }
 
 @end

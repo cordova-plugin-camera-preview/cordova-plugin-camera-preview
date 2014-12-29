@@ -35,7 +35,7 @@ var app = {
 		document.getElementById('hideButton').addEventListener('mousedown', this.onHide, false);
     },
 	onStartCamera: function() {
-        cordova.plugins.camerapreview.startCamera({x: 400, y: 500, width: 300, height:300});
+        cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 300, height:300});
     },
 	onStopCamera: function() {
         cordova.plugins.camerapreview.stopCamera();

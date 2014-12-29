@@ -17,10 +17,10 @@
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view autoresizesSubviews="NO" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" id="6TQ-Ci-LCi">
             <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
-            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
+            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
             <subviews>
                 <view clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" id="jEc-S8-yax" userLabel="Final Image">
-                    <rect key="frame" x="60" y="218" width="200" height="200"/>
+                    <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <subviews>
                         <view clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" id="cVE-9M-0eX" customClass="AVCamPreviewView">
