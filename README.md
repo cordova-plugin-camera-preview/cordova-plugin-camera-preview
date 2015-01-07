@@ -19,10 +19,10 @@ Show camera preview popup on top of the HTML.<br/>
 <p><b>Methods:</b></p>
 
 <p>
-  <b>startCamera(object)</b><br/>
+  <b>startCamera(rect, defaultCamera)</b><br/>
   <info>Starts the camera preview instance.</info><br/>
   <i>Usage:</i><br/>
-  <code>cordova.plugins.camerapreview.startCamera({x: 400, y: 500, width: 300, height:300});</code>
+  <code>cordova.plugins.camerapreview.startCamera({x: 400, y: 500, width: 300, height:300}, "front");</code>
 </p>
 <p>
   <b>stopCamera()</b><br/>
