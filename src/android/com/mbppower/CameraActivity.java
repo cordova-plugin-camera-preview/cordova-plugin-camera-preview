@@ -56,7 +56,7 @@ public class CameraActivity extends Fragment {
 
     // The first rear facing camera
     private int defaultCameraId;
-
+	public String defaultCamera;
 	public void setEventListener(CameraPreviewListener listener){
 		eventListener = listener;
 	}
@@ -64,7 +64,6 @@ public class CameraActivity extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 	    // Inflate the layout for this fragment
-
 	    view = inflater.inflate(R.layout.camera_activity, container, false);
 	    createCameraPreview();
 	    return view;
@@ -77,29 +76,39 @@ public class CameraActivity extends Fragment {
 
 	private void createCameraPreview(){
         if(mPreview == null) {
-            // Find the total number of cameras available
-            numberOfCameras = Camera.getNumberOfCameras();
+            
 
-            // Find the ID of the default camera
-            Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-            for (int i = 0; i < numberOfCameras; i++) {
-                Camera.getCameraInfo(i, cameraInfo);
-                if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                    defaultCameraId = i;
-                }
-            }
+            setDefaultCameraId();
 
             mPreview = new Preview(getActivity());
             mainLayout = (FrameLayout) view.findViewById(R.id.video_view);
             mainLayout.addView(mPreview);
         }
     }
-    
+	
+    private void setDefaultCameraId(){
+		
+		// Find the total number of cameras available
+        numberOfCameras = Camera.getNumberOfCameras();
+		
+		int camId = defaultCamera.equals("front") ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
+
+		// Find the ID of the default camera
+		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+		for (int i = 0; i < numberOfCameras; i++) {
+			Camera.getCameraInfo(i, cameraInfo);
+			if (cameraInfo.facing == camId) {
+				defaultCameraId = camId;
+				break;
+			}
+		}
+	}
+	
     @Override
     public void onResume() {
         super.onResume();
 
-        mCamera = Camera.open();
+        mCamera = Camera.open(defaultCameraId);
         cameraCurrentlyLocked = defaultCameraId;
         mPreview.setCamera(mCamera);
 
@@ -159,7 +168,7 @@ public class CameraActivity extends Fragment {
 		cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
 		mPreview.switchCamera(mCamera);
 
-	    Log.d(TAG, "cameraCurrentlyLocked new: " + (cameraCurrentlyLocked + 1) % numberOfCameras);
+	    Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
 
 		// Start the preview
 		mCamera.startPreview();
