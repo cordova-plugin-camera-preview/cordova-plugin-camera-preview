@@ -78,9 +78,16 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
 	            FrameLayout containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
 				try {
-
-					FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(args.getInt(2), args.getInt(3));
-					layoutParams.setMargins(args.getInt(0), args.getInt(1), 0, 0);
+					int x = args.getInt(0);
+					int y = args.getInt(1);
+					int width = args.getInt(2);
+					int height = args.getInt(3);
+					String defaultCamera = args.getString(4);
+					
+					fragment.defaultCamera = defaultCamera;
+					
+					FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+					layoutParams.setMargins(x, y, 0, 0);
 
 					cordova.getActivity().addContentView(containerView, layoutParams);
 					containerView.setId(666);

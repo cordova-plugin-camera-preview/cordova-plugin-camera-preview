@@ -13,8 +13,9 @@ CameraPreview.bindListener = function(listener) {
 };
 
 //@param rect {x: 0, y: 0, width: 100, height:100}
-CameraPreview.startCamera = function(rect) {
-	exec(null, null, PLUGIN_NAME, "startCamera", [rect.x, rect.y, rect.width, rect.height]);
+//@param defaultCamera "front" | "back"
+CameraPreview.startCamera = function(rect, defaultCamera) {
+	exec(null, null, PLUGIN_NAME, "startCamera", [rect.x, rect.y, rect.width, rect.height, defaultCamera]);
 };
 CameraPreview.stopCamera = function() {
 	exec(null, null, PLUGIN_NAME, "stopCamera", []);

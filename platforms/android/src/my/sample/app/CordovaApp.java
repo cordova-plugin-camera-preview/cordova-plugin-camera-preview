@@ -17,7 +17,7 @@
        under the License.
  */
 
-package com.mbppower.CordovaCameraPreviewApp;
+package my.sample.app;
 
 import android.os.Bundle;
 import org.apache.cordova.*;

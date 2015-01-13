@@ -19,18 +19,23 @@
     CDVPluginResult *pluginResult;
     
     if (command.arguments.count > 0){
+		
+		CGFloat x = (CGFloat)[command.arguments[0] floatValue];
+        CGFloat y = (CGFloat)[command.arguments[1] floatValue];
+        CGFloat width = (CGFloat)[command.arguments[2] floatValue];
+        CGFloat height = (CGFloat)[command.arguments[3] floatValue];
+		NSString *defaultCamera = command.arguments[4];
+        
+        NSLog(@"startCamera: %f, %f, %f, %f, %@", x, y, width, height, defaultCamera);
+		
         self.cameraViewController = [[CameraViewController alloc] initWithNibName:@"CameraViewController" bundle:nil];
         self.cameraViewController.view.backgroundColor = [UIColor clearColor];
+		self.cameraViewController.defaultCamera = defaultCamera;
+		
         self.viewController.modalPresentationStyle = UIModalPresentationCurrentContext;
         [self.viewController presentViewController:self.cameraViewController animated:NO completion:nil];
         
         self.cameraViewController.view.userInteractionEnabled = false;
-        CGFloat x = (CGFloat)[command.arguments[0] floatValue];
-        CGFloat y = (CGFloat)[command.arguments[1] floatValue];
-        CGFloat width = (CGFloat)[command.arguments[2] floatValue];
-        CGFloat height = (CGFloat)[command.arguments[3] floatValue];
-        
-        NSLog(@"startCamera: %f, %f, %f, %f", x, y, width, height);
 
         self.cameraViewController.finalImageView.frame = CGRectMake(x, y, width, height);
 		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];

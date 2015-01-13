@@ -51,7 +51,16 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
         
         NSError *error = nil;
         
-        AVCaptureDevice *videoDevice = [CameraViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
+		// Initial camera face
+		AVCaptureDevicePosition position = AVCaptureDevicePositionUnspecified;
+        if ([self.defaultCamera  isEqual: @"front"]){
+            position = AVCaptureDevicePositionFront;
+        }
+        else{
+            position = AVCaptureDevicePositionBack;
+        }
+			
+        AVCaptureDevice *videoDevice = [CameraViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:position];
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
         
         if (error){

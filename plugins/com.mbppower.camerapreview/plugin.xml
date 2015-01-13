@@ -2,13 +2,13 @@
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     id="com.mbppower.camerapreview"
-    version="0.0.1">
+    version="0.0.3">
     <name>CameraPreview</name>
-    <description>CameraPreview Plugin</description>
+    <description>Cordova plugin that allows camera interaction from HTML code. Show camera preview popup on top of the HTML.</description>
     <license>Apache 2.0</license>
-    <keywords>Ionic,Cordova,CameraPreview</keywords>
-    <repo>https://github.com/mbppower/CameraPreview.git</repo>
-    <issue>https://github.com/mbppower/CameraPreview/issues</issue>
+    <keywords>Ionic,Cordova,Camera, Preview, Popup, Floating, Box</keywords>
+    <repo>https://github.com/mbppower/CordovaCameraPreview.git</repo>
+    <issue>https://github.com/mbppower/CordovaCameraPreview/issues</issue>
 
   <js-module src="www/CameraPreview.js" name="CameraPreview">
     <clobbers target="cordova.plugins.camerapreview" />

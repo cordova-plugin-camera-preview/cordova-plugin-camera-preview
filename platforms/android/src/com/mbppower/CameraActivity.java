@@ -27,8 +27,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.mbppower.CordovaCameraPreviewApp.R;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,16 +54,19 @@ public class CameraActivity extends Fragment {
 
     // The first rear facing camera
     private int defaultCameraId;
-
+	public String defaultCamera;
 	public void setEventListener(CameraPreviewListener listener){
 		eventListener = listener;
 	}
 
+	private String appResourcesPackage;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-	    // Inflate the layout for this fragment
+	    appResourcesPackage = getActivity().getPackageName();
 
-	    view = inflater.inflate(R.layout.camera_activity, container, false);
+	    // Inflate the layout for this fragment
+	    view = inflater.inflate(getResources().getIdentifier("camera_activity", "layout", appResourcesPackage), container, false);
 	    createCameraPreview();
 	    return view;
     }
@@ -77,35 +78,45 @@ public class CameraActivity extends Fragment {
 
 	private void createCameraPreview(){
         if(mPreview == null) {
-            // Find the total number of cameras available
-            numberOfCameras = Camera.getNumberOfCameras();
+            
 
-            // Find the ID of the default camera
-            Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-            for (int i = 0; i < numberOfCameras; i++) {
-                Camera.getCameraInfo(i, cameraInfo);
-                if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                    defaultCameraId = i;
-                }
-            }
+            setDefaultCameraId();
 
             mPreview = new Preview(getActivity());
-            mainLayout = (FrameLayout) view.findViewById(R.id.video_view);
+            mainLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("video_view", "id", appResourcesPackage));
             mainLayout.addView(mPreview);
         }
     }
-    
+	
+    private void setDefaultCameraId(){
+		
+		// Find the total number of cameras available
+        numberOfCameras = Camera.getNumberOfCameras();
+		
+		int camId = defaultCamera.equals("front") ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
+
+		// Find the ID of the default camera
+		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+		for (int i = 0; i < numberOfCameras; i++) {
+			Camera.getCameraInfo(i, cameraInfo);
+			if (cameraInfo.facing == camId) {
+				defaultCameraId = camId;
+				break;
+			}
+		}
+	}
+	
     @Override
     public void onResume() {
         super.onResume();
 
-        mCamera = Camera.open();
+        mCamera = Camera.open(defaultCameraId);
         cameraCurrentlyLocked = defaultCameraId;
         mPreview.setCamera(mCamera);
 
 	    Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
 
-        final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(R.id.frame_container);
+        final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
         ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
         if (viewTreeObserver.isAlive()) {
             viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -114,7 +125,7 @@ public class CameraActivity extends Fragment {
                     frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                     frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
                     int size = Math.min(frameContainerLayout.getHeight(), frameContainerLayout.getWidth());
-                    final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(R.id.frame_camera_cont);
+                    final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
 
                     FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(size, size);
                     camViewLayout.gravity = Gravity.CENTER_HORIZONTAL;
@@ -159,7 +170,7 @@ public class CameraActivity extends Fragment {
 		cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
 		mPreview.switchCamera(mCamera);
 
-	    Log.d(TAG, "cameraCurrentlyLocked new: " + (cameraCurrentlyLocked + 1) % numberOfCameras);
+	    Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
 
 		// Start the preview
 		mCamera.startPreview();
@@ -179,7 +190,7 @@ public class CameraActivity extends Fragment {
     }
 	
 	public void takePicture(){
-		final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_view);
+		final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
 		if(mPreview != null) {
 			
 			if(!canTakePicture)
@@ -236,15 +247,15 @@ public class CameraActivity extends Fragment {
 	}
     private void generatePictureFromView(final Bitmap originalPicture){
 
-	    final FrameLayout cameraLoader = (FrameLayout)view.findViewById(R.id.camera_loader);
+	    final FrameLayout cameraLoader = (FrameLayout)view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
 	    cameraLoader.setVisibility(View.VISIBLE);
-	    final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_view);
+	    final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
 	    new Thread() {
 		    public void run() {
 
 			    try {
 				    //get bitmap and compress
-				    Bitmap picture = loadBitmapFromView(view.findViewById(R.id.frame_camera_cont));
+				    Bitmap picture = loadBitmapFromView(view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage)));
 				    ByteArrayOutputStream stream = new ByteArrayOutputStream();
 				    picture.compress(Bitmap.CompressFormat.PNG, 80, stream);
 
