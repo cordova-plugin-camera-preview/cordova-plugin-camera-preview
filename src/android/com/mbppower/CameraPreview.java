@@ -33,6 +33,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	private CameraActivity fragment;
 	private CallbackContext takePictureCallbackContext;
 	private CallbackContext listenerCallbackContext;
+	private containerId = 1;
 
 	public CameraPreview(){
 		super();
@@ -93,7 +94,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					layoutParams.setMargins(x, y, 0, 0);
 
 					cordova.getActivity().addContentView(containerView, layoutParams);
-					containerView.setId(666);
+					containerView.setId(containerId);
+					containerId += 1;
 
 					FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
 					FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
