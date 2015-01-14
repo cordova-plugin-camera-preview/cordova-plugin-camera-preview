@@ -11,7 +11,9 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
@@ -78,10 +80,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
 	            FrameLayout containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
 				try {
-					int x = args.getInt(0);
-					int y = args.getInt(1);
-					int width = args.getInt(2);
-					int height = args.getInt(3);
+					DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
+					int x = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(0), metrics);
+					int y = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(1), metrics);
+					int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(2), metrics);
+					int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(3), metrics);
 					String defaultCamera = args.getString(4);
 					
 					fragment.defaultCamera = defaultCamera;
