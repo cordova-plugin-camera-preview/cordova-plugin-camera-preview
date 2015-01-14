@@ -27,14 +27,25 @@
 		NSString *defaultCamera = command.arguments[4];
         
         NSLog(@"startCamera: %f, %f, %f, %f, %@", x, y, width, height, defaultCamera);
-		
-        self.cameraViewController = [[CameraViewController alloc] initWithNibName:@"CameraViewController" bundle:nil];
-        self.cameraViewController.view.backgroundColor = [UIColor clearColor];
+		self.cameraViewController = [[CameraViewController alloc] initWithNibName:@"CameraViewController" bundle:nil];
+		self.cameraViewController.view.backgroundColor = [UIColor clearColor];
 		self.cameraViewController.defaultCamera = defaultCamera;
 		
-        self.viewController.modalPresentationStyle = UIModalPresentationCurrentContext;
-        [self.viewController presentViewController:self.cameraViewController animated:NO completion:nil];
+		//check ios version
+		NSArray *currentVersionArray = [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
+		
+		//ios 8
+        int currentVersion = [[currentVersionArray objectAtIndex:0] intValue];
+        NSLog(@"currentVersion: %d", currentVersion);
         
+        //ios 8
+        if (currentVersion >= 8) {
+            self.cameraViewController.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        }
+        self.viewController.modalPresentationStyle = UIModalPresentationCurrentContext;
+
+		
+		[self.viewController presentViewController:self.cameraViewController animated:NO completion:nil];
         self.cameraViewController.view.userInteractionEnabled = false;
 
         self.cameraViewController.finalImageView.frame = CGRectMake(x, y, width, height);

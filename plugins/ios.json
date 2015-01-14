@@ -53,7 +53,7 @@
     },
     "installed_plugins": {
         "com.mbppower.camerapreview": {
-            "PACKAGE_NAME": "com.mbppower.CordovaCameraPreviewApp"
+            "PACKAGE_NAME": "my.sample.app"
         }
     },
     "dependent_plugins": {}
