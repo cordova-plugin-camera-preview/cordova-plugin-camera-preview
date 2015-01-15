@@ -17,49 +17,53 @@
  * under the License.
  */
 var app = {
-    // Application Constructor
-    initialize: function() {
-        this.bindEvents();
-    },
-    // Bind Event Listeners
-    //
-    // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
-    bindEvents: function() {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
+	// Application Constructor
+	initialize: function() {
+		this.bindEvents();
+	},
+	// Bind Event Listeners
+	//
+	// Bind any events that are required on startup. Common events are:
+	// 'load', 'deviceready', 'offline', and 'online'.
+	bindEvents: function() {
+		document.addEventListener('deviceready', this.onDeviceReady, false);
 		document.getElementById('startCameraButton').addEventListener('mousedown', this.onStartCamera, false);
 		document.getElementById('stopCameraButton').addEventListener('mousedown', this.onStopCamera, false);
 		document.getElementById('takePictureButton').addEventListener('mousedown', this.onTakePicture, false);
 		document.getElementById('switchCameraButton').addEventListener('mousedown', this.onSwitchCamera, false);
 		document.getElementById('showButton').addEventListener('mousedown', this.onShow, false);
 		document.getElementById('hideButton').addEventListener('mousedown', this.onHide, false);
-    },
+		window.addEventListener('orientationchange', this.onStopCamera, false);
+	},
 	onStartCamera: function() {
-        cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 300, height:300}, "front");
-    },
-	onStopCamera: function() {
-        cordova.plugins.camerapreview.stopCamera();
-    },
-	onTakePicture: function() {
-        cordova.plugins.camerapreview.takePicture(function onPictureTaken(result, previewPicturePath){
+		cordova.plugins.camerapreview.setOnPictureTakenHandler(function(result){
 			document.getElementById('originalPicture').src = result[0];//originalPicturePath;
 			document.getElementById('previewPicture').src = result[1];//previewPicturePath;
+            alert("originalPicturePath:" + result[0] + " - previewPicturePath:" + result[1]);
 		});
-    },
+		var tapEnabled = true;
+		var dragEnabled = false;
+		cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 300, height:300}, "front", tapEnabled, dragEnabled);
+	},
+	onStopCamera: function() {
+		cordova.plugins.camerapreview.stopCamera();
+	},
+	onTakePicture: function() {
+		cordova.plugins.camerapreview.takePicture();
+	},
 	onSwitchCamera: function() {
-        cordova.plugins.camerapreview.switchCamera();
-    },
+		cordova.plugins.camerapreview.switchCamera();
+	},
 	onShow: function() {
-        cordova.plugins.camerapreview.show();
-    },
+		cordova.plugins.camerapreview.show();
+	},
 	onHide: function() {
-        cordova.plugins.camerapreview.hide();
-    },
+		cordova.plugins.camerapreview.hide();
+	},
 	
-    // deviceready Event Handler   
-    onDeviceReady: function() {	
-       
-    }
+	// deviceready Event Handler   
+	onDeviceReady: function() {	
+	}
 };
 
 app.initialize();

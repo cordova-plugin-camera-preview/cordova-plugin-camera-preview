@@ -26,11 +26,36 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
 - (BOOL)disablesAutomaticKeyboardDismissal {
     return NO;
 }
-
+- (void)addInterations {
+    
+    if(self.dragEnabled){
+        //add drag action listener
+        UIPanGestureRecognizer *drag = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panPiece:)];
+        [self.view addGestureRecognizer:drag];
+    }
+    
+    if(self.tapToTakePicture){
+        NSLog(@"tapToTakePicture");
+        //tap to take picture
+        UITapGestureRecognizer *takePictureTap =
+        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTakePictureTap:)];
+        [self.view addGestureRecognizer:takePictureTap];
+    }
+    
+    if(self.dragEnabled || self.tapToTakePicture){
+       self.view.userInteractionEnabled = YES;
+    }
+    else{
+        self.view.userInteractionEnabled = NO;
+    }
+}
+-(void) handleTakePictureTap:(UITapGestureRecognizer*)recognizer {
+    NSLog(@"handleTakePictureTap");
+    [self.delegate didTookPictureAction];
+}
 - (void)viewDidLoad{
     [super viewDidLoad];
-    self.view.userInteractionEnabled = NO;
-    self.view.superview.userInteractionEnabled = NO;
+
     self.view.backgroundColor = [UIColor clearColor];
     
     // Create the AVCaptureSession
@@ -52,6 +77,7 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
         NSError *error = nil;
         
 		// Initial camera face
+         NSLog(@"defaultCamera: %@", self.defaultCamera);
 		AVCaptureDevicePosition position = AVCaptureDevicePositionUnspecified;
         if ([self.defaultCamera  isEqual: @"front"]){
             position = AVCaptureDevicePositionFront;
@@ -96,6 +122,44 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 }
 
+- (void)panPiece:(UIPanGestureRecognizer *)gestureRecognizer{
+    
+    UIView *piece = [gestureRecognizer view];
+
+    [self adjustAnchorPointForGestureRecognizer:gestureRecognizer];
+
+    if ([gestureRecognizer state] == UIGestureRecognizerStateBegan || [gestureRecognizer state] == UIGestureRecognizerStateChanged) {
+        
+        CGPoint translation = [gestureRecognizer translationInView:[piece superview]];
+
+        [piece setCenter:CGPointMake([piece center].x + translation.x, [piece center].y + translation.y)];
+        
+        [gestureRecognizer setTranslation:CGPointZero inView:[piece superview]];
+        
+    }
+    
+}
+- (void)adjustAnchorPointForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+
+{
+    
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        
+        UIView *piece = gestureRecognizer.view;
+        
+        CGPoint locationInView = [gestureRecognizer locationInView:piece];
+        
+        CGPoint locationInSuperview = [gestureRecognizer locationInView:piece.superview];
+        
+        
+        
+        piece.layer.anchorPoint = CGPointMake(locationInView.x / piece.bounds.size.width, locationInView.y / piece.bounds.size.height);
+        
+        piece.center = locationInSuperview;
+        
+    }
+    
+}
 - (void)viewDidDisappear:(BOOL)animated {
     
     dispatch_async([self sessionQueue], ^{
@@ -204,6 +268,7 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
 				
 				//final picture callback
                 UIImage *finalPicture = [self imageWithView:self.finalImageView];
+                [self.libraryImageView setImage:NULL];
                 
                 ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
                 
@@ -368,6 +433,7 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
 }
 -(void) stopCamera {
     [self dismissViewControllerAnimated:NO completion:nil];
+    [self.view removeFromSuperview];
 }
 
 -(void) switchCamera {

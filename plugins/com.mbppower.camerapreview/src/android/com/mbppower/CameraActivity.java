@@ -15,8 +15,10 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -43,7 +45,9 @@ public class CameraActivity extends Fragment {
 
 	private CameraPreviewListener eventListener;
 	private static final String TAG = "CameraActivity";
-	private FrameLayout mainLayout;
+	public FrameLayout mainLayout;
+	public FrameLayout frameContainerLayout;
+
     private Preview mPreview;
 	private boolean canTakePicture = true;
 
@@ -55,6 +59,14 @@ public class CameraActivity extends Fragment {
     // The first rear facing camera
     private int defaultCameraId;
 	public String defaultCamera;
+	public boolean tapToTakePicture;
+	public boolean dragEnabled;
+
+	public int width;
+	public int height;
+	public int x;
+	public int y;
+
 	public void setEventListener(CameraPreviewListener listener){
 		eventListener = listener;
 	}
@@ -75,16 +87,100 @@ public class CameraActivity extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+	public void setRect(int x, int y, int width, int height){
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+	}
 
 	private void createCameraPreview(){
         if(mPreview == null) {
-            
-
             setDefaultCameraId();
 
-            mPreview = new Preview(getActivity());
-            mainLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("video_view", "id", appResourcesPackage));
-            mainLayout.addView(mPreview);
+	        //set box position and size
+	        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+	        layoutParams.setMargins(x, y, 0, 0);
+	        frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
+	        frameContainerLayout.setLayoutParams(layoutParams);
+
+	        //video view
+	        mPreview = new Preview(getActivity());
+	        mainLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("video_view", "id", appResourcesPackage));
+	        mainLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+	        mainLayout.addView(mPreview);
+	        mainLayout.setEnabled(false);
+
+	        final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
+
+	        getActivity().runOnUiThread(new Runnable() {
+		        @Override
+		        public void run() {
+			        frameContainerLayout.setOnTouchListener(new View.OnTouchListener() {
+
+				        private int mLastTouchX;
+				        private int mLastTouchY;
+				        private int mPosX = 0;
+				        private int mPosY = 0;
+
+				        @Override
+				        public boolean onTouch(View v, MotionEvent event) {
+					        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) frameContainerLayout.getLayoutParams();
+
+					        boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
+					        if (isSingleTapTouch) {
+						        if (tapToTakePicture) {
+							        takePicture();
+						        }
+						        return true;
+					        }
+					        else {
+						        if (dragEnabled) {
+							        int x;
+							        int y;
+
+							        switch (event.getAction()) {
+								        case MotionEvent.ACTION_DOWN:
+											if(mLastTouchX == 0 || mLastTouchY == 0) {
+												mLastTouchX = (int)event.getRawX() - layoutParams.leftMargin;
+												mLastTouchY = (int)event.getRawY() - layoutParams.topMargin;
+											}
+									        else{
+												mLastTouchX = (int)event.getRawX();
+												mLastTouchY = (int)event.getRawY();
+											}
+									        break;
+								        case MotionEvent.ACTION_MOVE:
+
+									        x = (int) event.getRawX();
+									        y = (int) event.getRawY();
+
+									        final float dx = x - mLastTouchX;
+									        final float dy = y - mLastTouchY;
+
+									        mPosX += dx;
+									        mPosY += dy;
+
+									        layoutParams.leftMargin = mPosX;
+									        layoutParams.topMargin = mPosY;
+
+									        frameContainerLayout.setLayoutParams(layoutParams);
+
+									        // Remember this touch position for the next move event
+									        mLastTouchX = x;
+									        mLastTouchY = y;
+
+									        break;
+								        default:
+									        break;
+							        }
+						        }
+					        }
+					        return true;
+				        }
+			        });
+		        }
+	        });
         }
     }
 	
@@ -586,7 +682,12 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         }
     }
 }
-
+class TapGestureDetector extends GestureDetector.SimpleOnGestureListener{
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		return true;
+	}
+}
 class CustomSurfaceView extends SurfaceView implements SurfaceHolder.Callback{
     private final String TAG = "CustomSurfaceView";
 

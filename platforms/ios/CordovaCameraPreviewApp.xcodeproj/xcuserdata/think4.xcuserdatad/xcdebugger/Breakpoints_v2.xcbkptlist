@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CordovaCameraPreviewApp/Plugins/com.mbppower.camerapreview/CameraViewController.m"
+            timestampString = "443021213.954104"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "163"
+            endingLineNumber = "163"
+            landmarkName = "-viewDidDisappear:"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[CameraViewController viewDidDisappear:]"
+                  moduleName = "CordovaCameraPreviewApp"
+                  urlString = "file:///Volumes/svn/CordovaCameraPreviewApp/platforms/ios/CordovaCameraPreviewApp/Plugins/com.mbppower.camerapreview/CameraViewController.m"
+                  timestampString = "443017675.074144"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "160"
+                  endingLineNumber = "160"
+                  offsetFromSymbolStart = "27">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__41-[CameraViewController viewDidDisappear:]_block_invoke"
+                  moduleName = "CordovaCameraPreviewApp"
+                  urlString = "file:///Volumes/svn/CordovaCameraPreviewApp/platforms/ios/CordovaCameraPreviewApp/Plugins/com.mbppower.camerapreview/CameraViewController.m"
+                  timestampString = "443017675.074391"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "160"
+                  endingLineNumber = "160"
+                  offsetFromSymbolStart = "12">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

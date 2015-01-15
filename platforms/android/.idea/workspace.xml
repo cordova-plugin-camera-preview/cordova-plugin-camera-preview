@@ -15,7 +15,7 @@
     </layouts>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="CameraActivity" />
+    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="cordova" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ef6741fa-81ef-426b-9205-55ac2556a4fa" name="Default" comment="" />
@@ -48,7 +48,7 @@
       <file leaf-file-name="AndroidManifest.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.60714287" vertical-offset="0" max-vertical-offset="425">
+            <state vertical-scroll-proportion="0.0" vertical-offset="17" max-vertical-offset="425">
               <caret line="1" column="104" selection-start-line="1" selection-start-column="97" selection-end-line="1" selection-end-column="104" />
               <folding />
             </state>
@@ -58,44 +58,82 @@
       <file leaf-file-name="CameraPreview.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraPreview.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3264">
-              <caret line="14" column="25" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
-              <folding>
-                <element signature="e#2425#3427#0" expanded="true" />
-                <element signature="e#3416#3417#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="camera_theme.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/res/values/camera_theme.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="255">
-              <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CameraActivity.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.071278825" vertical-offset="816" max-vertical-offset="9996">
-              <caret line="50" column="27" selection-start-line="50" selection-start-column="27" selection-end-line="50" selection-end-column="27" />
+            <state vertical-scroll-proportion="-14.857142" vertical-offset="2644" max-vertical-offset="3247">
+              <caret line="180" column="47" selection-start-line="180" selection-start-column="8" selection-end-line="180" selection-end-column="47" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#2433#4316#0" expanded="true" />
+                <element signature="e#4305#4306#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CordovaApp.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/my/sample/app/CordovaApp.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="391">
-              <caret line="19" column="21" selection-start-line="19" selection-start-column="8" selection-end-line="19" selection-end-column="21" />
+      <file leaf-file-name="camera_activity.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/res/layout/camera_activity.xml">
+          <provider selected="true" editor-type-id="android-designer">
+            <state />
+          </provider>
+          <provider editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-10.928572" vertical-offset="0" max-vertical-offset="1275">
+              <caret line="18" column="24" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="24" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CameraActivity.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-12.571428" vertical-offset="3898" max-vertical-offset="4420">
+              <caret line="686" column="32" selection-start-line="686" selection-start-column="32" selection-end-line="686" selection-end-column="32" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#1969#1970#0" expanded="true" />
+                <element signature="e#2000#2001#0" expanded="true" />
+                <element signature="e#2505#2506#0" expanded="true" />
+                <element signature="e#2555#2556#0" expanded="true" />
+                <element signature="e#3779#5887#0" expanded="true" />
+                <element signature="e#5875#5876#0" expanded="true" />
+                <element signature="method#setDefaultCameraId#0;class#CameraActivity#0" expanded="false" />
+                <element signature="method#onResume#0;class#CameraActivity#0" expanded="false" />
+                <element signature="e#7071#7972#0" expanded="true" />
+                <element signature="e#7957#7958#0" expanded="true" />
+                <element signature="method#switchCamera#0;class#CameraActivity#0" expanded="false" />
+                <element signature="method#cropBitmap#0;class#CameraActivity#0" expanded="false" />
+                <element signature="method#takePicture#0;class#CameraActivity#0" expanded="false" />
+                <element signature="e#9981#11540#0" expanded="true" />
+                <element signature="e#10106#11520#0" expanded="true" />
+                <element signature="e#11228#11503#0" expanded="true" />
+                <element signature="e#11493#11494#0" expanded="true" />
+                <element signature="e#11512#11513#0" expanded="true" />
+                <element signature="e#11534#11535#0" expanded="true" />
+                <element signature="method#generatePictureFromView#0;class#CameraActivity#0" expanded="false" />
+                <element signature="e#11996#13056#0" expanded="true" />
+                <element signature="e#12646#12835#0" expanded="true" />
+                <element signature="e#12824#12825#0" expanded="true" />
+                <element signature="e#13048#13049#0" expanded="true" />
+                <element signature="method#storeImage#0;class#CameraActivity#0" expanded="false" />
+                <element signature="method#calculateInSampleSize#0;class#CameraActivity#0" expanded="false" />
+                <element signature="method#loadBitmapFromView#0;class#CameraActivity#0" expanded="false" />
+                <element signature="e#15518#15519#0" expanded="true" />
+                <element signature="e#15551#15552#0" expanded="true" />
+                <element signature="class#Preview#0" expanded="false" />
+                <element signature="method#setCamera#0;class#Preview#0" expanded="false" />
+                <element signature="method#getDisplayOrientation#0;class#Preview#0" expanded="false" />
+                <element signature="method#onMeasure#0;class#Preview#0" expanded="false" />
+                <element signature="method#onLayout#0;class#Preview#0" expanded="false" />
+                <element signature="method#surfaceCreated#0;class#Preview#0" expanded="false" />
+                <element signature="method#surfaceDestroyed#0;class#Preview#0" expanded="false" />
+                <element signature="method#getOptimalPreviewSize#0;class#Preview#0" expanded="false" />
+                <element signature="method#surfaceChanged#0;class#Preview#0" expanded="false" />
+                <element signature="method#getFramePicture#0;class#Preview#0" expanded="false" />
+                <element signature="e#24006#24007#0" expanded="true" />
+                <element signature="e#24024#24025#0" expanded="true" />
+                <element signature="class#CustomSurfaceView#0" expanded="false" />
+                <element signature="e#24198#24199#0" expanded="true" />
+                <element signature="e#24228#24229#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -122,11 +160,11 @@
         <option value="$PROJECT_DIR$/src/com/mbppower/CameraPreview/CameraPreview.java" />
         <option value="$PROJECT_DIR$/src/com/mbppower/CordovaCameraPreviewApp/CordovaApp.java" />
         <option value="$PROJECT_DIR$/src/com/mbppower/CameraPreview/CameraActivity.java" />
-        <option value="$PROJECT_DIR$/res/layout/camera_activity.xml" />
         <option value="$PROJECT_DIR$/src/my/sample/app/CordovaApp.java" />
         <option value="$PROJECT_DIR$/AndroidManifest.xml" />
-        <option value="$PROJECT_DIR$/src/com/mbppower/CameraActivity.java" />
+        <option value="$PROJECT_DIR$/res/layout/camera_activity.xml" />
         <option value="$PROJECT_DIR$/src/com/mbppower/CameraPreview.java" />
+        <option value="$PROJECT_DIR$/src/com/mbppower/CameraActivity.java" />
       </list>
     </option>
   </component>
@@ -187,6 +225,8 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="AndroidView" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -229,14 +269,30 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mbppower" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Riachuelo" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="android" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="res" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="AndroidView" />
-      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -259,7 +315,7 @@
     <property name="options.searchVisible" value="true" />
     <property name="restartRequiresConfirmation" value="true" />
     <property name="show.migrate.to.gradle.popup" value="false" />
-    <property name="UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager2.WIDTH" value="485" />
+    <property name="UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager2.WIDTH" value="356" />
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
@@ -445,7 +501,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1696" height="1026" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32988507" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -453,7 +509,6 @@
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.26772615" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32988507" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32988507" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3218391" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -461,20 +516,21 @@
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.08735632" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.37241378" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32068965" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3502445" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3502445" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32988507" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Memory Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32988507" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32988507" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -503,15 +559,27 @@
           <properties />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="1" />
+      <option name="time" value="2" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="187" max-vertical-offset="425">
-          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="17" max-vertical-offset="425">
+          <caret line="1" column="104" selection-start-line="1" selection-start-column="97" selection-end-line="1" selection-end-column="104" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraPreview.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="712" max-vertical-offset="2975">
+          <caret line="73" column="23" selection-start-line="73" selection-start-column="23" selection-end-line="73" selection-end-column="23" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -523,13 +591,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
+    <entry file="file://$PROJECT_DIR$/src/my/sample/app/CordovaApp.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3791" max-vertical-offset="9367">
-          <caret line="278" column="11" selection-start-line="278" selection-start-column="11" selection-end-line="278" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.0" vertical-offset="323" max-vertical-offset="697">
+          <caret line="19" column="21" selection-start-line="19" selection-start-column="8" selection-end-line="19" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/my/sample/app/CordovaApp.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="323" max-vertical-offset="697">
+          <caret line="19" column="21" selection-start-line="19" selection-start-column="8" selection-end-line="19" selection-end-column="21" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -549,13 +623,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
+    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4726" max-vertical-offset="10387">
-          <caret line="278" column="11" selection-start-line="278" selection-start-column="11" selection-end-line="278" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.0" vertical-offset="187" max-vertical-offset="425">
+          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/res/values/camera_theme.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="255">
+          <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -564,8 +644,9 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="1122" max-vertical-offset="3009">
           <caret line="102" column="13" selection-start-line="102" selection-start-column="13" selection-end-line="102" selection-end-column="13" />
           <folding>
-            <element signature="e#2425#3427#0" expanded="true" />
-            <element signature="e#3416#3417#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -583,16 +664,6 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="255">
           <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4726" max-vertical-offset="10387">
-          <caret line="278" column="11" selection-start-line="278" selection-start-column="11" selection-end-line="278" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -601,8 +672,9 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="816" max-vertical-offset="2958">
           <caret line="63" column="8" selection-start-line="63" selection-start-column="8" selection-end-line="63" selection-end-column="8" />
           <folding>
-            <element signature="e#2425#3427#0" expanded="true" />
-            <element signature="e#3416#3417#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -620,16 +692,6 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="255">
           <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4726" max-vertical-offset="10234">
-          <caret line="278" column="11" selection-start-line="278" selection-start-column="11" selection-end-line="278" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -638,8 +700,9 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="1700" max-vertical-offset="2839">
           <caret line="63" column="8" selection-start-line="63" selection-start-column="8" selection-end-line="63" selection-end-column="8" />
           <folding>
-            <element signature="e#2425#3427#0" expanded="true" />
-            <element signature="e#3416#3417#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -657,16 +720,6 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="255">
           <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4726" max-vertical-offset="10234">
-          <caret line="278" column="11" selection-start-line="278" selection-start-column="11" selection-end-line="278" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -675,8 +728,9 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="221" max-vertical-offset="2839">
           <caret line="28" column="55" selection-start-line="28" selection-start-column="55" selection-end-line="28" selection-end-column="55" />
           <folding>
-            <element signature="e#2425#3427#0" expanded="true" />
-            <element signature="e#3416#3417#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -694,16 +748,6 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="255">
           <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4726" max-vertical-offset="10234">
-          <caret line="278" column="11" selection-start-line="278" selection-start-column="11" selection-end-line="278" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -712,8 +756,9 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="221" max-vertical-offset="2890">
           <caret line="28" column="55" selection-start-line="28" selection-start-column="55" selection-end-line="28" selection-end-column="55" />
           <folding>
-            <element signature="e#2425#3427#0" expanded="true" />
-            <element signature="e#3416#3417#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -731,16 +776,6 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="255">
           <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4726" max-vertical-offset="10234">
-          <caret line="278" column="11" selection-start-line="278" selection-start-column="11" selection-end-line="278" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -749,8 +784,9 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="221" max-vertical-offset="2839">
           <caret line="28" column="55" selection-start-line="28" selection-start-column="55" selection-end-line="28" selection-end-column="55" />
           <folding>
-            <element signature="e#2425#3427#0" expanded="true" />
-            <element signature="e#3416#3417#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -768,16 +804,6 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="255">
           <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="136" max-vertical-offset="10132">
-          <caret line="8" column="31" selection-start-line="0" selection-start-column="0" selection-end-line="590" selection-end-column="1" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -786,8 +812,9 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="221" max-vertical-offset="2805">
           <caret line="31" column="55" selection-start-line="0" selection-start-column="0" selection-end-line="177" selection-end-column="0" />
           <folding>
-            <element signature="e#2425#3427#0" expanded="true" />
-            <element signature="e#3416#3417#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -808,23 +835,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4519" max-vertical-offset="10608">
-          <caret line="277" column="25" selection-start-line="277" selection-start-column="25" selection-end-line="277" selection-end-column="25" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraPreview.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="476" max-vertical-offset="3111">
           <caret line="28" column="51" selection-start-line="28" selection-start-column="51" selection-end-line="28" selection-end-column="51" />
           <folding>
-            <element signature="e#2425#3427#0" expanded="true" />
-            <element signature="e#3416#3417#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -874,14 +892,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/res/values/camera_theme.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="255">
-          <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CordovaLib/src/org/apache/cordova/CordovaBridge.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.60390764" vertical-offset="289" max-vertical-offset="2788">
@@ -904,15 +914,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/res/layout/camera_activity.xml">
+    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.16957606" vertical-offset="0" max-vertical-offset="1394">
-          <caret line="8" column="56" selection-start-line="8" selection-start-column="42" selection-end-line="8" selection-end-column="56" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="17" max-vertical-offset="425">
+          <caret line="1" column="104" selection-start-line="1" selection-start-column="97" selection-end-line="1" selection-end-column="104" />
           <folding />
         </state>
-      </provider>
-      <provider editor-type-id="android-designer">
-        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/my/sample/app/CordovaApp.java">
@@ -923,32 +930,96 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
+    <entry file="file://$PROJECT_DIR$/res/values/camera_theme.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.60714287" vertical-offset="0" max-vertical-offset="425">
-          <caret line="1" column="104" selection-start-line="1" selection-start-column="97" selection-end-line="1" selection-end-column="104" />
+        <state vertical-scroll-proportion="0.051908396" vertical-offset="0" max-vertical-offset="655">
+          <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraPreview.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3264">
-          <caret line="14" column="25" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
+        <state vertical-scroll-proportion="-14.857142" vertical-offset="2644" max-vertical-offset="3247">
+          <caret line="180" column="47" selection-start-line="180" selection-start-column="8" selection-end-line="180" selection-end-column="47" />
           <folding>
-            <element signature="e#2425#3427#0" expanded="true" />
-            <element signature="e#3416#3417#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2433#4316#0" expanded="true" />
+            <element signature="e#4305#4306#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/../../../../sdks/android-sdks/platforms/android-16/android.jar!/android/view/GestureDetector.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33272728" vertical-offset="378" max-vertical-offset="1377">
+          <caret line="34" column="15" selection-start-line="34" selection-start-column="15" selection-end-line="34" selection-end-column="15" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/mbppower/CameraActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.071278825" vertical-offset="816" max-vertical-offset="9996">
-          <caret line="50" column="27" selection-start-line="50" selection-start-column="27" selection-end-line="50" selection-end-column="27" />
+        <state vertical-scroll-proportion="-12.571428" vertical-offset="3898" max-vertical-offset="4420">
+          <caret line="686" column="32" selection-start-line="686" selection-start-column="32" selection-end-line="686" selection-end-column="32" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1969#1970#0" expanded="true" />
+            <element signature="e#2000#2001#0" expanded="true" />
+            <element signature="e#2505#2506#0" expanded="true" />
+            <element signature="e#2555#2556#0" expanded="true" />
+            <element signature="e#3779#5887#0" expanded="true" />
+            <element signature="e#5875#5876#0" expanded="true" />
+            <element signature="method#setDefaultCameraId#0;class#CameraActivity#0" expanded="false" />
+            <element signature="method#onResume#0;class#CameraActivity#0" expanded="false" />
+            <element signature="e#7071#7972#0" expanded="true" />
+            <element signature="e#7957#7958#0" expanded="true" />
+            <element signature="method#switchCamera#0;class#CameraActivity#0" expanded="false" />
+            <element signature="method#cropBitmap#0;class#CameraActivity#0" expanded="false" />
+            <element signature="method#takePicture#0;class#CameraActivity#0" expanded="false" />
+            <element signature="e#9981#11540#0" expanded="true" />
+            <element signature="e#10106#11520#0" expanded="true" />
+            <element signature="e#11228#11503#0" expanded="true" />
+            <element signature="e#11493#11494#0" expanded="true" />
+            <element signature="e#11512#11513#0" expanded="true" />
+            <element signature="e#11534#11535#0" expanded="true" />
+            <element signature="method#generatePictureFromView#0;class#CameraActivity#0" expanded="false" />
+            <element signature="e#11996#13056#0" expanded="true" />
+            <element signature="e#12646#12835#0" expanded="true" />
+            <element signature="e#12824#12825#0" expanded="true" />
+            <element signature="e#13048#13049#0" expanded="true" />
+            <element signature="method#storeImage#0;class#CameraActivity#0" expanded="false" />
+            <element signature="method#calculateInSampleSize#0;class#CameraActivity#0" expanded="false" />
+            <element signature="method#loadBitmapFromView#0;class#CameraActivity#0" expanded="false" />
+            <element signature="e#15518#15519#0" expanded="true" />
+            <element signature="e#15551#15552#0" expanded="true" />
+            <element signature="class#Preview#0" expanded="false" />
+            <element signature="method#setCamera#0;class#Preview#0" expanded="false" />
+            <element signature="method#getDisplayOrientation#0;class#Preview#0" expanded="false" />
+            <element signature="method#onMeasure#0;class#Preview#0" expanded="false" />
+            <element signature="method#onLayout#0;class#Preview#0" expanded="false" />
+            <element signature="method#surfaceCreated#0;class#Preview#0" expanded="false" />
+            <element signature="method#surfaceDestroyed#0;class#Preview#0" expanded="false" />
+            <element signature="method#getOptimalPreviewSize#0;class#Preview#0" expanded="false" />
+            <element signature="method#surfaceChanged#0;class#Preview#0" expanded="false" />
+            <element signature="method#getFramePicture#0;class#Preview#0" expanded="false" />
+            <element signature="e#24006#24007#0" expanded="true" />
+            <element signature="e#24024#24025#0" expanded="true" />
+            <element signature="class#CustomSurfaceView#0" expanded="false" />
+            <element signature="e#24198#24199#0" expanded="true" />
+            <element signature="e#24228#24229#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/res/layout/camera_activity.xml">
+      <provider selected="true" editor-type-id="android-designer">
+        <state />
+      </provider>
+      <provider editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.928572" vertical-offset="0" max-vertical-offset="1275">
+          <caret line="18" column="24" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="24" />
+          <folding />
         </state>
       </provider>
     </entry>

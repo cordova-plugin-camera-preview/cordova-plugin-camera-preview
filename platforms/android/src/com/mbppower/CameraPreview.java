@@ -1,5 +1,14 @@
 package com.mbppower;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.graphics.Color;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
@@ -7,22 +16,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Context;
-import android.content.Intent;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.View;
-import android.view.Window;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
 	private final String TAG = "CameraPreview";
-	private final String bindListenerAction = "bindListener";
+	private final String setOnPictureTakenHandlerAction = "setOnPictureTakenHandler";
 	private final String startCameraAction = "startCamera";
 	private final String stopCameraAction = "stopCamera";
 	private final String switchCameraAction = "switchCamera";
@@ -32,8 +29,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
 	private CameraActivity fragment;
 	private CallbackContext takePictureCallbackContext;
-	private CallbackContext listenerCallbackContext;
-
+	private int containerViewId = 1;
 	public CameraPreview(){
 		super();
 		Log.d(TAG, "Constructing");
@@ -42,8 +38,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
-    	if (bindListenerAction.equals(action)){
-    		return bindListener(args, callbackContext);
+    	if (setOnPictureTakenHandlerAction.equals(action)){
+    		return setOnPictureTakenHandler(args, callbackContext);
     	}
         else if (startCameraAction.equals(action)){
     		return startCamera(args, callbackContext);
@@ -78,7 +74,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
             @Override
             public void run() {
 
-	            FrameLayout containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
 				try {
 					DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
 					int x = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(0), metrics);
@@ -86,15 +81,25 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(2), metrics);
 					int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(3), metrics);
 					String defaultCamera = args.getString(4);
+					Boolean tapToTakePicture = args.getBoolean(5);
+					Boolean dragEnabled = args.getBoolean(6);
 					
 					fragment.defaultCamera = defaultCamera;
-					
-					FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
-					layoutParams.setMargins(x, y, 0, 0);
+					fragment.tapToTakePicture = tapToTakePicture;
+					fragment.dragEnabled = dragEnabled;
+					fragment.setRect(x, y, width, height);
 
-					cordova.getActivity().addContentView(containerView, layoutParams);
-					containerView.setId(666);
+					//create or update the layout params for the container view
+					FrameLayout containerView = (FrameLayout)cordova.getActivity().findViewById(containerViewId);
+					if(containerView == null){
+						containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
+						containerView.setId(containerViewId);
 
+						FrameLayout.LayoutParams containerLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+						cordova.getActivity().addContentView(containerView, containerLayoutParams);
+					}
+
+					//add the fragment to the container
 					FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
 					FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 					fragmentTransaction.add(containerView.getId(), fragment);
@@ -111,13 +116,13 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 		if(fragment == null){
 			return false;
 		}
-		takePictureCallbackContext = callbackContext;
 		PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
 		pluginResult.setKeepCallback(true);
 		callbackContext.sendPluginResult(pluginResult);
 		fragment.takePicture();
 		return true;
 	}
+
 	public void onPictureTaken(String originalPicturePath, String previewPicturePath){
 		JSONArray data = new JSONArray();
 		data.put(originalPicturePath).put(previewPicturePath);
@@ -130,6 +135,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 		if(fragment == null){
 			return false;
 		}
+
 		FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 		fragmentTransaction.remove(fragment);
@@ -171,19 +177,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 		return true;
 	}
 
-    private boolean bindListener(JSONArray args, CallbackContext callbackContext) {
-    	Log.d(TAG, "bindListener");
-    	listenerCallbackContext = callbackContext;
-    	PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-    	pluginResult.setKeepCallback(true);
-    	callbackContext.sendPluginResult(pluginResult);
+    private boolean setOnPictureTakenHandler(JSONArray args, CallbackContext callbackContext) {
+    	Log.d(TAG, "setOnPictureTakenHandler");
+	    takePictureCallbackContext = callbackContext;
     	return true;
 	}
-
-    public void reportEvent(JSONObject eventData){
-    	Log.d(TAG, "reportEvent");
-    	PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, eventData);
-    	pluginResult.setKeepCallback(true);
-    	listenerCallbackContext.sendPluginResult(pluginResult);
-    }
 }
