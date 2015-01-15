@@ -26,24 +26,26 @@ var app = {
 	// Bind any events that are required on startup. Common events are:
 	// 'load', 'deviceready', 'offline', and 'online'.
 	bindEvents: function() {
-		document.addEventListener('deviceready', this.onDeviceReady, false);
 		document.getElementById('startCameraButton').addEventListener('mousedown', this.onStartCamera, false);
+		document.getElementById('startCameraAnotherPosButton').addEventListener('mousedown', this.onStartCameraAnotherPos, false);
+		
 		document.getElementById('stopCameraButton').addEventListener('mousedown', this.onStopCamera, false);
 		document.getElementById('takePictureButton').addEventListener('mousedown', this.onTakePicture, false);
 		document.getElementById('switchCameraButton').addEventListener('mousedown', this.onSwitchCamera, false);
 		document.getElementById('showButton').addEventListener('mousedown', this.onShow, false);
 		document.getElementById('hideButton').addEventListener('mousedown', this.onHide, false);
 		window.addEventListener('orientationchange', this.onStopCamera, false);
+		document.addEventListener('deviceready', this.onDeviceReady, false);
 	},
 	onStartCamera: function() {
-		cordova.plugins.camerapreview.setOnPictureTakenHandler(function(result){
-			document.getElementById('originalPicture').src = result[0];//originalPicturePath;
-			document.getElementById('previewPicture').src = result[1];//previewPicturePath;
-            alert("originalPicturePath:" + result[0] + " - previewPicturePath:" + result[1]);
-		});
 		var tapEnabled = true;
-		var dragEnabled = false;
+		var dragEnabled = true;
 		cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 300, height:300}, "front", tapEnabled, dragEnabled);
+	},
+	onStartCameraAnotherPos: function() {
+		var tapEnabled = true;
+		var dragEnabled = true;
+		cordova.plugins.camerapreview.startCamera({x: 200, y: 0, width: 100, height:150}, "front", tapEnabled, dragEnabled);
 	},
 	onStopCamera: function() {
 		cordova.plugins.camerapreview.stopCamera();
@@ -63,6 +65,12 @@ var app = {
 	
 	// deviceready Event Handler   
 	onDeviceReady: function() {	
+		//on picture
+		cordova.plugins.camerapreview.setOnPictureTakenHandler(function(result){
+			document.getElementById('originalPicture').src = result[0];//originalPicturePath;
+			document.getElementById('previewPicture').src = result[1];//previewPicturePath;
+		});
+		
 	}
 };
 
