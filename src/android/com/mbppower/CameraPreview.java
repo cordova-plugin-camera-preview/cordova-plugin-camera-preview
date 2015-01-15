@@ -1,24 +1,19 @@
 package com.mbppower;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.hardware.Camera;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
+import android.widget.FrameLayout;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Context;
-import android.content.Intent;
-import android.hardware.Camera;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.View;
-import android.view.Window;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
@@ -35,7 +30,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	private CameraActivity fragment;
 	private CallbackContext takePictureCallbackContext;
 	private CallbackContext listenerCallbackContext;
-
+	private int containerViewId = 1;
 	public CameraPreview(){
 		super();
 		Log.d(TAG, "Constructing");
@@ -83,7 +78,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
             @Override
             public void run() {
 
-	            FrameLayout containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
 				try {
 					DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
 					int x = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(0), metrics);
@@ -97,9 +91,18 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
 					layoutParams.setMargins(x, y, 0, 0);
 
-					cordova.getActivity().addContentView(containerView, layoutParams);
-					containerView.setId(666);
+					//create or update the layout params for the container view
+					FrameLayout containerView = (FrameLayout)cordova.getActivity().findViewById(containerViewId);
+					if(containerView == null){
+						containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
+						containerView.setId(containerViewId);
+						cordova.getActivity().addContentView(containerView, layoutParams);
+					}
+					else{
+						containerView.setLayoutParams(layoutParams);
+					}
 
+					//add the fragment to the container
 					FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
 					FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 					fragmentTransaction.add(containerView.getId(), fragment);
@@ -178,6 +181,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 		if(fragment == null){
 			return false;
 		}
+
 		FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 		fragmentTransaction.remove(fragment);
