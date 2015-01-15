@@ -7,6 +7,7 @@ Show camera preview popup on top of the HTML.<br/>
 <p><b>Features:</b></p>
 <ul>
   <li>Start a camera preview from HTML code.</li>
+  <li>Drag the preview box.</li>
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Maintain HTML interactivity.</li>
@@ -36,7 +37,7 @@ Show camera preview popup on top of the HTML.<br/>
 </p>
 <p>
   <b>takePicture()</b><br/>
-  <info>Tells the device camera take the picture</info><br/>
+  <info>Take the picture</info><br/>
   <i>Usage:</i><br/>
   <code>cordova.plugins.camerapreview.takePicture();</code>
 </p>
