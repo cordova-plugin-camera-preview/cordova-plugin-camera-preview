@@ -2,7 +2,7 @@
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     id="com.mbppower.camerapreview"
-    version="0.0.5">
+    version="0.0.6">
     <name>CameraPreview</name>
     <description>Cordova plugin that allows camera interaction from HTML code. Show camera preview popup on top of the HTML.</description>
     <license>Apache 2.0</license>

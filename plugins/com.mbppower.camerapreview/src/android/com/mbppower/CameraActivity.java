@@ -29,6 +29,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import org.apache.cordova.LOG;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -116,6 +118,7 @@ public class CameraActivity extends Fragment {
 	        getActivity().runOnUiThread(new Runnable() {
 		        @Override
 		        public void run() {
+			        frameContainerLayout.setClickable(true);
 			        frameContainerLayout.setOnTouchListener(new View.OnTouchListener() {
 
 				        private int mLastTouchX;
@@ -127,8 +130,9 @@ public class CameraActivity extends Fragment {
 				        public boolean onTouch(View v, MotionEvent event) {
 					        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) frameContainerLayout.getLayoutParams();
 
+
 					        boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
-					        if (isSingleTapTouch) {
+					        if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
 						        if (tapToTakePicture) {
 							        takePicture();
 						        }
@@ -220,7 +224,7 @@ public class CameraActivity extends Fragment {
                 public void onGlobalLayout() {
                     frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                     frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                    int size = Math.min(frameContainerLayout.getHeight(), frameContainerLayout.getWidth());
+                    int size = Math.max(frameContainerLayout.getHeight(), frameContainerLayout.getWidth());
                     final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
 
                     FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(size, size);
@@ -555,6 +559,8 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
                 previewWidth = mPreviewSize.width;
                 previewHeight = mPreviewSize.height;
 
+	            LOG.d(TAG, "previewWidth:" + previewWidth + " previewHeight:" + previewHeight);
+
                 if(orientation == 90 || orientation == 270) {
                     previewWidth = mPreviewSize.height;
                     previewHeight = mPreviewSize.width;
@@ -566,7 +572,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             int top;
             int left;
 
-            float scale = 1.0f;//((float)previewHeight/(float)height);
+            float scale = ((float)previewHeight/(float)height);
 
             // Center the child SurfaceView within the parent.
             if (width * previewHeight < height * previewWidth) {
@@ -683,8 +689,19 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     }
 }
 class TapGestureDetector extends GestureDetector.SimpleOnGestureListener{
+
+	@Override
+	public boolean onDown(MotionEvent e) {
+		return false;
+	}
+
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
+		return true;
+	}
+
+	@Override
+	public boolean onSingleTapConfirmed(MotionEvent e) {
 		return true;
 	}
 }

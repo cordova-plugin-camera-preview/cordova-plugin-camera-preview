@@ -7,6 +7,7 @@ Show camera preview popup on top of the HTML.<br/>
 <p><b>Features:</b></p>
 <ul>
   <li>Start a camera preview from HTML code.</li>
+  <li>Drag the preview box.</li>
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Maintain HTML interactivity.</li>
@@ -19,10 +20,14 @@ Show camera preview popup on top of the HTML.<br/>
 <p><b>Methods:</b></p>
 
 <p>
-  <b>startCamera(rect, defaultCamera)</b><br/>
+  <b>startCamera(rect, defaultCamera, tapEnabled, dragEnabled)</b><br/>
   <info>Starts the camera preview instance.</info><br/>
   <i>Usage:</i><br/>
-  <code>cordova.plugins.camerapreview.startCamera({x: 400, y: 500, width: 300, height:300}, "front");</code>
+  <pre><code>
+  		var tapEnabled = true; //enable tap take picture
+		var dragEnabled = true; //enable preview box drag across the screen
+  		cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 200, height:200}, "front", tapEnabled, dragEnabled);
+	</code></pre>
 </p>
 <p>
   <b>stopCamera()</b><br/>
@@ -31,14 +36,20 @@ Show camera preview popup on top of the HTML.<br/>
   <code>cordova.plugins.camerapreview.stopCamera();</code>
 </p>
 <p>
-  <b>takePicture(callback)</b><br/>
-  <info>Returns the original picture and the image captured from the preview box.</info><br/>
+  <b>takePicture()</b><br/>
+  <info>Take the picture</info><br/>
+  <i>Usage:</i><br/>
+  <code>cordova.plugins.camerapreview.takePicture();</code>
+</p>
+<p>
+  <b>setOnPictureTakenHandler(callback)</b><br/>
+  <info>Register a callback function that receives the original picture and the image captured from the preview box.</info><br/>
   <i>Usage:</i><br/>
   <pre><code>
-  cordova.plugins.camerapreview.takePicture(function onPictureTaken(result){
-  	var originalPicturePath = result[0];
-  	var previewPicturePath = result[1];
-  });</code>
+  	cordova.plugins.camerapreview.setOnPictureTakenHandler(function(result){
+		document.getElementById('originalPicture').src = result[0];//originalPicturePath;
+		document.getElementById('previewPicture').src = result[1];//previewPicturePath;
+	});</code>
   </pre>
 </p>
 <p>
