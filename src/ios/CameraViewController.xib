@@ -9,7 +9,6 @@
             <connections>
                 <outlet property="finalImageView" destination="jEc-S8-yax" id="9WA-IK-GIm"/>
                 <outlet property="libraryImageView" destination="EPf-eg-elK" id="RdV-kG-RBm"/>
-                <outlet property="overlayFrameImageView" destination="SZd-f7-lu1" id="eLF-5g-UoM"/>
                 <outlet property="previewView" destination="cVE-9M-0eX" id="tSK-30-qHe"/>
                 <outlet property="view" destination="6TQ-Ci-LCi" id="gJP-aY-rzQ"/>
             </connections>
@@ -32,10 +31,6 @@
                             <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                        </imageView>
-                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" id="SZd-f7-lu1" userLabel="Frame">
-                            <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         </imageView>
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>

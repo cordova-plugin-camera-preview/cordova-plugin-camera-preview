@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="vertical" android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:gravity="fill|bottom|left|right|top"
-              android:weightSum="1"
-              tools:context="com.mbppower.CameraActivity"
-              android:baselineAligned="false"
-              android:background="#00000000">
-
     <FrameLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.mbppower.CameraActivity"
         android:id="@+id/frame_container"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_gravity="center_horizontal|top"
         android:layout_weight=".7">
 
@@ -25,8 +17,8 @@
             android:layout_gravity="center_horizontal|top">
 
             <FrameLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:id="@+id/video_view"
                 android:scaleType="fitXY"
                 android:layout_gravity="top"></FrameLayout>
@@ -74,4 +66,4 @@
         </FrameLayout>
     </FrameLayout>
 
-</LinearLayout>
+

@@ -3,8 +3,8 @@
 #import <Cordova/CDVInvokedUrlCommand.h>
 #import "CameraViewController.h"
 
-@interface CameraPreview : CDVPlugin
+@interface CameraPreview : CDVPlugin <CameraViewDelegate>
 
--(void)reportEvent:(NSDictionary*)eventData;
+    -(void)reportEvent:(NSDictionary*)eventData;
 	@property (nonatomic, strong) CameraViewController* cameraViewController;
 @end
