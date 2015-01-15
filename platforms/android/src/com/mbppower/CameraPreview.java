@@ -2,7 +2,7 @@ package com.mbppower;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.graphics.Color;
+import android.hardware.Camera;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -20,6 +20,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
 	private final String TAG = "CameraPreview";
 	private final String setOnPictureTakenHandlerAction = "setOnPictureTakenHandler";
+	private final String setColorEffectAction = "setColorEffect";
 	private final String startCameraAction = "startCamera";
 	private final String stopCameraAction = "stopCamera";
 	private final String switchCameraAction = "switchCamera";
@@ -46,6 +47,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     	}
 	    else if (takePictureAction.equals(action)){
 		    return takePicture(args, callbackContext);
+	    }
+	    else if (setColorEffectAction.equals(action)){
+	      return setColorEffect(args, callbackContext);
 	    }
 	    else if (stopCameraAction.equals(action)){
 		    return stopCamera(args, callbackContext);
@@ -129,6 +133,49 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 		PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
 		pluginResult.setKeepCallback(true);
 		takePictureCallbackContext.sendPluginResult(pluginResult);
+	}
+
+	private boolean setColorEffect(final JSONArray args, CallbackContext callbackContext) {
+	  if(fragment == null){
+	    return false;
+	  }
+
+    Camera camera = fragment.getCamera();
+    if (camera == null){
+      return true;
+    }
+
+    Camera.Parameters params = camera.getParameters();    
+
+    try {
+      String effect = args.getString(0);
+
+      if (effect.equals("aqua")) {
+        params.setColorEffect(Camera.Parameters.EFFECT_AQUA);
+      } else if (effect.equals("blackboard")) {
+        params.setColorEffect(Camera.Parameters.EFFECT_BLACKBOARD);
+      } else if (effect.equals("mono")) {
+        params.setColorEffect(Camera.Parameters.EFFECT_MONO);
+      } else if (effect.equals("negative")) {
+        params.setColorEffect(Camera.Parameters.EFFECT_NEGATIVE);
+      } else if (effect.equals("none")) {
+        params.setColorEffect(Camera.Parameters.EFFECT_NONE);
+      } else if (effect.equals("posterize")) {
+        params.setColorEffect(Camera.Parameters.EFFECT_POSTERIZE);
+      } else if (effect.equals("sepia")) {
+        params.setColorEffect(Camera.Parameters.EFFECT_SEPIA);
+      } else if (effect.equals("solarize")) {
+        params.setColorEffect(Camera.Parameters.EFFECT_SOLARIZE);
+      } else if (effect.equals("whiteboard")) {
+        params.setColorEffect(Camera.Parameters.EFFECT_WHITEBOARD);
+      }
+
+  	  fragment.setCameraParameters(params);
+	    return true;
+    } catch(Exception e) {
+      e.printStackTrace();
+      return false;
+    }
 	}
 
 	private boolean stopCamera(final JSONArray args, CallbackContext callbackContext) {

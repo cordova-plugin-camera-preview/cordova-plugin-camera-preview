@@ -24,6 +24,10 @@ CameraPreview.takePicture = function() {
 	exec(null, null, PLUGIN_NAME, "takePicture", []);
 };
 
+CameraPreview.setColorEffect = function(effect) {
+  exec(null, null, PLUGIN_NAME, "setColorEffect", [effect]);
+};
+
 CameraPreview.switchCamera = function() {
 	exec(null, null, PLUGIN_NAME, "switchCamera", []);
 };
@@ -41,4 +45,5 @@ CameraPreview.disable = function(disable) {
 };
 
 module.exports = CameraPreview;
+
 });

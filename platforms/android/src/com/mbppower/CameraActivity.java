@@ -54,6 +54,7 @@ public class CameraActivity extends Fragment {
 	private boolean canTakePicture = true;
 
 	private View view;
+	private Camera.Parameters cameraParameters;
 	private Camera mCamera;
 	private int numberOfCameras;
 	private int cameraCurrentlyLocked;
@@ -211,6 +212,11 @@ public class CameraActivity extends Fragment {
         super.onResume();
 
         mCamera = Camera.open(defaultCameraId);
+
+        if (cameraParameters != null) {
+          mCamera.setParameters(cameraParameters);
+        }
+
         cameraCurrentlyLocked = defaultCameraId;
         mPreview.setCamera(mCamera);
 
@@ -248,6 +254,10 @@ public class CameraActivity extends Fragment {
         }
     }
 
+    public Camera getCamera() {
+      return mCamera;
+    }
+
     public void switchCamera() {
         // check for availability of multiple cameras
         if (numberOfCameras == 1) {
@@ -267,6 +277,11 @@ public class CameraActivity extends Fragment {
 		// Acquire the next camera and request Preview to reconfigure
 		// parameters.
 		mCamera = Camera.open((cameraCurrentlyLocked + 1) % numberOfCameras);
+
+		if (cameraParameters != null) {
+			mCamera.setParameters(cameraParameters);
+		}
+
 		cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
 		mPreview.switchCamera(mCamera);
 
@@ -274,6 +289,14 @@ public class CameraActivity extends Fragment {
 
 		// Start the preview
 		mCamera.startPreview();
+    }
+
+    public void setCameraParameters(Camera.Parameters params) {
+      cameraParameters = params;
+
+      if (mCamera != null && cameraParameters != null) {
+        mCamera.setParameters(cameraParameters);
+      }
     }
 
     public boolean hasFrontCamera(){

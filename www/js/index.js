@@ -34,6 +34,7 @@ var app = {
 		document.getElementById('switchCameraButton').addEventListener('mousedown', this.onSwitchCamera, false);
 		document.getElementById('showButton').addEventListener('mousedown', this.onShow, false);
 		document.getElementById('hideButton').addEventListener('mousedown', this.onHide, false);
+		document.getElementById('colorEffectCombo').addEventListener('change', this.onColorEffectChanged, false);
 		window.addEventListener('orientationchange', this.onStopCamera, false);
 		document.addEventListener('deviceready', this.onDeviceReady, false);
 	},
@@ -59,8 +60,9 @@ var app = {
 	onShow: function() {
 		cordova.plugins.camerapreview.show();
 	},
-	onHide: function() {
-		cordova.plugins.camerapreview.hide();
+	onColorEffectChanged: function() {
+		var effect = document.getElementById('colorEffectCombo').value;
+		cordova.plugins.camerapreview.setColorEffect(effect);
 	},
 	
 	// deviceready Event Handler   
