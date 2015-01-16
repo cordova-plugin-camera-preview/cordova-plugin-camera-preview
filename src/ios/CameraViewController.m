@@ -1,8 +1,9 @@
 #import "CameraViewController.h"
 #import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AssetsLibrary/AssetsLibrary.h>
-#import "AVCamPreviewView.h"
+
 
 static void * CapturingStillImageContext = &CapturingStillImageContext;
 static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDeviceAuthorizedContext;
@@ -57,14 +58,7 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
     [super viewDidLoad];
 
     self.view.backgroundColor = [UIColor clearColor];
-    
-    // Create the AVCaptureSession
-     AVCaptureSession *session = [[AVCaptureSession alloc] init];
-     [self setSession:session];
-     
-     // Setup the preview view
-     [[self previewView] setSession:session];
-     
+
      // Check for device authorization
      [self checkDeviceAuthorizationStatus];
      
@@ -93,21 +87,17 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
             NSLog(@"%@", error);
         }
         
-        if ([session canAddInput:videoDeviceInput])
+        if ([self.session canAddInput:videoDeviceInput])
         {
-            [session addInput:videoDeviceInput];
+            [self.session addInput:videoDeviceInput];
             [self setVideoDeviceInput:videoDeviceInput];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)[self interfaceOrientation]];
-            });
         }
         
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
-        if ([session canAddOutput:stillImageOutput])
+        if ([self.session canAddOutput:stillImageOutput])
         {
             [stillImageOutput setOutputSettings:@{AVVideoCodecKey : AVVideoCodecJPEG}];
-            [session addOutput:stillImageOutput];
+            [self.session addOutput:stillImageOutput];
             [self setStillImageOutput:stillImageOutput];
         }
     });
@@ -203,23 +193,9 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
     return UIInterfaceOrientationMaskAll;
 }
 
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    [[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] setVideoOrientation:(AVCaptureVideoOrientation)toInterfaceOrientation];
-}
-
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (context == CapturingStillImageContext)
-    {
-        BOOL isCapturingStillImage = [change[NSKeyValueChangeNewKey] boolValue];
-        
-        if (isCapturingStillImage)
-        {
-            [self runStillImageCaptureAnimation];
-        }
-    }
-    else if (context == SessionRunningAndDeviceAuthorizedContext)
+    if (context == SessionRunningAndDeviceAuthorizedContext)
     {
         BOOL isRunning = [change[NSKeyValueChangeNewKey] boolValue];
         
@@ -242,7 +218,7 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
 - (void)takePicture:(void(^)(NSString*, NSString*))callback {
     dispatch_async([self sessionQueue], ^{
         // Update the orientation on the still image output video connection before capturing.
-        [[[self stillImageOutput] connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[[(AVCaptureVideoPreviewLayer *)[[self previewView] layer] connection] videoOrientation]];
+        [[[self stillImageOutput] connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:(AVCaptureVideoOrientation)[self interfaceOrientation]];
         
         // Flash set to Auto for Still Capture
         [CameraViewController setFlashMode:AVCaptureFlashModeAuto forDevice:[[self videoDeviceInput] device]];
@@ -311,12 +287,6 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
         }];
     });
    
-}
-
-- focusAndExposeTap:(UIGestureRecognizer *)gestureRecognizer
-{
-    CGPoint devicePoint = [(AVCaptureVideoPreviewLayer *)[[self previewView] layer] captureDevicePointOfInterestForPoint:[gestureRecognizer locationInView:[gestureRecognizer view]]];
-    [self focusWithMode:AVCaptureFocusModeAutoFocus exposeWithMode:AVCaptureExposureModeAutoExpose atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
 }
 
 - (void)subjectAreaDidChange:(NSNotification *)notification
@@ -389,16 +359,6 @@ static void * SessionRunningAndDeviceAuthorizedContext = &SessionRunningAndDevic
 }
 
 #pragma mark UI
-
-- (void)runStillImageCaptureAnimation
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[[self previewView] layer] setOpacity:0.0];
-        [UIView animateWithDuration:.25 animations:^{
-            [[[self previewView] layer] setOpacity:1.0];
-        }];
-    });
-}
 
 - (void)checkDeviceAuthorizationStatus
 {

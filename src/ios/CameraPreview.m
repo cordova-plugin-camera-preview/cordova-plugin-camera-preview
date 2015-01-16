@@ -1,9 +1,11 @@
 #import <Cordova/CDV.h>
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
+#import <GLKit/GLKit.h>
 
 #import "CameraPreview.h"
 #import "CameraViewController.h"
+#import "CameraRenderController.h"
 
 @interface CameraPreview()
 
@@ -14,14 +16,13 @@
 
 @implementation CameraPreview
 
-
 -(void)startCamera:(CDVInvokedUrlCommand*)command{
  
     CDVPluginResult *pluginResult;
     
     if (command.arguments.count > 0){
 		
-		CGFloat x = (CGFloat)[command.arguments[0] floatValue];
+		    CGFloat x = (CGFloat)[command.arguments[0] floatValue];
         CGFloat y = (CGFloat)[command.arguments[1] floatValue];
         CGFloat width = (CGFloat)[command.arguments[2] floatValue];
         CGFloat height = (CGFloat)[command.arguments[3] floatValue];
@@ -29,20 +30,33 @@
         BOOL tapToTakePicture = (BOOL)[command.arguments[5] boolValue];
         BOOL dragEnabled = (BOOL)[command.arguments[6] boolValue];
         
+        // Create the AVCaptureSession
+        AVCaptureSession *session = [[AVCaptureSession alloc] init];
+
         //controller params setup
         self.cameraViewController = [[CameraViewController alloc] initWithNibName:@"CameraViewController" bundle:nil];
         self.cameraViewController.delegate = self;
-		self.cameraViewController.defaultCamera = defaultCamera;
+    		self.cameraViewController.defaultCamera = defaultCamera;
         self.cameraViewController.dragEnabled = dragEnabled;
         self.cameraViewController.tapToTakePicture = tapToTakePicture;
-		
+        [self.cameraViewController setSession:session];
+
+        //render controller setup
+        self.cameraRenderController = [[CameraRenderController alloc] init];
+        [self.cameraRenderController setSession:session];
+
         //frame setup
         self.cameraViewController.view.frame = CGRectMake(x, y, width, height);
         self.cameraViewController.finalImageView.frame = CGRectMake(0, 0, width, height);
-        
+        self.cameraRenderController.view.frame = CGRectMake(x, y, width, height);
+
         //add camera preview view
         [self.viewController addChildViewController:self.cameraViewController];
         [self.viewController.view addSubview:self.cameraViewController.view];
+
+        // Add render view
+        [self.viewController addChildViewController:self.cameraRenderController];
+        [self.viewController.view addSubview:self.cameraRenderController.view];
 
         //set user interactions
         [self.cameraViewController addInterations];

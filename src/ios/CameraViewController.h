@@ -1,7 +1,7 @@
 #import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AssetsLibrary/AssetsLibrary.h>
-#import "AVCamPreviewView.h"
 
 @protocol CameraViewDelegate
     - (void)didTookPictureAction;
@@ -9,15 +9,15 @@
 
 @interface CameraViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIScrollViewDelegate>{
     id <NSObject, CameraViewDelegate> delegate;
+    GLuint _renderBuffer;
 }
 
 @property (retain) id <NSObject, CameraViewDelegate> delegate;
 @property (nonatomic, weak) IBOutlet UIImageView *libraryImageView;
 @property (nonatomic, weak) IBOutlet UIView *finalImageView;
-
+@property (nonatomic, weak) IBOutlet AVCaptureSession *session;
 
 @property (nonatomic, strong) NSString *frameImagePath;
-@property (nonatomic, weak) IBOutlet AVCamPreviewView *previewView;
 
 -(void) hideCamera;
 -(void) showCamera;
@@ -27,9 +27,8 @@
 
 // Session
 @property (nonatomic) dispatch_queue_t sessionQueue; // Communicate with the session and other session objects on this queue.
-@property (nonatomic) AVCaptureSession *session;
 @property (nonatomic) AVCaptureDeviceInput *videoDeviceInput;
-@property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
+@property (nonatomic) AVCaptureVideoDataOutput *videoDataOutput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 @property (nonatomic) NSString *defaultCamera;
 @property (nonatomic) BOOL dragEnabled;
