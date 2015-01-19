@@ -11,7 +11,6 @@
 
 @interface CameraRenderController : GLKViewController
 <AVCaptureVideoDataOutputSampleBufferDelegate> {
-    CIContext *coreImageContext;
     GLuint _renderBuffer;
 }
 
