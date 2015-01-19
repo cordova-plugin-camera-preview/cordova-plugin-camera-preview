@@ -84,7 +84,9 @@
     NSLog(@"switchCamera");
     CDVPluginResult *pluginResult;
     
-    if (self.cameraRenderController != nil) {
+    if (self.sessionManager != nil) {
+        [self.sessionManager switchCamera];
+        [self.cameraRenderController resetOrientation];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];

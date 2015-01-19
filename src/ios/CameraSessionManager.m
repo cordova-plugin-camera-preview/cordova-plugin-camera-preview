@@ -11,21 +11,19 @@
     // Create the AVCaptureSession
     self.session = [[AVCaptureSession alloc] init];
     self.sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
-    self.defaultCamera = defaultCamera;
     [self setCiFilter:nil];
 
     dispatch_async(self.sessionQueue, ^{
         NSError *error = nil;
 
-        NSLog(@"defaultCamera: %@", self.defaultCamera);
-        AVCaptureDevicePosition position = AVCaptureDevicePositionUnspecified;
-        if ([self.defaultCamera isEqual: @"front"]) {
-            position = AVCaptureDevicePositionFront;
+        NSLog(@"defaultCamera: %@", defaultCamera);
+        if ([defaultCamera isEqual: @"front"]) {
+            self.defaultCamera = AVCaptureDevicePositionFront;
         } else {
-            position = AVCaptureDevicePositionBack;
+            self.defaultCamera = AVCaptureDevicePositionBack;
         }
 
-        AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:position];        
+        AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.defaultCamera];        
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
 
         if (error) {
@@ -34,10 +32,44 @@
 
         if ([self.session canAddInput:videoDeviceInput]) {
             [self.session addInput:videoDeviceInput];
+            [self setVideoDeviceInput:videoDeviceInput];
         }
     });
 
     return self;
+}
+
+- (void) switchCamera
+{
+    if (self.defaultCamera == AVCaptureDevicePositionFront) {
+        self.defaultCamera = AVCaptureDevicePositionBack;
+    } else {
+        self.defaultCamera = AVCaptureDevicePositionFront;
+    }
+
+    dispatch_async([self sessionQueue], ^{
+        NSError *error = nil;
+
+        [self.session beginConfiguration];
+
+        if (self.videoDeviceInput != nil) {
+            [self.session removeInput:[self videoDeviceInput]];
+        }
+
+        AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.defaultCamera];
+        AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+
+        if (error) {
+            NSLog(@"%@", error);
+        }
+
+        if ([self.session canAddInput:videoDeviceInput]) {
+            [self.session addInput:videoDeviceInput];
+            [self setVideoDeviceInput:videoDeviceInput];
+        }
+
+        [self.session commitConfiguration];
+    });
 }
 
 - (void)checkDeviceAuthorizationStatus

@@ -14,8 +14,11 @@
     GLuint _renderBuffer;
 }
 
+- (void)resetOrientation;
+
 @property (strong, nonatomic) CameraSessionManager *sessionManager;
 @property (strong, nonatomic) CIContext *ciContext;
 @property (strong, nonatomic) EAGLContext *context;
+@property (strong, nonatomic) AVCaptureVideoDataOutput *dataOutput;
 
 @end
