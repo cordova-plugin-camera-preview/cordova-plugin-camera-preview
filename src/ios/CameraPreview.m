@@ -57,6 +57,7 @@
     CDVPluginResult *pluginResult;
     
     if (self.cameraRenderController != nil) {
+        self.cameraRenderController.view.hidden = YES;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
@@ -70,6 +71,7 @@
     CDVPluginResult *pluginResult;
 
     if (self.cameraRenderController != nil) {
+        self.cameraRenderController.view.hidden = NO;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
@@ -116,9 +118,27 @@
         dispatch_async(self.sessionManager.sessionQueue, ^{
             [self.sessionManager setCiFilter:nil];
         });
+    } else if ([filterName isEqual: @"mono"]) {
+        dispatch_async(self.sessionManager.sessionQueue, ^{
+            CIFilter *filter = [CIFilter filterWithName:@"CIColorMonochrome"];
+            [filter setDefaults];
+            [self.sessionManager setCiFilter:filter];
+        });
     } else if ([filterName isEqual: @"negative"]) {
         dispatch_async(self.sessionManager.sessionQueue, ^{
             CIFilter *filter = [CIFilter filterWithName:@"CIColorInvert"];
+            [filter setDefaults];
+            [self.sessionManager setCiFilter:filter];
+        });
+    } else if ([filterName isEqual: @"posterize"]) {
+        dispatch_async(self.sessionManager.sessionQueue, ^{
+            CIFilter *filter = [CIFilter filterWithName:@"CIColorPosterize"];
+            [filter setDefaults];
+            [self.sessionManager setCiFilter:filter];
+        });
+    } else if ([filterName isEqual: @"sepia"]) {
+        dispatch_async(self.sessionManager.sessionQueue, ^{
+            CIFilter *filter = [CIFilter filterWithName:@"CISepiaTone"];
             [filter setDefaults];
             [self.sessionManager setCiFilter:filter];
         });
