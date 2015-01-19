@@ -29,7 +29,7 @@
             [dataOutput setAlwaysDiscardsLateVideoFrames:YES];
             [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];   
 
-            [dataOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()];
+            [dataOutput setSampleBufferDelegate:self queue:self.sessionManager.sessionQueue];
 
             [self.sessionManager.session addOutput:dataOutput];
 

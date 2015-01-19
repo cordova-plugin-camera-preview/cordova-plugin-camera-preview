@@ -113,11 +113,15 @@
     NSString *filterName = command.arguments[0];
 
     if ([filterName isEqual: @"none"]) {
-        [self.sessionManager setCiFilter:nil];
+        dispatch_async(self.sessionManager.sessionQueue, ^{
+            [self.sessionManager setCiFilter:nil];
+        });
     } else if ([filterName isEqual: @"negative"]) {
-        CIFilter *filter = [CIFilter filterWithName:@"CIColorInvert"];
-        [filter setDefaults];
-        [self.sessionManager setCiFilter:filter];
+        dispatch_async(self.sessionManager.sessionQueue, ^{
+            CIFilter *filter = [CIFilter filterWithName:@"CIColorInvert"];
+            [filter setDefaults];
+            [self.sessionManager setCiFilter:filter];
+        });
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Plugin not found"];
     }
