@@ -145,7 +145,7 @@
             [self.sessionManager setCiFilter:filter];
         });
     } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Plugin not found"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Filter not found"];
     }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

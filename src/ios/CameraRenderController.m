@@ -22,6 +22,16 @@
 
     self.ciContext = [CIContext contextWithEAGLContext:self.context]; 
 
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+        selector:@selector(appplicationIsActive:) 
+        name:UIApplicationDidBecomeActiveNotification 
+        object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+        selector:@selector(applicationEnteredForeground:) 
+        name:UIApplicationWillEnterForegroundNotification
+        object:nil];
+
     dispatch_async(self.sessionManager.sessionQueue, ^{
         AVCaptureVideoDataOutput *dataOutput = [[AVCaptureVideoDataOutput alloc] init];
         if ([self.sessionManager.session canAddOutput:dataOutput])
@@ -51,14 +61,32 @@
     });
 }
 
-- (void)viewWillAppear:(BOOL)animated {
+- (void)appplicationIsActive:(NSNotification *)notification {
     dispatch_async(self.sessionManager.sessionQueue, ^{
+      NSLog(@"Starting session");
+      [self.sessionManager.session startRunning];
+    });
+}
+
+- (void)applicationEnteredForeground:(NSNotification *)notification {
+    dispatch_async(self.sessionManager.sessionQueue, ^{
+      NSLog(@"Stopping session");
+      [self.sessionManager.session stopRunning];
+    });
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    dispatch_async(self.sessionManager.sessionQueue, ^{
+      NSLog(@"Starting session");
       [self.sessionManager.session startRunning];
     });
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
     dispatch_async(self.sessionManager.sessionQueue, ^{
+      NSLog(@"Stopping session");
       [self.sessionManager.session stopRunning];
     });
 }
