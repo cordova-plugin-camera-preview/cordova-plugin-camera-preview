@@ -7,13 +7,16 @@
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
 
+#import "CameraSessionManager.h"
+
 @interface CameraRenderController : GLKViewController
 <AVCaptureVideoDataOutputSampleBufferDelegate> {
     CIContext *coreImageContext;
     GLuint _renderBuffer;
 }
 
-@property (strong, nonatomic) AVCaptureSession *session;
+@property (strong, nonatomic) CameraSessionManager *sessionManager;
+@property (strong, nonatomic) CIContext *ciContext;
 @property (strong, nonatomic) EAGLContext *context;
 
 @end
