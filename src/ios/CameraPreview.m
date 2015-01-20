@@ -10,6 +10,12 @@
 - (void) startCamera:(CDVInvokedUrlCommand*)command {
  
     CDVPluginResult *pluginResult;
+
+    if (self.sessionManager != nil) {
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera already started!"];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      return;
+    }
     
     if (command.arguments.count > 3) {
         CGFloat x = (CGFloat)[command.arguments[0] floatValue];
@@ -42,7 +48,14 @@
     NSLog(@"stopCamera");
     CDVPluginResult *pluginResult;
 
-    if(self.cameraRenderController != nil){
+    if(self.sessionManager != nil){
+        [self.cameraRenderController.view removeFromSuperview];       
+        [self.cameraRenderController removeFromParentViewController];
+        self.cameraRenderController = nil;
+
+        [self.sessionManager.session stopRunning];
+        self.sessionManager = nil;
+
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     }
     else {
