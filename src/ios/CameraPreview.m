@@ -33,6 +33,8 @@
         self.cameraRenderController = [[CameraRenderController alloc] init];
         self.cameraRenderController.sessionManager = self.sessionManager;
         self.cameraRenderController.view.frame = CGRectMake(x, y, width, height);
+        self.cameraRenderController.delegate = self;
+
         [self.viewController addChildViewController:self.cameraRenderController];
         [self.viewController.view addSubview:self.cameraRenderController.view];
 
@@ -114,7 +116,7 @@
 
     if (self.cameraRenderController != NULL) {
     } else {
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Call startCamera first."];
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
@@ -126,7 +128,6 @@
 -(void) setColorEffect:(CDVInvokedUrlCommand*)command {
     NSLog(@"setColorEffect");
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    // TODO check for command.arguments.count
     NSString *filterName = command.arguments[0];
 
     if ([filterName isEqual: @"none"]) {
@@ -162,6 +163,44 @@
     }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) invokeTakePicture {
+    dispatch_async(self.sessionManager.sessionQueue, ^{
+        GLKView *previewView  = (GLKView *)self.cameraRenderController.view;
+        UIImage *previewImage = previewView.snapshot;
+
+        AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+        [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
+            if (sampleBuffer) {
+                CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+                CIImage *capturedImage = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+                CIImage *imageToFilter;
+                CIImage *finalCImage;
+                
+                //fix front mirroring
+                if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
+                    CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedImage.extent.size.height);
+                    imageToFilter = [capturedImage imageByApplyingTransform:matrix]; 
+                } else {
+                    imageToFilter = capturedImage;                    
+                }
+
+                CIFilter *filter = [self.sessionManager ciFilter];
+                if (filter != nil) {
+                    [filter setValue:imageToFilter forKey:kCIInputImageKey];
+                    finalCImage = [filter outputImage];
+                } else {
+                    finalCImage = capturedImage;
+                }
+ 
+                CGImageRef cgImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
+                UIImage *finalImage = [UIImage imageWithCGImage:cgImage];
+
+                // TODO: what's the funcionality?
+            }
+        }];
+    });
 }
 
 @end

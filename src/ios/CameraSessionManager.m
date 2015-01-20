@@ -32,8 +32,21 @@
 
         if ([self.session canAddInput:videoDeviceInput]) {
             [self.session addInput:videoDeviceInput];
-            [self setVideoDeviceInput:videoDeviceInput];
+            self.videoDeviceInput = videoDeviceInput;
         }
+
+        AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
+        if ([self.session canAddOutput:stillImageOutput]) {
+            [stillImageOutput setOutputSettings:@{AVVideoCodecKey : AVVideoCodecJPEG}];
+            [self.session addOutput:stillImageOutput];
+            self.stillImageOutput = stillImageOutput;
+
+            AVCaptureConnection *captureConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+            if ([captureConnection isVideoOrientationSupported]) {
+                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
+            }
+        }
+
     });
 
     return self;

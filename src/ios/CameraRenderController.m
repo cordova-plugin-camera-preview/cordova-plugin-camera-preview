@@ -2,6 +2,7 @@
 
 @implementation CameraRenderController
 @synthesize context = _context;
+@synthesize delegate;
 
 - (void)viewDidLoad
 {
@@ -44,7 +45,10 @@
 
             [self.sessionManager.session addOutput:dataOutput];
 
-            [self resetOrientation];
+            AVCaptureConnection *captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
+            if ([captureConnection isVideoOrientationSupported]) {
+                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
+            }
         }
     });
 }

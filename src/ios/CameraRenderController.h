@@ -9,6 +9,10 @@
 
 #import "CameraSessionManager.h"
 
+@protocol TakePictureDelegate
+- (void) invokeTakePicture;
+@end;
+
 @interface CameraRenderController : GLKViewController
 <AVCaptureVideoDataOutputSampleBufferDelegate> {
     GLuint _renderBuffer;
@@ -20,5 +24,6 @@
 @property (strong, nonatomic) CIContext *ciContext;
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) AVCaptureVideoDataOutput *dataOutput;
+@property (nonatomic, assign) id delegate;
 
 @end

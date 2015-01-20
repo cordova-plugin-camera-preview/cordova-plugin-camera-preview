@@ -11,5 +11,6 @@
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) AVCaptureDevicePosition defaultCamera;
 @property (nonatomic) AVCaptureDeviceInput *videoDeviceInput;
+@property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 
 @end
