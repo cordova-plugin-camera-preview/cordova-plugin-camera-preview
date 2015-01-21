@@ -31,6 +31,7 @@
 
         //render controller setup
         self.cameraRenderController = [[CameraRenderController alloc] init];
+        self.cameraRenderController.dragEnabled = dragEnabled;
         self.cameraRenderController.sessionManager = self.sessionManager;
         self.cameraRenderController.view.frame = CGRectMake(x, y, width, height);
         self.cameraRenderController.delegate = self;

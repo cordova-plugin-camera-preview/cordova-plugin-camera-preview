@@ -23,6 +23,15 @@
 
     self.ciContext = [CIContext contextWithEAGLContext:self.context]; 
 
+    if (self.dragEnabled) {
+        //add drag action listener
+        NSLog(@"Enabling view dragging");
+        UIPanGestureRecognizer *drag = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+        [self.view addGestureRecognizer:drag];
+    }
+
+    self.view.userInteractionEnabled = self.dragEnabled; // TODO || self.tapToTakePicture
+
     [[NSNotificationCenter defaultCenter] addObserver:self 
         selector:@selector(appplicationIsActive:) 
         name:UIApplicationDidBecomeActiveNotification 
@@ -63,6 +72,13 @@
             }
         }
     });
+}
+
+- (IBAction)handlePan:(UIPanGestureRecognizer *)recognizer {
+    CGPoint translation = [recognizer translationInView:self.view];
+    recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x, 
+                                     recognizer.view.center.y + translation.y);
+    [recognizer setTranslation:CGPointMake(0, 0) inView:self.view];
 }
 
 - (void)appplicationIsActive:(NSNotification *)notification {
