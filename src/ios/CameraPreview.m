@@ -1,7 +1,7 @@
+#import <AssetsLibrary/AssetsLibrary.h>
 #import <Cordova/CDV.h>
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
-#import <GLKit/GLKit.h>
 
 #import "CameraPreview.h"
 
@@ -32,6 +32,7 @@
         //render controller setup
         self.cameraRenderController = [[CameraRenderController alloc] init];
         self.cameraRenderController.dragEnabled = dragEnabled;
+        self.cameraRenderController.tapToTakePicture = tapToTakePicture;
         self.cameraRenderController.sessionManager = self.sessionManager;
         self.cameraRenderController.view.frame = CGRectMake(x, y, width, height);
         self.cameraRenderController.delegate = self;
@@ -119,14 +120,16 @@
     CDVPluginResult *pluginResult;
 
     if (self.cameraRenderController != NULL) {
+        [self invokeTakePicture];
     } else {
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
 -(void) setOnPictureTakenHandler:(CDVInvokedUrlCommand*)command {
     NSLog(@"setOnPictureTakenHandler");
+    self.onPictureTakenHandlerId = command.callbackId;
 }
 
 -(void) setColorEffect:(CDVInvokedUrlCommand*)command {
@@ -170,41 +173,102 @@
 }
 
 - (void) invokeTakePicture {
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-        GLKView *previewView  = (GLKView *)self.cameraRenderController.view;
-        UIImage *previewImage = previewView.snapshot;
+    AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+    [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
+        NSLog(@"Done creating still image");
+        if (error) {
+            NSLog(@"%@", error);
+        } else {
+            GLKView *previewView  = (GLKView *)self.cameraRenderController.view;
+            [self.cameraRenderController.renderLock lock];
+            CIImage *previewCImage = self.cameraRenderController.latestFrame;
+            CGImageRef previewImage = [self.cameraRenderController.ciContext createCGImage:previewCImage fromRect:previewCImage.extent];
+            [self.cameraRenderController.renderLock unlock];
 
-        AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
-        [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
-            if (sampleBuffer) {
-                CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-                CIImage *capturedImage = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-                CIImage *imageToFilter;
-                CIImage *finalCImage;
-                
-                //fix front mirroring
-                if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
-                    CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedImage.extent.size.height);
-                    imageToFilter = [capturedImage imageByApplyingTransform:matrix]; 
-                } else {
-                    imageToFilter = capturedImage;                    
-                }
+            NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
+            UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
+            CIImage *capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
+            CIImage *imageToFilter;
+            CIImage *finalCImage;
 
-                CIFilter *filter = [self.sessionManager ciFilter];
-                if (filter != nil) {
-                    [filter setValue:imageToFilter forKey:kCIInputImageKey];
-                    finalCImage = [filter outputImage];
-                } else {
-                    finalCImage = capturedImage;
-                }
- 
-                CGImageRef cgImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
-                UIImage *finalImage = [UIImage imageWithCGImage:cgImage];
-
-                // TODO: what's the funcionality?
+            //fix front mirroring
+            if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
+               CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
+               imageToFilter = [capturedCImage imageByApplyingTransform:matrix]; 
+            } else {
+               imageToFilter = capturedCImage;                    
             }
-        }];
-    });
+
+            CIFilter *filter = [self.sessionManager ciFilter];
+            if (filter != nil) {
+                [self.sessionManager.filterLock lock];
+                [filter setValue:imageToFilter forKey:kCIInputImageKey];
+                finalCImage = [filter outputImage];
+                [self.sessionManager.filterLock unlock];
+            } else {
+                finalCImage = capturedCImage;
+            }
+ 
+            CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
+
+            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+
+            dispatch_group_t group = dispatch_group_create();
+
+            __block NSString *originalPicturePath;
+            __block NSString *previewPicturePath;
+
+            ALAssetOrientation orientation;
+            switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+                case UIDeviceOrientationPortraitUpsideDown:
+                    orientation = ALAssetOrientationLeft;
+                    break;
+                case UIDeviceOrientationLandscapeLeft:
+                    orientation = ALAssetOrientationUp;
+                    break;
+                case UIDeviceOrientationLandscapeRight:
+                    orientation = ALAssetOrientationDown;
+                    break;
+                case UIDeviceOrientationPortrait:
+                default:
+                    orientation = ALAssetOrientationRight;
+            }
+
+            // task 1
+            dispatch_group_enter(group);
+            [library writeImageToSavedPhotosAlbum:previewImage orientation:ALAssetOrientationUp completionBlock:^(NSURL *assetURL, NSError *error) {
+                if (error) {
+                     NSLog(@"FAILED to save Preview picture.");
+                } else {
+                     previewPicturePath = [assetURL absoluteString];
+                     NSLog(@"previewPicturePath: %@", previewPicturePath);
+                     dispatch_group_leave(group);
+                }
+            }];
+                
+            //task 2
+            dispatch_group_enter(group);
+            [library writeImageToSavedPhotosAlbum:finalImage orientation:orientation completionBlock:^(NSURL *assetURL, NSError *error) {
+                if (error) {
+                    NSLog(@"FAILED to save Original picture.");
+                } else {
+                    originalPicturePath = [assetURL absoluteString];
+                    NSLog(@"originalPicturePath: %@", originalPicturePath);
+                }
+                dispatch_group_leave(group);
+            }];
+
+            dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                NSMutableArray *params = [[NSMutableArray alloc] init];
+                [params addObject:originalPicturePath];
+                [params addObject:previewPicturePath];
+             
+                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
+                [pluginResult setKeepCallbackAsBool:true];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
+            });
+        }
+    }];
 }
 
 @end

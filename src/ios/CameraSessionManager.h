@@ -8,12 +8,14 @@
 - (void) switchCamera;
 
 @property (atomic) CIFilter *ciFilter;
+@property (nonatomic) NSLock *filterLock;
 @property (nonatomic) AVCaptureSession *session;
 @property (nonatomic) dispatch_queue_t sessionQueue;
+@property (nonatomic) dispatch_queue_t captureQueue;
 @property (nonatomic) AVCaptureDevicePosition defaultCamera;
 @property (nonatomic) AVCaptureDeviceInput *videoDeviceInput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
-@property (strong, nonatomic) AVCaptureVideoDataOutput *dataOutput;
+@property (nonatomic) AVCaptureVideoDataOutput *dataOutput;
 @property (nonatomic, assign) id delegate;
 
 @end

@@ -4,6 +4,19 @@
 @synthesize context = _context;
 @synthesize delegate;
 
+- (CameraRenderController *)init {
+    if (self = [super init]) {
+        self.renderLock = [[NSLock alloc] init];
+    }
+    return self;
+}
+
+- (void)loadView {
+    GLKView *glkView = [[GLKView alloc] init];
+    [glkView setBackgroundColor:[UIColor blackColor]];
+    [self setView:glkView];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad]; 
@@ -30,7 +43,14 @@
         [self.view addGestureRecognizer:drag];
     }
 
-    self.view.userInteractionEnabled = self.dragEnabled; // TODO || self.tapToTakePicture
+    if (self.dragEnabled) {
+        //tap to take picture
+        UITapGestureRecognizer *takePictureTap =
+        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTakePictureTap:)];
+        [self.view addGestureRecognizer:takePictureTap];
+    }
+
+    self.view.userInteractionEnabled = self.dragEnabled || self.tapToTakePicture;
 
     [[NSNotificationCenter defaultCenter] addObserver:self 
         selector:@selector(appplicationIsActive:) 
@@ -41,6 +61,11 @@
         selector:@selector(applicationEnteredForeground:) 
         name:UIApplicationWillEnterForegroundNotification
         object:nil];
+}
+
+-(void) handleTakePictureTap:(UITapGestureRecognizer*)recognizer {
+    NSLog(@"handleTakePictureTap");
+    [self.delegate invokeTakePicture];
 }
 
 - (IBAction)handlePan:(UIPanGestureRecognizer *)recognizer {
@@ -81,22 +106,48 @@
 }
 
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
-    CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-    CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-    CIFilter *filter = [self.sessionManager ciFilter];
+    if ([self.renderLock tryLock]) {
+        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+        CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
 
-    CIImage *result;
-    if (filter != nil) {
-        [filter setValue:image forKey:kCIInputImageKey];
-        result = [filter outputImage];
-    } else {
-        result = image;
+        CGFloat scaleHeight = self.view.frame.size.height/image.extent.size.height;
+        CGFloat scaleWidth = self.view.frame.size.width/image.extent.size.width;
+        CGFloat scale  = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
+
+        CIFilter *resizeFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+        [resizeFilter setValue:image forKey:kCIInputImageKey];
+        [resizeFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputAspectRatio"];
+        [resizeFilter setValue:[NSNumber numberWithFloat:scale] forKey:@"inputScale"];
+        CIImage *scaledImage = [resizeFilter outputImage];
+
+        CIFilter *cropFilter = [CIFilter filterWithName:@"CICrop"];
+        CIVector *cropRect = [CIVector vectorWithX:0 Y:0 Z:self.view.frame.size.width W:self.view.frame.size.height];
+        [cropFilter setValue:scaledImage forKey:kCIInputImageKey];
+        [cropFilter setValue:cropRect forKey:@"inputRectangle"];
+        CIImage *croppedImage = [cropFilter outputImage];
+
+        CIFilter *filter = [self.sessionManager ciFilter];
+
+        CIImage *result;
+        if (filter != nil) {
+            [self.sessionManager.filterLock lock];
+            [filter setValue:croppedImage forKey:kCIInputImageKey];
+            result = [filter outputImage];
+            [self.sessionManager.filterLock unlock];
+        } else {
+            result = croppedImage;
+        }
+
+        self.latestFrame = result;
+
+        CGFloat pointScale = [[UIScreen mainScreen] scale];
+        CGRect dest = CGRectMake(0, 0, self.view.frame.size.width*pointScale, self.view.frame.size.height*pointScale);
+
+        [self.ciContext drawImage:result inRect:dest fromRect:[result extent]];
+        [self.context presentRenderbuffer:GL_RENDERBUFFER];
+        [(GLKView *)(self.view) display];
+        [self.renderLock unlock];
     }
-
-    CGFloat scale = [[UIScreen mainScreen] scale];
-    CGRect dest = CGRectMake(0, 0, self.view.frame.size.width*scale, self.view.frame.size.height*scale);
-    [self.ciContext drawImage:result inRect:dest fromRect:[image extent]];
-    [self.context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
 - (void)viewDidUnload

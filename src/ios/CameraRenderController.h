@@ -13,14 +13,18 @@
 - (void) invokeTakePicture;
 @end;
 
-@interface CameraRenderController : GLKViewController <AVCaptureVideoDataOutputSampleBufferDelegate> {
+@interface CameraRenderController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate> {
     GLuint _renderBuffer;
 }
 
-@property (strong, nonatomic) CameraSessionManager *sessionManager;
-@property (strong, nonatomic) CIContext *ciContext;
-@property (strong, nonatomic) EAGLContext *context;
+@property (nonatomic) GLKView *view;
+@property (nonatomic) CameraSessionManager *sessionManager;
+@property (nonatomic) CIContext *ciContext;
+@property (nonatomic) CIImage *latestFrame;
+@property (nonatomic) EAGLContext *context;
+@property (nonatomic) NSLock *renderLock;
 @property BOOL dragEnabled;
+@property BOOL tapToTakePicture;
 @property (nonatomic, assign) id delegate;
 
 @end

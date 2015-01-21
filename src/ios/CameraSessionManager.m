@@ -8,6 +8,8 @@
         // Create the AVCaptureSession
         self.session = [[AVCaptureSession alloc] init];
         self.sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
+        self.captureQueue = dispatch_queue_create("capture queue", DISPATCH_QUEUE_SERIAL);
+        self.filterLock = [[NSLock alloc] init];
         [self setCiFilter:nil];
     }
     return self;
@@ -30,6 +32,16 @@
         }
 
         AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.defaultCamera];        
+
+        if ([videoDevice hasFlash] && [videoDevice isFlashModeSupported:AVCaptureFlashModeAuto]) {
+            if ([videoDevice lockForConfiguration:&error]) {
+                [videoDevice setFlashMode:AVCaptureFlashModeAuto];
+                [videoDevice unlockForConfiguration];
+            } else {
+                NSLog(@"%@", error);
+            }
+        }
+
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
 
         if (error) {
@@ -41,21 +53,38 @@
             self.videoDeviceInput = videoDeviceInput;
         }
 
+        AVCaptureConnection *captureConnection;
+        AVCaptureVideoOrientation orientation;
+
+        switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+            case UIDeviceOrientationPortraitUpsideDown:
+                orientation = AVCaptureVideoOrientationPortraitUpsideDown;
+                break;
+            case UIDeviceOrientationLandscapeLeft:
+                orientation = AVCaptureVideoOrientationLandscapeLeft;
+                break;
+            case UIDeviceOrientationLandscapeRight:
+                orientation = AVCaptureVideoOrientationLandscapeRight;
+                break;
+            default:
+            case UIDeviceOrientationPortrait:
+               orientation = AVCaptureVideoOrientationPortrait;
+        }
+
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
-            [stillImageOutput setOutputSettings:@{AVVideoCodecKey : AVVideoCodecJPEG}];
             [self.session addOutput:stillImageOutput];
+            [stillImageOutput setOutputSettings:@{AVVideoCodecKey : AVVideoCodecJPEG}];
             self.stillImageOutput = stillImageOutput;
 
-            AVCaptureConnection *captureConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+            captureConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
             if ([captureConnection isVideoOrientationSupported]) {
-                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
+                [captureConnection setVideoOrientation:orientation];
             }
         }
 
         AVCaptureVideoDataOutput *dataOutput = [[AVCaptureVideoDataOutput alloc] init];
-        if ([self.session canAddOutput:dataOutput])
-        {
+        if ([self.session canAddOutput:dataOutput]) {
             self.dataOutput = dataOutput;
             [dataOutput setAlwaysDiscardsLateVideoFrames:YES];
             [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
@@ -64,9 +93,9 @@
 
             [self.session addOutput:dataOutput];
 
-            AVCaptureConnection *captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
+            captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
             if ([captureConnection isVideoOrientationSupported]) {
-                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
+                [captureConnection setVideoOrientation:AVCaptureVideoOrientationPortrait];
             }
         }
     });
@@ -90,6 +119,16 @@
         }
 
         AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.defaultCamera];
+
+        if ([videoDevice hasFlash] && [videoDevice isFlashModeSupported:AVCaptureFlashModeAuto]) {
+            if ([videoDevice lockForConfiguration:&error]) {
+                [videoDevice setFlashMode:AVCaptureFlashModeAuto];
+                [videoDevice unlockForConfiguration];
+            } else {
+                NSLog(@"%@", error);
+            }
+        }
+
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
 
         if (error) {
