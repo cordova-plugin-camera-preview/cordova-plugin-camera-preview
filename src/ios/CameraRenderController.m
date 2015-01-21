@@ -41,37 +41,6 @@
         selector:@selector(applicationEnteredForeground:) 
         name:UIApplicationWillEnterForegroundNotification
         object:nil];
-
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-        AVCaptureVideoDataOutput *dataOutput = [[AVCaptureVideoDataOutput alloc] init];
-        if ([self.sessionManager.session canAddOutput:dataOutput])
-        {
-            self.dataOutput = dataOutput;
-            [dataOutput setAlwaysDiscardsLateVideoFrames:YES];
-            [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];   
-
-            [dataOutput setSampleBufferDelegate:self queue:self.sessionManager.sessionQueue];
-
-            [self.sessionManager.session addOutput:dataOutput];
-
-            AVCaptureConnection *captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
-            if ([captureConnection isVideoOrientationSupported]) {
-                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
-            }
-        }
-    });
-}
-
-- (void)resetOrientation
-{
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-        if (self.dataOutput != nil) {
-            AVCaptureConnection *captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
-            if ([captureConnection isVideoOrientationSupported]) {
-                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[self interfaceOrientation]];
-            }
-        }
-    });
 }
 
 - (IBAction)handlePan:(UIPanGestureRecognizer *)recognizer {

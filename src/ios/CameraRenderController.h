@@ -13,18 +13,13 @@
 - (void) invokeTakePicture;
 @end;
 
-@interface CameraRenderController : GLKViewController
-<AVCaptureVideoDataOutputSampleBufferDelegate> {
+@interface CameraRenderController : GLKViewController <AVCaptureVideoDataOutputSampleBufferDelegate> {
     GLuint _renderBuffer;
 }
-
-- (void)resetOrientation;
-- (IBAction)handlePan:(UIPanGestureRecognizer *)recognizer;
 
 @property (strong, nonatomic) CameraSessionManager *sessionManager;
 @property (strong, nonatomic) CIContext *ciContext;
 @property (strong, nonatomic) EAGLContext *context;
-@property (strong, nonatomic) AVCaptureVideoDataOutput *dataOutput;
 @property BOOL dragEnabled;
 @property (nonatomic, assign) id delegate;
 

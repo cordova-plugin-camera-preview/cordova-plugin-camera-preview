@@ -2,16 +2,22 @@
 
 @implementation CameraSessionManager
 
-- (CameraSessionManager *) init:(NSString *)defaultCamera
+- (CameraSessionManager *)init
+{
+    if (self = [super init]) {
+        // Create the AVCaptureSession
+        self.session = [[AVCaptureSession alloc] init];
+        self.sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
+        [self setCiFilter:nil];
+    }
+    return self;
+}
+
+- (void) setupSession:(NSString *)defaultCamera
 {
     // If this fails, video input will just stream blank frames
     // and the user will be notified. User only has to accep once.
     [self checkDeviceAuthorizationStatus];
-
-    // Create the AVCaptureSession
-    self.session = [[AVCaptureSession alloc] init];
-    self.sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
-    [self setCiFilter:nil];
 
     dispatch_async(self.sessionQueue, ^{
         NSError *error = nil;
@@ -47,9 +53,23 @@
             }
         }
 
-    });
+        AVCaptureVideoDataOutput *dataOutput = [[AVCaptureVideoDataOutput alloc] init];
+        if ([self.session canAddOutput:dataOutput])
+        {
+            self.dataOutput = dataOutput;
+            [dataOutput setAlwaysDiscardsLateVideoFrames:YES];
+            [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
 
-    return self;
+            [dataOutput setSampleBufferDelegate:self.delegate queue:self.sessionQueue];
+
+            [self.session addOutput:dataOutput];
+
+            AVCaptureConnection *captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
+            if ([captureConnection isVideoOrientationSupported]) {
+                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
+            }
+        }
+    });
 }
 
 - (void) switchCamera
@@ -79,6 +99,21 @@
         if ([self.session canAddInput:videoDeviceInput]) {
             [self.session addInput:videoDeviceInput];
             [self setVideoDeviceInput:videoDeviceInput];
+        }
+
+        AVCaptureConnection *captureConnection;
+        if (self.stillImageOutput != nil) {
+            captureConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+            if ([captureConnection isVideoOrientationSupported]) {
+                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
+            }
+        }
+
+        if (self.dataOutput != nil) {
+            captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
+            if ([captureConnection isVideoOrientationSupported]) {
+                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
+            }
         }
 
         [self.session commitConfiguration];

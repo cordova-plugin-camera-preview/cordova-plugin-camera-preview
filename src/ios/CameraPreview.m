@@ -25,10 +25,10 @@
         NSString *defaultCamera = command.arguments[4];
         BOOL tapToTakePicture = (BOOL)[command.arguments[5] boolValue];
         BOOL dragEnabled = (BOOL)[command.arguments[6] boolValue];
-        
-        // Create the session manager
-        self.sessionManager = [[CameraSessionManager alloc] init:defaultCamera];
 
+        // Create the session manager
+        self.sessionManager = [[CameraSessionManager alloc] init];
+        
         //render controller setup
         self.cameraRenderController = [[CameraRenderController alloc] init];
         self.cameraRenderController.dragEnabled = dragEnabled;
@@ -38,6 +38,10 @@
 
         [self.viewController addChildViewController:self.cameraRenderController];
         [self.viewController.view addSubview:self.cameraRenderController.view];
+
+        // Setup session
+        self.sessionManager.delegate = self.cameraRenderController;
+        [self.sessionManager setupSession:defaultCamera];
 
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
@@ -102,7 +106,6 @@
     
     if (self.sessionManager != nil) {
         [self.sessionManager switchCamera];
-        [self.cameraRenderController resetOrientation];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];

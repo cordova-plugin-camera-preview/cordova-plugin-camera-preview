@@ -3,7 +3,8 @@
 
 @interface CameraSessionManager : NSObject
 
-- (CameraSessionManager *) init:(NSString *)defaultCamera;
+- (CameraSessionManager *)init;
+- (void) setupSession:(NSString *)defaultCamera;
 - (void) switchCamera;
 
 @property (atomic) CIFilter *ciFilter;
@@ -12,5 +13,7 @@
 @property (nonatomic) AVCaptureDevicePosition defaultCamera;
 @property (nonatomic) AVCaptureDeviceInput *videoDeviceInput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
+@property (strong, nonatomic) AVCaptureVideoDataOutput *dataOutput;
+@property (nonatomic, assign) id delegate;
 
 @end
