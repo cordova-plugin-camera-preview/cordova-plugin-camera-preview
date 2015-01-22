@@ -11,7 +11,6 @@
 @property (nonatomic) NSLock *filterLock;
 @property (nonatomic) AVCaptureSession *session;
 @property (nonatomic) dispatch_queue_t sessionQueue;
-@property (nonatomic) dispatch_queue_t captureQueue;
 @property (nonatomic) AVCaptureDevicePosition defaultCamera;
 @property (nonatomic) AVCaptureDeviceInput *videoDeviceInput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
