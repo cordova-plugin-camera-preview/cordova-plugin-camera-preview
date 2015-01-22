@@ -43,7 +43,7 @@
         [self.view addGestureRecognizer:drag];
     }
 
-    if (self.dragEnabled) {
+    if (self.tapToTakePicture) {
         //tap to take picture
         UITapGestureRecognizer *takePictureTap =
         [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTakePictureTap:)];
