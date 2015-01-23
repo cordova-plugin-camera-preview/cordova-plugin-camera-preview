@@ -51,6 +51,10 @@
     }
 
     self.view.userInteractionEnabled = self.dragEnabled || self.tapToTakePicture;
+}
+
+- (void) viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
 
     [[NSNotificationCenter defaultCenter] addObserver:self 
         selector:@selector(appplicationIsActive:) 
@@ -61,9 +65,31 @@
         selector:@selector(applicationEnteredForeground:) 
         name:UIApplicationWillEnterForegroundNotification
         object:nil];
+
+    dispatch_async(self.sessionManager.sessionQueue, ^{
+      NSLog(@"Starting session");
+      [self.sessionManager.session startRunning];
+    });
 }
 
--(void) handleTakePictureTap:(UITapGestureRecognizer*)recognizer {
+- (void) viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+        name:UIApplicationDidBecomeActiveNotification
+        object:nil];
+
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+        name:UIApplicationWillEnterForegroundNotification
+        object:nil];
+
+    dispatch_async(self.sessionManager.sessionQueue, ^{
+      NSLog(@"Stopping session");
+      [self.sessionManager.session stopRunning];
+    });
+}
+
+- (void) handleTakePictureTap:(UITapGestureRecognizer*)recognizer {
     NSLog(@"handleTakePictureTap");
     [self.delegate invokeTakePicture];
 }
@@ -75,30 +101,14 @@
     [recognizer setTranslation:CGPointMake(0, 0) inView:self.view];
 }
 
-- (void)appplicationIsActive:(NSNotification *)notification {
+- (void) appplicationIsActive:(NSNotification *)notification {
     dispatch_async(self.sessionManager.sessionQueue, ^{
       NSLog(@"Starting session");
       [self.sessionManager.session startRunning];
     });
 }
 
-- (void)applicationEnteredForeground:(NSNotification *)notification {
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-      NSLog(@"Stopping session");
-      [self.sessionManager.session stopRunning];
-    });
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-      NSLog(@"Starting session");
-      [self.sessionManager.session startRunning];
-    });
-}
-
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
+- (void) applicationEnteredForeground:(NSNotification *)notification {
     dispatch_async(self.sessionManager.sessionQueue, ^{
       NSLog(@"Stopping session");
       [self.sessionManager.session stopRunning];
