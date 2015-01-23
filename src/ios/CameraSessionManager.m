@@ -115,6 +115,7 @@
 
         if (self.videoDeviceInput != nil) {
             [self.session removeInput:[self videoDeviceInput]];
+            [self setVideoDeviceInput:nil];
         }
 
         AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.defaultCamera];
@@ -142,13 +143,6 @@
         AVCaptureConnection *captureConnection;
         if (self.stillImageOutput != nil) {
             captureConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
-            if ([captureConnection isVideoOrientationSupported]) {
-                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
-            }
-        }
-
-        if (self.dataOutput != nil) {
-            captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
             if ([captureConnection isVideoOrientationSupported]) {
                 [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
             }
