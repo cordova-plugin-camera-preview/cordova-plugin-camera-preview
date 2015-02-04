@@ -184,9 +184,7 @@
         
         if (error) {
             NSLog(@"%@", error);
-        }
-        else {
-            //GLKView *previewView  = (GLKView *)self.cameraRenderController.view;
+        } else {
             [self.cameraRenderController.renderLock lock];
             CIImage *previewCImage = self.cameraRenderController.latestFrame;
             CGImageRef previewImage = [self.cameraRenderController.ciContext createCGImage:previewCImage fromRect:previewCImage.extent];
