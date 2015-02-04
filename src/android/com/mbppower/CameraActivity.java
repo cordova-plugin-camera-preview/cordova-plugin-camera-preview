@@ -135,7 +135,7 @@ public class CameraActivity extends Fragment {
 					        boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
 					        if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
 						        if (tapToTakePicture) {
-							        takePicture();
+							        takePicture(0, 0);
 						        }
 						        return true;
 					        }
@@ -312,7 +312,7 @@ public class CameraActivity extends Fragment {
         return ret;
     }
 	
-	public void takePicture(){
+	public void takePicture(final double maxWidth, final double maxHeight){
 		final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
 		if(mPreview != null) {
 			
@@ -337,9 +337,9 @@ public class CameraActivity extends Fragment {
 							float scale = (float)pictureView.getWidth()/(float)pic.getWidth();
 							Bitmap scaledBitmap = Bitmap.createScaledBitmap(pic, (int)(pic.getWidth()*scale), (int)(pic.getHeight()*scale), false);
 
-							Matrix matrix = new Matrix();
+							final float[] mirrorY = {1, 0, 0, 0, -1, 0, 0, 0, 1};
+							final Matrix matrix = new Matrix();
 							if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-								float[] mirrorY = {1, 0, 0, 0, -1, 0, 0, 0, 1};
 								Matrix mMirror = new Matrix();
 								mMirror.setValues(mirrorY);
 								matrix.postConcat(mMirror);
@@ -355,7 +355,23 @@ public class CameraActivity extends Fragment {
 									pictureView.setImageBitmap(fixedPic);
 									pictureView.layout(rect.left, rect.top, rect.right, rect.bottom);
 
-									generatePictureFromView(pic);
+									Bitmap finalPic = null;
+									//scale final picture
+									if(maxWidth > 0 && maxHeight > 0){
+										final double scaleHeight = maxWidth/(double)pic.getHeight();
+										final double scaleWidth = maxHeight/(double)pic.getWidth();
+										final double scale  = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
+										finalPic = Bitmap.createScaledBitmap(pic, (int)(pic.getWidth()*scale), (int)(pic.getHeight()*scale), false);
+									}
+									else{
+										finalPic = pic;
+									}
+									final Matrix mMirror = new Matrix();
+									if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+										mMirror.setValues(mirrorY);
+									}
+									mMirror.preRotate(mPreview.getDisplayOrientation());
+									generatePictureFromView(Bitmap.createBitmap(finalPic, 0, 0, (int)(finalPic.getWidth()), (int)(finalPic.getHeight()), mMirror, false));
 									canTakePicture = true;
 								}
 							});

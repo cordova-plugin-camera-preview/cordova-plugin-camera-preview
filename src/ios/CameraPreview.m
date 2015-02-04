@@ -78,7 +78,7 @@
     CDVPluginResult *pluginResult;
     
     if (self.cameraRenderController != nil) {
-        self.cameraRenderController.view.hidden = YES;
+        [self.cameraRenderController.view setHidden:YES];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
@@ -92,7 +92,7 @@
     CDVPluginResult *pluginResult;
 
     if (self.cameraRenderController != nil) {
-        self.cameraRenderController.view.hidden = NO;
+        [self.cameraRenderController.view setHidden:NO];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
@@ -120,7 +120,9 @@
     CDVPluginResult *pluginResult;
 
     if (self.cameraRenderController != NULL) {
-        [self invokeTakePicture];
+		CGFloat maxW = (CGFloat)[command.arguments[0] floatValue];
+    	CGFloat maxH = (CGFloat)[command.arguments[1] floatValue];
+        [self invokeTakePicture:maxW withHeight:maxH];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -171,15 +173,20 @@
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-
 - (void) invokeTakePicture {
+    [self invokeTakePicture:0.0 withHeight:0.0];
+}
+- (void) invokeTakePicture:(CGFloat) maxWidth withHeight:(CGFloat) maxHeight {
     AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
+        
         NSLog(@"Done creating still image");
+        
         if (error) {
             NSLog(@"%@", error);
-        } else {
-            GLKView *previewView  = (GLKView *)self.cameraRenderController.view;
+        }
+        else {
+            //GLKView *previewView  = (GLKView *)self.cameraRenderController.view;
             [self.cameraRenderController.renderLock lock];
             CIImage *previewCImage = self.cameraRenderController.latestFrame;
             CGImageRef previewImage = [self.cameraRenderController.ciContext createCGImage:previewCImage fromRect:previewCImage.extent];
@@ -187,10 +194,28 @@
 
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
             UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
-            CIImage *capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
-            CIImage *imageToFilter;
-            CIImage *finalCImage;
+            
+            CIImage *capturedCImage;
+			//image resize
+            
+			if(maxWidth > 0 && maxHeight > 0){
+				CGFloat scaleHeight = maxWidth/capturedImage.size.height;
+				CGFloat scaleWidth = maxHeight/capturedImage.size.width;
+				CGFloat scale = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
 
+				CIFilter *resizeFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+				[resizeFilter setValue:[[CIImage alloc] initWithCGImage:[capturedImage CGImage]] forKey:kCIInputImageKey];
+				[resizeFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputAspectRatio"];
+				[resizeFilter setValue:[NSNumber numberWithFloat:scale] forKey:@"inputScale"];
+				capturedCImage = [resizeFilter outputImage];
+			}
+            else{
+                capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
+            }
+            
+			CIImage *imageToFilter;
+			CIImage *finalCImage;
+			
             //fix front mirroring
             if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
                CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
@@ -206,7 +231,7 @@
                 finalCImage = [filter outputImage];
                 [self.sessionManager.filterLock unlock];
             } else {
-                finalCImage = capturedCImage;
+                finalCImage = imageToFilter;
             }
  
             CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
@@ -270,5 +295,4 @@
         }
     }];
 }
-
 @end

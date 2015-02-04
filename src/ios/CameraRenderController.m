@@ -1,8 +1,13 @@
 #import "CameraRenderController.h"
+#import <CoreVideo/CVOpenGLESTextureCache.h>
+#import <GLKit/GLKit.h>
+#import <OpenGLES/ES2/glext.h>
 
 @implementation CameraRenderController
 @synthesize context = _context;
 @synthesize delegate;
+
+
 
 - (CameraRenderController *)init {
     if (self = [super init]) {
@@ -26,16 +31,23 @@
     if (!self.context) {
         NSLog(@"Failed to create ES context");
     }
-
+    
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, self.context, NULL, &_videoTextureCache);
+    if (err) {
+        NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
+        return;
+    }
+    
     GLKView *view = (GLKView *)self.view;
     view.context = self.context;
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+    view.contentMode = UIViewContentModeScaleToFill;
     
     glGenRenderbuffers(1, &_renderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);
-
+    
     self.ciContext = [CIContext contextWithEAGLContext:self.context]; 
-
+    
     if (self.dragEnabled) {
         //add drag action listener
         NSLog(@"Enabling view dragging");
@@ -114,12 +126,13 @@
       [self.sessionManager.session stopRunning];
     });
 }
-
+//TODO:Use TEXTURE_2D
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
     if ([self.renderLock tryLock]) {
         CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
         CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-
+        
+		
         CGFloat scaleHeight = self.view.frame.size.height/image.extent.size.height;
         CGFloat scaleWidth = self.view.frame.size.width/image.extent.size.width;
         CGFloat scale  = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
@@ -135,7 +148,7 @@
         [cropFilter setValue:scaledImage forKey:kCIInputImageKey];
         [cropFilter setValue:cropRect forKey:@"inputRectangle"];
         CIImage *croppedImage = [cropFilter outputImage];
-
+		
         CIFilter *filter = [self.sessionManager ciFilter];
 
         CIImage *result;
@@ -144,8 +157,15 @@
             [filter setValue:croppedImage forKey:kCIInputImageKey];
             result = [filter outputImage];
             [self.sessionManager.filterLock unlock];
-        } else {
+        }
+		else {
             result = croppedImage;
+        }
+
+        //fix front mirroring
+        if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
+            CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(-1, 1), 0, result.extent.size.height);
+            result = [result imageByApplyingTransform:matrix];
         }
 
         self.latestFrame = result;
@@ -177,7 +197,10 @@
 }
 
 - (BOOL)shouldAutorotate {
-    return NO;
+    return YES;
 }
-
+-(void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self.sessionManager updateOrientation:[self.sessionManager getCurrentOrientation:toInterfaceOrientation]];
+}
 @end

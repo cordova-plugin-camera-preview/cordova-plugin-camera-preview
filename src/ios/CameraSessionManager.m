@@ -13,7 +13,29 @@
     }
     return self;
 }
-
+- (AVCaptureVideoOrientation) getCurrentOrientation/*:(UIInterfaceOrientation)toInterfaceOrientation*/
+{
+    return [self getCurrentOrientation: [[UIApplication sharedApplication] statusBarOrientation]];
+}
+- (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+    AVCaptureVideoOrientation orientation;
+    switch (toInterfaceOrientation) {
+        case UIInterfaceOrientationPortraitUpsideDown :
+            orientation = AVCaptureVideoOrientationPortraitUpsideDown;
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            orientation = AVCaptureVideoOrientationLandscapeRight;
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            orientation = AVCaptureVideoOrientationLandscapeLeft;
+            break;
+        default:
+        case UIInterfaceOrientationPortrait:
+            orientation = AVCaptureVideoOrientationPortrait;
+    }
+    return orientation;
+}
 - (void) setupSession:(NSString *)defaultCamera
 {
     // If this fails, video input will just stream blank frames
@@ -52,34 +74,11 @@
             self.videoDeviceInput = videoDeviceInput;
         }
 
-        AVCaptureConnection *captureConnection;
-        AVCaptureVideoOrientation orientation;
-
-        switch ([[UIApplication sharedApplication] statusBarOrientation]) {
-            case UIDeviceOrientationPortraitUpsideDown:
-                orientation = AVCaptureVideoOrientationPortraitUpsideDown;
-                break;
-            case UIDeviceOrientationLandscapeLeft:
-                orientation = AVCaptureVideoOrientationLandscapeLeft;
-                break;
-            case UIDeviceOrientationLandscapeRight:
-                orientation = AVCaptureVideoOrientationLandscapeRight;
-                break;
-            default:
-            case UIDeviceOrientationPortrait:
-               orientation = AVCaptureVideoOrientationPortrait;
-        }
-
         AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
         if ([self.session canAddOutput:stillImageOutput]) {
             [self.session addOutput:stillImageOutput];
             [stillImageOutput setOutputSettings:@{AVVideoCodecKey : AVVideoCodecJPEG}];
             self.stillImageOutput = stillImageOutput;
-
-            captureConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
-            if ([captureConnection isVideoOrientationSupported]) {
-                [captureConnection setVideoOrientation:orientation];
-            }
         }
 
         AVCaptureVideoDataOutput *dataOutput = [[AVCaptureVideoDataOutput alloc] init];
@@ -91,15 +90,27 @@
             [dataOutput setSampleBufferDelegate:self.delegate queue:self.sessionQueue];
 
             [self.session addOutput:dataOutput];
-
-            captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
-            if ([captureConnection isVideoOrientationSupported]) {
-                [captureConnection setVideoOrientation:AVCaptureVideoOrientationPortrait];
-            }
         }
+        
+        [self updateOrientation:[self getCurrentOrientation]];
     });
 }
-
+- (void) updateOrientation:(AVCaptureVideoOrientation)orientation
+{
+    AVCaptureConnection *captureConnection;
+    if (self.stillImageOutput != nil) {
+        captureConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+        if ([captureConnection isVideoOrientationSupported]) {
+            [captureConnection setVideoOrientation:orientation];
+        }
+    }
+    if (self.dataOutput != nil) {
+        captureConnection = [self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
+        if ([captureConnection isVideoOrientationSupported]) {
+            [captureConnection setVideoOrientation:orientation];
+        }
+    }
+}
 - (void) switchCamera
 {
     if (self.defaultCamera == AVCaptureDevicePositionFront) {
@@ -139,15 +150,8 @@
             [self.session addInput:videoDeviceInput];
             [self setVideoDeviceInput:videoDeviceInput];
         }
-
-        AVCaptureConnection *captureConnection;
-        if (self.stillImageOutput != nil) {
-            captureConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
-            if ([captureConnection isVideoOrientationSupported]) {
-                [captureConnection setVideoOrientation:(AVCaptureVideoOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
-            }
-        }
-
+        
+        [self updateOrientation:[self getCurrentOrientation]];
         [self.session commitConfiguration];
     });
 }
