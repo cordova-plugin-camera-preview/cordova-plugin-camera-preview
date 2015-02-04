@@ -8,7 +8,7 @@ Show camera preview popup on top of the HTML.<br/>
 <ul>
   <li>Start a camera preview from HTML code.</li>
   <li>Drag the preview box.</li>
-  <li>Set camera color effect (Android, iOS is not implemented yet).</li>
+  <li>Set camera color effect (Android and iOS).</li>
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Maintain HTML interactivity.</li>
@@ -37,10 +37,10 @@ Show camera preview popup on top of the HTML.<br/>
   <code>cordova.plugins.camerapreview.stopCamera();</code>
 </p>
 <p>
-  <b>takePicture()</b><br/>
-  <info>Take the picture</info><br/>
+  <b>takePicture(size)</b><br/>
+  <info>Take the picture, the parameter size is optional</info><br/>
   <i>Usage:</i><br/>
-  <code>cordova.plugins.camerapreview.takePicture();</code>
+  <code>cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640);</code>
 </p>
 <p>
   <b>setOnPictureTakenHandler(callback)</b><br/>
