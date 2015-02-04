@@ -40,7 +40,7 @@ Show camera preview popup on top of the HTML.<br/>
   <b>takePicture(size)</b><br/>
   <info>Take the picture, the parameter size is optional</info><br/>
   <i>Usage:</i><br/>
-  <code>cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640);</code>
+  <code>cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640});</code>
 </p>
 <p>
   <b>setOnPictureTakenHandler(callback)</b><br/>
