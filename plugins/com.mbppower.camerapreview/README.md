@@ -8,6 +8,7 @@ Show camera preview popup on top of the HTML.<br/>
 <ul>
   <li>Start a camera preview from HTML code.</li>
   <li>Drag the preview box.</li>
+  <li>Set camera color effect (Android, iOS is not implemented yet).</li>
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Maintain HTML interactivity.</li>

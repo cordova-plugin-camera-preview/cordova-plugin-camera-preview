@@ -38,11 +38,14 @@
 		7E7966E61810823500FA85AD /* icon-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DC1810823500FA85AD /* icon-small.png */; };
 		7E7966E71810823500FA85AD /* icon-small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DD1810823500FA85AD /* icon-small@2x.png */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
-		462093BC43FD44BDACAB9C68 /* CameraPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = CC46EB7D9124409691D931BB /* CameraPreview.m */; };
-		3894E730521F4157A1280A92 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = EFF8CE841D174A0E9C668EAA /* AVCamPreviewView.m */; };
-		E32ECF2C8EB5470BB7D01901 /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47574FBBF6044228A920A19C /* CameraViewController.m */; };
-		658B8126F82548F490D4D04F /* CameraViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCA19072C5EF431D99372DE6 /* CameraViewController.xib */; };
-		503D73EB87364A30B5DEA6D0 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C111CD9374964776B76EA72A /* ImageIO.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		4C08C410AF73478389AF7A0A /* CameraPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 579F268CCE8F4205AA81AE1E /* CameraPreview.m */; };
+		7FC7B667B21C400F872DB9F1 /* CameraSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 85370419D7C84233B07CA164 /* CameraSessionManager.m */; };
+		C067C896850A4B2E85CB4D18 /* CameraRenderController.m in Sources */ = {isa = PBXBuildFile; fileRef = D2B220F227794ABA9189711B /* CameraRenderController.m */; };
+		C1A4E2F3940D4841B7EC4AA5 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BCB89111E86428DBED9464C /* ImageIO.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		DAED3148F0C64F5C905BACB4 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B896242B90B41A795B8F4CA /* CoreImage.framework */; };
+		06E926CCEF12432F8EBEDBE2 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74A1F624C4FB4E64AE1A9614 /* OpenGLES.framework */; };
+		944CA7B00EFD4749985405B2 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C2E6378436B4AFF9EA7CEE4 /* GLKit.framework */; };
+		40C34011FDC9449EA62DA369 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 57C231D3B5E14526B24D1368 /* CoreVideo.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,14 +110,17 @@
 		EB87FDF31871DA8E0020F90C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../../www; sourceTree = "<group>"; };
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = "CordovaCameraPreviewApp/config.xml"; sourceTree = "<group>"; };
-		CC46EB7D9124409691D931BB /* CameraPreview.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CameraPreview.m"; path = "com.mbppower.camerapreview/CameraPreview.m"; sourceTree = "<group>"; fileEncoding = 4; };
-		EFF8CE841D174A0E9C668EAA /* AVCamPreviewView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "AVCamPreviewView.m"; path = "com.mbppower.camerapreview/AVCamPreviewView.m"; sourceTree = "<group>"; fileEncoding = 4; };
-		47574FBBF6044228A920A19C /* CameraViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CameraViewController.m"; path = "com.mbppower.camerapreview/CameraViewController.m"; sourceTree = "<group>"; fileEncoding = 4; };
-		CCA19072C5EF431D99372DE6 /* CameraViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "CameraViewController.xib"; path = "com.mbppower.camerapreview/CameraViewController.xib"; sourceTree = "<group>"; fileEncoding = 4; };
-		5E447F633D374D34ABFF2185 /* CameraPreview.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CameraPreview.h"; path = "com.mbppower.camerapreview/CameraPreview.h"; sourceTree = "<group>"; fileEncoding = 4; };
-		0C7666BDB7B84AA18D7ECD41 /* AVCamPreviewView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "AVCamPreviewView.h"; path = "com.mbppower.camerapreview/AVCamPreviewView.h"; sourceTree = "<group>"; fileEncoding = 4; };
-		9550265058EE4811AF6EAE19 /* CameraViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CameraViewController.h"; path = "com.mbppower.camerapreview/CameraViewController.h"; sourceTree = "<group>"; fileEncoding = 4; };
-		C111CD9374964776B76EA72A /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "ImageIO.framework"; path = "System/Library/Frameworks/ImageIO.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		579F268CCE8F4205AA81AE1E /* CameraPreview.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CameraPreview.m"; path = "com.mbppower.camerapreview/CameraPreview.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		85370419D7C84233B07CA164 /* CameraSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CameraSessionManager.m"; path = "com.mbppower.camerapreview/CameraSessionManager.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		D2B220F227794ABA9189711B /* CameraRenderController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CameraRenderController.m"; path = "com.mbppower.camerapreview/CameraRenderController.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		769BDB1D92584BD2B90D2A81 /* CameraPreview.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CameraPreview.h"; path = "com.mbppower.camerapreview/CameraPreview.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		B4335599C4F846B6987A4114 /* CameraSessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CameraSessionManager.h"; path = "com.mbppower.camerapreview/CameraSessionManager.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		07052FC08C1F4181AC661A47 /* CameraRenderController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CameraRenderController.h"; path = "com.mbppower.camerapreview/CameraRenderController.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		1BCB89111E86428DBED9464C /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "ImageIO.framework"; path = "System/Library/Frameworks/ImageIO.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		5B896242B90B41A795B8F4CA /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "CoreImage.framework"; path = "System/Library/Frameworks/CoreImage.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		74A1F624C4FB4E64AE1A9614 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "OpenGLES.framework"; path = "System/Library/Frameworks/OpenGLES.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		5C2E6378436B4AFF9EA7CEE4 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "GLKit.framework"; path = "System/Library/Frameworks/GLKit.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		57C231D3B5E14526B24D1368 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "CoreVideo.framework"; path = "System/Library/Frameworks/CoreVideo.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,7 +133,11 @@
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				305D5FD1115AB8F900A74A75 /* MobileCoreServices.framework in Frameworks */,
 				5AEE5B35173C68D80009041E /* CoreLocation.framework in Frameworks */,
-				503D73EB87364A30B5DEA6D0 /* ImageIO.framework in Frameworks */,
+				C1A4E2F3940D4841B7EC4AA5 /* ImageIO.framework in Frameworks */,
+				DAED3148F0C64F5C905BACB4 /* CoreImage.framework in Frameworks */,
+				06E926CCEF12432F8EBEDBE2 /* OpenGLES.framework in Frameworks */,
+				944CA7B00EFD4749985405B2 /* GLKit.framework in Frameworks */,
+				40C34011FDC9449EA62DA369 /* CoreVideo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,7 +231,11 @@
 				5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */,
 				288765FC0DF74451002DB57D /* CoreGraphics.framework */,
 				305D5FD0115AB8F900A74A75 /* MobileCoreServices.framework */,
-				C111CD9374964776B76EA72A /* ImageIO.framework */,
+				1BCB89111E86428DBED9464C /* ImageIO.framework */,
+				5B896242B90B41A795B8F4CA /* CoreImage.framework */,
+				74A1F624C4FB4E64AE1A9614 /* OpenGLES.framework */,
+				5C2E6378436B4AFF9EA7CEE4 /* GLKit.framework */,
+				57C231D3B5E14526B24D1368 /* CoreVideo.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -237,13 +251,12 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
-				CC46EB7D9124409691D931BB /* CameraPreview.m */,
-				EFF8CE841D174A0E9C668EAA /* AVCamPreviewView.m */,
-				47574FBBF6044228A920A19C /* CameraViewController.m */,
-				CCA19072C5EF431D99372DE6 /* CameraViewController.xib */,
-				5E447F633D374D34ABFF2185 /* CameraPreview.h */,
-				0C7666BDB7B84AA18D7ECD41 /* AVCamPreviewView.h */,
-				9550265058EE4811AF6EAE19 /* CameraViewController.h */,
+				579F268CCE8F4205AA81AE1E /* CameraPreview.m */,
+				85370419D7C84233B07CA164 /* CameraSessionManager.m */,
+				D2B220F227794ABA9189711B /* CameraRenderController.m */,
+				769BDB1D92584BD2B90D2A81 /* CameraPreview.h */,
+				B4335599C4F846B6987A4114 /* CameraSessionManager.h */,
+				07052FC08C1F4181AC661A47 /* CameraRenderController.h */,
 			);
 			name = Plugins;
 			path = "CordovaCameraPreviewApp/Plugins";
@@ -438,10 +451,9 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
-				462093BC43FD44BDACAB9C68 /* CameraPreview.m in Sources */,
-				3894E730521F4157A1280A92 /* AVCamPreviewView.m in Sources */,
-				E32ECF2C8EB5470BB7D01901 /* CameraViewController.m in Sources */,
-				658B8126F82548F490D4D04F /* CameraViewController.xib in Resources */,
+				4C08C410AF73478389AF7A0A /* CameraPreview.m in Sources */,
+				7FC7B667B21C400F872DB9F1 /* CameraSessionManager.m in Sources */,
+				C067C896850A4B2E85CB4D18 /* CameraRenderController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

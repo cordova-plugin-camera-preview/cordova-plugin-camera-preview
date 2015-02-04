@@ -20,8 +20,13 @@ CameraPreview.startCamera = function(rect, defaultCamera, tapEnabled, dragEnable
 CameraPreview.stopCamera = function() {
 	exec(null, null, PLUGIN_NAME, "stopCamera", []);
 };
-CameraPreview.takePicture = function() {
-	exec(null, null, PLUGIN_NAME, "takePicture", []);
+//@param size {maxWidth: 100, maxHeight:100}
+CameraPreview.takePicture = function(size) {
+	var params = [0, 0];
+	if(size){
+		params = [size.maxWidth, size.maxHeight];
+	}
+	exec(null, null, PLUGIN_NAME, "takePicture", params);
 };
 
 CameraPreview.setColorEffect = function(effect) {

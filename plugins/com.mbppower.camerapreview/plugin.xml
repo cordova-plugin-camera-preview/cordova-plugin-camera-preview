@@ -2,7 +2,7 @@
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     id="com.mbppower.camerapreview"
-    version="0.0.6">
+    version="0.0.7">
     <name>CameraPreview</name>
     <description>Cordova plugin that allows camera interaction from HTML code. Show camera preview popup on top of the HTML.</description>
     <license>Apache 2.0</license>
@@ -51,20 +51,23 @@
 
         <header-file src="src/ios/CameraPreview.h" />
         <source-file src="src/ios/CameraPreview.m" />
+
+        <header-file src="src/ios/CameraSessionManager.h" />
+        <source-file src="src/ios/CameraSessionManager.m" />
+
+        <header-file src="src/ios/CameraRenderController.h" />
+        <source-file src="src/ios/CameraRenderController.m" />
 	
-	<header-file src="src/ios/AVCamPreviewView.h" />
-	<source-file src="src/ios/AVCamPreviewView.m" />
-	
-	<header-file src="src/ios/CameraViewController.h" />
-	<source-file src="src/ios/CameraViewController.m" />
-	<source-file src="src/ios/CameraViewController.xib" />
-	
-	<framework src="ImageIO.framework" weak="true" />
+	       <framework src="ImageIO.framework" weak="true" />
          <framework src="MobileCoreServices.framework" />
-	<framework src="CoreLocation.framework" />
+	       <framework src="CoreLocation.framework" />
          <framework src="CoreGraphics.framework" />
          <framework src="AssetsLibrary.framework" />
          <framework src="CoreGraphics.framework" />
+         <framework src="CoreImage.framework" />
+         <framework src="OpenGLES.framework" />
+         <framework src="GLKit.framework" />
+         <framework src="CoreVideo.framework" />
 	 
     </platform>
 

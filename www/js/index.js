@@ -35,7 +35,7 @@ var app = {
 		document.getElementById('showButton').addEventListener('mousedown', this.onShow, false);
 		document.getElementById('hideButton').addEventListener('mousedown', this.onHide, false);
 		document.getElementById('colorEffectCombo').addEventListener('change', this.onColorEffectChanged, false);
-		window.addEventListener('orientationchange', this.onStopCamera, false);
+		//window.addEventListener('orientationchange', this.onStopCamera, false);
 		document.addEventListener('deviceready', this.onDeviceReady, false);
 	},
 	onStartCamera: function() {
@@ -52,7 +52,7 @@ var app = {
 		cordova.plugins.camerapreview.stopCamera();
 	},
 	onTakePicture: function() {
-		cordova.plugins.camerapreview.takePicture();
+        cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640});
 	},
 	onSwitchCamera: function() {
 		cordova.plugins.camerapreview.switchCamera();
@@ -60,6 +60,9 @@ var app = {
 	onShow: function() {
 		cordova.plugins.camerapreview.show();
 	},
+    onHide: function() {
+        cordova.plugins.camerapreview.hide();
+    },
 	onColorEffectChanged: function() {
 		var effect = document.getElementById('colorEffectCombo').value;
 		cordova.plugins.camerapreview.setColorEffect(effect);
@@ -72,7 +75,6 @@ var app = {
 			document.getElementById('originalPicture').src = result[0];//originalPicturePath;
 			document.getElementById('previewPicture').src = result[1];//previewPicturePath;
 		});
-		
 	}
 };
 
