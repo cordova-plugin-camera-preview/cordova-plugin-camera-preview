@@ -73,8 +73,8 @@ Show camera preview popup on top of the HTML.<br/>
 </p>
 <p>
 <b>Base64 image:</b><br/>
-	Use the cordova-file in order to read the picture file and them get the base64.
-	Please, refer to this documentation: http://docs.phonegap.com/en/edge/cordova_file_file.md.html
+	Use the cordova-file in order to read the picture file and them get the base64.<br/>
+	Please, refer to this documentation: http://docs.phonegap.com/en/edge/cordova_file_file.md.html<br/>
 	Method <i>readAsDataURL</i>: Read file and return data as a base64-encoded data URL.
 </p>
 <p><b>Sample:</b><br/>
