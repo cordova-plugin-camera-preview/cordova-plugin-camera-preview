@@ -535,10 +535,10 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
                 angle = 0;
                 break;
             case Surface.ROTATION_180:
-                angle = 270;
+                angle = 180;
                 break;
             case Surface.ROTATION_270:
-                angle = 180;
+                angle = 270;
                 break;
             default:
                 angle = 90;
