@@ -170,7 +170,12 @@
 
         self.latestFrame = result;
 
-        CGFloat pointScale = [[UIScreen mainScreen] scale];
+        CGFloat pointScale;
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(nativeScale)]) {
+            pointScale = [[UIScreen mainScreen] nativeScale];
+        } else {
+            pointScale = [[UIScreen mainScreen] scale];
+        }
         CGRect dest = CGRectMake(0, 0, self.view.frame.size.width*pointScale, self.view.frame.size.height*pointScale);
 
         [self.ciContext drawImage:result inRect:dest fromRect:[result extent]];
