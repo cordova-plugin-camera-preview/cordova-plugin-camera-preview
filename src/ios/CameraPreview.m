@@ -199,7 +199,7 @@
 			if(maxWidth > 0 && maxHeight > 0){
 				CGFloat scaleHeight = maxWidth/capturedImage.size.height;
 				CGFloat scaleWidth = maxHeight/capturedImage.size.width;
-				CGFloat scale = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
+				CGFloat scale = scaleHeight > scaleWidth ? scaleWidth : scaleHeight;
 
 				CIFilter *resizeFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
 				[resizeFilter setValue:[[CIImage alloc] initWithCGImage:[capturedImage CGImage]] forKey:kCIInputImageKey];
