@@ -18,14 +18,14 @@
     }
     
     if (command.arguments.count > 3) {
-        CGFloat x = (CGFloat)[command.arguments[0] floatValue];
-        CGFloat y = (CGFloat)[command.arguments[1] floatValue];
+        CGFloat x = (CGFloat)[command.arguments[0] floatValue] + self.webView.frame.origin.x;
+        CGFloat y = (CGFloat)[command.arguments[1] floatValue] + self.webView.frame.origin.y;
         CGFloat width = (CGFloat)[command.arguments[2] floatValue];
         CGFloat height = (CGFloat)[command.arguments[3] floatValue];
         NSString *defaultCamera = command.arguments[4];
         BOOL tapToTakePicture = (BOOL)[command.arguments[5] boolValue];
         BOOL dragEnabled = (BOOL)[command.arguments[6] boolValue];
-
+        BOOL toBack = (BOOL)[command.arguments[7] boolValue];
         // Create the session manager
         self.sessionManager = [[CameraSessionManager alloc] init];
         
@@ -36,9 +36,18 @@
         self.cameraRenderController.sessionManager = self.sessionManager;
         self.cameraRenderController.view.frame = CGRectMake(x, y, width, height);
         self.cameraRenderController.delegate = self;
-
+        
         [self.viewController addChildViewController:self.cameraRenderController];
-        [self.viewController.view addSubview:self.cameraRenderController.view];
+        //display the camera bellow the webview
+        if (toBack) {
+            //make transparent
+            self.webView.opaque = NO;
+            self.webView.backgroundColor = [UIColor clearColor];
+            [self.viewController.view insertSubview:self.cameraRenderController.view atIndex:0];
+        }
+        else{
+             [self.viewController.view addSubview:self.cameraRenderController.view];
+        }
 
         // Setup session
         self.sessionManager.delegate = self.cameraRenderController;
@@ -184,9 +193,7 @@
         
         if (error) {
             NSLog(@"%@", error);
-        }
-        else {
-            //GLKView *previewView  = (GLKView *)self.cameraRenderController.view;
+        } else {
             [self.cameraRenderController.renderLock lock];
             CIImage *previewCImage = self.cameraRenderController.latestFrame;
             CGImageRef previewImage = [self.cameraRenderController.ciContext createCGImage:previewCImage fromRect:previewCImage.extent];
@@ -201,7 +208,7 @@
 			if(maxWidth > 0 && maxHeight > 0){
 				CGFloat scaleHeight = maxWidth/capturedImage.size.height;
 				CGFloat scaleWidth = maxHeight/capturedImage.size.width;
-				CGFloat scale = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
+				CGFloat scale = scaleHeight > scaleWidth ? scaleWidth : scaleHeight;
 
 				CIFilter *resizeFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
 				[resizeFilter setValue:[[CIImage alloc] initWithCGImage:[capturedImage CGImage]] forKey:kCIInputImageKey];

@@ -56,11 +56,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CordovaCameraPreviewApp/Plugins/com.mbppower.camerapreview/CameraRenderController.m"
-            timestampString = "444748827.293014"
+            timestampString = "449178131.011781"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "257"
-            endingLineNumber = "257">
+            startingLineNumber = "264"
+            endingLineNumber = "264">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -86,12 +86,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CordovaCameraPreviewApp/Plugins/com.mbppower.camerapreview/CameraPreview.m"
-            timestampString = "444753315.161552"
+            timestampString = "449165774.262287"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "180"
-            endingLineNumber = "180"
-            landmarkName = "-invokeTakePicture:withHeight:"
+            startingLineNumber = "183"
+            endingLineNumber = "183"
+            landmarkName = "-setColorEffect:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

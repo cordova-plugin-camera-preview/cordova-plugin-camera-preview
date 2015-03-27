@@ -8,7 +8,7 @@ Show camera preview popup on top of the HTML.<br/>
 <ul>
   <li>Start a camera preview from HTML code.</li>
   <li>Drag the preview box.</li>
-  <li>Set camera color effect (Android, iOS is not implemented yet).</li>
+  <li>Set camera color effect (Android and iOS).</li>
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Maintain HTML interactivity.</li>
@@ -37,10 +37,10 @@ Show camera preview popup on top of the HTML.<br/>
   <code>cordova.plugins.camerapreview.stopCamera();</code>
 </p>
 <p>
-  <b>takePicture()</b><br/>
-  <info>Take the picture</info><br/>
+  <b>takePicture(size)</b><br/>
+  <info>Take the picture, the parameter size is optional</info><br/>
   <i>Usage:</i><br/>
-  <code>cordova.plugins.camerapreview.takePicture();</code>
+  <code>cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640});</code>
 </p>
 <p>
   <b>setOnPictureTakenHandler(callback)</b><br/>
@@ -71,7 +71,12 @@ Show camera preview popup on top of the HTML.<br/>
   <i>Usage:</i><br/>
   <code>cordova.plugins.camerapreview.hide();</code>
 </p>
-
+<p>
+<b>Base64 image:</b><br/>
+	Use the cordova-file in order to read the picture file and them get the base64.<br/>
+	Please, refer to this documentation: http://docs.phonegap.com/en/edge/cordova_file_file.md.html<br/>
+	Method <i>readAsDataURL</i>: Read file and return data as a base64-encoded data URL.
+</p>
 <p><b>Sample:</b><br/>
 Please see the <a href="https://github.com/mbppower/CordovaCameraPreviewApp">CordovaCameraPreviewApp</a> for a complete working example for Android and iOS platforms.</p>
 

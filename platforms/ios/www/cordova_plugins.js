@@ -11,7 +11,7 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "com.mbppower.camerapreview": "0.0.7"
+    "com.mbppower.camerapreview": "0.0.8"
 }
 // BOTTOM OF METADATA
 });

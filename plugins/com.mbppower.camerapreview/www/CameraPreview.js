@@ -14,8 +14,8 @@ CameraPreview.setOnPictureTakenHandler = function(onPictureTaken) {
 
 //@param rect {x: 0, y: 0, width: 100, height:100}
 //@param defaultCamera "front" | "back"
-CameraPreview.startCamera = function(rect, defaultCamera, tapEnabled, dragEnabled) {
-	exec(null, null, PLUGIN_NAME, "startCamera", [rect.x, rect.y, rect.width, rect.height, defaultCamera, !!tapEnabled, !!dragEnabled]);
+CameraPreview.startCamera = function(rect, defaultCamera, tapEnabled, dragEnabled, toBack) {
+	exec(null, null, PLUGIN_NAME, "startCamera", [rect.x, rect.y, rect.width, rect.height, defaultCamera, !!tapEnabled, !!dragEnabled, !!toBack]);
 };
 CameraPreview.stopCamera = function() {
 	exec(null, null, PLUGIN_NAME, "stopCamera", []);

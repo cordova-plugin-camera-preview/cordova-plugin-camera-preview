@@ -135,20 +135,34 @@
 		
         CGFloat scaleHeight = self.view.frame.size.height/image.extent.size.height;
         CGFloat scaleWidth = self.view.frame.size.width/image.extent.size.width;
-        CGFloat scale  = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
 
-        CIFilter *resizeFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
-        [resizeFilter setValue:image forKey:kCIInputImageKey];
-        [resizeFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputAspectRatio"];
-        [resizeFilter setValue:[NSNumber numberWithFloat:scale] forKey:@"inputScale"];
-        CIImage *scaledImage = [resizeFilter outputImage];
+        CGFloat scale, x, y;
+        if (scaleHeight < scaleWidth) {
+            scale = scaleWidth;
+            x = 0;
+            y = ((scale * image.extent.size.height) - self.view.frame.size.height ) / 2;
+        } else {
+            scale = scaleHeight;
+            x = ((scale * image.extent.size.width) - self.view.frame.size.width )/ 2;
+            y = 0;
+        }
 
+        // scale - translate
+        CGAffineTransform xscale = CGAffineTransformMakeScale(scale, scale);
+        CGAffineTransform xlate = CGAffineTransformMakeTranslation(-x, -y);
+        CGAffineTransform xform =  CGAffineTransformConcat(xscale, xlate);
+        // NSLog(@"TRANSFORM: %@", NSStringFromCGAffineTransform(xform));
+        NSValue *xformObj = [NSValue valueWithBytes:&xform objCType:@encode(CGAffineTransform)];
+        
+        CIImage *transformedImage = [image imageByApplyingFilter: @"CIAffineTransform" withInputParameters:@{kCIInputTransformKey : xformObj} ];
+
+        // crop
         CIFilter *cropFilter = [CIFilter filterWithName:@"CICrop"];
         CIVector *cropRect = [CIVector vectorWithX:0 Y:0 Z:self.view.frame.size.width W:self.view.frame.size.height];
-        [cropFilter setValue:scaledImage forKey:kCIInputImageKey];
+        [cropFilter setValue:transformedImage forKey:kCIInputImageKey];
         [cropFilter setValue:cropRect forKey:@"inputRectangle"];
         CIImage *croppedImage = [cropFilter outputImage];
-		
+        
         CIFilter *filter = [self.sessionManager ciFilter];
 
         CIImage *result;
@@ -170,7 +184,12 @@
 
         self.latestFrame = result;
 
-        CGFloat pointScale = [[UIScreen mainScreen] scale];
+        CGFloat pointScale;
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(nativeScale)]) {
+            pointScale = [[UIScreen mainScreen] nativeScale];
+        } else {
+            pointScale = [[UIScreen mainScreen] scale];
+        }
         CGRect dest = CGRectMake(0, 0, self.view.frame.size.width*pointScale, self.view.frame.size.height*pointScale);
 
         [self.ciContext drawImage:result inRect:dest fromRect:[result extent]];

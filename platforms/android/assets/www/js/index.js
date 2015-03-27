@@ -41,18 +41,20 @@ var app = {
 	onStartCamera: function() {
 		var tapEnabled = true;
 		var dragEnabled = true;
-		cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 300, height:300}, "front", tapEnabled, dragEnabled);
+        var toBack = true;
+		cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 300, height:300}, "front", tapEnabled, dragEnabled, toBack);
 	},
 	onStartCameraAnotherPos: function() {
 		var tapEnabled = true;
 		var dragEnabled = true;
-		cordova.plugins.camerapreview.startCamera({x: 200, y: 0, width: 100, height:150}, "front", tapEnabled, dragEnabled);
+        var toBack = true;
+		cordova.plugins.camerapreview.startCamera({x: 200, y: 0, width: 100, height:150}, "front", tapEnabled, dragEnabled, toBack);
 	},
 	onStopCamera: function() {
 		cordova.plugins.camerapreview.stopCamera();
 	},
 	onTakePicture: function() {
-        cordova.plugins.camerapreview.takePicture({maxWidth:50, maxHeight:30});
+        cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640});
 	},
 	onSwitchCamera: function() {
 		cordova.plugins.camerapreview.switchCamera();
