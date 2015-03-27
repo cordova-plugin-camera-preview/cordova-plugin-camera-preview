@@ -14,7 +14,6 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
@@ -87,7 +86,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					String defaultCamera = args.getString(4);
 					Boolean tapToTakePicture = args.getBoolean(5);
 					Boolean dragEnabled = args.getBoolean(6);
-					
+					Boolean toBack = args.getBoolean(7);
+
 					fragment.defaultCamera = defaultCamera;
 					fragment.tapToTakePicture = tapToTakePicture;
 					fragment.dragEnabled = dragEnabled;
@@ -101,6 +101,13 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
 						FrameLayout.LayoutParams containerLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 						cordova.getActivity().addContentView(containerView, containerLayoutParams);
+						//display camera bellow the webview
+						if(toBack){
+							webView.setBackgroundColor(0x00000000);
+							ViewGroup g = (ViewGroup)webView.getParent();
+							g.setBackgroundColor(0x00000000);
+							g.bringToFront();
+						}
 					}
 
 					//add the fragment to the container

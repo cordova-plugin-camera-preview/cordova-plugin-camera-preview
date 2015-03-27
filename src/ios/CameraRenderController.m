@@ -150,12 +150,15 @@
         // scale - translate
         CGAffineTransform xscale = CGAffineTransformMakeScale(scale, scale);
         CGAffineTransform xlate = CGAffineTransformMakeTranslation(-x, -y);
-        CGAffineTransform xform =  CGAffineTransformConcat(xscale, xlate);
-        // NSLog(@"TRANSFORM: %@", NSStringFromCGAffineTransform(xform));
-        NSValue *xformObj = [NSValue valueWithBytes:&xform objCType:@encode(CGAffineTransform)];
+        CGAffineTransform xform =  CGAffineTransformConcat(xscale, xlate); 
         
-        CIImage *transformedImage = [image imageByApplyingFilter: @"CIAffineTransform" withInputParameters:@{kCIInputTransformKey : xformObj} ];
+        CIFilter *centerFilter = [CIFilter filterWithName:@"CIAffineTransform"  keysAndValues:
+                                  kCIInputImageKey, image,
+                                  kCIInputTransformKey, [NSValue valueWithBytes:&xform objCType:@encode(CGAffineTransform)],
+                                  nil];
 
+        CIImage *transformedImage = [centerFilter outputImage];
+        
         // crop
         CIFilter *cropFilter = [CIFilter filterWithName:@"CICrop"];
         CIVector *cropRect = [CIVector vectorWithX:0 Y:0 Z:self.view.frame.size.width W:self.view.frame.size.height];

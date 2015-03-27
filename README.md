@@ -9,6 +9,7 @@ Show camera preview popup on top of the HTML.<br/>
   <li>Start a camera preview from HTML code.</li>
   <li>Drag the preview box.</li>
   <li>Set camera color effect (Android and iOS).</li>
+  <li>Send the preview box to back of the HTML content.</li>
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Maintain HTML interactivity.</li>
@@ -21,13 +22,21 @@ Show camera preview popup on top of the HTML.<br/>
 <p><b>Methods:</b></p>
 
 <p>
-  <b>startCamera(rect, defaultCamera, tapEnabled, dragEnabled)</b><br/>
-  <info>Starts the camera preview instance.</info><br/>
+  <b>startCamera(rect, defaultCamera, tapEnabled, dragEnabled, toBack)</b><br/>
+  <info>
+  	Starts the camera preview instance.
+  	<br/>
+	<br/>
+	When setting the toBack to TRUE, remember to add the style bellow on your app's HTML body element:
+	<br/>
+	<code>style="background-color='transparent'"</code>
+  </info><br/>
   <i>Usage:</i><br/>
   <pre><code>
   		var tapEnabled = true; //enable tap take picture
 		var dragEnabled = true; //enable preview box drag across the screen
-  		cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 200, height:200}, "front", tapEnabled, dragEnabled);
+		var toBack = true; //send preview box to the back of the webview
+  		cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 200, height:200}, "front", tapEnabled, dragEnabled, toBack);
 	</code></pre>
 </p>
 <p>

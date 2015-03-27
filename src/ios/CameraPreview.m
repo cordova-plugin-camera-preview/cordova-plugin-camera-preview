@@ -25,7 +25,7 @@
         NSString *defaultCamera = command.arguments[4];
         BOOL tapToTakePicture = (BOOL)[command.arguments[5] boolValue];
         BOOL dragEnabled = (BOOL)[command.arguments[6] boolValue];
-
+        BOOL toBack = (BOOL)[command.arguments[7] boolValue];
         // Create the session manager
         self.sessionManager = [[CameraSessionManager alloc] init];
         
@@ -36,9 +36,18 @@
         self.cameraRenderController.sessionManager = self.sessionManager;
         self.cameraRenderController.view.frame = CGRectMake(x, y, width, height);
         self.cameraRenderController.delegate = self;
-
+        
         [self.viewController addChildViewController:self.cameraRenderController];
-        [self.viewController.view addSubview:self.cameraRenderController.view];
+        //display the camera bellow the webview
+        if (toBack) {
+            //make transparent
+            self.webView.opaque = NO;
+            self.webView.backgroundColor = [UIColor clearColor];
+            [self.viewController.view insertSubview:self.cameraRenderController.view atIndex:0];
+        }
+        else{
+             [self.viewController.view addSubview:self.cameraRenderController.view];
+        }
 
         // Setup session
         self.sessionManager.delegate = self.cameraRenderController;
