@@ -25,33 +25,78 @@
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
         <title>Hello World</title>
+		<style>
+			body, html{
+				height:100%;
+			}
+			body{
+				color:#333;
+				text-align: center;
+				font-family: sans-serif;
+				background-color: transparent;
+				background-image: url('img/background.png');
+				background-repeat:repeat;
+				background-size: cover;
+			}
+			.block{
+				padding:.25rem 0;
+				margin:.25rem 0;
+				background: #00ccff;
+				border:1px solid #111;
+				border-radius: 3px;
+			}
+			button{
+				background: gray:
+				color:#333;
+				border-radius: 3px;
+				border:1px solid #ccc;
+				margin:.25rem;
+			}
+			.pictures{
+				
+			}
+			.controls{
+				margin-top:100%;
+			}
+		</style>
     </head>
-    <body style="background-color: transparent;>
-		
-		<p><img id="previewPicture" width="200"/></p>
-		<p><img id="originalPicture" width="200"/></p>
-		
-		<p><button id="startCameraButton">Start Camera</button></p>
-		<p><button id="startCameraAnotherPosButton">Start Camera in another pos</button></p>
-		
-		<p>Color Effect:
-			<select id="colorEffectCombo">
-				<option selected value="none">none</option>
-				<option value="aqua">aqua</option>
-				<option value="blackboard">blackboard</option>
-				<option value="mono">mono</option>
-				<option value="negative">negative</option>
-				<option value="posterize">posterize</option>
-				<option value="sepia">sepia</option>
-				<option value="solarize">solarize</option>
-				<option value="whiteboard">whiteboard</option>
-			</select>
-		</p>
+    <body style="">
+		<div class="controls">
+			<div class="block">
+				<button id="startCameraButton">Start Camera at back</button>
+				<button id="stopCameraButton">Stop Camera</button>
+			</div>
+			
+			<div class="block">
+				<p><button id="startCameraAnotherPosButton">Start Camera at front</button></p>
 
-		<p><button id="stopCameraButton">Stop Camera</button></p>
-		<p><button id="takePictureButton">Take Picture</button><button id="switchCameraButton">Switch Camera</button></p>
-		<p><button id="hideButton">Hide</button><button id="showButton">Show</button></p>
-        
+				<p>Color Effect:
+					<select id="colorEffectCombo">
+						<option selected value="none">none</option>
+						<option value="aqua">aqua</option>
+						<option value="blackboard">blackboard</option>
+						<option value="mono">mono</option>
+						<option value="negative">negative</option>
+						<option value="posterize">posterize</option>
+						<option value="sepia">sepia</option>
+						<option value="solarize">solarize</option>
+						<option value="whiteboard">whiteboard</option>
+					</select>
+				</p>
+			</div>
+			<div class="block">
+				<button id="takePictureButton">Take Picture</button>
+				<button id="switchCameraButton">Switch Camera</button>
+			</div>
+			<div class="block">
+				<button id="hideButton">Hide</button>
+				<button id="showButton">Show</button>
+			</div>
+        </div>
+		<div class="pictures">
+			<p><img id="previewPicture" width="200"/></p>
+			<p><img id="originalPicture" width="200"/></p>
+		</div>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
 		<script type="text/javascript" src="CameraPreview.js"></script>

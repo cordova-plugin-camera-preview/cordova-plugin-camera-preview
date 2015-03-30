@@ -42,12 +42,12 @@ var app = {
 		var tapEnabled = true;
 		var dragEnabled = true;
         var toBack = true;
-		cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 300, height:300}, "front", tapEnabled, dragEnabled, toBack);
+		cordova.plugins.camerapreview.startCamera({x: 0, y: 50, width: 300, height:300}, "front", tapEnabled, dragEnabled, toBack);
 	},
 	onStartCameraAnotherPos: function() {
 		var tapEnabled = true;
 		var dragEnabled = true;
-        var toBack = true;
+        var toBack = false;
 		cordova.plugins.camerapreview.startCamera({x: 200, y: 0, width: 100, height:150}, "front", tapEnabled, dragEnabled, toBack);
 	},
 	onStopCamera: function() {
