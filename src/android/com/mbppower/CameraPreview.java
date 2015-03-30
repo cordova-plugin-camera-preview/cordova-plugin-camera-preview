@@ -101,13 +101,17 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
 						FrameLayout.LayoutParams containerLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 						cordova.getActivity().addContentView(containerView, containerLayoutParams);
-						//display camera bellow the webview
-						if(toBack){
-							webView.setBackgroundColor(0x00000000);
-							ViewGroup g = (ViewGroup)webView.getParent();
-							g.setBackgroundColor(0x00000000);
-							g.bringToFront();
-						}
+					}
+					//display camera bellow the webview
+					if(toBack){
+						webView.setBackgroundColor(0x00000000);
+						ViewGroup g = (ViewGroup)webView.getParent();
+						g.setBackgroundColor(0x00000000);
+						g.bringToFront();
+					}
+					else{
+						//set camera back to front
+						containerView.bringToFront();
 					}
 
 					//add the fragment to the container
