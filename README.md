@@ -30,13 +30,12 @@ cordova plugin add https://github.com/mbppower/CordovaCameraPreview.git
   	<br/>
 	<br/>
 	When setting the toBack to TRUE, remember to add the style bellow on your app's HTML body element:
-	<br/>
-	
 ```
 style="background-color='transparent'"
 ```
-	
-  </info><br/>
+</info>
+  
+Javascript:
   
 ```
 var tapEnabled = true; //enable tap take picture
