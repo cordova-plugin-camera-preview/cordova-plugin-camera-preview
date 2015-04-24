@@ -42,8 +42,8 @@ style="background-color='transparent'"
 var tapEnabled = true; //enable tap take picture
 var dragEnabled = true; //enable preview box drag across the screen
 var toBack = true; //send preview box to the back of the webview
-
-cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 200, height:200}, "front", tapEnabled, dragEnabled, toBack)
+var rect = {x: 100, y: 100, width: 200, height:200};
+cordova.plugins.camerapreview.startCamera(rect, "front", tapEnabled, dragEnabled, toBack)
 ```
 
 <b>stopCamera()</b><br/>
