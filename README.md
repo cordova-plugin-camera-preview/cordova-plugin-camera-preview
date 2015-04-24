@@ -17,7 +17,7 @@ Show camera preview popup on top of the HTML.<br/>
 
 <p><b>Installation:</b></p>
 
-<code>cordova plugin add https://github.com/mbppower/CordovaCameraPreview.git</code>
+```cordova plugin add https://github.com/mbppower/CordovaCameraPreview.git```
 
 <p><b>Methods:</b></p>
 
@@ -32,41 +32,46 @@ Show camera preview popup on top of the HTML.<br/>
 	<code>style="background-color='transparent'"</code>
   </info><br/>
   <i>Usage:</i><br/>
-  <pre><code>
-  		var tapEnabled = true; //enable tap take picture
-		var dragEnabled = true; //enable preview box drag across the screen
-		var toBack = true; //send preview box to the back of the webview
-  		cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 200, height:200}, "front", tapEnabled, dragEnabled, toBack);
-	</code></pre>
+  ```
+  	var tapEnabled = true; //enable tap take picture
+	var dragEnabled = true; //enable preview box drag across the screen
+	var toBack = true; //send preview box to the back of the webview							cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 200, height:200}, "front", tapEnabled, dragEnabled, toBack);
+```
 </p>
 <p>
   <b>stopCamera()</b><br/>
   <info>Stops the camera preview instance.</info><br/>
   <i>Usage:</i><br/>
-  <code>cordova.plugins.camerapreview.stopCamera();</code>
+  ```
+  cordova.plugins.camerapreview.stopCamera();
+  </code>
 </p>
 <p>
   <b>takePicture(size)</b><br/>
   <info>Take the picture, the parameter size is optional</info><br/>
   <i>Usage:</i><br/>
-  <code>cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640});</code>
+  ```
+  cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640});
+  ```
 </p>
 <p>
   <b>setOnPictureTakenHandler(callback)</b><br/>
   <info>Register a callback function that receives the original picture and the image captured from the preview box.</info><br/>
   <i>Usage:</i><br/>
-  <pre><code>
-  	cordova.plugins.camerapreview.setOnPictureTakenHandler(function(result){
-		document.getElementById('originalPicture').src = result[0];//originalPicturePath;
-		document.getElementById('previewPicture').src = result[1];//previewPicturePath;
-	});</code>
-  </pre>
+  ```
+cordova.plugins.camerapreview.setOnPictureTakenHandler(function(result){
+	document.getElementById('originalPicture').src = result[0];//originalPicturePath;
+	document.getElementById('previewPicture').src = result[1];//previewPicturePath;
+});
+  ```
 </p>
 <p>
   <b>switchCamera()</b><br/>
   <info>Switch from the rear camera and front camera, if available.</info><br/>
   <i>Usage:</i><br/>
-  <code>cordova.plugins.camerapreview.switchCamera();</code>
+  ```
+  cordova.plugins.camerapreview.switchCamera();
+  ```
 </p>
 <p>
   <b>show()</b><br/>
@@ -78,7 +83,9 @@ Show camera preview popup on top of the HTML.<br/>
   <b>hide()</b><br/>
   <info>Hide the camera preview box.</info><br/>
   <i>Usage:</i><br/>
-  <code>cordova.plugins.camerapreview.hide();</code>
+```
+cordova.plugins.camerapreview.hide();
+```
 </p>
 <p>
 <b>Base64 image:</b><br/>
