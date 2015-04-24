@@ -37,37 +37,32 @@ style="background-color='transparent'"
 ```
 	
   </info><br/>
-  <i>Usage:</i><br/>
   
 ```
 var tapEnabled = true; //enable tap take picture
 var dragEnabled = true; //enable preview box drag across the screen
-var toBack = true; //send preview box to the back of the webview							cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 200, height:200}, "front", tapEnabled, dragEnabled, toBack)
+var toBack = true; //send preview box to the back of the webview
+
+cordova.plugins.camerapreview.startCamera({x: 100, y: 100, width: 200, height:200}, "front", tapEnabled, dragEnabled, toBack)
 ```
 
+<b>stopCamera()</b><br/>
+<info>Stops the camera preview instance.</info><br/>
 
-
-  <b>stopCamera()</b><br/>
-  <info>Stops the camera preview instance.</info><br/>
-  <i>Usage:</i><br/>
-  
 ```
 cordova.plugins.camerapreview.stopCamera();
 ```
 
-
-  <b>takePicture(size)</b><br/>
-  <info>Take the picture, the parameter size is optional</info><br/>
-  <i>Usage:</i><br/>
-  
+<b>takePicture(size)</b><br/>
+<info>Take the picture, the parameter size is optional</info><br/>
+ 
 ```
 cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640});
 ```
 
 
-  <b>setOnPictureTakenHandler(callback)</b><br/>
-  <info>Register a callback function that receives the original picture and the image captured from the preview box.</info><br/>
-  <i>Usage:</i><br/>
+<b>setOnPictureTakenHandler(callback)</b><br/>
+<info>Register a callback function that receives the original picture and the image captured from the preview box.</info><br/>
   
 ```
 cordova.plugins.camerapreview.setOnPictureTakenHandler(function(result){
@@ -77,35 +72,31 @@ cordova.plugins.camerapreview.setOnPictureTakenHandler(function(result){
 ```
 
 
-  <b>switchCamera()</b><br/>
-  <info>Switch from the rear camera and front camera, if available.</info><br/>
-  <i>Usage:</i><br/>
-  
+<b>switchCamera()</b><br/>
+<info>Switch from the rear camera and front camera, if available.</info><br/>
+
 ```
 cordova.plugins.camerapreview.switchCamera();
 ```
 
+<b>show()</b><br/>
+<info>Show the camera preview box.</info><br/>
 
-  <b>show()</b><br/>
-  <info>Show the camera preview box.</info><br/>
-  <i>Usage:</i><br/>
-  
 ```
 cordova.plugins.camerapreview.show();
 ```
 
-  <b>hide()</b><br/>
-  <info>Hide the camera preview box.</info><br/>
-  <i>Usage:</i><br/>
-  
+<b>hide()</b><br/>
+<info>Hide the camera preview box.</info><br/>
+
 ```
 cordova.plugins.camerapreview.hide();
 ```
 
 <b>Base64 image:</b><br/>
-	Use the cordova-file in order to read the picture file and them get the base64.<br/>
-	Please, refer to this documentation: http://docs.phonegap.com/en/edge/cordova_file_file.md.html<br/>
-	Method <i>readAsDataURL</i>: Read file and return data as a base64-encoded data URL.
+Use the cordova-file in order to read the picture file and them get the base64.<br/>
+Please, refer to this documentation: http://docs.phonegap.com/en/edge/cordova_file_file.md.html<br/>
+Method <i>readAsDataURL</i>: Read file and return data as a base64-encoded data URL.
 
 <b>Sample:</b><br/>
 Please see the <a href="https://github.com/mbppower/CordovaCameraPreviewApp">CordovaCameraPreviewApp</a> for a complete working example for Android and iOS platforms.
