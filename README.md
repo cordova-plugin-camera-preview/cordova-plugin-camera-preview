@@ -21,6 +21,12 @@ Show camera preview popup on top of the HTML.<br/>
 cordova plugin add https://github.com/mbppower/CordovaCameraPreview.git
 ```
 
+<b>Phonegap Build:</b><br/>
+
+```
+<gap:plugin name="com.mbppower.camerapreview" version="0.0.8" source="plugins.cordova.io" />
+```
+
 <p><b>Methods:</b></p>
 
 
@@ -96,12 +102,6 @@ cordova.plugins.camerapreview.hide();
 Use the cordova-file in order to read the picture file and them get the base64.<br/>
 Please, refer to this documentation: http://docs.phonegap.com/en/edge/cordova_file_file.md.html<br/>
 Method <i>readAsDataURL</i>: Read file and return data as a base64-encoded data URL.
-
-<b>Phonegap Build:</b><br/>
-
-```
-<gap:plugin name="com.mbppower.camerapreview" version="0.0.8" source="plugins.cordova.io" />
-```
 
 <b>Sample:</b><br/>
 Please see the <a href="https://github.com/mbppower/CordovaCameraPreviewApp">CordovaCameraPreviewApp</a> for a complete working example for Android and iOS platforms.
