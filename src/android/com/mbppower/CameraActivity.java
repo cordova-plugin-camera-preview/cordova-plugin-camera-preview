@@ -364,7 +364,15 @@ public class CameraActivity extends Fragment {
 									else{
 										finalPic = pic;
 									}
-									generatePictureFromView(Bitmap.createBitmap(finalPic, 0, 0, (int)(finalPic.getWidth()), (int)(finalPic.getHeight()), matrix, false));
+
+									Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int)(finalPic.getWidth()), (int)(finalPic.getHeight()), matrix, false);
+
+								    //get bitmap and compress
+								    Bitmap picture = loadBitmapFromView(view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage)));
+								    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+								    picture.compress(Bitmap.CompressFormat.PNG, 80, stream);
+
+									generatePictureFromView(originalPicture, picture);
 									canTakePicture = true;
 								}
 							});
@@ -377,7 +385,7 @@ public class CameraActivity extends Fragment {
 			canTakePicture = true;
 		}
 	}
-    private void generatePictureFromView(final Bitmap originalPicture){
+    private void generatePictureFromView(final Bitmap originalPicture, final Bitmap picture){
 
 	    final FrameLayout cameraLoader = (FrameLayout)view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
 	    cameraLoader.setVisibility(View.VISIBLE);
@@ -386,14 +394,8 @@ public class CameraActivity extends Fragment {
 		    public void run() {
 
 			    try {
-				    //get bitmap and compress
-				    Bitmap picture = loadBitmapFromView(view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage)));
-				    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-				    picture.compress(Bitmap.CompressFormat.PNG, 80, stream);
-
 				    final File picFile = storeImage(picture, "_preview");
 				    final File originalPictureFile = storeImage(originalPicture, "_original");
-
 
 					eventListener.onPictureTaken(originalPictureFile.getAbsolutePath(), picFile.getAbsolutePath());
 
