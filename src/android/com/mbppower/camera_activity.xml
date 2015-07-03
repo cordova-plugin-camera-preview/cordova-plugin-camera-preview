@@ -20,7 +20,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/video_view"
-                android:scaleType="fitXY"
+                android:scaleType="FIT_CENTER"
                 android:layout_gravity="top"></FrameLayout>
 
             <ImageView
@@ -29,7 +29,7 @@
                 android:id="@+id/picture_view"
                 android:layout_gravity="center|bottom"
                 android:adjustViewBounds="true"
-                android:scaleType="fitXY" />
+                android:scaleType="FIT_CENTER" />
 
             <ImageView
                 android:layout_width="match_parent"
@@ -37,7 +37,7 @@
                 android:id="@+id/frame_view"
                 android:layout_gravity="center_horizontal|bottom"
                 android:adjustViewBounds="true"
-                android:scaleType="centerInside" />
+                android:scaleType="FIT_CENTER" />
 
         </RelativeLayout>
 
