@@ -163,6 +163,7 @@ public class CameraActivity extends Fragment {
                     FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
                     camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
                     frameCamContainerLayout.setLayoutParams(camViewLayout);
+		    mPreview.setCameraPreviewSize();
                 }
             });
         }
@@ -447,11 +448,9 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         mCamera = camera;
         this.cameraId = cameraId;
         if (mCamera != null) {
-	    Camera.Parameters parameters = mCamera.getParameters();
-            mSupportedPreviewSizes = parameters.getSupportedPreviewSizes();
+            mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
             setCameraDisplayOrientation();
-	    parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-	    mCamera.setParameters(parameters);
+
             //mCamera.getParameters().setRotation(getDisplayOrientation());
             //requestLayout();
         }
@@ -460,7 +459,11 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     public int getDisplayOrientation() {
     	return displayOrientation;
     }
-
+    public void setCameraPreviewSize() {
+	Camera.Parameters parameters = mCamera.getParameters();
+	parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+	mCamera.setParameters(parameters);
+    }
     private void setCameraDisplayOrientation() {
         Camera.CameraInfo info=new Camera.CameraInfo();
         int rotation=
@@ -504,6 +507,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     public void switchCamera(Camera camera, int cameraId) {
         setCamera(camera, cameraId);
 	    try {
+		setCameraPreviewSize();
 		camera.setPreviewDisplay(mHolder);
 	    }
 	    catch (IOException exception) {
