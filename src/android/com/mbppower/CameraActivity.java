@@ -42,7 +42,7 @@ import java.util.List;
 public class CameraActivity extends Fragment {
 
 	public interface CameraPreviewListener {
-	    public void onPictureTaken(String originalPicturePath, String previewPicturePath);
+	    public void onPictureTaken(String originalPicturePath);//, String previewPicturePath);
 	}
 
 	private CameraPreviewListener eventListener;
@@ -293,12 +293,12 @@ public class CameraActivity extends Fragment {
 									}
 
 									Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int)(finalPic.getWidth()), (int)(finalPic.getHeight()), matrix, false);
-
+									Bitmap picture;/*
 								    //get bitmap and compress
 								    Bitmap picture = loadBitmapFromView(view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage)));
 								    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-								    picture.compress(Bitmap.CompressFormat.PNG, 80, stream);
-
+								    picture.compress(Bitmap.CompressFormat.PNG, 80, stream);*/
+									
 									generatePictureFromView(originalPicture, picture);
 									canTakePicture = true;
 								}
@@ -321,10 +321,10 @@ public class CameraActivity extends Fragment {
 		    public void run() {
 
 			    try {
-				    final File picFile = storeImage(picture, "_preview");
+				//				    final File picFile = storeImage(picture, "_preview");
 				    final File originalPictureFile = storeImage(originalPicture, "_original");
 
-					eventListener.onPictureTaken(originalPictureFile.getAbsolutePath(), picFile.getAbsolutePath());
+				    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath())//, picFile.getAbsolutePath());
 
 				    getActivity().runOnUiThread(new Runnable() {
 					    @Override
