@@ -93,9 +93,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					fragment.dragEnabled = dragEnabled;
 					fragment.setRect(x, y, width, height);
 
-					params.setPreviewSize(width, height);
-					fragment.setCameraParameters(params);
-
 					//create or update the layout params for the container view
 					FrameLayout containerView = (FrameLayout)cordova.getActivity().findViewById(containerViewId);
 					if(containerView == null){

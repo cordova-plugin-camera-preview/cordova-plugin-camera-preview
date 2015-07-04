@@ -95,6 +95,7 @@ public class CameraActivity extends Fragment {
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		this.cameraParameters.setPreviewSize(width, height);
 	}
 
 	private void createCameraPreview(){
