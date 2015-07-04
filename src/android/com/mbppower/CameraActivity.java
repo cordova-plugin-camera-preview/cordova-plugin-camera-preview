@@ -324,7 +324,7 @@ public class CameraActivity extends Fragment {
 				//				    final File picFile = storeImage(picture, "_preview");
 				    final File originalPictureFile = storeImage(originalPicture, "_original");
 
-				    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath())//, picFile.getAbsolutePath());
+				    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath());//, picFile.getAbsolutePath());
 
 				    getActivity().runOnUiThread(new Runnable() {
 					    @Override
