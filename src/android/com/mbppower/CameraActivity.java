@@ -292,12 +292,7 @@ public class CameraActivity extends Fragment {
 									}
 
 									Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int)(finalPic.getWidth()), (int)(finalPic.getHeight()), matrix, false);
-									/*
-								    //get bitmap and compress
-								    Bitmap picture = loadBitmapFromView(view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage)));
-								    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-								    picture.compress(Bitmap.CompressFormat.PNG, 80, stream);*/
-									
+
 									generatePictureFromView(originalPicture);//, picture);
 									canTakePicture = true;
 								}
@@ -593,7 +588,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         try {
             if (mCamera != null) {
                 mSurfaceView.setWillNotDraw(false);
-		setCameraPreviewSize();
                 mCamera.setPreviewDisplay(holder);
             }
         } catch (IOException exception) {
@@ -649,12 +643,9 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 	    if(mCamera != null) {
 		    // Now that the size is known, set up the camera parameters and begin
 		    // the preview.
-		    Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-		    requestLayout();
-		    //mCamera.setDisplayOrientation(90);
-		    mCamera.setParameters(parameters);
-		    mCamera.startPreview();
+		setCameraPreviewSize();
+		requestLayout();		
+		mCamera.startPreview();
 	    }
     }
 
@@ -683,23 +674,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         }
     }
 }
-class TapGestureDetector extends GestureDetector.SimpleOnGestureListener{
 
-	@Override
-	public boolean onDown(MotionEvent e) {
-		return false;
-	}
-
-	@Override
-	public boolean onSingleTapUp(MotionEvent e) {
-		return true;
-	}
-
-	@Override
-	public boolean onSingleTapConfirmed(MotionEvent e) {
-		return true;
-	}
-}
 class CustomSurfaceView extends SurfaceView implements SurfaceHolder.Callback{
     private final String TAG = "CustomSurfaceView";
 
