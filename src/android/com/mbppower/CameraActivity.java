@@ -293,13 +293,13 @@ public class CameraActivity extends Fragment {
 									}
 
 									Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int)(finalPic.getWidth()), (int)(finalPic.getHeight()), matrix, false);
-									Bitmap picture;/*
+									/*
 								    //get bitmap and compress
 								    Bitmap picture = loadBitmapFromView(view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage)));
 								    ByteArrayOutputStream stream = new ByteArrayOutputStream();
 								    picture.compress(Bitmap.CompressFormat.PNG, 80, stream);*/
 									
-									generatePictureFromView(originalPicture, picture);
+									generatePictureFromView(originalPicture);//, picture);
 									canTakePicture = true;
 								}
 							});
@@ -312,7 +312,7 @@ public class CameraActivity extends Fragment {
 			canTakePicture = true;
 		}
 	}
-    private void generatePictureFromView(final Bitmap originalPicture, final Bitmap picture){
+    private void generatePictureFromView(final Bitmap originalPicture){//, final Bitmap picture){
 
 	    final FrameLayout cameraLoader = (FrameLayout)view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
 	    cameraLoader.setVisibility(View.VISIBLE);
