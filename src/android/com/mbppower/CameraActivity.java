@@ -142,10 +142,13 @@ public class CameraActivity extends Fragment {
         mCamera = Camera.open(defaultCameraId);
 
         if (cameraParameters != null) {
-	    cameraParameters.setPreviewSize(width, height);
+	    cameraParameters.setPreviewSize(mPreview.mPreviewSize.width, mPreview.mPreviewSize.height);
 	    mCamera.setParameters(cameraParameters);
         }
 	else {
+	    Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setPreviewSize(mPreview.mPreviewSize.width, mPreview.mPreviewSize.height);
+	    mCamera.setParameters(parameters);
 	    mCamera.getParameters().setPreviewSize(width, height);
 	}
 
@@ -426,7 +429,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
     CustomSurfaceView mSurfaceView;
     SurfaceHolder mHolder;
-    Camera.Size mPreviewSize;
+    public Camera.Size mPreviewSize;
     List<Camera.Size> mSupportedPreviewSizes;
     Camera mCamera;
     int cameraId;
