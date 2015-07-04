@@ -163,7 +163,6 @@ public class CameraActivity extends Fragment {
                     FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
                     camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
                     frameCamContainerLayout.setLayoutParams(camViewLayout);
-		    mPreview.setCameraPreviewSize();
                 }
             });
         }
@@ -527,6 +526,9 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
         if (mSupportedPreviewSizes != null) {
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+	    if (mCamera != null) {
+		mPreview.setCameraPreviewSize();
+	    }
         }
     }
 
