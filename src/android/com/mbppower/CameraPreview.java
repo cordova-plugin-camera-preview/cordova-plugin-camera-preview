@@ -30,8 +30,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	private CameraActivity fragment;
 	private CallbackContext takePictureCallbackContext;
 	private int containerViewId = 1;
-    private int previewWidth;
-    private int previewHeight;
 	public CameraPreview(){
 		super();
 		Log.d(TAG, "Constructing");
@@ -94,8 +92,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					fragment.tapToTakePicture = tapToTakePicture;
 					fragment.dragEnabled = dragEnabled;
 					fragment.setRect(x, y, width, height);
-					previewWidth = width;
-					previewHeight = height;
+
+					params.setPreviewSize(width, height);
+					fragment.setCameraParameters(params);
+
 					//create or update the layout params for the container view
 					FrameLayout containerView = (FrameLayout)cordova.getActivity().findViewById(containerViewId);
 					if(containerView == null){
@@ -191,7 +191,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       } else if (effect.equals("whiteboard")) {
         params.setColorEffect(Camera.Parameters.EFFECT_WHITEBOARD);
       }
-      params.setPreviewSize(previewWidth, previewHeight);
+
   	  fragment.setCameraParameters(params);
 	    return true;
     } catch(Exception e) {
