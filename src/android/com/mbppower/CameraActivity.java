@@ -142,21 +142,8 @@ public class CameraActivity extends Fragment {
         mCamera = Camera.open(defaultCameraId);
 	
         if (cameraParameters != null) {
-	    if (mPreview != null) {
-		Camera.Size previewSize = mPreview.getPreviewSize();
-		cameraParameters.setPreviewSize(previewSize.width, previewSize.height);
-	    }
-
 	    mCamera.setParameters(cameraParameters);
         }
-	else {
-	    if (mPreview != null) {
-		Camera.Size previewSize = mPreview.getPreviewSize();
-		Camera.Parameters parameters = mCamera.getParameters();
-		parameters.setPreviewSize(previewSize.width, previewSize.height);
-		mCamera.setParameters(parameters);
-	    }
-	}
 
         cameraCurrentlyLocked = defaultCameraId;
         mPreview.setCamera(mCamera, cameraCurrentlyLocked);
@@ -462,7 +449,15 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         if (mCamera != null) {
             mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
             setCameraDisplayOrientation();
-
+	    try {
+		camera.setPreviewDisplay(mHolder);
+	        Camera.Parameters parameters = camera.getParameters();
+		parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+	        camera.setParameters(parameters);
+	    }
+	    catch (IOException exception) {
+		Log.e(TAG, exception.getMessage());
+	    }
             //mCamera.getParameters().setRotation(getDisplayOrientation());
             //requestLayout();
         }
@@ -470,9 +465,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
     public int getDisplayOrientation() {
     	return displayOrientation;
-    }
-    public Camera.Size getPreviewSize() {
-	return mPreviewSize;
     }
 
     private void setCameraDisplayOrientation() {
@@ -517,15 +509,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
     public void switchCamera(Camera camera, int cameraId) {
         setCamera(camera, cameraId);
-        try {
-            camera.setPreviewDisplay(mHolder);
-	        Camera.Parameters parameters = camera.getParameters();
-            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-	        camera.setParameters(parameters);
-        }
-        catch (IOException exception) {
-            Log.e(TAG, exception.getMessage());
-        }
+
         //requestLayout();
     }
 
