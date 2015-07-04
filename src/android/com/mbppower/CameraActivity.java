@@ -140,16 +140,24 @@ public class CameraActivity extends Fragment {
         super.onResume();
 
         mCamera = Camera.open(defaultCameraId);
-
+	
         if (cameraParameters != null) {
-	    cameraParameters.setPreviewSize(mPreview.mPreviewSize.width, mPreview.mPreviewSize.height);
+	    if (mPreview != null) {
+		Camera.Size previewSize = mPreview.getPreviewSize();
+		cameraParameters.setPreviewSize(previewSize.width, previewSize.height);
+	    }
+
 	    mCamera.setParameters(cameraParameters);
         }
 	else {
-	    Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setPreviewSize(mPreview.mPreviewSize.width, mPreview.mPreviewSize.height);
-	    mCamera.setParameters(parameters);
-	    mCamera.getParameters().setPreviewSize(width, height);
+	    if (mPreview != null) {
+		Camera.Size previewSize = mPreview.getPreviewSize();
+		cameraParameters.setPreviewSize(previewSize.width, previewSize.height);
+		
+		Camera.Parameters parameters = mCamera.getParameters();
+		parameters.setPreviewSize(previewSize.width, previewSize.height);
+		mCamera.setParameters(parameters);
+	    }
 	}
 
         cameraCurrentlyLocked = defaultCameraId;
@@ -429,7 +437,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
     CustomSurfaceView mSurfaceView;
     SurfaceHolder mHolder;
-    public Camera.Size mPreviewSize;
+    Camera.Size mPreviewSize;
     List<Camera.Size> mSupportedPreviewSizes;
     Camera mCamera;
     int cameraId;
@@ -464,6 +472,9 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
     public int getDisplayOrientation() {
     	return displayOrientation;
+    }
+    public Camera.Size getPreviewSize() {
+	return mPreviewSize;
     }
 
     private void setCameraDisplayOrientation() {
