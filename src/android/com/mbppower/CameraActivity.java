@@ -42,7 +42,7 @@ import java.util.List;
 public class CameraActivity extends Fragment {
 
 	public interface CameraPreviewListener {
-		public void onPictureTaken(String originalPicturePath, String previewPicturePath);
+	    public void onPictureTaken(String originalPicturePath, String previewPicturePath);
 	}
 
 	private CameraPreviewListener eventListener;
@@ -113,79 +113,6 @@ public class CameraActivity extends Fragment {
 	        mainLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
 	        mainLayout.addView(mPreview);
 	        mainLayout.setEnabled(false);
-
-	        final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
-
-	        getActivity().runOnUiThread(new Runnable() {
-		        @Override
-		        public void run() {
-			        frameContainerLayout.setClickable(true);
-			        frameContainerLayout.setOnTouchListener(new View.OnTouchListener() {
-
-				        private int mLastTouchX;
-				        private int mLastTouchY;
-				        private int mPosX = 0;
-				        private int mPosY = 0;
-
-				        @Override
-				        public boolean onTouch(View v, MotionEvent event) {
-					        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) frameContainerLayout.getLayoutParams();
-
-
-					        boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
-					        if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
-						        if (tapToTakePicture) {
-							        takePicture(0, 0);
-						        }
-						        return true;
-					        }
-					        else {
-						        if (dragEnabled) {
-							        int x;
-							        int y;
-
-							        switch (event.getAction()) {
-								        case MotionEvent.ACTION_DOWN:
-											if(mLastTouchX == 0 || mLastTouchY == 0) {
-												mLastTouchX = (int)event.getRawX() - layoutParams.leftMargin;
-												mLastTouchY = (int)event.getRawY() - layoutParams.topMargin;
-											}
-									        else{
-												mLastTouchX = (int)event.getRawX();
-												mLastTouchY = (int)event.getRawY();
-											}
-									        break;
-								        case MotionEvent.ACTION_MOVE:
-
-									        x = (int) event.getRawX();
-									        y = (int) event.getRawY();
-
-									        final float dx = x - mLastTouchX;
-									        final float dy = y - mLastTouchY;
-
-									        mPosX += dx;
-									        mPosY += dy;
-
-									        layoutParams.leftMargin = mPosX;
-									        layoutParams.topMargin = mPosY;
-
-									        frameContainerLayout.setLayoutParams(layoutParams);
-
-									        // Remember this touch position for the next move event
-									        mLastTouchX = x;
-									        mLastTouchY = y;
-
-									        break;
-								        default:
-									        break;
-							        }
-						        }
-					        }
-					        return true;
-				        }
-			        });
-		        }
-	        });
         }
     }
 	

@@ -29,7 +29,7 @@
                 android:id="@+id/picture_view"
                 android:layout_gravity="center|bottom"
                 android:adjustViewBounds="true"
-                android:scaleType="fitXY" />
+                android:scaleType="fitCenter" />
 
             <ImageView
                 android:layout_width="match_parent"
