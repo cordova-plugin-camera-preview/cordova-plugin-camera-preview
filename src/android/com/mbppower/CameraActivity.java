@@ -141,11 +141,13 @@ public class CameraActivity extends Fragment {
 
         mCamera = Camera.open(defaultCameraId);
 
-        if (cameraParameters == null) {
-	    cameraParameters = mCamera.getParameters();
+        if (cameraParameters != null) {
+	    cameraParameters.setPreviewSize(width, height);
+	    mCamera.setParameters(cameraParameters);
         }
-	cameraParameters.setPreviewSize(width, height);
-	mCamera.setParameters(cameraParameters);
+	else {
+	    mCamera.getParameters().setPreviewSize(width, height);
+	}
 
         cameraCurrentlyLocked = defaultCameraId;
         mPreview.setCamera(mCamera, cameraCurrentlyLocked);
