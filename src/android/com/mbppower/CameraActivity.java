@@ -152,8 +152,6 @@ public class CameraActivity extends Fragment {
 	else {
 	    if (mPreview != null) {
 		Camera.Size previewSize = mPreview.getPreviewSize();
-		cameraParameters.setPreviewSize(previewSize.width, previewSize.height);
-		
 		Camera.Parameters parameters = mCamera.getParameters();
 		parameters.setPreviewSize(previewSize.width, previewSize.height);
 		mCamera.setParameters(parameters);
