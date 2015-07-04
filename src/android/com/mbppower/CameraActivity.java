@@ -95,7 +95,7 @@ public class CameraActivity extends Fragment {
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		this.cameraParameters.setPreviewSize(width, height);
+
 	}
 
 	private void createCameraPreview(){
@@ -220,7 +220,7 @@ public class CameraActivity extends Fragment {
 
     public void setCameraParameters(Camera.Parameters params) {
       cameraParameters = params;
-
+      cameraParameters.setPreviewSize(width, height);
       if (mCamera != null && cameraParameters != null) {
         mCamera.setParameters(cameraParameters);
       }
@@ -450,6 +450,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         if (mCamera != null) {
             mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
             setCameraDisplayOrientation();
+
             //mCamera.getParameters().setRotation(getDisplayOrientation());
             //requestLayout();
         }
