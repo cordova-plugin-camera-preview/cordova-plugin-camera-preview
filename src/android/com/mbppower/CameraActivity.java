@@ -147,7 +147,6 @@ public class CameraActivity extends Fragment {
 
         cameraCurrentlyLocked = defaultCameraId;
         mPreview.setCamera(mCamera, cameraCurrentlyLocked);
-
 	    Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
 
         final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
@@ -528,8 +527,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
         if (mSupportedPreviewSizes != null) {
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
-	    setCameraPreviewSize();
-
         }
     }
 
@@ -596,6 +593,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         try {
             if (mCamera != null) {
                 mSurfaceView.setWillNotDraw(false);
+		setCameraPreviewSize();
                 mCamera.setPreviewDisplay(holder);
             }
         } catch (IOException exception) {
