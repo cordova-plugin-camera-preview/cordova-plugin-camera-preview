@@ -448,11 +448,10 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         this.cameraId = cameraId;
         if (mCamera != null) {
 	    Camera.Parameters parameters = mCamera.getParameters();
-	    parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             mSupportedPreviewSizes = parameters.getSupportedPreviewSizes();
-	    mCamera.setParameters(parameters);
             setCameraDisplayOrientation();
-
+	    parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+	    mCamera.setParameters(parameters);
             //mCamera.getParameters().setRotation(getDisplayOrientation());
             //requestLayout();
         }
