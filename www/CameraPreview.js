@@ -14,8 +14,8 @@ CameraPreview.setOnPictureTakenHandler = function(onPictureTaken) {
 
 //@param rect {x: 0, y: 0, width: 100, height:100}
 //@param defaultCamera "front" | "back"
-CameraPreview.startCamera = function(rect, defaultCamera, successCB, failureCB) {
-	exec(successCB, failureCB, PLUGIN_NAME, "startCamera", [rect.x, rect.y, rect.width, rect.height, defaultCamera, false, false, true]);
+CameraPreview.startCamera = function(rect, startCamera) {
+	exec(null, null, PLUGIN_NAME, "startCamera", [rect.x, rect.y, rect.width, rect.height, startCamera, false, false, true]);
 };
 CameraPreview.stopCamera = function() {
 	exec(null, null, PLUGIN_NAME, "stopCamera", []);
@@ -33,8 +33,8 @@ CameraPreview.setColorEffect = function(effect) {
   exec(null, null, PLUGIN_NAME, "setColorEffect", [effect]);
 };
 
-CameraPreview.switchCamera = function(successCB) {
-	exec(successCB, null, PLUGIN_NAME, "switchCamera", []);
+CameraPreview.switchCamera = function() {
+	exec(null, null, PLUGIN_NAME, "switchCamera", []);
 };
 
 CameraPreview.hide = function() {

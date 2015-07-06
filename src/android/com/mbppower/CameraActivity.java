@@ -170,10 +170,10 @@ public class CameraActivity extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-
         // Because the Camera object is a shared resource, it's very
         // important to release it when the activity is paused.
         if (mCamera != null) {
+	    setDefaultCameraId();
             mPreview.setCamera(null, -1);
             mCamera.release();
             mCamera = null;
@@ -215,6 +215,7 @@ public class CameraActivity extends Fragment {
 
 		// Start the preview
 		mCamera.startPreview();
+		defaultCamera = (defaultCamera.equals("front") ? "back":"front");
     }
 
     public void setCameraParameters(Camera.Parameters params) {
