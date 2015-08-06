@@ -249,6 +249,7 @@
 
             __block NSString *originalPicturePath;
             __block NSString *previewPicturePath;
+            __block NSError *photosAlbumError;
 
             ALAssetOrientation orientation;
             switch ([[UIApplication sharedApplication] statusBarOrientation]) {
@@ -270,7 +271,8 @@
             dispatch_group_enter(group);
             [library writeImageToSavedPhotosAlbum:previewImage orientation:ALAssetOrientationUp completionBlock:^(NSURL *assetURL, NSError *error) {
                 if (error) {
-                     NSLog(@"FAILED to save Preview picture.");
+                    NSLog(@"FAILED to save Preview picture.");
+                    photosAlbumError = error;
                 } else {
                      previewPicturePath = [assetURL absoluteString];
                      NSLog(@"previewPicturePath: %@", previewPicturePath);
@@ -283,6 +285,7 @@
             [library writeImageToSavedPhotosAlbum:finalImage orientation:orientation completionBlock:^(NSURL *assetURL, NSError *error) {
                 if (error) {
                     NSLog(@"FAILED to save Original picture.");
+                    photosAlbumError = error;
                 } else {
                     originalPicturePath = [assetURL absoluteString];
                     NSLog(@"originalPicturePath: %@", originalPicturePath);
@@ -292,8 +295,18 @@
 
             dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                 NSMutableArray *params = [[NSMutableArray alloc] init];
-                [params addObject:originalPicturePath];
-                [params addObject:previewPicturePath];
+                if (photosAlbumError) {
+                    // Error returns just one element in the returned array
+                    NSString * remedy = @"";
+                    if (-3311 == [photosAlbumError code]) {
+                        remedy = @"Go to Settings > CodeStudio and allow access to Photos";
+                    }
+                    [params addObject:[NSString stringWithFormat:@"CameraPreview: %@ - %@ — %@", [photosAlbumError localizedDescription], [photosAlbumError localizedFailureReason], remedy]];
+                } else {
+                    // Success returns two elements in the returned array
+                    [params addObject:originalPicturePath];
+                    [params addObject:previewPicturePath];
+                }
              
                 CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
                 [pluginResult setKeepCallbackAsBool:true];
