@@ -274,8 +274,8 @@
                 } else {
                      previewPicturePath = [assetURL absoluteString];
                      NSLog(@"previewPicturePath: %@", previewPicturePath);
-                     dispatch_group_leave(group);
                 }
+                dispatch_group_leave(group);
             }];
                 
             //task 2
