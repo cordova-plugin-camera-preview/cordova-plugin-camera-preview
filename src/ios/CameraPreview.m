@@ -8,7 +8,7 @@
 @implementation CameraPreview
 
 - (void) startCamera:(CDVInvokedUrlCommand*)command {
- 
+
     CDVPluginResult *pluginResult;
 
     if (self.sessionManager != nil) {
@@ -16,7 +16,7 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
       return;
     }
-    
+
     if (command.arguments.count > 3) {
         CGFloat x = (CGFloat)[command.arguments[0] floatValue] + self.webView.frame.origin.x;
         CGFloat y = (CGFloat)[command.arguments[1] floatValue] + self.webView.frame.origin.y;
@@ -28,7 +28,7 @@
         BOOL toBack = (BOOL)[command.arguments[7] boolValue];
         // Create the session manager
         self.sessionManager = [[CameraSessionManager alloc] init];
-        
+
         //render controller setup
         self.cameraRenderController = [[CameraRenderController alloc] init];
         self.cameraRenderController.dragEnabled = dragEnabled;
@@ -36,7 +36,7 @@
         self.cameraRenderController.sessionManager = self.sessionManager;
         self.cameraRenderController.view.frame = CGRectMake(x, y, width, height);
         self.cameraRenderController.delegate = self;
-        
+
         [self.viewController addChildViewController:self.cameraRenderController];
         //display the camera bellow the webview
         if (toBack) {
@@ -46,6 +46,8 @@
             [self.viewController.view insertSubview:self.cameraRenderController.view atIndex:0];
         }
         else{
+          self.cameraRenderController.view.alpha = (CGFloat)[command.arguments[8] floatValue];
+
              [self.viewController.view addSubview:self.cameraRenderController.view];
         }
 
@@ -57,7 +59,7 @@
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid number of parameters"];
     }
-    
+
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -66,7 +68,7 @@
     CDVPluginResult *pluginResult;
 
     if(self.sessionManager != nil){
-        [self.cameraRenderController.view removeFromSuperview];       
+        [self.cameraRenderController.view removeFromSuperview];
         [self.cameraRenderController removeFromParentViewController];
         self.cameraRenderController = nil;
 
@@ -85,14 +87,14 @@
 - (void) hideCamera:(CDVInvokedUrlCommand*)command {
     NSLog(@"hideCamera");
     CDVPluginResult *pluginResult;
-    
+
     if (self.cameraRenderController != nil) {
         [self.cameraRenderController.view setHidden:YES];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
     }
-    
+
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -113,14 +115,14 @@
 - (void) switchCamera:(CDVInvokedUrlCommand*)command {
     NSLog(@"switchCamera");
     CDVPluginResult *pluginResult;
-    
+
     if (self.sessionManager != nil) {
         [self.sessionManager switchCamera];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
     }
-    
+
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -188,9 +190,9 @@
 - (void) invokeTakePicture:(CGFloat) maxWidth withHeight:(CGFloat) maxHeight {
     AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
-        
+
         NSLog(@"Done creating still image");
-        
+
         if (error) {
             NSLog(@"%@", error);
         } else {
@@ -201,10 +203,10 @@
 
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
             UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
-            
+
             CIImage *capturedCImage;
 			//image resize
-            
+
 			if(maxWidth > 0 && maxHeight > 0){
 				CGFloat scaleHeight = maxWidth/capturedImage.size.height;
 				CGFloat scaleWidth = maxHeight/capturedImage.size.width;
@@ -219,16 +221,16 @@
             else{
                 capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
             }
-            
+
 			CIImage *imageToFilter;
 			CIImage *finalCImage;
-			
+
             //fix front mirroring
             if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
                CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
-               imageToFilter = [capturedCImage imageByApplyingTransform:matrix]; 
+               imageToFilter = [capturedCImage imageByApplyingTransform:matrix];
             } else {
-               imageToFilter = capturedCImage;                    
+               imageToFilter = capturedCImage;
             }
 
             CIFilter *filter = [self.sessionManager ciFilter];
@@ -240,7 +242,7 @@
             } else {
                 finalCImage = imageToFilter;
             }
- 
+
             CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
 
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
@@ -279,7 +281,7 @@
                 }
                 dispatch_group_leave(group);
             }];
-                
+
             //task 2
             dispatch_group_enter(group);
             [library writeImageToSavedPhotosAlbum:finalImage orientation:orientation completionBlock:^(NSURL *assetURL, NSError *error) {
@@ -307,7 +309,7 @@
                     [params addObject:originalPicturePath];
                     [params addObject:previewPicturePath];
                 }
-             
+
                 CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
                 [pluginResult setKeepCallbackAsBool:true];
                 [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
