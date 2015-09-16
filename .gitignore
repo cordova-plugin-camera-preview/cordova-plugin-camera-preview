@@ -44,3 +44,6 @@ Temporary Items
 
 # VIM
 .*sw*
+
+# JetBrains
+idea
