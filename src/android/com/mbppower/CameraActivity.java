@@ -292,7 +292,7 @@ public class CameraActivity extends Fragment {
     }
 
     public void setNormalSize(){
-        mPreview.setNormalSize(mCamera)
+        mPreview.setNormalSize(mCamera);
     }
 
     public void setCameraParameters(Camera.Parameters params) {
