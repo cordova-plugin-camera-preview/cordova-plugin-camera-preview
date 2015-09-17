@@ -75,7 +75,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
             return switchCamera(args, callbackContext);
         } else if (wLogAction.equals(action)) {
             // log to webview
-            return wLog(args, callbackContext);
+            return setOnLogTakenHandler(args, callbackContext);
         }
 
         return false;
@@ -271,7 +271,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         return true;
     }
 
-    private boolean wLog(JSONArray args, CallbackContext callbackContext) {
+    private boolean setOnLogTakenHandler(JSONArray args, CallbackContext callbackContext) {
         Log.d(TAG, "wLog");
         wLogCallbackContext = callbackContext;
         return true;
