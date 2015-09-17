@@ -90,6 +90,7 @@ public class CameraActivity extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
 	public void setRect(int x, int y, int width, int height){
 		this.x = x;
 		this.y = y;
@@ -290,6 +291,10 @@ public class CameraActivity extends Fragment {
 		mCamera.startPreview();
     }
 
+    public void setNormalSize(){
+        mPreview.setNormalSize(mCamera)
+    }
+
     public void setCameraParameters(Camera.Parameters params) {
       cameraParameters = params;
 
@@ -387,6 +392,7 @@ public class CameraActivity extends Fragment {
 			canTakePicture = true;
 		}
 	}
+
     private void generatePictureFromView(final Bitmap originalPicture, final Bitmap picture){
 
 	    final FrameLayout cameraLoader = (FrameLayout)view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
@@ -526,6 +532,12 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             //mCamera.getParameters().setRotation(getDisplayOrientation());
             //requestLayout();
         }
+    }
+
+    public void setNormalSize(camera){
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+        camera.setParameters(parameters);
     }
 
     public int getDisplayOrientation() {
@@ -679,6 +691,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             mCamera.stopPreview();
         }
     }
+
     private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         final double ASPECT_TOLERANCE = 0.1;
         double targetRatio = (double) w / h;
@@ -749,6 +762,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         }
         return data;
     }
+
     public void setOneShotPreviewCallback(Camera.PreviewCallback callback) {
         if(mCamera != null) {
             mCamera.setOneShotPreviewCallback(callback);
