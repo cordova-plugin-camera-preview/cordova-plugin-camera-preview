@@ -27,8 +27,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
             wLogCallbackContext.sendPluginResult(pluginResult);
         }
 
-    }
-
     private final String TAG = "CameraPreview";
     private final String setOnPictureTakenHandlerAction = "setOnPictureTakenHandler";
     private final String setColorEffectAction = "setColorEffect";
