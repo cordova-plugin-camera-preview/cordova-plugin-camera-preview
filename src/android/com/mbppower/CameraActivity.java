@@ -292,7 +292,12 @@ public class CameraActivity extends Fragment {
     }
 
     public void setNormalSize(){
-        mPreview.setNormalSize(mCamera);
+		if (mCamera) {
+			Log.d(TAG, "set preview size");
+			mPreview.setNormalSize(mCamera);
+		} else {
+			Log.d(TAG, "no camera to set preview size");
+		}
     }
 
     public void setCameraParameters(Camera.Parameters params) {
@@ -537,7 +542,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     public void setNormalSize(Camera camera){
         Camera.Parameters parameters = camera.getParameters();
         parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-		Log.d(TAG, "set preview size");
 		Log.d(TAG, "width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
 		camera.setParameters(parameters);
     }
