@@ -63,7 +63,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     private boolean startCamera(final JSONArray args, CallbackContext callbackContext) {
-        Log.d("test", "start camera action");
+        Log.d(TAG, "start camera action");
         if (fragment != null) {
             return false;
         }

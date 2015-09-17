@@ -46,7 +46,7 @@ public class CameraActivity extends Fragment {
 	}
 
 	private CameraPreviewListener eventListener;
-	private static final String TAG = "CameraActivity";
+	private static final String TAG = "CameraPreview";
 	public FrameLayout mainLayout;
 	public FrameLayout frameContainerLayout;
 
@@ -537,7 +537,9 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     public void setNormalSize(Camera camera){
         Camera.Parameters parameters = camera.getParameters();
         parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-        camera.setParameters(parameters);
+		Log.d(TAG, "set preview size");
+		Log.d(TAG, "width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
+		camera.setParameters(parameters);
     }
 
     public int getDisplayOrientation() {
