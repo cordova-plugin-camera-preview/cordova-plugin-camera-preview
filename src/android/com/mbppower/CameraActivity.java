@@ -289,14 +289,14 @@ public class CameraActivity extends Fragment {
         mCamera.startPreview();
     }
 
-    public void setNormalSize() {
+   /* public void setNormalSize() {
         if (mCamera != null) {
             Log.d(TAG, "set preview size");
             mPreview.setNormalSize(mCamera);
         } else {
             Log.d(TAG, "no camera to set preview size");
         }
-    }
+    }*/
 
     public void setCameraParameters(Camera.Parameters params) {
         cameraParameters = params;
@@ -497,7 +497,7 @@ public class CameraActivity extends Fragment {
 }
 
 class Preview extends RelativeLayout implements SurfaceHolder.Callback {
-    private final String TAG = "Preview";
+    private final String TAG = "CameraPreview";
 
     CustomSurfaceView mSurfaceView;
     SurfaceHolder mHolder;
@@ -528,17 +528,23 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         if (mCamera != null) {
             mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
             setCameraDisplayOrientation();
+
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            Log.d(TAG, "width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
+            mCamera.setParameters(parameters);
+
             //mCamera.getParameters().setRotation(getDisplayOrientation());
             //requestLayout();
         }
     }
 
-    public void setNormalSize(Camera camera) {
+    /*public void setNormalSize(Camera camera) {
         Camera.Parameters parameters = camera.getParameters();
         parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
         Log.d(TAG, "width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
         camera.setParameters(parameters);
-    }
+    }*/
 
     public int getDisplayOrientation() {
         return displayOrientation;
@@ -608,7 +614,11 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
         if (mSupportedPreviewSizes != null) {
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
-//            setMeasuredDimension(mPreviewSize.width, mPreviewSize.height);
+
+            Log.d(TAG, "onMeasure: > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
+
+//            fragment.setNormalSize();
+            //setMeasuredDimension(mPreviewSize.width, mPreviewSize.height);
 
 
         }
@@ -787,7 +797,7 @@ class TapGestureDetector extends GestureDetector.SimpleOnGestureListener {
 }
 
 class CustomSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
-    private final String TAG = "CustomSurfaceView";
+    private final String TAG = "CameraPreview";
 
     CustomSurfaceView(Context context) {
         super(context);
