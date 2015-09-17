@@ -61,6 +61,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     private boolean startCamera(final JSONArray args, CallbackContext callbackContext) {
+        Log.d("test", "start camera action");
         if (fragment != null) {
             return false;
         }
@@ -73,10 +74,14 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
                 try {
                     DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
+                    // offset
                     int x = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(0), metrics);
                     int y = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(1), metrics);
+
+                    // size
                     int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(2), metrics);
                     int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(3), metrics);
+
                     String defaultCamera = args.getString(4);
                     Boolean tapToTakePicture = args.getBoolean(5);
                     Boolean dragEnabled = args.getBoolean(6);
