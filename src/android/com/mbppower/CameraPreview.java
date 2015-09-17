@@ -21,8 +21,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
 
 
-    public class wLog {
-        public static void w(String msg){
+    public void wLog (String msg){
             JSONArray data = new JSONArray();
             data.put(msg);
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
@@ -52,7 +51,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     public CameraPreview() {
         super();
         Log.d(TAG, "Constructing");
-        wLog.w("Constructing the camera");
+        wLog("Constructing the camera");
     }
 
     @Override

@@ -263,8 +263,6 @@ public class CameraActivity extends Fragment {
             //There is only one camera available
         }
 		Log.d(TAG, "numberOfCameras: " + numberOfCameras);
-		System.out.println("numberOfCameras: " + numberOfCameras);
-		System.out.println("switch camera");
 
 		// OK, we have multiple cameras.
 		// Release this camera -> cameraCurrentlyLocked
@@ -600,6 +598,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
         if (mSupportedPreviewSizes != null) {
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+            setMeasuredDimension(mPreviewSize.width, mPreviewSize.height);
         }
     }
 
