@@ -18,15 +18,6 @@ import org.json.JSONException;
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
 
-
-    public void wLog (String msg){
-            JSONArray data = new JSONArray();
-            data.put(msg);
-            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
-            pluginResult.setKeepCallback(true);
-            wLogCallbackContext.sendPluginResult(pluginResult);
-        }
-
     private final String TAG = "CameraPreview";
     private final String setOnPictureTakenHandlerAction = "setOnPictureTakenHandler";
     private final String setColorEffectAction = "setColorEffect";
@@ -37,8 +28,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     private final String showCameraAction = "showCamera";
     private final String hideCameraAction = "hideCamera";
 
-    private final String wLogAction = "wLog";
-
     private CameraActivity fragment;
     private CallbackContext takePictureCallbackContext;
     private CallbackContext wLogCallbackContext;
@@ -47,7 +36,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     public CameraPreview() {
         super();
         Log.d(TAG, "Constructing");
-        wLog("Constructing the camera");
     }
 
     @Override
@@ -69,9 +57,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
             return showCamera(args, callbackContext);
         } else if (switchCameraAction.equals(action)) {
             return switchCamera(args, callbackContext);
-        } else if (wLogAction.equals(action)) {
-            // log to webview
-            return setOnLogTakenHandler(args, callbackContext);
         }
 
         return false;
@@ -264,12 +249,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     private boolean setOnPictureTakenHandler(JSONArray args, CallbackContext callbackContext) {
         Log.d(TAG, "setOnPictureTakenHandler");
         takePictureCallbackContext = callbackContext;
-        return true;
-    }
-
-    private boolean setOnLogTakenHandler(JSONArray args, CallbackContext callbackContext) {
-        Log.d(TAG, "wLog");
-        wLogCallbackContext = callbackContext;
         return true;
     }
 }

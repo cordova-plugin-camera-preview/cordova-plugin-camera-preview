@@ -491,7 +491,6 @@ public class CameraActivity extends Fragment {
     }
 }
 
-
 class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     private final String TAG = "Preview";
 
@@ -598,13 +597,8 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
         if (mSupportedPreviewSizes != null) {
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
-            setMeasuredDimension(mPreviewSize.width, mPreviewSize.height);
+//            setMeasuredDimension(mPreviewSize.width, mPreviewSize.height);
 
-            /*
-            Camera.Parameters parameters = camera.getParameters();
-            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-            camera.setParameters(parameters);
-            */
 
         }
     }
@@ -761,6 +755,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         }
     }
 }
+
 class TapGestureDetector extends GestureDetector.SimpleOnGestureListener{
 
 	@Override
@@ -778,6 +773,7 @@ class TapGestureDetector extends GestureDetector.SimpleOnGestureListener{
 		return true;
 	}
 }
+
 class CustomSurfaceView extends SurfaceView implements SurfaceHolder.Callback{
     private final String TAG = "CustomSurfaceView";
 
