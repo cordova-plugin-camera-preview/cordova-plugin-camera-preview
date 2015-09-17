@@ -263,6 +263,8 @@ public class CameraActivity extends Fragment {
             //There is only one camera available
         }
 		Log.d(TAG, "numberOfCameras: " + numberOfCameras);
+		System.out.println("numberOfCameras: " + numberOfCameras);
+		System.out.println("switch camera");
 
 		// OK, we have multiple cameras.
 		// Release this camera -> cameraCurrentlyLocked
@@ -312,7 +314,9 @@ public class CameraActivity extends Fragment {
     }
 	
 	public void takePicture(final double maxWidth, final double maxHeight){
-		final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
+        System.out.println("takePicture");
+
+        final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
 		if(mPreview != null) {
 			
 			if(!canTakePicture)
