@@ -281,6 +281,7 @@ public class CameraActivity extends Fragment {
         }
 
         cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
+        mPreview.printPreviewSize("activitySwitchCamera");
         mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
 
         Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
@@ -494,6 +495,10 @@ public class CameraActivity extends Fragment {
     public void onDestroy() {
         super.onDestroy();
     }
+
+    public void printPreviewSize(String from) {
+        mPreview.printPreviewSize(from);
+    }
 }
 
 class Preview extends RelativeLayout implements SurfaceHolder.Callback {
@@ -544,6 +549,10 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
     public int getDisplayOrientation() {
         return displayOrientation;
+    }
+
+    public void printPreviewSize(String from){
+        Log.d(TAG, "printPreviewSize from " + from + ": > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
     }
 
     private void setCameraDisplayOrientation() {
