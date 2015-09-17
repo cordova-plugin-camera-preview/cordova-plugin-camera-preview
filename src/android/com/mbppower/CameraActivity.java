@@ -529,10 +529,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
             setCameraDisplayOrientation();
 
-            Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-            Log.d(TAG, "width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
-            mCamera.setParameters(parameters);
 
             //mCamera.getParameters().setRotation(getDisplayOrientation());
             //requestLayout();
@@ -616,6 +612,11 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
 
             Log.d(TAG, "onMeasure: > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
+
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+//            Log.d(TAG, "width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
+            mCamera.setParameters(parameters);
 
 //            fragment.setNormalSize();
             //setMeasuredDimension(mPreviewSize.width, mPreviewSize.height);
