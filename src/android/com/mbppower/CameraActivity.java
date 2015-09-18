@@ -397,7 +397,7 @@ public class CameraActivity extends Fragment {
 
     private void processPicture(Bitmap bitmap) {
         ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
-        int jpegCompressFormat = 0;
+        CompressFormat compressFormat = CompressFormat.JPEG;
         int mQuality = 90;
 
         try {
