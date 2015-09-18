@@ -420,9 +420,8 @@ public class CameraActivity extends Fragment {
 
     private void generatePictureFromView(final Bitmap originalPicture, final Bitmap picture) {
 
-        processPicture(originalPicture);
-
-        /*final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
+        Bitmap image;
+        final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
         cameraLoader.setVisibility(View.VISIBLE);
         final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
         new Thread() {
@@ -432,7 +431,10 @@ public class CameraActivity extends Fragment {
                     final File picFile = storeImage(picture, "_preview");
                     final File originalPictureFile = storeImage(originalPicture, "_original");
 
-                    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath(), picFile.getAbsolutePath());
+                    image = BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath());
+                    processPicture(image);
+
+//                    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath(), picFile.getAbsolutePath());
 
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -452,7 +454,7 @@ public class CameraActivity extends Fragment {
                     });
                 }
             }
-        }.start();*/
+        }.start();
     }
 
     private File getOutputMediaFile(String suffix) {
@@ -576,7 +578,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         return displayOrientation;
     }
 
-    public void printPreviewSize(String from){
+    public void printPreviewSize(String from) {
         Log.d(TAG, "printPreviewSize from " + from + ": > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
     }
 
@@ -650,7 +652,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             mCamera.setParameters(parameters);
-
 
 
         }
