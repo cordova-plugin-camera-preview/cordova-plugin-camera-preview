@@ -395,9 +395,31 @@ public class CameraActivity extends Fragment {
         }
     }
 
+    private void processPicture(Bitmap bitmap) {
+        ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
+        int jpegCompressFormat = 0;
+
+        try {
+            if (bitmap.compress(jpegCompressFormat, mQuality, jpeg_data)) {
+                byte[] code = jpeg_data.toByteArray();
+                byte[] output = Base64.encode(code, Base64.NO_WRAP);
+                String js_out = new String(output);
+                eventListener.onPictureTaken(js_out);
+                js_out = null;
+                output = null;
+                code = null;
+            }
+        } catch (Exception e) {
+            this.failPicture("Error compressing image.");
+        }
+        jpeg_data = null;
+    }
+
     private void generatePictureFromView(final Bitmap originalPicture, final Bitmap picture) {
 
-        final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
+        processPicture(originalPicture);
+
+        /*final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
         cameraLoader.setVisibility(View.VISIBLE);
         final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
         new Thread() {
@@ -427,7 +449,7 @@ public class CameraActivity extends Fragment {
                     });
                 }
             }
-        }.start();
+        }.start();*/
     }
 
     private File getOutputMediaFile(String suffix) {
