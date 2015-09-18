@@ -5,6 +5,8 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.util.Base64;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ImageFormat;
@@ -42,7 +44,7 @@ import java.util.List;
 public class CameraActivity extends Fragment {
 
     public interface CameraPreviewListener {
-        public void onPictureTaken(String originalPicturePath, String previewPicturePath);
+        public void onPictureTaken(String originalPicture);
     }
 
     private CameraPreviewListener eventListener;
@@ -411,7 +413,7 @@ public class CameraActivity extends Fragment {
                 code = null;
             }
         } catch (Exception e) {
-            this.failPicture("Error compressing image.");
+//            this.failPicture("Error compressing image.");
         }
         jpeg_data = null;
     }

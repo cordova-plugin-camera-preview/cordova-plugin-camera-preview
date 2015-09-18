@@ -156,7 +156,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     public void onPictureTaken(String originalPicture) {
         JSONArray data = new JSONArray();
-        data.put(originalPicturePath);
+        data.put(originalPicture);
         PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
         pluginResult.setKeepCallback(true);
         takePictureCallbackContext.sendPluginResult(pluginResult);
