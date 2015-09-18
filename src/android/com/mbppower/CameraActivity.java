@@ -420,7 +420,7 @@ public class CameraActivity extends Fragment {
 
     private void generatePictureFromView(final Bitmap originalPicture, final Bitmap picture) {
 
-        final Bitmap image;
+//        final Bitmap image;
         final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
         cameraLoader.setVisibility(View.VISIBLE);
         final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
@@ -431,8 +431,9 @@ public class CameraActivity extends Fragment {
                     final File picFile = storeImage(picture, "_preview");
                     final File originalPictureFile = storeImage(originalPicture, "_original");
 
-                    image = BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath());
-                    processPicture(image);
+//                    image = BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath());
+//                    processPicture(image);
+                    processPicture(BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath()));
 
 //                    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath(), picFile.getAbsolutePath());
 
