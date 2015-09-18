@@ -401,7 +401,7 @@ public class CameraActivity extends Fragment {
         int mQuality = 90;
 
         try {
-            if (bitmap.compress(jpegCompressFormat, mQuality, jpeg_data)) {
+            if (bitmap.compress(compressFormat, mQuality, jpeg_data)) {
                 byte[] code = jpeg_data.toByteArray();
                 byte[] output = Base64.encode(code, Base64.NO_WRAP);
                 String js_out = new String(output);
