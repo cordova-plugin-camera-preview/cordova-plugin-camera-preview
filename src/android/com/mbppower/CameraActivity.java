@@ -420,7 +420,7 @@ public class CameraActivity extends Fragment {
 
     private void generatePictureFromView(final Bitmap originalPicture, final Bitmap picture) {
 
-        Bitmap image;
+        final Bitmap image;
         final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
         cameraLoader.setVisibility(View.VISIBLE);
         final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
