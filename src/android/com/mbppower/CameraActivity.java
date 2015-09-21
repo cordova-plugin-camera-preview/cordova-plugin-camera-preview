@@ -651,21 +651,21 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         // We purposely disregard child measurements because act as a
         // wrapper to a SurfaceView that centers the camera preview instead
         // of stretching it.
-        final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        setMeasuredDimension(width, height);
-
-        if (mSupportedPreviewSizes != null) {
-            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
-
-            Log.d(TAG, "onMeasure: > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
-
-            Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-            mCamera.setParameters(parameters);
-
-
-        }
+//        final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+//        final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+//        setMeasuredDimension(width, height);
+//
+//        if (mSupportedPreviewSizes != null) {
+//            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+//
+//            Log.d(TAG, "onMeasure: > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
+//
+//            Camera.Parameters parameters = mCamera.getParameters();
+//            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+//            mCamera.setParameters(parameters);
+//
+//
+//        }
     }
 
     @Override
