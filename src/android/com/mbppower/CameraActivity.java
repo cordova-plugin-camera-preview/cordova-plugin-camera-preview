@@ -291,7 +291,8 @@ public class CameraActivity extends Fragment {
                 Log.d(TAG, "cameraparameter NULL");
             }
 
-            cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
+//            cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
+            cameraCurrentlyLocked = 0;
             mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
 
             Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
