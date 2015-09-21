@@ -283,7 +283,6 @@ public class CameraActivity extends Fragment {
         }
 
         cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
-        mPreview.printPreviewSize("activitySwitchCamera");
         mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
 
         Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
@@ -291,15 +290,6 @@ public class CameraActivity extends Fragment {
         // Start the preview
         mCamera.startPreview();
     }
-
-   /* public void setNormalSize() {
-        if (mCamera != null) {
-            Log.d(TAG, "set preview size");
-            mPreview.setNormalSize(mCamera);
-        } else {
-            Log.d(TAG, "no camera to set preview size");
-        }
-    }*/
 
     public void setCameraParameters(Camera.Parameters params) {
         cameraParameters = params;
@@ -524,9 +514,6 @@ public class CameraActivity extends Fragment {
         super.onDestroy();
     }
 
-    public void printPreviewSize(String from) {
-        mPreview.printPreviewSize(from);
-    }
 }
 
 class Preview extends RelativeLayout implements SurfaceHolder.Callback {
@@ -629,6 +616,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             camera.setPreviewDisplay(mHolder);
             Camera.Parameters parameters = camera.getParameters();
             parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            Log.d(TAG, mPreviewSize.width + " " + mPreviewSize.height);
             camera.setParameters(parameters);
         } catch (IOException exception) {
             Log.e(TAG, exception.getMessage());
