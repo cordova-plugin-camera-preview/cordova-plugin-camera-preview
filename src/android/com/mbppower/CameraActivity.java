@@ -432,8 +432,8 @@ public class CameraActivity extends Fragment {
                     final File originalPictureFile = storeImage(originalPicture, "_original");
 
 //                    image = BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath());
-//                    processPicture(image);
-                    processPicture(BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath()));
+                    processPicture(originalPicture);
+//                    processPicture(BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath()));
 
 //                    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath(), picFile.getAbsolutePath());
 
