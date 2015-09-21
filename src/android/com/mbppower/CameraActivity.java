@@ -37,6 +37,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.Exception;
+import java.lang.Integer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -276,19 +278,28 @@ public class CameraActivity extends Fragment {
 
         // Acquire the next camera and request Preview to reconfigure
         // parameters.
-        mCamera = Camera.open((cameraCurrentlyLocked + 1) % numberOfCameras);
 
-        if (cameraParameters != null) {
-            mCamera.setParameters(cameraParameters);
+        Log.d(TAG, "cameraCurrentlyLocked := " + Integer.toString(cameraCurrentlyLocked));
+        try {
+            mCamera = Camera.open((cameraCurrentlyLocked + 1) % numberOfCameras);
+
+            if (cameraParameters != null) {
+                Log.d(TAG, "camera parameter not null");
+                mCamera.setParameters(cameraParameters);
+            } else {
+                Log.d(TAG, "cameraparameter NULL");
+            }
+
+            cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
+            mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+
+            Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
+
+            // Start the preview
+            mCamera.startPreview();
+        } catch (Exception exception) {
+            Log.d(TAG, exception.getMessage());
         }
-
-        cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
-        mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
-
-        Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
-
-        // Start the preview
-        mCamera.startPreview();
     }
 
     public void setCameraParameters(Camera.Parameters params) {
