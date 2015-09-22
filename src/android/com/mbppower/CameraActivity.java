@@ -363,6 +363,8 @@ public class CameraActivity extends Fragment {
                             final Bitmap fixedPic = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, false);
                             final Rect rect = new Rect(mPreview.mSurfaceView.getLeft(), mPreview.mSurfaceView.getTop(), mPreview.mSurfaceView.getRight(), mPreview.mSurfaceView.getBottom());
 
+                            Log.d(TAG, mPreview.mSurfaceView.getLeft() + " " + mPreview.mSurfaceView.getTop() + " " + mPreview.mSurfaceView.getRight() + " " + mPreview.mSurfaceView.getBottom())
+
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -785,12 +787,9 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         boolean byWidth = (w < h);
 
-
-
         if (sizes == null) return null;
 
         Camera.Size optimalSize = null;
-
 
         int maxWidth = 0;
         int maxHeight = 0;
@@ -798,13 +797,13 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         // Try to find an size match aspect ratio and size
         // Select max size
         for (Camera.Size size : sizes) {
-            if (byWidth){
-                if (size.width > maxWidth){
+            if (byWidth) {
+                if (size.width > maxWidth) {
                     maxWidth = size.width;
                     optimalSize = size;
                 }
             } else {
-                if (size.height > maxHeight){
+                if (size.height > maxHeight) {
                     maxHeight = size.height;
                     optimalSize = size;
                 }
