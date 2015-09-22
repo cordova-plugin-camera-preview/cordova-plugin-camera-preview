@@ -326,7 +326,7 @@ public class CameraActivity extends Fragment {
     }
 
     public void takePicture(final double maxWidth, final double maxHeight) {
-        System.out.println("takePicture");
+        Log.d(TAG, "picture taken");
 
         final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
         if (mPreview != null) {
@@ -402,7 +402,7 @@ public class CameraActivity extends Fragment {
 
     private void processPicture(Bitmap bitmap) {
         ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
-        CompressFormat compressFormat = CompressFormat.JPEG;
+        CompressFormat compressFormat = CompressFormat.PNG;
         int mQuality = 90;
 
         try {
