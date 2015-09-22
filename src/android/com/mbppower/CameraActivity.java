@@ -345,8 +345,8 @@ public class CameraActivity extends Fragment {
                         public void run() {
 
                             //raw picture
-                            byte[] bytes = mPreview.getFramePicture(data, camera);
-                            final Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            byte[] bytes = mPreview.getFramePicture(data, camera); // raw bytes from preview
+                            final Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length); // Bitmap from preview
 
                             //scale down
                             float scale = (float) pictureView.getWidth() / (float) pic.getWidth();
@@ -744,7 +744,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         }
     }
 
-    private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
+    /*private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         final double ASPECT_TOLERANCE = 0.1;
         double targetRatio = (double) w / h;
         if (displayOrientation == 90 || displayOrientation == 270) {
@@ -774,6 +774,39 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
                 if (Math.abs(size.height - targetHeight) < minDiff) {
                     optimalSize = size;
                     minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+
+        Log.d(TAG, "optimal preview size: w: " + optimalSize.width + " h: " + optimalSize.height);
+        return optimalSize;
+    }*/
+
+    private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
+        boolean byWidth = (w < h);
+
+
+
+        if (sizes == null) return null;
+
+        Camera.Size optimalSize = null;
+
+
+        int maxWidth = 0;
+        int maxHeight = 0;
+
+        // Try to find an size match aspect ratio and size
+        // Select max size
+        for (Camera.Size size : sizes) {
+            if (byWidth){
+                if (size.width > maxWidth){
+                    maxWidth = size.width;
+                    optimalSize = size;
+                }
+            } else {
+                if (size.height > maxHeight){
+                    maxHeight = size.height;
+                    optimalSize = size;
                 }
             }
         }
