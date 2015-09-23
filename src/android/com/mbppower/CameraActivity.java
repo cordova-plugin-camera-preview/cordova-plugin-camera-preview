@@ -18,10 +18,8 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.DisplayMetrics;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -43,31 +41,11 @@ import java.lang.Integer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-
-import android.app.Activity;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.os.Bundle;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
-import android.widget.Button;
-import android.view.View;
-
-import android.hardware.Camera;
-import android.hardware.Camera.Size;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class CameraActivity extends Fragment {
 
     public interface CameraPreviewListener {
-        public void onPictureTaken(String originalPicture);
+        void onPictureTaken(String originalPicture);
     }
 
     private CameraPreviewListener eventListener;
@@ -114,7 +92,7 @@ public class CameraActivity extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     public void setRect(int x, int y, int width, int height) {
