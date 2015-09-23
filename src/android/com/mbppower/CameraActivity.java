@@ -1,6 +1,7 @@
 package com.mbppower;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
