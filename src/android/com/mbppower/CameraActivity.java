@@ -42,6 +42,7 @@ import java.lang.Integer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class CameraActivity extends Fragment {
 
@@ -144,6 +145,7 @@ public class CameraActivity extends Fragment {
         super.onResume();
 
         mCamera = Camera.open(defaultCameraId);
+        // TODO: set camera parametrs here
 
         if (cameraParameters != null) {
             mCamera.setParameters(cameraParameters);
@@ -648,8 +650,12 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
     public void surfaceDestroyed(SurfaceHolder holder) {
         // Surface will be destroyed when we return, so stop the preview.
-        if (mCamera != null) {
-            mCamera.stopPreview();
+        try {
+            if (mCamera != null) {
+                mCamera.stopPreview();
+            }
+        } catch (Exception exception){
+            Log.e(TAG, "Exception caused by surfaceDestroyed()", exception);
         }
     }
 
