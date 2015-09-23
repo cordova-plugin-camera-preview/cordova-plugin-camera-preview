@@ -118,77 +118,6 @@ public class CameraActivity extends Fragment {
             mainLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
             mainLayout.addView(mPreview);
             mainLayout.setEnabled(false);
-
-            final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
-
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    frameContainerLayout.setClickable(true);
-                    frameContainerLayout.setOnTouchListener(new View.OnTouchListener() {
-
-                        private int mLastTouchX;
-                        private int mLastTouchY;
-                        private int mPosX = 0;
-                        private int mPosY = 0;
-
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
-                            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) frameContainerLayout.getLayoutParams();
-
-
-                            boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
-                            if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
-                                if (tapToTakePicture) {
-                                    takePicture(0, 0);
-                                }
-                                return true;
-                            } else {
-                                if (dragEnabled) {
-                                    int x;
-                                    int y;
-
-                                    switch (event.getAction()) {
-                                        case MotionEvent.ACTION_DOWN:
-                                            if (mLastTouchX == 0 || mLastTouchY == 0) {
-                                                mLastTouchX = (int) event.getRawX() - layoutParams.leftMargin;
-                                                mLastTouchY = (int) event.getRawY() - layoutParams.topMargin;
-                                            } else {
-                                                mLastTouchX = (int) event.getRawX();
-                                                mLastTouchY = (int) event.getRawY();
-                                            }
-                                            break;
-                                        case MotionEvent.ACTION_MOVE:
-
-                                            x = (int) event.getRawX();
-                                            y = (int) event.getRawY();
-
-                                            final float dx = x - mLastTouchX;
-                                            final float dy = y - mLastTouchY;
-
-                                            mPosX += dx;
-                                            mPosY += dy;
-
-                                            layoutParams.leftMargin = mPosX;
-                                            layoutParams.topMargin = mPosY;
-
-                                            frameContainerLayout.setLayoutParams(layoutParams);
-
-                                            // Remember this touch position for the next move event
-                                            mLastTouchX = x;
-                                            mLastTouchY = y;
-
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
-                            return true;
-                        }
-                    });
-                }
-            });
         }
     }
 
@@ -363,7 +292,7 @@ public class CameraActivity extends Fragment {
                             final Bitmap fixedPic = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, false);
                             final Rect rect = new Rect(mPreview.mSurfaceView.getLeft(), mPreview.mSurfaceView.getTop(), mPreview.mSurfaceView.getRight(), mPreview.mSurfaceView.getBottom());
 
-                            Log.d(TAg, mPreview.mSurfaceView.getLeft() + " " + mPreview.mSurfaceView.getTop() + " " + mPreview.mSurfaceView.getRight() + " " + mPreview.mSurfaceView.getBottom());
+                            Log.d(TAG, mPreview.mSurfaceView.getLeft() + " " + mPreview.mSurfaceView.getTop() + " " + mPreview.mSurfaceView.getRight() + " " + mPreview.mSurfaceView.getBottom());
 
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -371,25 +300,11 @@ public class CameraActivity extends Fragment {
                                     pictureView.setImageBitmap(fixedPic);
                                     pictureView.layout(rect.left, rect.top, rect.right, rect.bottom);
 
-                                    Bitmap finalPic = null;
-                                    //scale final picture
-                                    if (maxWidth > 0 && maxHeight > 0) {
-                                        final double scaleHeight = maxWidth / (double) pic.getHeight();
-                                        final double scaleWidth = maxHeight / (double) pic.getWidth();
-                                        final double scale = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
-                                        finalPic = Bitmap.createScaledBitmap(pic, (int) (pic.getWidth() * scale), (int) (pic.getHeight() * scale), false);
-                                    } else {
-                                        finalPic = pic;
-                                    }
+                                    Bitmap finalPic = pic;
 
                                     Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int) (finalPic.getWidth()), (int) (finalPic.getHeight()), matrix, false);
 
-                                    //get bitmap and compress
-                                    Bitmap picture = loadBitmapFromView(view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage)));
-                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                                    picture.compress(Bitmap.CompressFormat.PNG, 80, stream);
-
-                                    generatePictureFromView(originalPicture, picture);
+                                    generatePictureFromView(originalPicture);
                                     canTakePicture = true;
                                 }
                             });
@@ -423,7 +338,7 @@ public class CameraActivity extends Fragment {
         jpeg_data = null;
     }
 
-    private void generatePictureFromView(final Bitmap originalPicture, final Bitmap picture) {
+    private void generatePictureFromView(final Bitmap originalPicture) {
 
 //        final Bitmap image;
         final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
@@ -433,14 +348,13 @@ public class CameraActivity extends Fragment {
             public void run() {
 
                 try {
-                    final File picFile = storeImage(picture, "_preview");
-                    final File originalPictureFile = storeImage(originalPicture, "_original");
-
+//                    final File picFile = storeImage(picture, "_preview");
+//                    final File originalPictureFile = storeImage(originalPicture, "_original");
 //                    image = BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath());
-                    processPicture(originalPicture);
 //                    processPicture(BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath()));
-
 //                    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath(), picFile.getAbsolutePath());
+
+                    processPicture(originalPicture);
 
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -558,9 +472,9 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     }
 
     public void setCamera(Camera camera, int cameraId) {
-        mCamera = camera;
-        this.cameraId = cameraId;
-        if (mCamera != null) {
+        if (camera != null) {
+            mCamera = camera;
+            this.cameraId = cameraId;
             mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
             setCameraDisplayOrientation();
 
@@ -569,13 +483,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             //requestLayout();
         }
     }
-
-    /*public void setNormalSize(Camera camera) {
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-        Log.d(TAG, "width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
-        camera.setParameters(parameters);
-    }*/
 
     public int getDisplayOrientation() {
         return displayOrientation;
@@ -660,11 +567,11 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         if (mSupportedPreviewSizes != null) {
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
 
-            Log.d(TAG, "onMeasure: > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
+           /* Log.d(TAG, "onMeasure: > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
 
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-            mCamera.setParameters(parameters);
+            mCamera.setParameters(parameters);*/
 
 
         }
@@ -784,29 +691,19 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         return optimalSize;
     }*/
 
-    private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
-        boolean byWidth = (w < h);
-
+    public Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         if (sizes == null) return null;
 
         Camera.Size optimalSize = null;
 
         int maxWidth = 0;
-        int maxHeight = 0;
 
         // Try to find an size match aspect ratio and size
         // Select max size
         for (Camera.Size size : sizes) {
-            if (byWidth) {
-                if (size.width > maxWidth) {
-                    maxWidth = size.width;
-                    optimalSize = size;
-                }
-            } else {
-                if (size.height > maxHeight) {
-                    maxHeight = size.height;
-                    optimalSize = size;
-                }
+            if (size.width > maxWidth) {
+                maxWidth = size.width;
+                optimalSize = size;
             }
         }
 
@@ -851,24 +748,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         if (mCamera != null) {
             mCamera.setOneShotPreviewCallback(callback);
         }
-    }
-}
-
-class TapGestureDetector extends GestureDetector.SimpleOnGestureListener {
-
-    @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        return true;
-    }
-
-    @Override
-    public boolean onSingleTapConfirmed(MotionEvent e) {
-        return true;
     }
 }
 
