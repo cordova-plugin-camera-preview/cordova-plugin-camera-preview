@@ -553,7 +553,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         } catch (IOException exception) {
             Log.e(TAG, exception.getMessage());
         }
-        requestLayout();
+//        requestLayout();
     }
 
     @Override
