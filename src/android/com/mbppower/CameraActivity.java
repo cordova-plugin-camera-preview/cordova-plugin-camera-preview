@@ -443,7 +443,6 @@ public class CameraActivity extends Fragment {
     public void onDestroy() {
         super.onDestroy();
     }
-
 }
 
 class Preview extends RelativeLayout implements SurfaceHolder.Callback {
