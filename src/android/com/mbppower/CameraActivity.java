@@ -192,45 +192,45 @@ public class CameraActivity extends Fragment {
 
     public void switchCamera() {
         // check for availability of multiple cameras
-        if (numberOfCameras == 1) {
+        if (numberOfCameras < 2) {
             //There is only one camera available
-        }
-        Log.d(TAG, "numberOfCameras: " + numberOfCameras);
+        } else {
+            Log.d(TAG, "numberOfCameras: " + numberOfCameras);
 
-        // OK, we have multiple cameras.
-        // Release this camera -> cameraCurrentlyLocked
-        if (mCamera != null) {
-            mCamera.stopPreview();
-            mPreview.setCamera(null, -1);
-            mCamera.release();
-            mCamera = null;
-        }
-
-        // Acquire the next camera and request Preview to reconfigure
-        // parameters.
-
-        Log.d(TAG, "cameraCurrentlyLocked := " + Integer.toString(cameraCurrentlyLocked));
-        try {
-            mCamera = Camera.open((cameraCurrentlyLocked + 1) % numberOfCameras);
-//            mCamera = Camera.open(0);
-
-            if (cameraParameters != null) {
-                Log.d(TAG, "camera parameter not null");
-                mCamera.setParameters(cameraParameters);
-            } else {
-                Log.d(TAG, "camera parameter NULL");
+            // OK, we have multiple cameras.
+            // Release this camera -> cameraCurrentlyLocked
+            if (mCamera != null) {
+                mCamera.stopPreview();
+                mPreview.setCamera(null, -1);
+                mCamera.release();
+                mCamera = null;
             }
 
-            cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
-//            cameraCurrentlyLocked = 0;
-            mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+            // Acquire the next camera and request Preview to reconfigure
+            // parameters.
 
-            Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
+            Log.d(TAG, "cameraCurrentlyLocked := " + Integer.toString(cameraCurrentlyLocked));
+            try {
+                cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
+                Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
 
-            // Start the preview
-            mCamera.startPreview();
-        } catch (Exception exception) {
-            Log.d(TAG, exception.getMessage());
+                mCamera = Camera.open(cameraCurrentlyLocked);
+
+                if (cameraParameters != null) {
+                    Log.d(TAG, "camera parameter not null");
+                    mCamera.setParameters(cameraParameters);
+                } else {
+                    Log.d(TAG, "camera parameter NULL");
+                }
+
+                mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+
+                // Start the preview
+                mCamera.startPreview();
+            } catch (Exception exception) {
+                Log.d(TAG, exception.getMessage());
+            }
+
         }
     }
 
@@ -553,7 +553,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         } catch (IOException exception) {
             Log.e(TAG, exception.getMessage());
         }
-        //requestLayout();
+        requestLayout();
     }
 
     @Override
@@ -653,7 +653,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             if (mCamera != null) {
                 mCamera.stopPreview();
             }
-        } catch (Exception exception){
+        } catch (Exception exception) {
             Log.e(TAG, "Exception caused by surfaceDestroyed()", exception);
         }
     }
