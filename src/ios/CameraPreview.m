@@ -185,6 +185,22 @@
 - (void) invokeTakePicture {
     [self invokeTakePicture:0.0 withHeight:0.0];
 }
+
+- (NSString *)getBase64Image:(CGImageRef)imageRef {
+    NSString *base64Image = nil;
+
+    @try {
+        UIImage *image = [UIImage imageWithCGImage:imageRef];
+        NSData *imageData = UIImageJPEGRepresentation(image, .8);
+        base64Image = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"error while get base64Image: %@", [exception reason]);
+    }
+
+    return base64Image;
+}
+
 - (void) invokeTakePicture:(CGFloat) maxWidth withHeight:(CGFloat) maxHeight {
     AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
@@ -307,6 +323,10 @@
                     [params addObject:originalPicturePath];
                     [params addObject:previewPicturePath];
                 }
+
+                [params removeAllObjects];
+                [params addObject:base64Image];
+
              
                 CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
                 [pluginResult setKeepCallbackAsBool:true];
