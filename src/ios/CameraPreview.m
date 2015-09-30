@@ -259,6 +259,8 @@
  
             CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
 
+            NSString *base64Image = [self getBase64Image:finalImage];
+
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
 
             dispatch_group_t group = dispatch_group_create();
