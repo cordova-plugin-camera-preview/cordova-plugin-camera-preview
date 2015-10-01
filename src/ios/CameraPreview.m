@@ -201,6 +201,72 @@
     return base64Image;
 }
 
+- (double)radiansFromUIImageOrientation:(UIImageOrientation)orientation
+{
+    double radians;
+    
+    switch (orientation) {
+        case UIImageOrientationUp:
+        case UIImageOrientationUpMirrored:
+            radians = M_PI_2;
+            break;
+        case UIImageOrientationLeft:
+        case UIImageOrientationLeftMirrored:
+            radians = 0.f;
+            break;
+        case UIImageOrientationRight:
+        case UIImageOrientationRightMirrored:
+            radians = M_PI;
+            break;
+        case UIImageOrientationDown:
+        case UIImageOrientationDownMirrored:
+            radians = -M_PI_2;
+            break;
+    }
+    
+    return radians;
+}
+
+-(CGImageRef) CGImageRotated:(CGImageRef) originalCGImage withRadiants:(double) radians
+{
+    CGSize imageSize = CGSizeMake(CGImageGetWidth(originalCGImage), CGImageGetHeight(originalCGImage));
+    CGSize rotatedSize;
+    if (radians == M_PI_2 || radians == -M_PI_2) {
+        rotatedSize = CGSizeMake(imageSize.height, imageSize.width);
+    } else {
+        rotatedSize = imageSize;
+    }
+    
+    double rotatedCenterX = rotatedSize.width / 2.f;
+    double rotatedCenterY = rotatedSize.height / 2.f;
+    
+    UIGraphicsBeginImageContextWithOptions(rotatedSize, NO, 1.f);
+    CGContextRef rotatedContext = UIGraphicsGetCurrentContext();
+    if (radians == 0.f || radians == M_PI) { // 0 or 180 degrees
+        CGContextTranslateCTM(rotatedContext, rotatedCenterX, rotatedCenterY);
+        if (radians == 0.0f) {
+            CGContextScaleCTM(rotatedContext, 1.f, -1.f);
+        } else {
+            CGContextScaleCTM(rotatedContext, -1.f, 1.f);
+        }
+        CGContextTranslateCTM(rotatedContext, -rotatedCenterX, -rotatedCenterY);
+    } else if (radians == M_PI_2 || radians == -M_PI_2) { // +/- 90 degrees
+        CGContextTranslateCTM(rotatedContext, rotatedCenterX, rotatedCenterY);
+        CGContextRotateCTM(rotatedContext, radians);
+        CGContextScaleCTM(rotatedContext, 1.f, -1.f);
+        CGContextTranslateCTM(rotatedContext, -rotatedCenterY, -rotatedCenterX);
+    }
+    
+    CGRect drawingRect = CGRectMake(0.f, 0.f, imageSize.width, imageSize.height);
+    CGContextDrawImage(rotatedContext, drawingRect, originalCGImage);
+    CGImageRef rotatedCGImage = CGBitmapContextCreateImage(rotatedContext);
+    
+    UIGraphicsEndImageContext();
+    CFAutorelease((CFTypeRef)rotatedCGImage);
+    
+    return rotatedCGImage;
+}
+
 - (void) invokeTakePicture:(CGFloat) maxWidth withHeight:(CGFloat) maxHeight {
     AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
@@ -258,9 +324,7 @@
             }
  
             CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
-
-            NSString *base64Image = [self getBase64Image:finalImage];
-
+            
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
 
             dispatch_group_t group = dispatch_group_create();
@@ -322,13 +386,13 @@
                     [params addObject:[NSString stringWithFormat:@"CameraPreview: %@ - %@ — %@", [photosAlbumError localizedDescription], [photosAlbumError localizedFailureReason], remedy]];
                 } else {
                     // Success returns two elements in the returned array
-                    [params addObject:originalPicturePath];
-                    [params addObject:previewPicturePath];
+                    UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
+                    double radiants = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
+                    CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadiants:radiants];
+                    
+                    NSString *base64Image = [self getBase64Image:resultFinalImage];
+                    [params addObject:base64Image];
                 }
-
-                [params removeAllObjects];
-                [params addObject:base64Image];
-
              
                 CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
                 [pluginResult setKeepCallbackAsBool:true];
