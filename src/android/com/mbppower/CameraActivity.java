@@ -218,7 +218,13 @@ public class CameraActivity extends Fragment {
         }
 
         cameraCurrentlyLocked = defaultCameraId;
-        mPreview.setCamera(mCamera, cameraCurrentlyLocked);
+        
+        if(mPreview.mPreviewSize == null){
+		mPreview.setCamera(mCamera, cameraCurrentlyLocked);
+	} else {
+		mPreview.switchCamera(mCamera);
+		mCamera.startPreview();
+	}
 
 	    Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
 
