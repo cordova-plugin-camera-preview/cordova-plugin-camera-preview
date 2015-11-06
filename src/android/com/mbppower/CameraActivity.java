@@ -222,7 +222,7 @@ public class CameraActivity extends Fragment {
         if(mPreview.mPreviewSize == null){
 		mPreview.setCamera(mCamera, cameraCurrentlyLocked);
 	} else {
-		mPreview.switchCamera(mCamera);
+		mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
 		mCamera.startPreview();
 	}
 
