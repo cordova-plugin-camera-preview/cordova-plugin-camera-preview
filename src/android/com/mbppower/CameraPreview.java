@@ -104,6 +104,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					}
 					//display camera bellow the webview
 					if(toBack){
+              
 						webView.setBackgroundColor(0x00000000);
 						ViewGroup g = (ViewGroup)webView.getParent();
 						g.setBackgroundColor(0x00000000);
@@ -119,16 +120,18 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 					fragmentTransaction.add(containerView.getId(), fragment);
 					fragmentTransaction.commit();
+          
+          fragment.switchCamera();
 				}
 				catch(Exception e){
 					e.printStackTrace();
 				}
             }
         });
-    fragment.switchCamera();
+
 		return true;
 	}
-    private string invertCamera(String originalCamera) {
+    private String invertCamera(String originalCamera) {
         return originalCamera == "front" ? "back":"front";
     }
     
