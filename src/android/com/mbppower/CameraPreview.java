@@ -83,7 +83,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 					int y = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(1), metrics);
 					int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(2), metrics);
 					int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(3), metrics);
-					String defaultCamera = args.getString(4);
+					String defaultCamera = invertCamera(args.getString(4));
 					Boolean tapToTakePicture = args.getBoolean(5);
 					Boolean dragEnabled = args.getBoolean(6);
 					Boolean toBack = args.getBoolean(7);
@@ -125,8 +125,13 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 				}
             }
         });
+    fragment.switchCamera();
 		return true;
 	}
+    private string invertCamera(String originalCamera) {
+        return originalCamera == "front" ? "back":"front";
+    }
+    
 	private boolean takePicture(final JSONArray args, CallbackContext callbackContext) {
 		if(fragment == null){
 			return false;
