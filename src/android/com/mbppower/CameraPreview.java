@@ -88,7 +88,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
                 int h = size.height;
                 int w = size.width;
                 JSONObject jsonSize = new JSONObject();
-                jsonSize.put("height", new Integer(h)).put("width", new Integer(w));
+                try {
+                    jsonSize.put("height", new Integer(h));
+                    jsonSize.put("width", new Integer(w));
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+
+
                 sizes.put(jsonSize);
             }
             callbackContext.success(sizes);
