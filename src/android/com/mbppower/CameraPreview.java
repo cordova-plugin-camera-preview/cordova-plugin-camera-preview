@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
+import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -79,9 +80,16 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
 
     if (camera != null) {
-        supportedPhotoSizes = camera.getParameters().getSupportedPreviewSizes();
+        supportedPhotoSizes = camera.getParameters().getSupportedPictureSizes();
         if (supportedPhotoSizes != null) {
-            JSONArray sizes = new JSONArray(supportedPhotoSizes);
+            JSONArray sizes = new JSONArray();
+            for (int i=0; i<supportedPhotoSizes.size(); i++) {
+                Camera.Size size = supportedPhotoSizes.get(i);
+                JSONObject jsonSize = new JSONObject();
+                jsonSize.put("height", size.height);
+                jsonSize.put("width", size.width);
+                sizes.put(jsonSize);
+            }
             callbackContext.success(sizes);
             return true;
         }
