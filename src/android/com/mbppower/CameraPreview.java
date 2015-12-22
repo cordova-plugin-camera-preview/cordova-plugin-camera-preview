@@ -81,10 +81,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
             callbackContext.success(supportedPhotoSizes);
             return true;
         }
-        callbackContext.error('Camera Parameters access error');
+        callbackContext.error("Camera Parameters access error");
         return false;
     }
-    callbackContext.error('Camera needs to be started first');
+    callbackContext.error("Camera needs to be started first");
     return false;
 
     }
