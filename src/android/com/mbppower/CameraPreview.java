@@ -85,12 +85,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
 
     if (camera != null) {
-        if (type.equals("previews")) {
-            supportedSizes = camera.getParameters().getSupportedPreviewSizes();
-        }
-        else if (type.equals("pictures")) {
-            supportedSizes = camera.getParameters().getSupportedPictureSizes();
-        }
+        supportedSizes = (type.equals("previews")) ? camera.getParameters().getSupportedPreviewSizes() : camera.getParameters().getSupportedPictureSizes();
         if (supportedSizes != null) {
             JSONArray sizes = new JSONArray();
             for (int i=0; i<supportedSizes.size(); i++) {
