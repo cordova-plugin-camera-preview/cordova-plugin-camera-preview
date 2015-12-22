@@ -30,7 +30,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	private final String takePictureAction = "takePicture";
 	private final String showCameraAction = "showCamera";
 	private final String hideCameraAction = "hideCamera";
-    private final String getSupportedResolutionsAction = "getSupportedResolutions";
+  private final String getSupportedPreviewSizesAction = "getSupportedPreviewSizes";
+  private final String getSupportedPictureSizesAction = "getSupportedPictureSizes";    
 
 	private CameraActivity fragment;
 	private CallbackContext takePictureCallbackContext;
@@ -67,20 +68,29 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	    else if (switchCameraAction.equals(action)){
 		    return switchCamera(args, callbackContext);
 	    }
-      else if (getSupportedResolutionsAction.equals(action)) {
-          return getSupportedResolutions(args, callbackContext);
+      else if (getSupportedPreviewSizesAction.equals(action)) {
+          return getSupportedResolutions("previews", callbackContext);
+      }
+      else if (getSupportedPictureSizesAction.equals(action)) {
+          return getSupportedResolutions("pictures", callbackContext);
       }
     	
     	return false;
     }
 
 
-    private boolean getSupportedResolutions(final JSONArray args, CallbackContext callbackContext) {
-    List<Camera.Size> supportedPhotoSizes;
+    private boolean getSupportedResolutions(final String type, CallbackContext callbackContext) {
+    
+    List<Camera.Size> supportedSizes;
     Camera camera = fragment.getCamera();
 
     if (camera != null) {
-        supportedPhotoSizes = camera.getParameters().getSupportedPictureSizes();
+        if (type.equals("previews")) {
+            supportedSizes = camera.getParameters().getSupportedPreviewSizes();
+        }
+        else if (type.equals("pictures")) {
+            supportedSizes = camera.getParameters().getSupportedPictureSizes();
+        }
         if (supportedPhotoSizes != null) {
             JSONArray sizes = new JSONArray();
             for (int i=0; i<supportedPhotoSizes.size(); i++) {
@@ -95,8 +105,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
                 catch(Exception e){
                     e.printStackTrace();
                 }
-
-
                 sizes.put(jsonSize);
             }
             callbackContext.success(sizes);

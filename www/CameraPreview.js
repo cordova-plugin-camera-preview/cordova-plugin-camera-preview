@@ -49,8 +49,12 @@ CameraPreview.disable = function(disable) {
 	exec(null, null, PLUGIN_NAME, "disable", [disable]);
 };
 
-CameraPreview.getSupportedResolutions = function (callback) {
-  exec(callback, callback, PLUGIN_NAME, "getSupportedResolutions", []);
+CameraPreview.getSupportedPreviewSizes = function (callback) {
+  exec(callback, callback, PLUGIN_NAME, "getSupportedPreviewSizes", []);
+};
+
+CameraPreview.getSupportedPictureSizes = function (callback) {
+  exec(callback, callback, PLUGIN_NAME, "getSupportedPictureSizes", []);
 };
 
 module.exports = CameraPreview;
