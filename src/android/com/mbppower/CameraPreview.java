@@ -26,6 +26,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	private final String takePictureAction = "takePicture";
 	private final String showCameraAction = "showCamera";
 	private final String hideCameraAction = "hideCamera";
+    private final String getSupportedResolutionsAction = "getSupportedResolutions";
 
 	private CameraActivity fragment;
 	private CallbackContext takePictureCallbackContext;
@@ -62,10 +63,30 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	    else if (switchCameraAction.equals(action)){
 		    return switchCamera(args, callbackContext);
 	    }
+      else if (getSupportedResolutionsAction.equals(action)) {
+          return getSupportedResolutions(args, callbackContext);
+      }
     	
     	return false;
     }
 
+
+    private boolean getSupportedResolutions(final JSONArray argsm CallbackContext callbackContext) {
+    List<Camera.Size> supportedPhotoSizes;
+    Camera camera = fragment.getCamera();
+
+    if (camera != null) {
+        supportedPhotoSizes = camera.getParameters().getSupportedPreviewSizes();
+        if (supportedPhotoSizes != null) {
+            callbackContext.success(supportedPhotoSizes);
+            return true;
+        }
+        callbackContext.error('Camera Parameters access error');
+    }
+    callbackContext.error('Camera needs to be started first');
+    return false;
+
+    }
 	private boolean startCamera(final JSONArray args, CallbackContext callbackContext) {
         if(fragment != null){
 	        return false;
