@@ -9,11 +9,14 @@ import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import java.util.List;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
@@ -78,7 +81,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     if (camera != null) {
         supportedPhotoSizes = camera.getParameters().getSupportedPreviewSizes();
         if (supportedPhotoSizes != null) {
-            callbackContext.success(supportedPhotoSizes);
+            JSONArray sizes;
+            for (int i=0; i < supportedPhotoSizes.size(); i++) {
+                sizes.put(supportedPhotoSizes.get(i).getJSONObject());
+            }
+            callbackContext.success(sizes);
             return true;
         }
         callbackContext.error("Camera Parameters access error");
