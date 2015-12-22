@@ -71,7 +71,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
 
-    private boolean getSupportedResolutions(final JSONArray argsm CallbackContext callbackContext) {
+    private boolean getSupportedResolutions(final JSONArray args, CallbackContext callbackContext) {
     List<Camera.Size> supportedPhotoSizes;
     Camera camera = fragment.getCamera();
 
@@ -82,6 +82,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
             return true;
         }
         callbackContext.error('Camera Parameters access error');
+        return false;
     }
     callbackContext.error('Camera needs to be started first');
     return false;
