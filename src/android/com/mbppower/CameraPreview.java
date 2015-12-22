@@ -91,10 +91,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         else if (type.equals("pictures")) {
             supportedSizes = camera.getParameters().getSupportedPictureSizes();
         }
-        if (supportedPhotoSizes != null) {
+        if (supportedSizes != null) {
             JSONArray sizes = new JSONArray();
-            for (int i=0; i<supportedPhotoSizes.size(); i++) {
-                Camera.Size size = supportedPhotoSizes.get(i);
+            for (int i=0; i<supportedSizes.size(); i++) {
+                Camera.Size size = supportedSizes.get(i);
                 int h = size.height;
                 int w = size.width;
                 JSONObject jsonSize = new JSONObject();
