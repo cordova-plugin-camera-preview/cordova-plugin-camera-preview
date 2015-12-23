@@ -16,8 +16,7 @@
 - (NSArray) getDeviceFormats
 {
   AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.defaultCamera];
-  NSArray* formats = videoDevice.formats;
-  return formats;
+  return videoDevice.formats;
 }
 - (AVCaptureVideoOrientation) getCurrentOrientation/*:(UIInterfaceOrientation)toInterfaceOrientation*/
 {
@@ -45,7 +44,7 @@
 - (void) setupSession:(NSString *)defaultCamera
 {
     // If this fails, video input will just stream blank frames
-    // and the user will be notified. User only has to accep once.
+    // and the user will be notified. User only has to accept once.
     [self checkDeviceAuthorizationStatus];
 
     dispatch_async(self.sessionQueue, ^{
