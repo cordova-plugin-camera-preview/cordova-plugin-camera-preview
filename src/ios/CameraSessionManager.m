@@ -13,11 +13,11 @@
     }
     return self;
 }
-- (NSArray) getDeviceFormats
+/*- (NSArray) getDeviceFormats
 {
   AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.defaultCamera];
   return videoDevice.formats;
-}
+  }*/
 - (AVCaptureVideoOrientation) getCurrentOrientation/*:(UIInterfaceOrientation)toInterfaceOrientation*/
 {
     return [self getCurrentOrientation: [[UIApplication sharedApplication] statusBarOrientation]];
