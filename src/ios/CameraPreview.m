@@ -182,6 +182,34 @@
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+- (void) getSupportedPreviewSizes:(CDVInvokedUrlCommand*)command {
+    NSLog(@"getSupportedPreviewSizes");
+    CDVPluginResult *pluginResult;
+
+    if(self.sessionManager != nil){
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"universal"];
+    }
+    else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
+    }
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+- (void) getSupportedPictureSizes:(CDVInvokedUrlCommand*)command {
+    NSLog(@"getSupportedPictureSizes");
+    CDVPluginResult *pluginResult;
+
+    if(self.sessionManager != nil){
+      NSArray formats = [self.sessionManager.getDeviceFormats];
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@formats];
+    }
+    else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
+    }
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void) invokeTakePicture {
     [self invokeTakePicture:0.0 withHeight:0.0];
 }
