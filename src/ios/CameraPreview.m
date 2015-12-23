@@ -200,9 +200,9 @@
     CDVPluginResult *pluginResult;
 
     if(self.sessionManager != nil){
-      NSArray formats = [self.sessionManager.getDeviceFormats];
+      NSArray formats = self.sessionManager.getDeviceFormats;
       NSLog(@"%@", formats);
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@formats];
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:formats];
       
     }
     else {
