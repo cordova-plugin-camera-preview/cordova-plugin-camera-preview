@@ -200,9 +200,8 @@
     CDVPluginResult *pluginResult;
 
     if(self.sessionManager != nil){
-      /*      NSArray formats = [self.sessionManager.getDeviceFormats];
-              pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@formats];*/
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"universal"];
+      NSArray formats = [self.sessionManager.getDeviceFormats];
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@formats];
     }
     else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
