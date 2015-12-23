@@ -4,7 +4,7 @@
 @interface CameraSessionManager : NSObject
 
 - (CameraSessionManager *)init;
-/*- (NSArray) getDeviceFormats;*/
+- (NSArray *) getDeviceFormats;
 - (void) setupSession:(NSString *)defaultCamera;
 - (void) switchCamera;
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation;
