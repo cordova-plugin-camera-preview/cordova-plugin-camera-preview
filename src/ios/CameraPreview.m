@@ -201,7 +201,22 @@
 
     if(self.sessionManager != nil){
       NSArray *formats = self.sessionManager.getDeviceFormats;
-      NSLog(@"%@", formats);
+      NSMutableArray *jsonFormats = [NSMutableArray new];
+      int lastWidth = 0;
+      int lastHeight = 0;
+      for (AVCaptureDeviceFormat *format in formats) {
+        CMVideoDimensions dim = format.highResolutionStillImageDimensions;
+        if (dim.width!=lastWidth && dim.height != lastHeight) {
+          NSMutableDictionary *dimensions = [[NSMutableDictionary alloc] init];
+          NSNumber *width = [NSNumber numberWithInt:dim.width];
+          NSNumber *height = [NSNumber numberWithInt:dim.height];
+          [dimensions setValue:width forKey:@"width"];
+          [dimensions setValue:height forKey:@"height"];
+          [jsonFormats addObject:dimensions];
+          lastWidth = dim.width;
+          lastHeight = dim.height;
+        }
+      }
       pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:formats];
       
     }
