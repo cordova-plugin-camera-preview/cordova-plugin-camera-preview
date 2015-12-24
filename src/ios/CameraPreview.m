@@ -217,7 +217,7 @@
           lastHeight = dim.height;
         }
       }
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:formats];
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:jsonFormats];
       
     }
     else {
