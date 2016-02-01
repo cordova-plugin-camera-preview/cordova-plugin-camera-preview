@@ -171,9 +171,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 //                    Log.d("CameraPreview", "before switch");
 //                    fragment.switchCamera();
 //                    Log.d("CameraPreview", "after switch");
+                    callbackContext.success();
 
                 } catch (Exception e) {
                     e.printStackTrace();
+                    callbackContext.error(e);
                 }
             }
         });
