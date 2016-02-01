@@ -30,6 +30,7 @@
 	<uses-feature android:name="android.hardware.camera.autofocus" />
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     </config-file>
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
 	<activity android:name="com.mbppower.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
