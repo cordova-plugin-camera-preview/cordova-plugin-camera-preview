@@ -109,6 +109,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     private boolean startCamera(final JSONArray args, CallbackContext callbackContext) {
         Log.d(TAG, "start camera action");
         if (fragment != null) {
+            callbackContext.error("Camera already started");
             return false;
         }
         fragment = new CameraActivity();
@@ -171,16 +172,17 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 //                    Log.d("CameraPreview", "before switch");
 //                    fragment.switchCamera();
 //                    Log.d("CameraPreview", "after switch");
-                    callbackContext.success();
+
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    callbackContext.error(e);
+
                 }
+                
             }
         });
 //        fragment.printPreviewSize("previewStartCamera");
-
+        callbackContext.success("Camera started");
         return true;
     }
 
