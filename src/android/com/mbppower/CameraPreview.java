@@ -312,9 +312,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     private boolean switchCamera(final JSONArray args, CallbackContext callbackContext) {
         if (fragment == null) {
+            callbackContext.error("Error switching cameras");
             return false;
         }
         fragment.switchCamera();
+        callbackContext.success("Switched camera successfully");
         return true;
     }
 

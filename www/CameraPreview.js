@@ -37,8 +37,8 @@ CameraPreview.setColorEffect = function(effect) {
   exec(null, null, PLUGIN_NAME, "setColorEffect", [effect]);
 };
 
-CameraPreview.switchCamera = function() {
-  exec(null, null, PLUGIN_NAME, "switchCamera", []);
+CameraPreview.switchCamera = function(callback) {
+  exec(callback, callback, PLUGIN_NAME, "switchCamera", []);
 };
 
 CameraPreview.hide = function() {
