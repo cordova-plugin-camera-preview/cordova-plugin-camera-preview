@@ -186,36 +186,41 @@ public class CameraActivity extends Fragment {
 
     public void switchCamera() {
         // check for availability of multiple cameras
-        if (numberOfCameras == 1) {
+        if (numberOfCameras < 2) {
             //There is only one camera available
         }
-		Log.d(TAG, "numberOfCameras: " + numberOfCameras);
+        else {
+            Log.d(TAG, "numberOfCameras: " + numberOfCameras);
 
-		// OK, we have multiple cameras.
-		// Release this camera -> cameraCurrentlyLocked
-		if (mCamera != null) {
-			mCamera.stopPreview();
-			mPreview.setCamera(null, -1);
-			mCamera.release();
-			mCamera = null;
-		}
+            // OK, we have multiple cameras.
+            // Release this camera -> cameraCurrentlyLocked
+            if (mCamera != null) {
+                mCamera.stopPreview();
+                mPreview.setCamera(null, -1);
+                mCamera.release();
+                mCamera = null;
+            }
 
-		// Acquire the next camera and request Preview to reconfigure
-		// parameters.
-		mCamera = Camera.open((cameraCurrentlyLocked + 1) % numberOfCameras);
+            // Acquire the next camera and request Preview to reconfigure
+            // parameters.
+            try {
+                cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
+                mCamera = Camera.open(cameraCurrentlyLocked);
 
-		if (cameraParameters != null) {
-			mCamera.setParameters(cameraParameters);
-		}
+                if (cameraParameters != null) {
+                    mCamera.setParameters(cameraParameters);
+                }
+                mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
 
-		cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
-		mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+                Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
 
-	    Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
-
-		// Start the preview
-		mCamera.startPreview();
-		defaultCamera = (defaultCamera.equals("front") ? "back":"front");
+                // Start the preview
+                mCamera.startPreview();
+                defaultCamera = (defaultCamera.equals("front") ? "back":"front");
+            } catch (Exception exception) {
+                Log.d(TAG, exception.getMessage());
+            }
+        }
     }
 
     public void setCameraParameters(Camera.Parameters params) {
@@ -509,7 +514,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 	    catch (IOException exception) {
 		Log.e(TAG, exception.getMessage());
 	    }
-        //requestLayout();
+        requestLayout();
     }
 
     @Override
