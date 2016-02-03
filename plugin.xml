@@ -70,6 +70,7 @@
          <framework src="OpenGLES.framework" />
          <framework src="GLKit.framework" />
          <framework src="CoreVideo.framework" />
+         <framework src="QuartzCore.framework"/>
 	 
     </platform>
 

@@ -13,7 +13,7 @@
 - (void) invokeTakePicture;
 @end;
 
-@interface CameraRenderController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate> {
+@interface CameraRenderController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate> {
     GLuint _renderBuffer;
     CVOpenGLESTextureCacheRef _videoTextureCache;
     CVOpenGLESTextureRef _lumaTexture;
@@ -29,5 +29,7 @@
 @property BOOL dragEnabled;
 @property BOOL tapToTakePicture;
 @property (nonatomic, assign) id delegate;
+
+- (void)addTapToFocustRecognizer;
 
 @end

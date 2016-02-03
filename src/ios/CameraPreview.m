@@ -39,13 +39,16 @@
         
         [self.viewController addChildViewController:self.cameraRenderController];
         //display the camera bellow the webview
+        
         if (toBack) {
             //make transparent
             //            self.webView.opaque = NO;
             //            self.webView.backgroundColor = [UIColor clearColor];
             [self.viewController.view insertSubview:self.cameraRenderController.view atIndex:0];
+            [self addTapToFocus];
         }
-        else{
+        else {
+            [self.cameraRenderController addTapToFocustRecognizer];
             [self.viewController.view addSubview:self.cameraRenderController.view];
         }
         
@@ -59,6 +62,67 @@
     }
     
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
+}
+
+- (void)addTapToFocus {
+    UITapGestureRecognizer *tapToFocus = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapToFocus:)];
+    tapToFocus.delegate = self;
+    [self.viewController.view addGestureRecognizer:tapToFocus];
+}
+
+- (void)handleTapToFocus:(UITapGestureRecognizer *)tapToFocus {
+    NSLog(@"handle tap");
+    
+    if (tapToFocus.state == UIGestureRecognizerStateRecognized) {
+        CGPoint pointOfTap = [tapToFocus locationInView:tapToFocus.view];
+        NSLog(@"xTap: %f yTap: %f", pointOfTap.x, pointOfTap.y);
+        
+        if ([self.sessionManager.currentDevice isFocusPointOfInterestSupported]) {
+            NSError *error = nil;
+            if ([self.sessionManager.currentDevice lockForConfiguration:&error]) {
+                CGRect screenRect = [UIScreen mainScreen].bounds;
+
+                CGFloat focusX = pointOfTap.x / screenRect.size.width;
+                CGFloat focusY = pointOfTap.y / screenRect.size.height;
+                CGPoint focusPoint = CGPointMake(focusX, focusY);
+                
+                NSLog(@"focus to point [%f:%f]", focusX, focusY);
+                
+                [self.sessionManager.currentDevice setFocusPointOfInterest:focusPoint];
+                [self.sessionManager.currentDevice setFocusMode:AVCaptureFocusModeAutoFocus];
+                
+                [self.sessionManager.currentDevice setSubjectAreaChangeMonitoringEnabled:YES];
+                
+                __block UIView *squareFocus = [[UIView alloc] initWithFrame:CGRectMake(pointOfTap.x - 40, pointOfTap.y - 40, 80, 80)];
+                [squareFocus setBackgroundColor:[UIColor clearColor]];
+                [squareFocus.layer setBorderWidth:2.];
+                [squareFocus.layer setCornerRadius:5.];
+                [squareFocus.layer setBorderColor:[UIColor yellowColor].CGColor];
+                
+                CABasicAnimation *tapSquareAnimation = [CABasicAnimation animationWithKeyPath:@"borderColor"];
+                tapSquareAnimation.toValue = (id)[UIColor whiteColor].CGColor;
+                tapSquareAnimation.repeatCount = 4;
+                [squareFocus.layer addAnimation:tapSquareAnimation forKey:@"tapSquareAnimation"];
+                
+                [self.viewController.view addSubview:squareFocus];
+                [self.viewController.view bringSubviewToFront:squareFocus];
+                
+                [UIView animateWithDuration:2.5 animations:^{
+                    [squareFocus setAlpha:0.];
+                } completion:^(BOOL finished) {
+                    [squareFocus removeFromSuperview];
+                }];
+                
+                [self.sessionManager.currentDevice unlockForConfiguration];
+            } else {
+                NSLog(@"%@", [error localizedDescription]);
+            }
+        }
+    }
 }
 
 - (void) stopCamera:(CDVInvokedUrlCommand*)command {
@@ -409,11 +473,9 @@
                     [params addObject:base64Image];
                 }
                 
-                //                dispatch_async(dispatch_get_main_queue(), ^{
                 CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
                 [pluginResult setKeepCallbackAsBool:true];
                 [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
-                //                });
             });
         }
     }];

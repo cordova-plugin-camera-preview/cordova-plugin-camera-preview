@@ -12,6 +12,7 @@
     webView.opaque = NO;
     return [super webViewDidFinishLoad:webView];
 }
+
 @end
 
 @implementation CameraRenderController
@@ -122,6 +123,67 @@
     [recognizer setTranslation:CGPointMake(0, 0) inView:self.view];
 }
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
+}
+
+- (void)addTapToFocustRecognizer {
+    UITapGestureRecognizer *tapToFocus = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleFocusTap:)];
+    tapToFocus.delegate = self;
+    [self.view addGestureRecognizer:tapToFocus];
+    
+    [self.view setUserInteractionEnabled:YES];
+}
+
+- (void)handleFocusTap:(UITapGestureRecognizer *)tapToFocus {
+    if (tapToFocus.state == UIGestureRecognizerStateRecognized) {
+        CGPoint pointOfTap = [tapToFocus locationInView:tapToFocus.view];
+        NSLog(@"cameraRender - xTap: %f yTap: %f", pointOfTap.x, pointOfTap.y);
+        
+        if ([self.sessionManager.currentDevice isFocusPointOfInterestSupported]) {
+            NSError *error = nil;
+            if ([self.sessionManager.currentDevice lockForConfiguration:&error]) {
+                CGRect screenRect = [UIScreen mainScreen].bounds;
+                
+                CGFloat focusX = pointOfTap.x / screenRect.size.width;
+                CGFloat focusY = pointOfTap.y / screenRect.size.height;
+                CGPoint focusPoint = CGPointMake(focusX, focusY);
+                
+                NSLog(@"cameraRender - focus to point [%f:%f]", focusX, focusY);
+                
+                [self.sessionManager.currentDevice setFocusPointOfInterest:focusPoint];
+                [self.sessionManager.currentDevice setFocusMode:AVCaptureFocusModeAutoFocus];
+                
+                [self.sessionManager.currentDevice setSubjectAreaChangeMonitoringEnabled:YES];
+                
+                __block UIView *squareFocus = [[UIView alloc] initWithFrame:CGRectMake(pointOfTap.x - 40, pointOfTap.y - 40, 80, 80)];
+                [squareFocus setBackgroundColor:[UIColor clearColor]];
+                [squareFocus.layer setBorderWidth:2.];
+                [squareFocus.layer setCornerRadius:5.];
+                [squareFocus.layer setBorderColor:[UIColor yellowColor].CGColor];
+                
+                CABasicAnimation *tapSquareAnimation = [CABasicAnimation animationWithKeyPath:@"borderColor"];
+                tapSquareAnimation.toValue = (id)[UIColor whiteColor].CGColor;
+                tapSquareAnimation.repeatCount = 4;
+                [squareFocus.layer addAnimation:tapSquareAnimation forKey:@"tapSquareAnimation"];
+                
+                [self.view addSubview:squareFocus];
+                [self.view bringSubviewToFront:squareFocus];
+                
+                [UIView animateWithDuration:2.5 animations:^{
+                    [squareFocus setAlpha:0.];
+                } completion:^(BOOL finished) {
+                    [squareFocus removeFromSuperview];
+                }];
+                
+                [self.sessionManager.currentDevice unlockForConfiguration];
+            } else {
+                NSLog(@"cameraRender - %@", [error localizedDescription]);
+            }
+        }
+    }
+}
+
 - (void) appplicationIsActive:(NSNotification *)notification {
     dispatch_async(self.sessionManager.sessionQueue, ^{
         NSLog(@"Starting session");
@@ -230,8 +292,10 @@
 - (BOOL)shouldAutorotate {
     return YES;
 }
+
 -(void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [self.sessionManager updateOrientation:[self.sessionManager getCurrentOrientation:toInterfaceOrientation]];
 }
+
 @end
