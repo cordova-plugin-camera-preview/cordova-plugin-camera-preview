@@ -194,6 +194,7 @@ public class CameraActivity extends Fragment {
         // check for availability of multiple cameras
         if (numberOfCameras < 2) {
             //There is only one camera available
+            Log.d(TAG, "there is only one camera");
         } else {
             Log.d(TAG, "numberOfCameras: " + numberOfCameras);
 
@@ -203,7 +204,9 @@ public class CameraActivity extends Fragment {
                 mCamera.stopPreview();
                 mPreview.setCamera(null, -1);
                 mCamera.release();
+                Log.d(TAG, "prepare to set null for camera");
                 mCamera = null;
+                Log.d(TAG, "camera setted to null");
             }
 
             // Acquire the next camera and request Preview to reconfigure
@@ -219,18 +222,21 @@ public class CameraActivity extends Fragment {
 
             mCamera = Camera.open(cameraCurrentlyLocked);
 
-            if (cameraParameters != null) {
-                Log.d(TAG, "camera parameter not null");
-                mCamera.setParameters(cameraParameters);
+            if (mCamera != null) {
+                if (cameraParameters != null) {
+                    Log.d(TAG, "camera parameter not null");
+                    mCamera.setParameters(cameraParameters);
+                } else {
+                    Log.d(TAG, "camera parameter NULL");
+                }
+
+                mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+
+                // Start the preview
+                mCamera.startPreview();
             } else {
-                Log.d(TAG, "camera parameter NULL");
+                Log.d(TAG, "Camera.open(" + String.valueOf(cameraCurrentlyLocked) + ") = null");
             }
-
-            mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
-
-            // Start the preview
-            mCamera.startPreview();
-
         }
     }
 
@@ -456,6 +462,9 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     int cameraId;
     int displayOrientation;
 
+    private int widthForOptimalSize;
+    private int heightForOptimalSize;
+
     Preview(Context context) {
         super(context);
 
@@ -535,19 +544,10 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     public void switchCamera(Camera camera, int cameraId) {
         try {
             setCamera(camera, cameraId);
-
-            Log.d("CameraPreview", "before set camera");
-
             camera.setPreviewDisplay(mHolder);
-
-            Log.d("CameraPreview", "before getParameters");
-
             Camera.Parameters parameters = camera.getParameters();
-
-            Log.d("CameraPreview", "before setPreviewSize");
-
+            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, widthForOptimalSize, heightForOptimalSize);
             parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-            Log.d(TAG, mPreviewSize.width + " " + mPreviewSize.height);
             camera.setParameters(parameters);
         } catch (IOException exception) {
             Log.e(TAG, exception.getMessage());
@@ -560,12 +560,12 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         // We purposely disregard child measurements because act as a
         // wrapper to a SurfaceView that centers the camera preview instead
         // of stretching it.
-        final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        setMeasuredDimension(width, height);
+        widthForOptimalSize = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+        heightForOptimalSize = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+        setMeasuredDimension(widthForOptimalSize, heightForOptimalSize);
 
         if (mSupportedPreviewSizes != null) {
-            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, widthForOptimalSize, heightForOptimalSize);
 
            /* Log.d(TAG, "onMeasure: > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
 
@@ -698,20 +698,42 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     public Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         if (sizes == null) return null;
 
-        Camera.Size optimalSize = null;
+        final double ASPECT_TOLERANCE = 0.1;
+        double targetRatio = (double) w / h;
+        if (displayOrientation == 90 || displayOrientation == 270) {
+            targetRatio = (double) h / w;
+        }
+        if (sizes == null) return null;
 
-        int maxWidth = 0;
+        Camera.Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = h;
 
         // Try to find an size match aspect ratio and size
-        // Select max size
         for (Camera.Size size : sizes) {
-            if (size.width > maxWidth) {
-                maxWidth = size.width;
-                optimalSize = size;
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                if (optimalSize == null || optimalSize.height < size.height) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
             }
         }
 
-        Log.d(TAG, "optimal preview size: w: " + optimalSize.width + " h: " + optimalSize.height);
+        // Cannot find the one match the aspect ratio, ignore the requirement
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Camera.Size size : sizes) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    if (optimalSize == null || optimalSize.height < size.height) {
+                        optimalSize = size;
+                        minDiff = Math.abs(size.height - targetHeight);
+                    }
+                }
+            }
+        }
         return optimalSize;
     }
 
