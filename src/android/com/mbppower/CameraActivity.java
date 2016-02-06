@@ -1,13 +1,12 @@
 package com.mbppower;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.util.Base64;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ImageFormat;
@@ -16,10 +15,12 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.util.Log;
+import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -36,9 +37,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.Exception;
-import java.lang.Integer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -86,6 +86,7 @@ public class CameraActivity extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(getResources().getIdentifier("camera_activity", "layout", appResourcesPackage), container, false);
         createCameraPreview();
+
         return view;
     }
 
@@ -449,9 +450,13 @@ public class CameraActivity extends Fragment {
     public void onDestroy() {
         super.onDestroy();
     }
+
+    public void passMotionEvent(MotionEvent event) {
+        mPreview.handleMotionEvent(event);
+    }
 }
 
-class Preview extends RelativeLayout implements SurfaceHolder.Callback {
+class Preview extends RelativeLayout implements SurfaceHolder.Callback{
     private final String TAG = "CameraPreview";
 
     CustomSurfaceView mSurfaceView;
@@ -464,6 +469,8 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
     private int widthForOptimalSize;
     private int heightForOptimalSize;
+
+    private Camera.AutoFocusCallback autoFocusCallback;
 
     Preview(Context context) {
         super(context);
@@ -478,6 +485,13 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         mHolder = mSurfaceView.getHolder();
         mHolder.addCallback(this);
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+        autoFocusCallback = new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean b, Camera camera) {
+                mCamera.cancelAutoFocus();
+            }
+        };
     }
 
     public void setCamera(Camera camera, int cameraId) {
@@ -657,44 +671,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         }
     }
 
-    /*private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
-        final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio = (double) w / h;
-        if (displayOrientation == 90 || displayOrientation == 270) {
-            targetRatio = (double) h / w;
-        }
-        if (sizes == null) return null;
-
-        Camera.Size optimalSize = null;
-        double minDiff = Double.MAX_VALUE;
-
-        int targetHeight = h;
-
-        // Try to find an size match aspect ratio and size
-        for (Camera.Size size : sizes) {
-            double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
-            }
-        }
-
-        // Cannot find the one match the aspect ratio, ignore the requirement
-        if (optimalSize == null) {
-            minDiff = Double.MAX_VALUE;
-            for (Camera.Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
-                    optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
-                }
-            }
-        }
-
-        Log.d(TAG, "optimal preview size: w: " + optimalSize.width + " h: " + optimalSize.height);
-        return optimalSize;
-    }*/
-
     public Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         if (sizes == null) return null;
 
@@ -703,7 +679,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         if (displayOrientation == 90 || displayOrientation == 270) {
             targetRatio = (double) h / w;
         }
-        if (sizes == null) return null;
 
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
@@ -774,6 +749,55 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         if (mCamera != null) {
             mCamera.setOneShotPreviewCallback(callback);
         }
+    }
+
+    private void handleTapToFocus(Rect focusRect) {
+        try {
+            List<Camera.Area> focusList = new ArrayList<Camera.Area>();
+            Camera.Area focusArea = new Camera.Area(focusRect, 800);
+            focusList.add(focusArea);
+
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setFocusAreas(focusList);
+            parameters.setMeteringAreas(focusList);
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+            mCamera.setParameters(parameters);
+
+            mCamera.autoFocus(autoFocusCallback);
+        } catch (Exception e) {
+            Log.e(TAG, "focus tap: " + e.getMessage());
+        }
+    }
+
+    public void handleMotionEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            float x = event.getX();
+            float y = event.getY();
+
+            Rect touchToFocusRect = calculateFocusArea(x, y);
+            handleTapToFocus(touchToFocusRect);
+        }
+    }
+
+    private Rect calculateFocusArea(float x, float y) {
+        int left = clamp(Float.valueOf((x / this.getWidth()) * 2000 - 1000).intValue(), 300);
+        int top = clamp(Float.valueOf((y / this.getHeight()) * 2000 - 1000).intValue(), 300);
+
+        return new Rect(left, top, left + 300, top + 300);
+    }
+
+    private int clamp(int touchCoordinateInCamera, int focusAreaSize) {
+        int result;
+        if (Math.abs(touchCoordinateInCamera) + focusAreaSize / 2 > 1000) {
+            if (touchCoordinateInCamera > 0) {
+                result = 1000 - focusAreaSize / 2;
+            } else {
+                result = -1000 + focusAreaSize / 2;
+            }
+        } else {
+            result = touchCoordinateInCamera - focusAreaSize / 2;
+        }
+        return result;
     }
 }
 

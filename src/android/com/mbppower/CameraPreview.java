@@ -6,6 +6,8 @@ import android.hardware.Camera;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -108,10 +110,14 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
                     if (toBack) {
 						webView.getView().setBackgroundColor(0x00000000);
 						((ViewGroup)webView.getView()).bringToFront();
-//                        webView.setBackgroundColor(0x00000000);
-//                        ViewGroup g = (ViewGroup) webView.getParent();
-//                        g.setBackgroundColor(0x00000000);
-//                        g.bringToFront();
+
+                        webView.getView().setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View view, MotionEvent motionEvent) {
+                                fragment.passMotionEvent(motionEvent);
+                                return false;
+                            }
+                        });
                     } else {
                         //set camera back to front
                         containerView.bringToFront();
@@ -122,18 +128,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.add(containerView.getId(), fragment);
                     fragmentTransaction.commit();
-
-
-//                    Log.d("CameraPreview", "before switch");
-//                    fragment.switchCamera();
-//                    Log.d("CameraPreview", "after switch");
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
-//        fragment.printPreviewSize("previewStartCamera");
 
         return true;
     }
@@ -150,8 +149,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
         try {
-//            double maxWidth = args.getDouble(0);
-//            double maxHeight = args.getDouble(1);
             double maxWidth = 0;
             double maxHeight = 0;
             fragment.takePicture(maxWidth, maxHeight);
@@ -169,14 +166,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         pluginResult.setKeepCallback(true);
         takePictureCallbackContext.sendPluginResult(pluginResult);
     }
-
-    /*public void onPictureTaken(String originalPicturePath, String previewPicturePath) {
-        JSONArray data = new JSONArray();
-        data.put(originalPicturePath).put(previewPicturePath);
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
-        pluginResult.setKeepCallback(true);
-        takePictureCallbackContext.sendPluginResult(pluginResult);
-    }*/
 
     private boolean setColorEffect(final JSONArray args, CallbackContext callbackContext) {
         if (fragment == null) {
