@@ -114,7 +114,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
                         webView.getView().setOnTouchListener(new View.OnTouchListener() {
                             @Override
                             public boolean onTouch(View view, MotionEvent motionEvent) {
-                                fragment.passMotionEvent(motionEvent);
+                                if (fragment != null) {
+                                    fragment.passMotionEvent(motionEvent);
+                                }
                                 return false;
                             }
                         });
