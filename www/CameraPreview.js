@@ -1,6 +1,6 @@
 var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
-  exec = require('cordova/exec');
+    utils = require('cordova/utils'),
+    exec = require('cordova/exec');
 
 var PLUGIN_NAME = "CameraPreview";
 
@@ -8,6 +8,10 @@ var CameraPreview = function() {};
 
 CameraPreview.setOnPictureTakenHandler = function(onPictureTaken) {
   exec(onPictureTaken, onPictureTaken, PLUGIN_NAME, "setOnPictureTakenHandler", []);
+};
+
+CameraPreview.setOnLogHandler = function(onLog) {
+	exec(onLog, onLog, PLUGIN_NAME, "wLog", []);
 };
 
 //@param rect {x: 0, y: 0, width: 100, height:100}
