@@ -19,4 +19,8 @@
 @property (nonatomic) AVCaptureVideoDataOutput *dataOutput;
 @property (nonatomic, assign) id delegate;
 
+@property (nonatomic) AVCaptureDevice *currentDevice;
+
+@property (nonatomic) NSObject *areaChangeObserver;
+
 @end
