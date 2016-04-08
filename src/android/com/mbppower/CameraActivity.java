@@ -354,13 +354,13 @@ public class CameraActivity extends Fragment {
             public void run() {
 
                 try {
-//                    final File picFile = storeImage(picture, "_preview");
-//                    final File originalPictureFile = storeImage(originalPicture, "_original");
+                    //                    final File picFile = storeImage(picture, "_preview");
+                    final File originalPictureFile = storeImage(originalPicture, "_original");
 //                    image = BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath());
 //                    processPicture(BitmapFactory.decodeFile(originalPictureFile.getAbsolutePath()));
-//                    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath(), picFile.getAbsolutePath());
+                    eventListener.onPictureTaken(originalPictureFile.getAbsolutePath());
 
-                    processPicture(originalPicture);
+//                    processPicture(originalPicture);
 
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
