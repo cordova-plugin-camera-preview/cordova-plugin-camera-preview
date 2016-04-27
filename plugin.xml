@@ -17,8 +17,8 @@
   </js-module>
 
   <platform name="android">
-    <source-file src="src/android/CameraPreview.java" target-dir="src/com/Cordova-plugin-camera-preview" />
-    <source-file src="src/android/CameraActivity.java" target-dir="src/com/Cordova-plugin-camera-preview" />
+    <source-file src="src/android/CameraPreview.java" target-dir="src/com/CordovaPluginCameraPreview" />
+    <source-file src="src/android/CameraActivity.java" target-dir="src/com/CordovaPluginCameraPreview" />
     <source-file src="src/android/camera_activity.xml" target-dir="res/layout" />
     <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
 
