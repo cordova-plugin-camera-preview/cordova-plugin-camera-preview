@@ -2,29 +2,30 @@
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" 
   xmlns:android="http://schemas.android.com/apk/res/android"
-  id="cordova-plugin-camerapreview" 
+  id="cordova-plugin-camera-preview" 
   version="0.9.0">
 
-  <name>CameraPreview</name>
+  <name>cordova-plugin-camera-preview</name>
   <description>Cordova plugin that allows camera interaction from HTML code. Show camera preview popup on top of the HTML.</description>
   <license>Apache 2.0</license>
-  <keywords>Cordova, Ionic, Camera, Preview, Popup, Floating</keywords>
-  <repo>https://github.com/mbppower/CordovaCameraPreview.git</repo>
-  <issue>https://github.com/mbppower/CordovaCameraPreview/issues</issue>
+  <keywords>cordova,phonegap,ecosystem:cordova,cordova-android,cordova-ios,android,ios,ionic,camera,cam,camera-preview,preview</keywords>
+  <repo>https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git</repo>
+  <issue>https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/issues</issue>
+
 
   <js-module src="www/CameraPreview.js" name="CameraPreview">
     <clobbers target="CameraPreview" />
   </js-module>
 
   <platform name="android">
-    <source-file src="src/android/CameraPreview.java" target-dir="src/com/mbppower" />
-    <source-file src="src/android/CameraActivity.java" target-dir="src/com/mbppower" />
+    <source-file src="src/android/CameraPreview.java" target-dir="src/com/cordova-plugin-camera-preview" />
+    <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordova-plugin-camera-preview" />
     <source-file src="src/android/camera_activity.xml" target-dir="res/layout" />
     <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
 
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="CameraPreview">
-        <param name="android-package" value="com.mbppower.CameraPreview" />
+        <param name="android-package" value="com.cordova-plugin-camera-preview.CameraPreview" />
         <param name="onload" value="true" />
       </feature>
     </config-file>
@@ -38,7 +39,7 @@
     </config-file>
 
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <activity android:name="com.mbppower.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
+      <activity android:name="com.cordova-plugin-camera-preview.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
     </config-file>
   </platform>
 
@@ -69,7 +70,6 @@
     <framework src="GLKit.framework" />
     <framework src="CoreVideo.framework" />
     <framework src="QuartzCore.framework"/>
-
   </platform>
 
 </plugin>

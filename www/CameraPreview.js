@@ -4,51 +4,86 @@ var argscheck = require('cordova/argscheck'),
 
 var PLUGIN_NAME = "CameraPreview";
 
-var CameraPreview = function() {};
+var CameraPreview = function(){};
 
 CameraPreview.setOnPictureTakenHandler = function(onPictureTaken) {
   exec(onPictureTaken, onPictureTaken, PLUGIN_NAME, "setOnPictureTakenHandler", []);
 };
 
 CameraPreview.setOnLogHandler = function(onLog) {
-	exec(onLog, onLog, PLUGIN_NAME, "wLog", []);
+  exec(onLog, onLog, PLUGIN_NAME, "wLog", []);
 };
 
-//@param rect {x: 0, y: 0, width: 100, height:100}
-//@param defaultCamera "front" | "back"
-CameraPreview.startCamera = function(rect, defaultCamera, tapEnabled, dragEnabled, toBack, alpha) {
-  if (typeof(alpha) === 'undefined') alpha = 1;
-  exec(null, null, PLUGIN_NAME, "startCamera", [rect.x, rect.y, rect.width, rect.height, defaultCamera, !!tapEnabled, !!dragEnabled, !!toBack, alpha]);
+CameraPreview.startCamera = function(options){
+  if(typeof(options.options) === 'undefined'){
+    var options = {};
+  }
+  if(typeof(options.x) === 'undefined'){
+    options.x = 0;
+  }
+  if(typeof(options.y) === 'undefined'){
+    options.y = 0;
+  }
+  if(typeof(options.width) === 'undefined'){
+    options.width = window.device.width;
+  }
+  if(typeof(options.height) === 'undefined'){
+    options.height = window.device.height;
+  }
+  if(typeof(options.camera) === 'undefined'){
+    options.x = 'front';
+  }
+  if(typeof(options.tapPhoto) === 'undefined'){
+    options.tapPhoto = true;
+  }
+  if(typeof(options.previewDrag) === 'undefined'){
+    options.previewDrag = false;
+  }
+  if(typeof(options.toBack) === 'undefined'){
+    options.toBack = false;
+  }
+  if(typeof(options.alpha) === 'undefined'){
+    options.alpha = 1;
+  }
+
+  exec(null, null, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha]);
 };
-CameraPreview.stopCamera = function() {
+
+CameraPreview.stopCamera = function(){
   exec(null, null, PLUGIN_NAME, "stopCamera", []);
 };
-//@param size {maxWidth: 100, maxHeight:100}
-CameraPreview.takePicture = function(size) {
-  var params = [0, 0];
-  if (size) {
-    params = [size.maxWidth, size.maxHeight];
+
+CameraPreview.takePicture = function(size){
+  var params = [window.device.width, window.device.height];
+  if(typeof(options.options) === 'undefined'){
+    var options = {};
   }
-  exec(null, null, PLUGIN_NAME, "takePicture", params);
+  if(typeof(options.maxWidth) === 'undefined'){
+    options.maxWidth = window.device.width;
+  }
+  if(typeof(options.maxHeight) === 'undefined'){
+    options.maxHeight = window.device.height;
+  }
+  exec(null, null, PLUGIN_NAME, "takePicture", [options.maxWidth, options.maxHeight]);
 };
 
-CameraPreview.setColorEffect = function(effect) {
+CameraPreview.setColorEffect = function(effect){
   exec(null, null, PLUGIN_NAME, "setColorEffect", [effect]);
 };
 
-CameraPreview.switchCamera = function() {
+CameraPreview.switchCamera = function(){
   exec(null, null, PLUGIN_NAME, "switchCamera", []);
 };
 
-CameraPreview.hide = function() {
+CameraPreview.hide = function(){
   exec(null, null, PLUGIN_NAME, "hideCamera", []);
 };
 
-CameraPreview.show = function() {
+CameraPreview.show = function(){
   exec(null, null, PLUGIN_NAME, "showCamera", []);
 };
 
-CameraPreview.disable = function(disable) {
+CameraPreview.disable = function(disable){
   exec(null, null, PLUGIN_NAME, "disable", [disable]);
 };
 

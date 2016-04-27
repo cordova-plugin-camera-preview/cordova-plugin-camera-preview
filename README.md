@@ -19,26 +19,29 @@ Show camera preview popup on top of the HTML.<br/>
 <p><b>Installation:</b></p>
 
 ```
-cordova plugin add cordova-plugin-camerapreview
+cordova plugin add cordova-plugin-camera-preview
+```
+
+```
+ionic plugin add cordova-plugin-camera-preview
 ```
 
 <b>Phonegap Build:</b><br/>
 
 ```xml
-<gap:plugin name="cordova-plugin-camerapreview" version="0.9.0" source="plugins.cordova.io" />
+<gap:plugin name="cordova-plugin-camera-preview" />
 ```
 
 <p><b>Methods:</b></p>
 
-
-  <b>startCamera(rect, defaultCamera, tapEnabled, dragEnabled, toBack)</b><br/>
-  <info>
-  	Starts the camera preview instance.
-  	<br/>
-	<br/>
-	When setting the toBack to TRUE, remember to add the style bellow on your app's HTML body element:
+<b>startCamera()</b><br/>
+<info>
+Starts the camera preview instance.
+<br/>
+<br/>
+When setting the toBack to TRUE, remember to add the style bellow on your app's HTML or body element:
 ```css
-html{
+html, body{
   background-color: transparent;
 }
 ```
@@ -47,25 +50,22 @@ html{
 Javascript:
 
 ```javascript
-var tapEnabled = true; //enable tap take picture
-var dragEnabled = true; //enable preview box drag across the screen
-var toBack = true; //send preview box to the back of the webview
-var rect = {x: 100, y: 100, width: 200, height:200};
-cordova.plugins.camerapreview.startCamera(rect, "front", tapEnabled, dragEnabled, toBack)
+/* All options stated are optional and will default to values here */
+CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", tapPhoto: true, previewDrag: false, toBack: false);
 ```
 
 <b>stopCamera()</b><br/>
 <info>Stops the camera preview instance.</info><br/>
 
 ```javascript
-cordova.plugins.camerapreview.stopCamera();
+CameraPreview.stopCamera();
 ```
 
 <b>takePicture(size)</b><br/>
 <info>Take the picture, the parameter size is optional</info><br/>
 
 ```javascript
-cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640});
+CameraPreview.takePicture({maxWidth:640, maxHeight:640});
 ```
 
 
@@ -73,32 +73,31 @@ cordova.plugins.camerapreview.takePicture({maxWidth:640, maxHeight:640});
 <info>Register a callback function that receives the original picture and the image captured from the preview box.</info><br/>
 
 ```javascript
-cordova.plugins.camerapreview.setOnPictureTakenHandler(function(result){
-  document.getElementById('originalPicture').src = result[0];//originalPicturePath;
-  document.getElementById('previewPicture').src = result[1];//previewPicturePath;
+CameraPreview.setOnPictureTakenHandler(function(result){
+  document.getElementById('originalPicture').src = result[0]; //originalPicturePath;
+  document.getElementById('previewPicture').src = result[1]; //previewPicturePath;
 });
 ```
-
 
 <b>switchCamera()</b><br/>
 <info>Switch from the rear camera and front camera, if available.</info><br/>
 
 ```javascript
-cordova.plugins.camerapreview.switchCamera();
+CameraPreview.switchCamera();
 ```
 
 <b>show()</b><br/>
 <info>Show the camera preview box.</info><br/>
 
 ```javascript
-cordova.plugins.camerapreview.show();
+CameraPreview.show();
 ```
 
 <b>hide()</b><br/>
 <info>Hide the camera preview box.</info><br/>
 
 ```javasript
-cordova.plugins.camerapreview.hide();
+CameraPreview.hide();
 ```
 
 <b>Base64 image:</b><br/>
@@ -107,8 +106,11 @@ Please, refer to this documentation: http://docs.phonegap.com/en/edge/cordova_fi
 Method <i>readAsDataURL</i>: Read file and return data as a base64-encoded data URL.
 
 <b>Sample:</b><br/>
-Please see the <a href="https://github.com/mbppower/CordovaCameraPreviewApp">CordovaCameraPreviewApp</a> for a complete working example for Android and iOS platforms.
+Cordova: <a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview-sample-app">cordova-plugin-camera-preview-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
+
+
+Ionic: <a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-ionic-preview-sample-app">cordova-plugin-camera-preview-ionic-sample-app</a> for a complete working Ionic example for Android and iOS platforms.
 
 <p><b>Android Screenshots:</b></p>
-<p><img src="https://raw.githubusercontent.com/mbppower/CordovaCameraPreview/master/docs/img/android-1.png"/></p>
-<p><img src="https://raw.githubusercontent.com/mbppower/CordovaCameraPreview/master/docs/img/android-2.png"/></p>
+<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/docs/img/android-1.png"/></p>
+<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/docs/img/android-2.png"/></p>
