@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.mbppower.camerapreview"
-    version="0.0.8">
-    <name>CameraPreview</name>
-    <description>Cordova plugin that allows camera interaction from HTML code. Show camera preview popup on top of the HTML.</description>
-    <license>Apache 2.0</license>
-    <keywords>Ionic,Cordova,Camera, Preview, Popup, Floating, Box</keywords>
-    <repo>https://github.com/mbppower/CordovaCameraPreview.git</repo>
-    <issue>https://github.com/mbppower/CordovaCameraPreview/issues</issue>
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  id="com.mbppower.camerapreview"
+  version="0.0.8">
+  <name>cordova-plugin-camera-preview</name>
+  <description>Cordova plugin that allows camera interaction from HTML code. Show camera preview popup on top of the HTML.</description>
+  <license>Apache 2.0</license>
+  <keywords>cordova,phonegap,ecosystem:cordova,cordova-android,cordova-ios,android,ios,ionic,camera,cam,camera-preview,preview</keywords>
+  <repo>https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git</repo>
+  <issue>https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/issues</issue>
 
   <js-module src="www/CameraPreview.js" name="CameraPreview">
     <clobbers target="cordova.plugins.camerapreview" />
@@ -17,59 +17,59 @@
 
   <!-- android -->
   <platform name="android">
-  
+
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="CameraPreview">
         <param name="android-package" value="com.mbppower.CameraPreview" />
         <param name="onload" value="true" />
       </feature>
     </config-file>
-    
+
     <config-file target="AndroidManifest.xml" parent="/manifest">
-	<uses-feature android:name="android.hardware.camera" />
-	<uses-feature android:name="android.hardware.camera.autofocus" />
-	<uses-permission android:name="android.permission.CAMERA" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+      <uses-feature android:name="android.hardware.camera" />
+      <uses-feature android:name="android.hardware.camera.autofocus" />
+      <uses-permission android:name="android.permission.CAMERA" />
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     </config-file>
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
-	<activity android:name="com.mbppower.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
+      <activity android:name="com.mbppower.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
     </config-file>
-    
+
     <source-file src="src/android/com/mbppower/CameraPreview.java" target-dir="src/com/mbppower" />
     <source-file src="src/android/com/mbppower/CameraActivity.java" target-dir="src/com/mbppower" />
     <source-file src="src/android/com/mbppower/camera_activity.xml" target-dir="res/layout" />
     <source-file src="src/android/com/mbppower/camera_theme.xml" target-dir="res/values" />
-        
+
   </platform>
 
-    <!-- ios -->
-    <platform name="ios">
-        <config-file target="config.xml" parent="/*">
-            <feature name="CameraPreview">
-                <param name="ios-package" value="CameraPreview" onload="true" />
-            </feature>
-        </config-file>
+  <!-- ios -->
+  <platform name="ios">
+    <config-file target="config.xml" parent="/*">
+      <feature name="CameraPreview">
+        <param name="ios-package" value="CameraPreview" onload="true" />
+      </feature>
+    </config-file>
 
-        <header-file src="src/ios/CameraPreview.h" />
-        <source-file src="src/ios/CameraPreview.m" />
+    <header-file src="src/ios/CameraPreview.h" />
+    <source-file src="src/ios/CameraPreview.m" />
 
-        <header-file src="src/ios/CameraSessionManager.h" />
-        <source-file src="src/ios/CameraSessionManager.m" />
+    <header-file src="src/ios/CameraSessionManager.h" />
+    <source-file src="src/ios/CameraSessionManager.m" />
 
-        <header-file src="src/ios/CameraRenderController.h" />
-        <source-file src="src/ios/CameraRenderController.m" />
-	
-	       <framework src="ImageIO.framework" weak="true" />
-         <framework src="MobileCoreServices.framework" />
-	       <framework src="CoreLocation.framework" />
-         <framework src="CoreGraphics.framework" />
-         <framework src="AssetsLibrary.framework" />
-         <framework src="CoreGraphics.framework" />
-         <framework src="CoreImage.framework" />
-         <framework src="OpenGLES.framework" />
-         <framework src="GLKit.framework" />
-         <framework src="CoreVideo.framework" />
-	 
-    </platform>
+    <header-file src="src/ios/CameraRenderController.h" />
+    <source-file src="src/ios/CameraRenderController.m" />
+
+    <framework src="ImageIO.framework" weak="true" />
+    <framework src="MobileCoreServices.framework" />
+    <framework src="CoreLocation.framework" />
+    <framework src="CoreGraphics.framework" />
+    <framework src="AssetsLibrary.framework" />
+    <framework src="CoreGraphics.framework" />
+    <framework src="CoreImage.framework" />
+    <framework src="OpenGLES.framework" />
+    <framework src="GLKit.framework" />
+    <framework src="CoreVideo.framework" />
+
+  </platform>
 
 </plugin>

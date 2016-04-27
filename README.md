@@ -1,14 +1,15 @@
-Cordova CameraPreview Plugin
+cordova-plugin-camera-preview
 ====================
 
-Cordova plugin that allows camera interaction from HTML code.<br/>
-Show camera preview popup on top of the HTML.<br/>
+Cordova plugin that allows camera interaction from HTML cod for showing camera preview below or above the HTML.<br/>
+
+**Apr 27, 2016 - Plugin is starting to be maintained again, current development to get a decent stable version is happening on the branch [skanygin](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/tree/skanygin). Please direct all pull requests here until further notice.**
 
 <p><b>Features:</b></p>
 <ul>
   <li>Start a camera preview from HTML code.</li>
   <li>Drag the preview box.</li>
-  <li>Set camera color effect (Android and iOS).</li>
+  <li>Set camera color effect.</li>
   <li>Send the preview box to back of the HTML content.</li>
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
@@ -19,13 +20,13 @@ Show camera preview popup on top of the HTML.<br/>
 <p><b>Installation:</b></p>
 
 ```
-cordova plugin add https://github.com/mbppower/CordovaCameraPreview.git
+cordova plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
 ```
 
 <b>Phonegap Build:</b><br/>
 
 ```
-<gap:plugin name="com.mbppower.camerapreview" version="0.0.8" source="plugins.cordova.io" />
+<gap:plugin name="cordova-plugin-camera-preview" />
 ```
 
 <p><b>Methods:</b></p>
