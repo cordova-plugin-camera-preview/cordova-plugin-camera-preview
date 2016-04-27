@@ -17,8 +17,8 @@
   </js-module>
 
   <platform name="android">
-    <source-file src="src/android/CameraPreview.java" target-dir="src/com/cordova-plugin-camera-preview" />
-    <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordova-plugin-camera-preview" />
+    <source-file src="src/android/CameraPreview.java" target-dir="src/com/Cordova-plugin-camera-preview" />
+    <source-file src="src/android/CameraActivity.java" target-dir="src/com/Cordova-plugin-camera-preview" />
     <source-file src="src/android/camera_activity.xml" target-dir="res/layout" />
     <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
 
@@ -38,7 +38,7 @@
     </config-file>
 
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <activity android:name="com.cordovaplugincamerapreview.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
+      <activity android:name="com.CordovaPluginCameraPreview.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
     </config-file>
   </platform>
 
