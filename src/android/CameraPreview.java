@@ -1,4 +1,4 @@
-package com.mbppower;
+package com.CordovaPluginCameraPreview;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
