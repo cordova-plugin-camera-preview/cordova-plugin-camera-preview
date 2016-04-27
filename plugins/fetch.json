@@ -1,0 +1,11 @@
+{
+    "cordova-plugin-camera-preview": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/westonganger/cordova-plugin-camera-preview.git",
+            "subdir": "."
+        },
+        "is_top_level": true,
+        "variables": {}
+    }
+}
