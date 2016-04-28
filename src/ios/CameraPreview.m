@@ -26,6 +26,7 @@
         BOOL tapToTakePicture = (BOOL)[command.arguments[5] boolValue];
         BOOL dragEnabled = (BOOL)[command.arguments[6] boolValue];
         BOOL toBack = (BOOL)[command.arguments[7] boolValue];
+        CGFloat alpha = (CGFloat)[command.arguments[8] floatValue];
         // Create the session manager
         self.sessionManager = [[CameraSessionManager alloc] init];
         
@@ -42,13 +43,15 @@
         
         if (toBack) {
             //make transparent
-            //            self.webView.opaque = NO;
-            //            self.webView.backgroundColor = [UIColor clearColor];
+            //self.webView.opaque = NO;
+            //self.webView.backgroundColor = [UIColor clearColor];
+                        
             [self.viewController.view insertSubview:self.cameraRenderController.view atIndex:0];
             [self addTapToFocus];
         }
         else {
             [self.cameraRenderController addTapToFocustRecognizer];
+            self.cameraRenderController.view.alpha = alpha;
             [self.viewController.view addSubview:self.cameraRenderController.view];
         }
         
