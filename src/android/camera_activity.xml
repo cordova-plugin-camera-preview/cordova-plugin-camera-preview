@@ -21,7 +21,7 @@
       android:layout_height="match_parent"
       android:id="@+id/video_view"
       android:scaleType="fitXY"
-      android:layout_gravity="top" />
+      android:layout_gravity="top"></FrameLayout>
 
     <ImageView
       android:layout_width="match_parent"

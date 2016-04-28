@@ -10,6 +10,10 @@ CameraPreview.setOnPictureTakenHandler = function(onPictureTaken) {
   exec(onPictureTaken, onPictureTaken, PLUGIN_NAME, "setOnPictureTakenHandler", []);
 };
 
+CameraPreview.setFlashMode = function(flashMode) {
+  exec(null, null, PLUGIN_NAME, "setFlashMode", [flashMode]);
+};
+
 CameraPreview.setOnLogHandler = function(onLog) {
   exec(onLog, onLog, PLUGIN_NAME, "wLog", []);
 };
@@ -86,5 +90,7 @@ CameraPreview.show = function(){
 CameraPreview.disable = function(disable){
   exec(null, null, PLUGIN_NAME, "disable", [disable]);
 };
+
+CameraPreview.FlashMode = {OFF: 0, ON: 1, AUTO: 2};
 
 module.exports = CameraPreview;
