@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" 
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  id="cordova-plugin-camera-preview" 
-  version="0.9.0">
+<plugin id="cordova-plugin-camera-preview" version="0.9.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
 
   <name>cordova-plugin-camera-preview</name>
   <description>Cordova plugin that allows camera interaction from HTML code. Show camera preview popup on top of the HTML.</description>
@@ -17,14 +14,14 @@
   </js-module>
 
   <platform name="android">
-    <source-file src="src/android/CameraPreview.java" target-dir="src/com/CordovaPluginCameraPreview" />
-    <source-file src="src/android/CameraActivity.java" target-dir="src/com/CordovaPluginCameraPreview" />
+    <source-file src="src/android/CameraPreview.java" target-dir="src/com/cordovaplugincamerapreview" />
+    <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/camera_activity.xml" target-dir="res/layout" />
     <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
 
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="CameraPreview">
-        <param name="android-package" value="com.CordovaPluginCameraPreview.CameraPreview" />
+        <param name="android-package" value="com.cordovaplugincamerapreview.CameraPreview" />
         <param name="onload" value="true" />
       </feature>
     </config-file>
@@ -38,7 +35,7 @@
     </config-file>
 
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <activity android:name="com.CordovaPluginCameraPreview.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
+      <activity android:name="com.cordovaplugincamerapreview.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
     </config-file>
   </platform>
 

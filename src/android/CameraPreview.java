@@ -1,4 +1,4 @@
-package com.CordovaPluginCameraPreview;
+package com.cordovaplugincamerapreview;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
