@@ -25,10 +25,10 @@ CameraPreview.startCamera = function(options){
     options.y = 0;
   }
   if(typeof(options.width) === 'undefined'){
-    options.width = window.device.width;
+    options.width = window.screen.width;
   }
   if(typeof(options.height) === 'undefined'){
-    options.height = window.device.height;
+    options.height = window.screen.height;
   }
   if(typeof(options.camera) === 'undefined'){
     options.x = 'front';
