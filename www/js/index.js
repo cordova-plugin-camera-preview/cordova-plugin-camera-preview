@@ -4,7 +4,7 @@ var app = {
   },
 
   startCameraAnotherPos: function(){
-    CameraPreview.startCamera({x: 50, y: 100, width: 300, height:300, camera: "back", tapPhoto: true, previewDrag: true, toBack: false);
+    CameraPreview.startCamera({x: 50, y: 100, width: 300, height:300, camera: "back", tapPhoto: true, previewDrag: true, toBack: false});
   },
 
   stopCamera: function(){
