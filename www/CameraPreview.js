@@ -57,16 +57,16 @@ CameraPreview.stopCamera = function(){
   exec(null, null, PLUGIN_NAME, "stopCamera", []);
 };
 
-CameraPreview.takePicture = function(size){
-  var params = [window.device.width, window.device.height];
+CameraPreview.takePicture = function(options){
+  var params = [window.screen.width, window.screen.height];
   if(typeof(options.options) === 'undefined'){
     var options = {};
   }
   if(typeof(options.maxWidth) === 'undefined'){
-    options.maxWidth = window.device.width;
+    options.maxWidth = window.screen.width;
   }
   if(typeof(options.maxHeight) === 'undefined'){
-    options.maxHeight = window.device.height;
+    options.maxHeight = window.screen.height;
   }
   exec(null, null, PLUGIN_NAME, "takePicture", [options.maxWidth, options.maxHeight]);
 };
