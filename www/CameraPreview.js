@@ -19,8 +19,8 @@ CameraPreview.setOnLogHandler = function(onLog) {
 };
 
 CameraPreview.startCamera = function(options){
-  if(typeof(options.options) === 'undefined'){
-    var options = {};
+  if(typeof(options) === 'undefined'){
+    options = {};
   }
   if(typeof(options.x) === 'undefined'){
     options.x = 0;
@@ -59,8 +59,8 @@ CameraPreview.stopCamera = function(){
 
 CameraPreview.takePicture = function(options){
   var params = [window.screen.width, window.screen.height];
-  if(typeof(options.options) === 'undefined'){
-    var options = {};
+  if(typeof(options) === 'undefined'){
+    options = {};
   }
   if(typeof(options.maxWidth) === 'undefined'){
     options.maxWidth = window.screen.width;

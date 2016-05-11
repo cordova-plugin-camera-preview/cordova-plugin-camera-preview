@@ -51,7 +51,7 @@ Javascript:
 
 ```javascript
 /* All options stated are optional and will default to values here */
-CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", tapPhoto: true, previewDrag: false, toBack: false);
+CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", tapPhoto: true, previewDrag: false, toBack: false});
 ```
 
 <b>stopCamera()</b><br/>
