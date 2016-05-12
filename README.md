@@ -74,8 +74,7 @@ CameraPreview.takePicture({maxWidth:640, maxHeight:640});
 
 ```javascript
 CameraPreview.setOnPictureTakenHandler(function(result){
-  document.getElementById('originalPicture').src = result[0]; //originalPicturePath;
-  document.getElementById('previewPicture').src = result[1]; //previewPicturePath;
+  document.getElementById('originalPicture').src = "data:image/jpeg;base64," + result;
 });
 ```
 
