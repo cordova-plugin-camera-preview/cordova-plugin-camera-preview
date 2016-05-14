@@ -20,8 +20,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	private final String TAG = "CameraPreview";
 	private final String setOnPictureTakenHandlerAction = "setOnPictureTakenHandler";
 	private final String setColorEffectAction = "setColorEffect";
+	private final String setZoomAction = "setZoom";
+	private final String setFlashModeAction = "setFlashMode";
 	private final String startCameraAction = "startCamera";
 	private final String stopCameraAction = "stopCamera";
+	private final String previewSizeAction = "previewSize";
 	private final String switchCameraAction = "switchCamera";
 	private final String takePictureAction = "takePicture";
 	private final String showCameraAction = "showCamera";
@@ -49,6 +52,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	    }
 	    else if (setColorEffectAction.equals(action)){
 	      return setColorEffect(args, callbackContext);
+	    }
+	    else if (setZoomAction.equals(action)) {
+	    	return setZoom(args, callbackContext);
+	    }
+	    else if (previewSizeAction.equals(action)) {
+	    	return previewSize(args, callbackContext);
+	    }
+	    else if (setFlashModeAction.equals(action)) {
+	    	return setFlashMode(args, callbackContext);
 	    }
 	    else if (stopCameraAction.equals(action)){
 		    return stopCamera(args, callbackContext);
@@ -194,6 +206,103 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       e.printStackTrace();
       return false;
     }
+	}
+
+	private boolean setZoom(final JSONArray args, CallbackContext callbackContext) {
+
+	  if (fragment == null) {
+	    return false;
+	  }
+
+    Camera camera = fragment.getCamera();
+    if (camera == null) {
+      return false;
+    }
+
+	  Camera.Parameters params = camera.getParameters();
+    
+    try {
+		  int zoom = (int) args.getInt(0);
+		  if (camera.getParameters().isZoomSupported()) {
+	      params.setZoom(zoom);
+	    	fragment.setCameraParameters(params);
+	    }
+
+	    return true;
+    } catch (Exception e) {
+    	e.printStackTrace();
+    	return false;
+    }
+	}
+
+	private boolean previewSize(final JSONArray args, CallbackContext callbackContext) {
+		if (fragment == null) {
+			return false;
+		}
+
+		Camera camera = fragment.getCamera();
+		if (camera == null) {
+			return false;
+		}
+
+		Camera.Parameters params = camera.getParameters();
+		try {
+			int width = (int) args.getInt(0);
+			int height = (int) args.getInt(1);
+
+			params.setPreviewSize(width, height);
+			fragment.setCameraParameters(params);
+			camera.startPreview();
+			
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return false;
+		}
+	}
+
+	private boolean setFlashMode(final JSONArray args, CallbackContext callbackContext) {
+	  if (fragment == null) {
+	    return false;
+	  }
+
+    Camera camera = fragment.getCamera();
+    if (camera == null) {
+      return false;
+    }
+
+	  Camera.Parameters params = camera.getParameters();
+
+	  try {
+	  	int mode = (int) args.getInt(0);
+
+	  	switch(mode) {
+	  		case 0:
+	  			params.setFlashMode(params.FLASH_MODE_OFF);
+	  			break;
+
+	  		case 1:
+	  			params.setFlashMode(params.FLASH_MODE_ON);
+	  			break;
+
+	  		case 2:
+	  			params.setFlashMode(params.FLASH_MODE_TORCH);
+	  		break;
+
+	  		case 3:
+	  			params.setFlashMode(params.FLASH_MODE_AUTO);
+	  		break;
+	  	}
+
+	  	fragment.setCameraParameters(params);
+
+	  	return true;
+	  } catch (Exception e) {
+	  	e.printStackTrace();
+
+	  	return false;
+	  }
 	}
 
 	private boolean stopCamera(final JSONArray args, CallbackContext callbackContext) {
