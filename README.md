@@ -3,7 +3,7 @@ cordova-plugin-camera-preview
 
 Cordova plugin that allows camera interaction from HTML cod for showing camera preview below or above the HTML.<br/>
 
-**Apr 27, 2016 - Plugin is starting to be maintained again, current development to get a decent stable version is happening on the branch [skanygin](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/tree/skanygin). Please direct all pull requests here until further notice.**
+**May 18, 2016 - Plugin is starting to be maintained again, current development to get a decent stable updated version is happening on the fork [westonganger/cordova-plugin-camera-preview](https://github.com/westonganger/cordova-plugin-camera-preview/tree/skanygin). This will be merged into master here once its working. Please direct all pull requests here until further notice.**
 
 <p><b>Features:</b></p>
 <ul>
