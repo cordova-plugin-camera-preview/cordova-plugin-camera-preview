@@ -43,12 +43,11 @@
       //make transparent
       self.webView.opaque = NO;
       self.webView.backgroundColor = [UIColor clearColor];
-      [self.viewController.view insertSubview:self.cameraRenderController.view atIndex:0];
+      [self.webView.superview insertSubview:self.cameraRenderController.view belowSubview:self.webView];
     }
     else{
       self.cameraRenderController.view.alpha = (CGFloat)[command.arguments[8] floatValue];
-
-      [self.viewController.view addSubview:self.cameraRenderController.view];
+      [self.webView.superview insertSubview:self.cameraRenderController.view aboveSubview:self.webView];
     }
 
     // Setup session
