@@ -383,6 +383,12 @@ public class CameraActivity extends Fragment {
       try
       {
         picture = Bitmap.createBitmap(picture, 0, 0, picture.getWidth(), picture.getHeight(), matrix, true);
+
+        // scale it to fit the view
+        final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
+        float scale = (float) pictureView.getWidth() / (float) picture.getWidth();
+        picture = Bitmap.createScaledBitmap(picture, (int) (picture.getWidth() * scale), (int) (picture.getHeight() * scale), false);
+        
       }
       catch (OutOfMemoryError oom)
       {
@@ -392,10 +398,10 @@ public class CameraActivity extends Fragment {
         // If you do not catch the OutOfMemoryError, the Android app crashes.
       }
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      picture.compress(Bitmap.CompressFormat.JPEG, 95, byteArrayOutputStream);
+      picture.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream);
       byte[] byteArray = byteArrayOutputStream.toByteArray();
 
-      String encodedImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
+      String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
 
       eventListener.onPictureTaken(encodedImage);
       canTakePicture = true;
