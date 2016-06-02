@@ -226,6 +226,11 @@ public class CameraActivity extends Fragment {
       mCamera.setParameters(cameraParameters);
     }
 
+    // set continuous autofocus
+    Camera.Parameters params = mCamera.getParameters();
+    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+    mCamera.setParameters(params);
+
     cameraCurrentlyLocked = defaultCameraId;
 
     if(mPreview.mPreviewSize == null){
