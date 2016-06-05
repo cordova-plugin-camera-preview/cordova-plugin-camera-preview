@@ -16,6 +16,10 @@
     "camera-preview",
     "preview"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview"
+  },
   "author": {
     "name": "Weston Ganger",
     "email": "westonganger@gmail.com",

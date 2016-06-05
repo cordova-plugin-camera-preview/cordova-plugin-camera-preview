@@ -18,6 +18,7 @@
     <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/camera_activity.xml" target-dir="res/layout" />
     <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
+    <source-file src="src/android/camera_ids.xml" target-dir="res/values" />
 
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="CameraPreview">

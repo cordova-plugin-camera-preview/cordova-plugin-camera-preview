@@ -226,6 +226,11 @@ public class CameraActivity extends Fragment {
       mCamera.setParameters(cameraParameters);
     }
 
+    // set continuous autofocus
+    Camera.Parameters params = mCamera.getParameters();
+    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+    mCamera.setParameters(params);
+
     cameraCurrentlyLocked = defaultCameraId;
 
     if(mPreview.mPreviewSize == null){
@@ -383,6 +388,12 @@ public class CameraActivity extends Fragment {
       try
       {
         picture = Bitmap.createBitmap(picture, 0, 0, picture.getWidth(), picture.getHeight(), matrix, true);
+
+        // scale it to fit the view
+        final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
+        float scale = (float) pictureView.getWidth() / (float) picture.getWidth();
+        picture = Bitmap.createScaledBitmap(picture, (int) (picture.getWidth() * scale), (int) (picture.getHeight() * scale), false);
+        
       }
       catch (OutOfMemoryError oom)
       {
@@ -392,10 +403,10 @@ public class CameraActivity extends Fragment {
         // If you do not catch the OutOfMemoryError, the Android app crashes.
       }
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      picture.compress(Bitmap.CompressFormat.JPEG, 95, byteArrayOutputStream);
+      picture.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream);
       byte[] byteArray = byteArrayOutputStream.toByteArray();
 
-      String encodedImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
+      String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
 
       eventListener.onPictureTaken(encodedImage);
       canTakePicture = true;
@@ -748,7 +759,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
       // the preview.
       mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
       if (mSupportedPreviewSizes != null) {
-        mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, w, w);
+        mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, w, h);
       }
       Camera.Parameters parameters = mCamera.getParameters();
       parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);

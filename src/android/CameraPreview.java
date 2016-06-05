@@ -1,5 +1,6 @@
 package com.cordovaplugincamerapreview;
 
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
@@ -38,7 +39,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private CameraActivity fragment;
   private CallbackContext takePictureCallbackContext;
-  private int containerViewId = 1;
+  private FrameLayout containerView;
   public CameraPreview(){
     super();
     Log.d(TAG, "Constructing");
@@ -112,14 +113,20 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
           fragment.setRect(x, y, width, height);
 
           //create or update the layout params for the container view
-          FrameLayout containerView = (FrameLayout)cordova.getActivity().findViewById(containerViewId);
+          Activity activity = cordova.getActivity();
           if(containerView == null){
-            containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
-            containerView.setId(containerViewId);
-
-            FrameLayout.LayoutParams containerLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-            cordova.getActivity().addContentView(containerView, containerLayoutParams);
+            containerView = new FrameLayout(activity.getApplicationContext());
+            // Look up a view id we inject to ensure there are no conflicts
+						int cameraViewId = activity.getResources().getIdentifier(activity.getClass().getPackage().getName() + ":id/camera_container", null, null);
+						containerView.setId(cameraViewId);
           }
+          if (containerView.getParent() != webView.getView().getParent()) {
+						if (containerView.getParent() != null) {
+							((ViewGroup) containerView.getParent()).removeView(containerView);
+						}
+						FrameLayout.LayoutParams containerLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+						((ViewGroup) webView.getView().getParent()).addView(containerView, containerLayoutParams);
+					}
           //display camera bellow the webview
           if(toBack){
             webView.getView().setBackgroundColor(0x00000000);

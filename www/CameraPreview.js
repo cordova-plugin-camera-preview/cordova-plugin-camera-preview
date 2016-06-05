@@ -19,9 +19,7 @@ CameraPreview.setOnLogHandler = function(onLog) {
 };
 
 CameraPreview.startCamera = function(options){
-  if(typeof(options) === 'undefined'){
-    options = {};
-  }
+  options = options || {};
   if(typeof(options.x) === 'undefined'){
     options.x = 0;
   }
@@ -35,7 +33,7 @@ CameraPreview.startCamera = function(options){
     options.height = window.screen.height;
   }
   if(typeof(options.camera) === 'undefined'){
-    options.x = 'front';
+    options.camera = 'front';
   }
   if(typeof(options.tapPhoto) === 'undefined'){
     options.tapPhoto = true;
@@ -57,18 +55,9 @@ CameraPreview.stopCamera = function(){
   exec(null, null, PLUGIN_NAME, "stopCamera", []);
 };
 
-CameraPreview.takePicture = function(options){
-  var params = [window.screen.width, window.screen.height];
-  if(typeof(options) === 'undefined'){
-    options = {};
-  }
-  if(typeof(options.maxWidth) === 'undefined'){
-    options.maxWidth = window.screen.width;
-  }
-  if(typeof(options.maxHeight) === 'undefined'){
-    options.maxHeight = window.screen.height;
-  }
-  exec(null, null, PLUGIN_NAME, "takePicture", [options.maxWidth, options.maxHeight]);
+CameraPreview.takePicture = function(dim){
+  dim = dim || {};
+  exec(null, null, PLUGIN_NAME, "takePicture", [dim.maxWidth || 0, dim.maxHeight || 0]);
 };
 
 CameraPreview.setColorEffect = function(effect){
