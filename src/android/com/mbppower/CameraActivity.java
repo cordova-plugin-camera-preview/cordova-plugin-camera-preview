@@ -360,11 +360,19 @@ public class CameraActivity extends Fragment {
 									pictureView.layout(rect.left, rect.top, rect.right, rect.bottom);
 
 									Bitmap finalPic = null;
+									// If we are going to rotate the picture, width and height are reversed
+									boolean swapAspects = mPreview.getDisplayOrientation() % 180 != 0;
+									double rotatedWidth = swapAspects ? pic.getHeight() : pic.getWidth();
+									double rotatedHeight = swapAspects ? pic.getWidth() : pic.getHeight();
+									boolean shouldScaleWidth = maxWidth > 0 && rotatedWidth > maxWidth;
+									boolean shouldScaleHeight = maxHeight > 0 && rotatedHeight > maxHeight;
+
 									//scale final picture
-									if(maxWidth > 0 && maxHeight > 0){
-										final double scaleHeight = maxWidth/(double)pic.getHeight();
-										final double scaleWidth = maxHeight/(double)pic.getWidth();
-										final double scale  = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
+									if(shouldScaleWidth || shouldScaleHeight){
+										double scaleHeight = shouldScaleHeight ? maxHeight / (double)rotatedHeight : 1;
+										double scaleWidth = shouldScaleWidth ? maxWidth / (double)rotatedWidth : 1;
+
+										double scale = scaleHeight < scaleWidth ? scaleHeight : scaleWidth;
 										finalPic = Bitmap.createScaledBitmap(pic, (int)(pic.getWidth()*scale), (int)(pic.getHeight()*scale), false);
 									}
 									else{
