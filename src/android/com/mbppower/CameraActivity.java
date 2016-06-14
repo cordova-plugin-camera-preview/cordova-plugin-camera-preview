@@ -210,14 +210,9 @@ public class CameraActivity extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        mCamera = Camera.open(defaultCameraId);
-
-        if (cameraParameters != null) {
-          mCamera.setParameters(cameraParameters);
-        }
-
-        cameraCurrentlyLocked = defaultCameraId;
+	
+	// Sets the Default Camera as the current one (initializes mCamera instance)
+       	setCurrentCamera(defaultCameraId);
         
         if(mPreview.mPreviewSize == null){
 		mPreview.setCamera(mCamera, cameraCurrentlyLocked);
@@ -244,6 +239,17 @@ public class CameraActivity extends Fragment {
                 }
             });
         }
+    }
+    
+    // Sets the current camera - allows to set cameraParameters from a single place (e.g. can be used to set AutoFocus and Autoflash)
+    private void setCurrentCamera(int cameraId){
+    	 mCamera = Camera.open(cameraId);
+
+        if (cameraParameters != null) {
+          mCamera.setParameters(cameraParameters);
+        }
+
+        cameraCurrentlyLocked = cameraId;
     }
 
     @Override
@@ -281,13 +287,11 @@ public class CameraActivity extends Fragment {
 
 		// Acquire the next camera and request Preview to reconfigure
 		// parameters.
-		mCamera = Camera.open((cameraCurrentlyLocked + 1) % numberOfCameras);
-
-		if (cameraParameters != null) {
-			mCamera.setParameters(cameraParameters);
-		}
-
-		cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
+		int nextCameraId = (cameraCurrentlyLocked + 1) % numberOfCameras;
+		
+		// Set the next camera as the current one and apply the cameraParameters
+		setCurrentCamera(nextCameraId);
+		
 		mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
 
 	    Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
