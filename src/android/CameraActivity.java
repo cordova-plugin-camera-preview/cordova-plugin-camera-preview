@@ -54,6 +54,11 @@ public class CameraActivity extends Fragment {
 
   public int currentFlashMode = 2;
 
+  private static final int FOCUS_AUTO = 0;
+  private static final int FOCUS_CONTINUOUS = 1;
+
+  public int currentFocusMode = 0;
+
   private CameraPreviewListener eventListener;
   private static final String TAG = "CameraActivity";
   public FrameLayout mainLayout;
@@ -227,10 +232,8 @@ public class CameraActivity extends Fragment {
     }
 
     // set continuous autofocus
-    Camera.Parameters params = mCamera.getParameters();
-    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-    mCamera.setParameters(params);
-
+    setFocusMode(FOCUS_CONTINUOUS);
+    
     cameraCurrentlyLocked = defaultCameraId;
 
     if(mPreview.mPreviewSize == null){
@@ -333,6 +336,24 @@ public class CameraActivity extends Fragment {
     currentFlashMode = flashMode;
   }
 
+  public void setFocusMode(int focusMode) {
+    Camera.Parameters parameters = mCamera.getParameters();
+    List<String> supportedFocusModes = parameters.getSupportedFocusModes();
+
+    if(supportedFocusModes != null) {
+      if(focusMode == FOCUS_AUTO && supportedFocusModes.contains(Parameters.FOCUS_MODE_AUTO)){
+        parameters.setFocusMode(Parameters.FOCUS_MODE_AUTO);
+      } else if(focusMode == FOCUS_CONTINUOUS && supportedFocusModes.contains(Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+        parameters.setFocusMode(Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+      }
+      mCamera.setParameters(parameters);
+    }
+
+    Log.d(TAG, "focusMode: " + focusMode);
+
+    currentFocusMode = focusMode;
+  }
+
 
   public void setCameraParameters(Camera.Parameters params) {
     cameraParameters = params;
@@ -393,7 +414,7 @@ public class CameraActivity extends Fragment {
         final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
         float scale = (float) pictureView.getWidth() / (float) picture.getWidth();
         picture = Bitmap.createScaledBitmap(picture, (int) (picture.getWidth() * scale), (int) (picture.getHeight() * scale), false);
-        
+
       }
       catch (OutOfMemoryError oom)
       {
