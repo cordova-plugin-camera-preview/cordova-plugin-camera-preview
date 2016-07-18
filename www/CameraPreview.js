@@ -64,6 +64,13 @@ CameraPreview.setColorEffect = function(effect){
   exec(null, null, PLUGIN_NAME, "setColorEffect", [effect]);
 };
 
+/**
+ * @param int zoom
+ */
+CameraPreview.setZoom = function(zoom) {
+  exec(null, null, PLUGIN_NAME, "setZoom", [zoom]);
+}
+
 CameraPreview.switchCamera = function(){
   exec(null, null, PLUGIN_NAME, "switchCamera", []);
 };

@@ -23,6 +23,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private final String TAG = "CameraPreview";
   private final String setOnPictureTakenHandlerAction = "setOnPictureTakenHandler";
   private final String setColorEffectAction = "setColorEffect";
+  private final String setZoomAction = "setZoom";
   private final String startCameraAction = "startCamera";
   private final String stopCameraAction = "stopCamera";
   private final String switchCameraAction = "switchCamera";
@@ -67,6 +68,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     else if (setColorEffectAction.equals(action)){
       return setColorEffect(args, callbackContext);
     }
+    else if (setZoomAction.equals(action)) {
+	    	return setZoom(args, callbackContext);
+	  }
     else if (stopCameraAction.equals(action)){
       return stopCamera(args, callbackContext);
     }
@@ -84,6 +88,33 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     return false;
   }
+
+  private boolean setZoom(final JSONArray args, CallbackContext callbackContext) {
+
+  	  if (fragment == null) {
+  	    return false;
+  	  }
+
+      Camera camera = fragment.getCamera();
+      if (camera == null) {
+        return false;
+      }
+
+  	  Camera.Parameters params = camera.getParameters();
+
+      try {
+  		  int zoom = (int) args.getInt(0);
+  		  if (camera.getParameters().isZoomSupported()) {
+  	      params.setZoom(zoom);
+  	    	fragment.setCameraParameters(params);
+  	    }
+
+  	    return true;
+      } catch (Exception e) {
+      	e.printStackTrace();
+      	return false;
+      }
+  	}
 
   private boolean startCamera(final JSONArray args, CallbackContext callbackContext) {
     if(fragment != null){
