@@ -92,11 +92,13 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private boolean setZoom(final JSONArray args, CallbackContext callbackContext) {
 
   	  if (fragment == null) {
+        Log.d(TAG, "setZoom: fragment == null");
   	    return false;
   	  }
 
       Camera camera = fragment.getCamera();
       if (camera == null) {
+        Log.d(TAG, "setZoom: camera == null");
         return false;
       }
 
@@ -104,14 +106,24 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
       try {
   		  int zoom = (int) args.getInt(0);
+
   		  if (camera.getParameters().isZoomSupported()) {
+          int maxZoom = camera.getParameters().getMaxZoom();
+          if (zoom < 0) {
+            zoom = 0;
+          } else if (zoom > maxZoom) {
+            zoom = maxZoom;
+          }
   	      params.setZoom(zoom);
   	    	fragment.setCameraParameters(params);
-  	    }
+  	    } else {
+          Log.d(TAG, "setZoom: camera does not support zoom");
+        }
 
   	    return true;
       } catch (Exception e) {
       	e.printStackTrace();
+        Log.d(TAG, "setZoom: exception occurred");
       	return false;
       }
   	}
