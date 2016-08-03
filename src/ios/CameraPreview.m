@@ -201,7 +201,7 @@
 
             capturedImage = [self imageCorrectedForCaptureOrientation:capturedImage];
 
-            NSString *originalPicture = [UIImageJPEGRepresentation(capturedImage, 0.75f) base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+            NSString *originalPicture = [UIImageJPEGRepresentation(capturedImage, 0.75f) base64EncodedStringWithOptions:0];
 
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:originalPicture];
             [pluginResult setKeepCallbackAsBool:true];
