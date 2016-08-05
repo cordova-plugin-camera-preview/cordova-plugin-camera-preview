@@ -70,12 +70,11 @@ CameraPreview.takePicture({maxWidth:640, maxHeight:640});
 
 
 <b>setOnPictureTakenHandler(callback)</b><br/>
-<info>Register a callback function that receives the original picture and the image captured from the preview box.</info><br/>
+<info>Register a callback function that receives the image captured from the preview box.</info><br/>
 
 ```javascript
-CameraPreview.setOnPictureTakenHandler(function(result){
-  document.getElementById('originalPicture').src = result[0]; //originalPicturePath;
-  document.getElementById('previewPicture').src = result[1]; //previewPicturePath;
+CameraPreview.setOnPictureTakenHandler(function (picture) {
+  document.getElementById('picture').src = picture; // base64 picture;
 });
 ```
 
@@ -99,12 +98,6 @@ CameraPreview.show();
 ```javasript
 CameraPreview.hide();
 ```
-
-<b>Base64 image:</b><br/>
-Use the cordova-file in order to read the picture file and them get the base64.<br/>
-Please, refer to this documentation: http://docs.phonegap.com/en/edge/cordova_file_file.md.html<br/>
-Method <i>readAsDataURL</i>: Read file and return data as a base64-encoded data URL.
-
 
 <b>IOS Quirks:</b><br/>
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
