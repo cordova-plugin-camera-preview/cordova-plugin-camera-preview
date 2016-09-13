@@ -34,7 +34,7 @@ ionic plugin add cordova-plugin-camera-preview
 
 <p><b>Methods:</b></p>
 
-<b>startCamera()</b><br/>
+<b>startCamera(options, successCallback, errorCallback)</b><br/>
 <info>
 Starts the camera preview instance.
 <br/>
@@ -54,14 +54,14 @@ Javascript:
 CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", tapPhoto: true, previewDrag: false, toBack: false});
 ```
 
-<b>stopCamera()</b><br/>
+<b>stopCamera(successCallback, errorCallback)</b><br/>
 <info>Stops the camera preview instance.</info><br/>
 
 ```javascript
 CameraPreview.stopCamera();
 ```
 
-<b>takePicture(size)</b><br/>
+<b>takePicture(size, successCallback, errorCallback)</b><br/>
 <info>Take the picture, the parameter size is optional</info><br/>
 
 ```javascript
@@ -69,34 +69,57 @@ CameraPreview.takePicture({maxWidth:640, maxHeight:640});
 ```
 
 
-<b>setOnPictureTakenHandler(callback)</b><br/>
+<b>setOnPictureTakenHandler(successCallback, errorCallback)</b><br/>
 <info>Register a callback function that receives the image captured from the preview box.</info><br/>
 
 ```javascript
-CameraPreview.setOnPictureTakenHandler(function (picture) {
+CameraPreview.setOnPictureTakenHandler(function(picture) {
   document.getElementById('picture').src = picture; // base64 picture;
 });
 ```
 
-<b>switchCamera()</b><br/>
+<b>switchCamera(successCallback, errorCallback)</b><br/>
 <info>Switch from the rear camera and front camera, if available.</info><br/>
 
 ```javascript
 CameraPreview.switchCamera();
 ```
 
-<b>show()</b><br/>
+<b>show(successCallback, errorCallback)</b><br/>
 <info>Show the camera preview box.</info><br/>
 
 ```javascript
 CameraPreview.show();
 ```
 
-<b>hide()</b><br/>
+<b>hide(successCallback, errorCallback)</b><br/>
 <info>Hide the camera preview box.</info><br/>
 
 ```javasript
 CameraPreview.hide();
+```
+
+<b>setFlashMode(flashMode, successCallback, errorCallback)</b><br/>
+<info>Set the flash mode. Options are `OFF`, `ON`, `AUTO`</info><br/>
+
+```javasript
+CameraPreview.setFlashMode('ON');
+```
+
+<b>setColorEffect(colorEffect, successCallback, errorCallback)</b><br/>
+<info>Set the color effect.<br>iOS Effects: `none`, `mono`, `negative`, `posterize`, `sepia`.<br>Android Effects: `none`, `mono`, `negative`, `posterize`, `sepia`, `aqua`, `blackboard`, `solarize`, `whiteboard`</info><br/>
+
+```javasript
+CameraPreview.setColorEffect('sepia');
+```
+
+<b>setOnLogHandler(successCallback, errorCallback)</b><br/>
+<info></info><br/>
+
+```javasript
+CameraPreview.setOnLogHandler(function(){
+  console.log('log handler set!');
+});
 ```
 
 <b>IOS Quirks:</b><br/>
