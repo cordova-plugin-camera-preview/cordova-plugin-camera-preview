@@ -39,9 +39,9 @@ ionic plugin add cordova-plugin-camera-preview
 Starts the camera preview instance.
 <br/>
 <br/>
-When setting the toBack to TRUE, remember to add the style bellow on your app's HTML or body element:
+When setting the toBack to TRUE, remember to add the style below on your app's HTML or body element:
 ```css
-html, body{
+html, body {
   background-color: transparent;
 }
 ```
