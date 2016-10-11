@@ -159,9 +159,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     pluginResult.setKeepCallback(true);
     callbackContext.sendPluginResult(pluginResult);
     try {
-      double maxWidth = args.getDouble(0);
-      double maxHeight = args.getDouble(1);
-      fragment.takePicture(maxWidth, maxHeight);
+      double maxWidth = args.optDouble(0, 0);
+      double maxHeight = args.optDouble(1, 0);
+      fragment.takePicture((int)Math.floor(maxWidth), (int)Math.floor(maxHeight));
     }
     catch(Exception e){
       e.printStackTrace();
