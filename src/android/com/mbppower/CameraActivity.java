@@ -210,9 +210,14 @@ public class CameraActivity extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-	
-	// Sets the Default Camera as the current one (initializes mCamera instance)
-       	setCurrentCamera(defaultCameraId);
+
+        mCamera = Camera.open(defaultCameraId);
+
+        if (cameraParameters != null) {
+          mCamera.setParameters(cameraParameters);
+        }
+
+        cameraCurrentlyLocked = defaultCameraId;
         
         if(mPreview.mPreviewSize == null){
 		mPreview.setCamera(mCamera, cameraCurrentlyLocked);
@@ -239,17 +244,6 @@ public class CameraActivity extends Fragment {
                 }
             });
         }
-    }
-    
-    // Sets the current camera - allows to set cameraParameters from a single place (e.g. can be used to set AutoFocus and Autoflash)
-    private void setCurrentCamera(int cameraId){
-    	 mCamera = Camera.open(cameraId);
-
-        if (cameraParameters != null) {
-          mCamera.setParameters(cameraParameters);
-        }
-
-        cameraCurrentlyLocked = cameraId;
     }
 
     @Override
@@ -287,11 +281,13 @@ public class CameraActivity extends Fragment {
 
 		// Acquire the next camera and request Preview to reconfigure
 		// parameters.
-		int nextCameraId = (cameraCurrentlyLocked + 1) % numberOfCameras;
-		
-		// Set the next camera as the current one and apply the cameraParameters
-		setCurrentCamera(nextCameraId);
-		
+		mCamera = Camera.open((cameraCurrentlyLocked + 1) % numberOfCameras);
+
+		if (cameraParameters != null) {
+			mCamera.setParameters(cameraParameters);
+		}
+
+		cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
 		mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
 
 	    Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
@@ -364,31 +360,28 @@ public class CameraActivity extends Fragment {
 									pictureView.layout(rect.left, rect.top, rect.right, rect.bottom);
 
 									Bitmap finalPic = null;
-									// If we are going to rotate the picture, width and height are reversed
-									boolean swapAspects = mPreview.getDisplayOrientation() % 180 != 0;
-									double rotatedWidth = swapAspects ? pic.getHeight() : pic.getWidth();
-									double rotatedHeight = swapAspects ? pic.getWidth() : pic.getHeight();
-									boolean shouldScaleWidth = maxWidth > 0 && rotatedWidth > maxWidth;
-									boolean shouldScaleHeight = maxHeight > 0 && rotatedHeight > maxHeight;
-
+									Bitmap originalPicture = null;
 									//scale final picture
-									if(shouldScaleWidth || shouldScaleHeight){
-										double scaleHeight = shouldScaleHeight ? maxHeight / (double)rotatedHeight : 1;
-										double scaleWidth = shouldScaleWidth ? maxWidth / (double)rotatedWidth : 1;
+									if(maxWidth > 0 && maxHeight > 0){
+										final double scaleHeight = maxWidth/(double)pic.getHeight();
+										final double scaleWidth = maxHeight/(double)pic.getWidth();
+										final double scale  = scaleHeight < scaleWidth ? scaleWidth : scaleHeight;
 
-										double scale = scaleHeight < scaleWidth ? scaleHeight : scaleWidth;
 										finalPic = Bitmap.createScaledBitmap(pic, (int)(pic.getWidth()*scale), (int)(pic.getHeight()*scale), false);
+										originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int)(maxWidth), (int)(maxHeight), matrix, false);
 									}
 									else{
 										finalPic = pic;
+										originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int)(finalPic.getWidth()), (int)(finalPic.getHeight()), matrix, false);
 									}
-
-									Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int)(finalPic.getWidth()), (int)(finalPic.getHeight()), matrix, false);
-
+									
 								    //get bitmap and compress
 								    Bitmap picture = loadBitmapFromView(view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage)));
 								    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-								    picture.compress(Bitmap.CompressFormat.PNG, 80, stream);
+								    picture.compress(Bitmap.CompressFormat.JPEG, 80, stream);
+								    // JPEG 1200x1200 --> 138KB
+								    // PNG 1200x1200 --> 208KB
+								    // WEBP 1200x1200 --> 287KB
 
 									generatePictureFromView(originalPicture, picture);
 									canTakePicture = true;
@@ -542,6 +535,18 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             setCameraDisplayOrientation();
             //mCamera.getParameters().setRotation(getDisplayOrientation());
             //requestLayout();
+
+						List<String> mFocusModes = mCamera.getParameters().getSupportedFocusModes();
+
+						Camera.Parameters params = mCamera.getParameters();
+						if (mFocusModes.contains("continuous-picture")) {
+						    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+						} else if (mFocusModes.contains("continuous-video")){
+						    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+						} else if (mFocusModes.contains("auto")){
+						    params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+						}
+						mCamera.setParameters(params);
         }
     }
 
@@ -659,10 +664,13 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
             }
             else {
                 Log.d(TAG, "center vertically");
-                int scaledChildHeight = (int)((previewHeight * width / previewWidth) * scale);
-                nW = (int)(width * scale);
-                nH = (height + scaledChildHeight) / 2;
-                top = (height - scaledChildHeight) / 2;
+                int scaledChildHeight = (int)((previewHeight * width / previewWidth));
+                //nW = (int)(width * scale);
+                //nH = (height + scaledChildHeight) / 2;
+                nW = previewWidth;
+                nH = previewHeight;
+                //top = (height - scaledChildHeight) / 2;
+                top = 0;
                 left = 0;
             }
             child.layout(left, top, nW, nH);
@@ -726,6 +734,14 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
                 }
             }
         }
+
+        // hotfix from https://github.com/mbppower/CordovaCameraPreview/issues/53
+        optimalSize = sizes.get(0);
+				for (int i = 0; i < sizes.size(); i++) {
+					if (sizes.get(i).width > optimalSize.width) {
+						optimalSize = sizes.get(i);
+					}
+				}
 
         Log.d(TAG, "optimal preview size: w: " + optimalSize.width + " h: " + optimalSize.height);
         return optimalSize;
