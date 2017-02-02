@@ -1,3 +1,4 @@
+//cordova.define("com.mbppower.camerapreview.CameraPreview", function(require, exports, module) {
 var argscheck = require('cordova/argscheck'),
   utils = require('cordova/utils'),
   exec = require('cordova/exec');
@@ -32,6 +33,28 @@ CameraPreview.setColorEffect = function(effect) {
   exec(null, null, PLUGIN_NAME, "setColorEffect", [effect]);
 };
 
+/**
+ * @param int zoom
+ */
+CameraPreview.setZoom = function(zoom) {
+  exec(null, null, PLUGIN_NAME, "setZoom", [zoom]);
+}
+
+CameraPreview.previewSize = function(width, height) {
+  return exec(null, null, PLUGIN_NAME, "previewSize", [width, height]);
+}
+
+/**
+ * @param int flash mode
+ * 0 -> OFF
+ * 1 -> ON
+ * 2 -> TORCH
+ * 3 -> AUTO
+ */
+CameraPreview.setFlashMode = function(flash) {
+  exec(null, null, PLUGIN_NAME, "setFlashMode", [flash]);
+}
+
 CameraPreview.switchCamera = function() {
   exec(null, null, PLUGIN_NAME, "switchCamera", []);
 };
@@ -49,3 +72,5 @@ CameraPreview.disable = function(disable) {
 };
 
 module.exports = CameraPreview;
+
+//});
