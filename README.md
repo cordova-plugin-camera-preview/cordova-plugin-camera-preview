@@ -22,6 +22,13 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Set a custom alpha for the preview box.</li>
   <li>Maintain HTML interactivity.</li>
 </ul>
+<p><b>Specific features for Android:</b></p>
+<ul>
+  <li>Zoom.</li>
+  <li>Auto focus.</li>
+  <li>Different modes of flash.</li>
+</ul>
+Further info: https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/104
 
 <p><b>Installation:</b></p>
 
