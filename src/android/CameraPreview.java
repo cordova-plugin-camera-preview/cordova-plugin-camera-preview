@@ -1,4 +1,4 @@
-package com.mbppower;
+package com.cordovaplugincamerapreview;
 
 import android.Manifest;
 import android.content.pm.PackageManager;

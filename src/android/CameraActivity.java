@@ -1,4 +1,4 @@
-package com.mbppower;
+package com.cordovaplugincamerapreview;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -392,6 +392,7 @@ public class CameraActivity extends Fragment {
 
                   generatePictureFromView(originalPicture);
                   canTakePicture = true;
+                  camera.startPreview();
                 }
               });
             }
