@@ -14,10 +14,9 @@
 @end;
 
 @interface CameraRenderController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate> {
-        GLuint _renderBuffer;
-        CVOpenGLESTextureCacheRef _videoTextureCache;
-        CVOpenGLESTextureRef _lumaTexture;
-
+  GLuint _renderBuffer;
+  CVOpenGLESTextureCacheRef _videoTextureCache;
+  CVOpenGLESTextureRef _lumaTexture;
 }
 
 @property (nonatomic) GLKView *view;
