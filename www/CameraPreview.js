@@ -55,10 +55,6 @@ CameraPreview.show = function(onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "showCamera", []);
 };
 
-CameraPreview.disable = function(disable, onSuccess, onError){
-  exec(onSuccess, onError, PLUGIN_NAME, "disable", [disable]);
-};
-
 CameraPreview.takePicture = function(dim, onSuccess, onError){
   dim = dim || {};
   exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [dim.maxWidth || 0, dim.maxHeight || 0]);
@@ -96,6 +92,6 @@ CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "setFlashMode", [flashMode]);
 };
 
-CameraPreview.FlashMode = {OFF: 0, ON: 1, AUTO: 2};
+CameraPreview.FlashMode = {OFF: 0, ON: 1, TORCH: 2, AUTO: 3};
 
 module.exports = CameraPreview;

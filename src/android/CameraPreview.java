@@ -30,7 +30,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private final String setFlashModeAction = "setFlashMode";
   private final String startCameraAction = "startCamera";
   private final String stopCameraAction = "stopCamera";
-  private final String previewSizeAction = "previewSize";
+  private final String previewSizeAction = "setPreviewSize";
   private final String switchCameraAction = "switchCamera";
   private final String takePictureAction = "takePicture";
   private final String showCameraAction = "showCamera";
@@ -82,7 +82,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else if (setZoomAction.equals(action)) {
       return setZoom(args, callbackContext);
     } else if (previewSizeAction.equals(action)) {
-      return previewSize(args, callbackContext);
+      return setPreviewSize(args, callbackContext);
     } else if (setFlashModeAction.equals(action)) {
       return setFlashMode(args, callbackContext);
     } else if (stopCameraAction.equals(action)){
@@ -320,7 +320,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
   }
 
-  private boolean previewSize(final JSONArray args, CallbackContext callbackContext) {
+  private boolean setPreviewSize(final JSONArray args, CallbackContext callbackContext) {
     if (fragment == null) {
       return false;
     }

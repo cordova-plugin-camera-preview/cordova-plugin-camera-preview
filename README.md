@@ -18,13 +18,13 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Set a custom alpha for the preview box.</li>
   <li>Maintain HTML interactivity.</li>
 </ul>
-<p><b>Specific features for Android:</b></p>
+
+<p><b>Android only features:</b></p>
 <ul>
   <li>Zoom.</li>
   <li>Auto focus.</li>
   <li>Different modes of flash.</li>
 </ul>
-Further info: https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/104
 
 <p><b>Installation:</b></p>
 
@@ -44,20 +44,20 @@ ionic plugin add cordova-plugin-camera-preview
 
 <p><b>Methods:</b></p>
 
+* Note: The successCallback and errorCallback options are optional *
+
 <b>startCamera(options, successCallback, errorCallback)</b><br/>
 <info>
 Starts the camera preview instance.
 <br/>
 <br/>
-When setting the toBack to TRUE, remember to add the style below on your app's HTML or body element:
+When setting the toBack to true, remember to add the style below on your app's HTML or body element:
 ```css
 html, body {
   background-color: transparent;
 }
 ```
 </info>
-
-Javascript:
 
 ```javascript
 /* All options stated are optional and will default to values here */
@@ -77,7 +77,6 @@ CameraPreview.stopCamera();
 ```javascript
 CameraPreview.takePicture({maxWidth:640, maxHeight:640});
 ```
-
 
 <b>setOnPictureTakenHandler(successCallback, errorCallback)</b><br/>
 <info>Register a callback function that receives the image captured from the preview box.</info><br/>
@@ -105,43 +104,75 @@ CameraPreview.show();
 <b>hide(successCallback, errorCallback)</b><br/>
 <info>Hide the camera preview box.</info><br/>
 
-```javasript
+```javascript
 CameraPreview.hide();
 ```
 
 <b>setFlashMode(flashMode, successCallback, errorCallback)</b><br/>
-<info>Set the flash mode. Options are `OFF`, `ON`, `AUTO`</info><br/>
+<info>Set the flash mode. Options are `OFF`, `ON`, `AUTO`, `TORCH`</info><br/>
 
-```javasript
+```javascript
 CameraPreview.setFlashMode('ON');
 ```
 
 <b>setColorEffect(colorEffect, successCallback, errorCallback)</b><br/>
 <info>Set the color effect.<br>iOS Effects: `none`, `mono`, `negative`, `posterize`, `sepia`.<br>Android Effects: `none`, `mono`, `negative`, `posterize`, `sepia`, `aqua`, `blackboard`, `solarize`, `whiteboard`</info><br/>
 
-```javasript
+```javascript
 CameraPreview.setColorEffect('sepia');
 ```
 
 <b>setOnLogHandler(successCallback, errorCallback)</b><br/>
 <info></info><br/>
 
-```javasript
+```javascript
 CameraPreview.setOnLogHandler(function(){
   console.log('log handler set!');
 });
 ```
 
+<b>setZoom(zoomMultiplier, successCallback, errorCallback)</b><br/>
+<info>Set the zoom level. zoomMultipler option accepts an integer.</info><br/>
+
+```javascript
+CameraPreview.setZoom(2);
+```
+
+<b>setPreviewSize(width, height, successCallback, errorCallback)</b><br/>
+<info>Change the size of the preview window.</info><br/>
+
+```javascript
+CameraPreview.setPreviewSize(window.screen.width, window.screen.height);
+```
+
+<b>getSupportedPreviewSizes(successCallback, errorCallback)</b><br/>
+<info></info><br/>
+
+```javascript
+CameraPreview.getSupportedPreviewSizes(function(sizes){
+  console.log('Width: ' + sizes.width); 
+  console.log('Height: ' + sizes.height); 
+});
+```
+
+<b>getSupportedPictureSizes(successCallback, errorCallback)</b><br/>
+<info></info><br/>
+
+```javascript
+CameraPreview.getSupportedPictureSizes(function(sizes){
+  console.log('Width: ' + sizes.width); 
+  console.log('Height: ' + sizes.height); 
+});
+```
+
+
 <b>IOS Quirks:</b><br/>
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
 
 
-<b>Sample:</b><br/>
-Cordova: <a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview-sample-app">cordova-plugin-camera-preview-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
-
-
-Ionic: <a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-ionic-preview-sample-app">cordova-plugin-camera-preview-ionic-sample-app</a> for a complete working Ionic example for Android and iOS platforms.
+<b>Sample App:</b><br/>
+<a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview-sample-app">cordova-plugin-camera-preview-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
 
 <p><b>Android Screenshots:</b></p>
-<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/docs/img/android-1.png"/></p>
-<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/docs/img/android-2.png"/></p>
+<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/></p>
+<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/></p>
