@@ -1,7 +1,6 @@
-//cordova.define("com.mbppower.camerapreview.CameraPreview", function(require, exports, module) {
 var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
-  exec = require('cordova/exec');
+    utils = require('cordova/utils'),
+    exec = require('cordova/exec');
 
 var PLUGIN_NAME = "CameraPreview";
 
@@ -11,19 +10,22 @@ CameraPreview.setOnPictureTakenHandler = function(onPictureTaken) {
   exec(onPictureTaken, onPictureTaken, PLUGIN_NAME, "setOnPictureTakenHandler", []);
 };
 
-//@param rect {x: 0, y: 0, width: 100, height:100}
-//@param defaultCamera "front" | "back"
-CameraPreview.startCamera = function(rect, defaultCamera, tapEnabled, dragEnabled, toBack, alpha) {
-  if (typeof(alpha) === 'undefined') alpha = 1;
-  exec(null, null, PLUGIN_NAME, "startCamera", [rect.x, rect.y, rect.width, rect.height, defaultCamera, !!tapEnabled, !!dragEnabled, !!toBack, alpha]);
+CameraPreview.setOnLogHandler = function(onLog) {
+  exec(onLog, onLog, PLUGIN_NAME, "wLog", []);
 };
+
+CameraPreview.startCamera = function(rect, defaultCamera, tapEnabled, dragEnabled, toBack, alpha, onSuccess, onError) {
+  if (typeof(alpha) === 'undefined') alpha = 1;
+  exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [rect.x, rect.y, rect.width, rect.height, defaultCamera, !!tapEnabled, !!dragEnabled, !!toBack, alpha]);
+};
+
 CameraPreview.stopCamera = function() {
   exec(null, null, PLUGIN_NAME, "stopCamera", []);
 };
-//@param size {maxWidth: 100, maxHeight:100}
+
 CameraPreview.takePicture = function(size) {
   var params = [0, 0];
-  if (size) {
+  if(size){
     params = [size.maxWidth, size.maxHeight];
   }
   exec(null, null, PLUGIN_NAME, "takePicture", params);
@@ -33,9 +35,6 @@ CameraPreview.setColorEffect = function(effect) {
   exec(null, null, PLUGIN_NAME, "setColorEffect", [effect]);
 };
 
-/**
- * @param int zoom
- */
 CameraPreview.setZoom = function(zoom) {
   exec(null, null, PLUGIN_NAME, "setZoom", [zoom]);
 }
@@ -55,8 +54,8 @@ CameraPreview.setFlashMode = function(flash) {
   exec(null, null, PLUGIN_NAME, "setFlashMode", [flash]);
 }
 
-CameraPreview.switchCamera = function() {
-  exec(null, null, PLUGIN_NAME, "switchCamera", []);
+CameraPreview.switchCamera = function(onSuccess, onError) {
+  exec(onSuccess, onError, PLUGIN_NAME, "switchCamera", []);
 };
 
 CameraPreview.hide = function() {
@@ -71,6 +70,12 @@ CameraPreview.disable = function(disable) {
   exec(null, null, PLUGIN_NAME, "disable", [disable]);
 };
 
-module.exports = CameraPreview;
+CameraPreview.getSupportedPreviewSizes = function (callback) {
+  exec(callback, callback, PLUGIN_NAME, "getSupportedPreviewSizes", []);
+};
 
-//});
+CameraPreview.getSupportedPictureSizes = function (callback) {
+  exec(callback, callback, PLUGIN_NAME, "getSupportedPictureSizes", []);
+};
+
+module.exports = CameraPreview;

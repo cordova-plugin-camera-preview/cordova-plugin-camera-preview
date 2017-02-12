@@ -4,10 +4,12 @@
 @interface CameraSessionManager : NSObject
 
 - (CameraSessionManager *)init;
+- (NSArray *) getDeviceFormats;
 - (void) setupSession:(NSString *)defaultCamera;
 - (void) switchCamera;
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation;
 - (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation;
+
 
 @property (atomic) CIFilter *ciFilter;
 @property (nonatomic) NSLock *filterLock;
