@@ -36,6 +36,10 @@ cordova plugin add cordova-plugin-camera-preview
 ionic plugin add cordova-plugin-camera-preview
 ```
 
+```
+meteor add cordova:cordova-plugin-camera-preview@X.X.X
+```
+
 <b>Phonegap Build:</b><br/>
 
 ```xml
