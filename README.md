@@ -39,6 +39,10 @@ ionic plugin add cordova-plugin-camera-preview
 ```
 meteor add cordova:cordova-plugin-camera-preview@X.X.X
 ```
+Or if you want to install a specific version/commit:
+```
+meteor add cordova:cordova-plugin-camera-preview@https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git#[commit_id]
+```
 
 <b>Phonegap Build:</b><br/>
 
