@@ -1,9 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
+
 <widget id="com.cordovaplugincamerapreview.sampleapp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+
     <name>cordova-plugin-camera-sample-app</name>
     <description>A sample Cordova application for cordova-plugin-camera-preview.</description>
     <author email="dev@cordova.apache.org" href="http://cordova.io">Sample App</author>
     
     <content src="index.html" />
     <access origin="*" />
+
+    <plugin name="cordova-plugin-camera-preview" spec="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git" />
+
 </widget>

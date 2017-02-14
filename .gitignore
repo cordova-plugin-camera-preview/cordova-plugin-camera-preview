@@ -20,5 +20,6 @@ Temporary Items
 .apdisk
 ant-build
 build
-platforms/*
-plugins/*
+platforms/
+plugins/
+hooks/
