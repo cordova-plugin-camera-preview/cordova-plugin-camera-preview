@@ -1,4 +1,3 @@
-cordova.define("cordova-plugin-camera-preview.CameraPreview", function(require, exports, module) {
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec');
@@ -96,5 +95,3 @@ CameraPreview.getPreviewSize = function(okcallback, errcallback) {
 
 
 module.exports = CameraPreview;
-
-});
