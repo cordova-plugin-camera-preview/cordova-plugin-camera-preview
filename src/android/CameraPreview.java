@@ -16,6 +16,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.JSONException;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
@@ -31,6 +32,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private final String takePictureAction = "takePicture";
   private final String showCameraAction = "showCamera";
   private final String hideCameraAction = "hideCamera";
+  private final String getPreviewSizeAction = "getPreviewSize";
 
   private final String permission = Manifest.permission.CAMERA;
 
@@ -82,8 +84,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
     else if (switchCameraAction.equals(action)){
       return switchCamera(args, callbackContext);
-    } else if (setFlashModeAction.equals(action)){
+    }
+    else if (setFlashModeAction.equals(action)){
       return setFlashMode(args, callbackContext);
+    }
+    else if (getPreviewSizeAction.equals(action)) {
+      return getPreviewSize(args, callbackContext);
     }
 
     return false;
@@ -340,5 +346,37 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     if (requestCode == permissionsReqId) {
       startCamera(execArgs, execCallback);
     }
+  }
+  private boolean getPreviewSize(JSONArray args, CallbackContext callbackContext) {
+    Log.d(TAG, "getPreviewSize");
+    if (fragment == null) {
+      Log.d(TAG, "getPreviewSize no fragment");
+      return false;
+    }
+    JSONObject json = new JSONObject();
+    Camera camera = fragment.getCamera();
+    if (camera != null) {
+      Camera.Parameters parameters = camera.getParameters();
+      if (parameters != null) {
+        Camera.Size size = parameters.getPreviewSize();
+        try {
+          json.put("width", size.width);
+          json.put("height", size.height);
+          PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, json);
+          pluginResult.setKeepCallback(true);
+          callbackContext.sendPluginResult(pluginResult);
+          Log.d(TAG, "getPreviewSize PluginResult sent");
+        } catch (JSONException e) {
+          Log.e(TAG, e.toString());
+        }
+        return true;
+      } else {
+        Log.d(TAG, "getPreviewSize no parameters");
+      }
+    } else {
+      Log.d(TAG, "getPreviewSize no camera");
+    }
+    Log.d(TAG, "getPreviewSize returning false");
+    return false;
   }
 }

@@ -1,3 +1,4 @@
+cordova.define("cordova-plugin-camera-preview.CameraPreview", function(require, exports, module) {
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     exec = require('cordova/exec');
@@ -89,4 +90,11 @@ CameraPreview.disable = function(disable){
 
 CameraPreview.FlashMode = {OFF: 0, ON: 1, AUTO: 2};
 
+CameraPreview.getPreviewSize = function(okcallback, errcallback) {
+  exec(okcallback, errcallback, PLUGIN_NAME, "getPreviewSize", []);
+};
+
+
 module.exports = CameraPreview;
+
+});
