@@ -29,26 +29,28 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
 <p><b>Installation:</b></p>
 
 ```
+cordova plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
+
+ionic plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
+
+meteor add cordova:cordova-plugin-camera-preview@https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git#[latest_commit_id]
+
+# Phonegap
+<plugin spec="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-previewn.git" source="git" />
+```
+
+<!--
+```
 cordova plugin add cordova-plugin-camera-preview
-```
 
-```
 ionic plugin add cordova-plugin-camera-preview
-```
 
-```
 meteor add cordova:cordova-plugin-camera-preview@X.X.X
-```
-Or if you want to install a specific version/commit:
-```
-meteor add cordova:cordova-plugin-camera-preview@https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git#[commit_id]
-```
 
-<b>Phonegap Build:</b><br/>
-
-```xml
+# Phonegap
 <gap:plugin name="cordova-plugin-camera-preview" />
 ```
+-->
 
 <p><b>Methods:</b></p>
 
