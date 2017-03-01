@@ -94,7 +94,7 @@ public class CameraActivity extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
   }
   public void setRect(int x, int y, int width, int height){
     this.x = x;
@@ -261,7 +261,7 @@ public class CameraActivity extends Fragment {
     if (mCamera != null) {
       setDefaultCameraId();
       mPreview.setCamera(null, -1);
-      mCamera.setPreviewCallback(null);           
+      mCamera.setPreviewCallback(null);
       mCamera.release();
       mCamera = null;
     }
@@ -414,9 +414,16 @@ public class CameraActivity extends Fragment {
       public void run() {
 
         try {
-          final File originalPictureFile = storeImage(originalPicture, "_original");
+          //final File originalPictureFile = storeImage(originalPicture, "_original");
 
-          eventListener.onPictureTaken(originalPictureFile.getAbsolutePath());
+          //eventListener.onPictureTaken(originalPictureFile.getAbsolutePath());
+          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+          originalPicture.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream);
+          byte[] byteArray = byteArrayOutputStream.toByteArray();
+
+          String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
+
+          eventListener.onPictureTaken(encodedImage);
 
           getActivity().runOnUiThread(new Runnable() {
             @Override
