@@ -4,6 +4,7 @@
 @interface CameraSessionManager : NSObject
 
 - (CameraSessionManager *)init;
+- (NSArray *) getDeviceFormats;
 - (void) setupSession:(NSString *)defaultCamera;
 - (void) switchCamera;
 - (void) setFlashMode:(NSInteger)flashMode;

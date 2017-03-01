@@ -6,19 +6,7 @@ var PLUGIN_NAME = "CameraPreview";
 
 var CameraPreview = function(){};
 
-CameraPreview.setOnPictureTakenHandler = function(onPictureTaken) {
-  exec(onPictureTaken, onPictureTaken, PLUGIN_NAME, "setOnPictureTakenHandler", []);
-};
-
-CameraPreview.setFlashMode = function(flashMode) {
-  exec(null, null, PLUGIN_NAME, "setFlashMode", [flashMode]);
-};
-
-CameraPreview.setOnLogHandler = function(onLog) {
-  exec(onLog, onLog, PLUGIN_NAME, "wLog", []);
-};
-
-CameraPreview.startCamera = function(options){
+CameraPreview.startCamera = function(options,onSuccess, onError){
   options = options || {};
   if(typeof(options.x) === 'undefined'){
     options.x = 0;
@@ -48,50 +36,62 @@ CameraPreview.startCamera = function(options){
     options.alpha = 1;
   }
 
-  exec(null, null, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha]);
+  exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha]);
 };
 
-CameraPreview.stopCamera = function(){
-  exec(null, null, PLUGIN_NAME, "stopCamera", []);
+CameraPreview.stopCamera = function(onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "stopCamera", []);
 };
 
-CameraPreview.takePicture = function(dim){
+CameraPreview.switchCamera = function(onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "switchCamera", []);
+};
+
+CameraPreview.hide = function(onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "hideCamera", []);
+};
+
+CameraPreview.show = function(onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "showCamera", []);
+};
+
+CameraPreview.takePicture = function(dim, onSuccess, onError){
   dim = dim || {};
-  exec(null, null, PLUGIN_NAME, "takePicture", [dim.maxWidth || 0, dim.maxHeight || 0]);
+  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [dim.maxWidth || 0, dim.maxHeight || 0]);
 };
 
-CameraPreview.setColorEffect = function(effect){
-  exec(null, null, PLUGIN_NAME, "setColorEffect", [effect]);
+CameraPreview.setOnPictureTakenHandler = function(onSuccess, onError) {
+  exec(onSuccess, onError, PLUGIN_NAME, "setOnPictureTakenHandler", []);
 };
 
-/**
- * @param int zoom
- */
-CameraPreview.setZoom = function(zoom) {
-  exec(null, null, PLUGIN_NAME, "setZoom", [zoom]);
+CameraPreview.setColorEffect = function(effect, onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "setColorEffect", [effect]);
+};
+
+CameraPreview.setZoom = function(zoom, onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "setZoom", [zoom]);
 }
 
-CameraPreview.switchCamera = function(){
-  exec(null, null, PLUGIN_NAME, "switchCamera", []);
+CameraPreview.setPreviewSize = function(width, height, onSuccess, onError){
+  return exec(onSuccess, onError, PLUGIN_NAME, "setPreviewSize", [width, height]);
+}
+
+CameraPreview.getSupportedPreviewSizes = function(onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPreviewSizes", []);
 };
 
-CameraPreview.hide = function(){
-  exec(null, null, PLUGIN_NAME, "hideCamera", []);
+CameraPreview.getSupportedPictureSizes = function(onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPictureSizes", []);
 };
 
-CameraPreview.show = function(){
-  exec(null, null, PLUGIN_NAME, "showCamera", []);
+CameraPreview.setOnLogHandler = function(onSuccess, onError) {
+  exec(onSuccess, onError, PLUGIN_NAME, "wLog", []);
 };
 
-CameraPreview.disable = function(disable){
-  exec(null, null, PLUGIN_NAME, "disable", [disable]);
+CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {
+  exec(onSuccess, onError, PLUGIN_NAME, "setFlashMode", [flashMode]);
 };
 
-CameraPreview.FlashMode = {OFF: 0, ON: 1, AUTO: 2};
-
-CameraPreview.getPreviewSize = function(okcallback, errcallback) {
-  exec(okcallback, errcallback, PLUGIN_NAME, "getPreviewSize", []);
-};
-
+CameraPreview.FlashMode = {OFF: 0, ON: 1, TORCH: 2, AUTO: 3};
 
 module.exports = CameraPreview;
