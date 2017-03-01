@@ -7,6 +7,12 @@
 
 @implementation CameraPreview
 
+-(void) pluginInitialize{
+    //make transparent
+      self.webView.opaque = NO;
+      self.webView.backgroundColor = [UIColor clearColor];
+}
+
 - (void) startCamera:(CDVInvokedUrlCommand*)command {
 
   CDVPluginResult *pluginResult;
@@ -43,7 +49,9 @@
       //make transparent
       self.webView.opaque = NO;
       self.webView.backgroundColor = [UIColor clearColor];
-      [self.webView.superview insertSubview:self.cameraRenderController.view belowSubview:self.webView];
+      //[self.webView.superview insertSubview:self.cameraRenderController.view belowSubview:self.webView];
+      [self.webView.superview addSubview:self.cameraRenderController.view];
+      [self.webView.superview bringSubviewToFront:self.webView];
     }
     else{
       self.cameraRenderController.view.alpha = (CGFloat)[command.arguments[8] floatValue];
