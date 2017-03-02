@@ -11,6 +11,7 @@
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation;
 - (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation;
 
+@property (atomic) CIFilter *ciFilter;
 @property (nonatomic) NSLock *filterLock;
 @property (nonatomic) AVCaptureSession *session;
 @property (nonatomic) dispatch_queue_t sessionQueue;
