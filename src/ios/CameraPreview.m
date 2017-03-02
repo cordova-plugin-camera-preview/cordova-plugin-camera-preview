@@ -7,6 +7,12 @@
 
 @implementation CameraPreview
 
+-(void) pluginInitialize{
+  // start as transparent
+  self.webView.opaque = NO;
+  self.webView.backgroundColor = [UIColor clearColor];
+}
+
 - (void) startCamera:(CDVInvokedUrlCommand*)command {
 
   CDVPluginResult *pluginResult;
@@ -26,10 +32,11 @@
     BOOL tapToTakePicture = (BOOL)[command.arguments[5] boolValue];
     BOOL dragEnabled = (BOOL)[command.arguments[6] boolValue];
     BOOL toBack = (BOOL)[command.arguments[7] boolValue];
+
     // Create the session manager
     self.sessionManager = [[CameraSessionManager alloc] init];
 
-    //render controller setup
+    // render controller setup
     self.cameraRenderController = [[CameraRenderController alloc] init];
     self.cameraRenderController.dragEnabled = dragEnabled;
     self.cameraRenderController.tapToTakePicture = tapToTakePicture;
@@ -38,14 +45,17 @@
     self.cameraRenderController.delegate = self;
 
     [self.viewController addChildViewController:self.cameraRenderController];
-    //display the camera bellow the webview
+
     if (toBack) {
-      //make transparent
+      // display the camera below the webview
+      
+      // make transparent
       self.webView.opaque = NO;
       self.webView.backgroundColor = [UIColor clearColor];
-      [self.webView.superview insertSubview:self.cameraRenderController.view belowSubview:self.webView];
-    }
-    else{
+
+      [self.webView.superview addSubview:self.cameraRenderController.view];
+      [self.webView.superview bringSubviewToFront:self.webView];
+    } else {
       self.cameraRenderController.view.alpha = (CGFloat)[command.arguments[8] floatValue];
       [self.webView.superview insertSubview:self.cameraRenderController.view aboveSubview:self.webView];
     }
