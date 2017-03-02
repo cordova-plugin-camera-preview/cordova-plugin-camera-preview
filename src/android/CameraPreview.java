@@ -37,13 +37,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private final String hideCameraAction = "hideCamera";
 
   private final String getSupportedPreviewSizesAction = "getSupportedPreviewSizes";
-  private final String getSupportedPictureSizesAction = "getSupportedPictureSizes";    
+  private final String getSupportedPictureSizesAction = "getSupportedPictureSizes";
 
 
   private final String [] permissions = {
-    Manifest.permission.CAMERA,
-    Manifest.permission.READ_EXTERNAL_STORAGE,
-    Manifest.permission.WRITE_EXTERNAL_STORAGE
+    Manifest.permission.CAMERA
   };
 
   private final int permissionsReqId = 0;
@@ -97,7 +95,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return getSupportedResolutions("previews", callbackContext);
     } else if (getSupportedPictureSizesAction.equals(action)) {
       return getSupportedResolutions("pictures", callbackContext);
-    }        
+    }
 
     return false;
   }
@@ -149,7 +147,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     callbackContext.error("Camera needs to be started first");
     return false;
 
-  }    
+  }
 
   private boolean startCamera(final JSONArray args, CallbackContext callbackContext) {
     Log.d(TAG, "start camera action");
@@ -213,7 +211,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
           cb.success("Camera started");
         } catch (Exception e) {
           e.printStackTrace();
-          cb.error("Camera start error");                    
+          cb.error("Camera start error");
         }
       }
     });
