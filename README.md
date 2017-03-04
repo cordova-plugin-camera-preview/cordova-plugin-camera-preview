@@ -3,11 +3,12 @@ Cordova Plugin Camera Preview
 
 Cordova plugin that allows camera interaction from HTML code for showing camera preview below or above the HTML.<br/>
 
-**Feb 11, 2017** - We are finally getting all the fixes and enhancements from other branches merged here. Please use master until a new version is released.
+**March 4, 2017** - We are currently drastically improving the plugin for a v1.0.0 release, in the meantime the API may change slightly. Please use master until a new version is released.
 
 **PR's are greatly appreciated. If your interested in maintainer status please create a couple PR's and then contact westonganger@gmail.com**
 
-<p><b>Features:</b></p>
+# Features
+
 <ul>
   <li>Start a camera preview from HTML code.</li>
   <li>Drag the preview box.</li>
@@ -19,14 +20,19 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Maintain HTML interactivity.</li>
 </ul>
 
-<p><b>Android only features:</b></p>
+### Android only features
+
+These are some features that are currently Android only, however we would love to see PR's for this functionality in iOS.
+
 <ul>
-  <li>Zoom.</li>
-  <li>Auto focus.</li>
-  <li>Different modes of flash.</li>
+  <li>Zoom</li>
+  <li>Auto focus</li>
+  <li>Different modes of flash</li>
 </ul>
 
-<p><b>Installation:</b></p>
+# Installation
+
+Use any one of the installation methods listed below depending on which framework you use.
 
 ```
 cordova plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
@@ -35,7 +41,6 @@ ionic plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin
 
 meteor add cordova:cordova-plugin-camera-preview@https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git#[latest_commit_id]
 
-# Phonegap
 <plugin spec="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-previewn.git" source="git" />
 ```
 
@@ -52,87 +57,143 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 ```
 -->
 
-<p><b>Methods:</b></p>
+# Methods
 
-* Note: The successCallback and errorCallback options are optional *
+**Note: The successCallback and errorCallback options are all optional**
 
-<b>startCamera(options, successCallback, errorCallback)</b><br/>
+### startCamera(options, [successCallback, errorCallback])
+
 <info>
 Starts the camera preview instance.
 <br/>
 <br/>
 When setting the toBack to true, remember to add the style below on your app's HTML or body element:
+</info>
+
 ```css
 html, body {
   background-color: transparent;
 }
 ```
-</info>
 
 ```javascript
 /* All options stated are optional and will default to values here */
 CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", tapPhoto: true, previewDrag: false, toBack: false});
 ```
 
-<b>stopCamera(successCallback, errorCallback)</b><br/>
+### stopCamera([successCallback, errorCallback])
+
 <info>Stops the camera preview instance.</info><br/>
 
 ```javascript
 CameraPreview.stopCamera();
 ```
 
-<b>takePicture(size, successCallback, errorCallback)</b><br/>
-<info>Take the picture, the parameter size is optional</info><br/>
+### setOnPictureTakenHandler(onPictureTakenCallback)
 
-```javascript
-CameraPreview.takePicture({maxWidth:640, maxHeight:640});
-```
-
-<b>setOnPictureTakenHandler(successCallback, errorCallback)</b><br/>
 <info>Register a callback function that receives the image captured from the preview box.</info><br/>
 
 ```javascript
-CameraPreview.setOnPictureTakenHandler(function(picture) {
-  document.getElementById('picture').src = picture; // base64 picture;
+CameraPreview.setOnPictureTakenHandler(function(base64PictureData) {
+  /* 
+    base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
+    Its up to the you to figure out the best way to save it to disk or whatever for your application.
+  */
+
+  // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
+  imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
+  $('img#my-img').attr('src', imageSrcData);
 });
 ```
 
-<b>switchCamera(successCallback, errorCallback)</b><br/>
-<info>Switch from the rear camera and front camera, if available.</info><br/>
+### takePicture([dimensions, quality=85, successCallback, errorCallback])
+
+<info>Take the picture. The arguments `dimensions` defaults to max supported photo resolution. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
+
+```javascript
+CameraPreview.takePicture({width:640, height:640});
+```
+
+### switchCamera([successCallback, errorCallback])
+
+<info>Switch between the rear camera and front camera, if available.</info><br/>
 
 ```javascript
 CameraPreview.switchCamera();
 ```
 
-<b>show(successCallback, errorCallback)</b><br/>
+### show([successCallback, errorCallback])
+
 <info>Show the camera preview box.</info><br/>
 
 ```javascript
 CameraPreview.show();
 ```
 
-<b>hide(successCallback, errorCallback)</b><br/>
+### hide([successCallback, errorCallback])
+
 <info>Hide the camera preview box.</info><br/>
 
 ```javascript
 CameraPreview.hide();
 ```
 
-<b>setFlashMode(flashMode, successCallback, errorCallback)</b><br/>
+### setFlashMode(flashMode, [successCallback, errorCallback])
+
 <info>Set the flash mode. Options are `OFF`, `ON`, `AUTO`, `TORCH`</info><br/>
 
 ```javascript
 CameraPreview.setFlashMode('ON');
 ```
 
-<b>setColorEffect(colorEffect, successCallback, errorCallback)</b><br/>
+### setColorEffect(colorEffect, [successCallback, errorCallback])
+
 <info>Set the color effect.<br>iOS Effects: `none`, `mono`, `negative`, `posterize`, `sepia`.<br>Android Effects: `none`, `mono`, `negative`, `posterize`, `sepia`, `aqua`, `blackboard`, `solarize`, `whiteboard`</info><br/>
 
 ```javascript
 CameraPreview.setColorEffect('sepia');
 ```
 
-<b>setOnLogHandler(successCallback, errorCallback)</b><br/>
+### setZoom(zoomMultiplier, [successCallback, errorCallback])
+
+<info>Set the zoom level. zoomMultipler option accepts an integer.</info><br/>
+
+```javascript
+CameraPreview.setZoom(2);
+```
+
+### setPreviewSize(width, height, [successCallback, errorCallback])
+
+<info>Change the size of the preview window.</info><br/>
+
+```javascript
+CameraPreview.setPreviewSize(window.screen.width, window.screen.height);
+```
+
+### getSupportedPreviewSize([successCallback, errorCallback])
+
+<info></info><br/>
+
+```javascript
+CameraPreview.getSupportedPreviewSize(function(dimensions){
+  console.log('Width: ' + dimensions.width); 
+  console.log('Height: ' + dimensions.height); 
+});
+```
+
+### getSupportedPictureSize([successCallback, errorCallback])
+
+<info></info><br/>
+
+```javascript
+CameraPreview.getSupportedPictureSize(function(dimensions){
+  console.log('Width: ' + dimensions.width); 
+  console.log('Height: ' + dimensions.height); 
+});
+```
+
+### setOnLogHandler([successCallback, errorCallback])
+
 <info></info><br/>
 
 ```javascript
@@ -141,48 +202,22 @@ CameraPreview.setOnLogHandler(function(){
 });
 ```
 
-<b>setZoom(zoomMultiplier, successCallback, errorCallback)</b><br/>
-<info>Set the zoom level. zoomMultipler option accepts an integer.</info><br/>
 
-```javascript
-CameraPreview.setZoom(2);
-```
-
-<b>setPreviewSize(width, height, successCallback, errorCallback)</b><br/>
-<info>Change the size of the preview window.</info><br/>
-
-```javascript
-CameraPreview.setPreviewSize(window.screen.width, window.screen.height);
-```
-
-<b>getSupportedPreviewSizes(successCallback, errorCallback)</b><br/>
-<info></info><br/>
-
-```javascript
-CameraPreview.getSupportedPreviewSizes(function(sizes){
-  console.log('Width: ' + sizes.width); 
-  console.log('Height: ' + sizes.height); 
-});
-```
-
-<b>getSupportedPictureSizes(successCallback, errorCallback)</b><br/>
-<info></info><br/>
-
-```javascript
-CameraPreview.getSupportedPictureSizes(function(sizes){
-  console.log('Width: ' + sizes.width); 
-  console.log('Height: ' + sizes.height); 
-});
-```
-
-
-<b>IOS Quirks:</b><br/>
+# IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
 
+# Sample App
 
-<b>Sample App:</b><br/>
 <a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview-sample-app">cordova-plugin-camera-preview-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
 
-<p><b>Android Screenshots:</b></p>
-<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/></p>
-<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/></p>
+# Screenshots
+
+<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/>
+
+<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/>
+
+# Credits
+
+Maintained by Weston Ganger - [@westonganger](https://github.com/westonganger)
+
+Created by Marcel Barbosa Pinto [@mbppower](https://github.com/mbppower)

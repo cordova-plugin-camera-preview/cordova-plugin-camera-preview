@@ -1,4 +1,3 @@
-#import <AssetsLibrary/AssetsLibrary.h>
 #import <Cordova/CDV.h>
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
@@ -142,26 +141,18 @@
   NSInteger flashMode;
   NSString *errMsg;
 
-  if (command.arguments.count <= 0)
-  {
+  if (command.arguments.count <= 0) {
     errMsg = @"Please specify a flash mode";
-  }
-  else
-  {
+  } else {
     NSString *strFlashMode = [command.arguments objectAtIndex:0];
     flashMode = [strFlashMode integerValue];
-    if (flashMode != AVCaptureFlashModeOff
-        && flashMode != AVCaptureFlashModeOn
-        && flashMode != AVCaptureFlashModeAuto)
-    {
+    if (flashMode != AVCaptureFlashModeOff && flashMode != AVCaptureFlashModeOn && flashMode != AVCaptureFlashModeAuto) {
       errMsg = @"Invalid parameter";
     }
-
   }
 
   if (errMsg) {
     NSLog(@"%@", errMsg);
-
   } else {
     if (self.sessionManager != nil) {
       [self.sessionManager setFlashMode:flashMode];
@@ -179,9 +170,9 @@
   CDVPluginResult *pluginResult;
 
   if (self.cameraRenderController != NULL) {
-    CGFloat maxW = (CGFloat)[command.arguments[0] floatValue];
-    CGFloat maxH = (CGFloat)[command.arguments[1] floatValue];
-    [self invokeTakePicture:maxW withHeight:maxH];
+    CGFloat width = (CGFloat)[command.arguments[0] floatValue];
+    CGFloat height = (CGFloat)[command.arguments[1] floatValue];
+    [self invokeTakePicture:width withHeight:height];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -232,21 +223,22 @@
 
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-- (void) getSupportedPreviewSizes:(CDVInvokedUrlCommand*)command {
-  NSLog(@"getSupportedPreviewSizes");
+
+- (void) getSupportedPreviewSize:(CDVInvokedUrlCommand*)command {
+  NSLog(@"getSupportedPreviewSize");
   CDVPluginResult *pluginResult;
 
   if(self.sessionManager != nil){
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"universal"];
-  }
-  else {
+  } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
   }
 
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-- (void) getSupportedPictureSizes:(CDVInvokedUrlCommand*)command {
-  NSLog(@"getSupportedPictureSizes");
+
+- (void) getSupportedPictureSize:(CDVInvokedUrlCommand*)command {
+  NSLog(@"getSupportedPictureSize");
   CDVPluginResult *pluginResult;
 
   if(self.sessionManager != nil){
@@ -269,24 +261,19 @@
     }
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:jsonFormats];
 
-  }
-  else {
+  } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
   }
 
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void) invokeTakePicture {
-  [self invokeTakePicture:0.0 withHeight:0.0];
-}
-
-- (NSString *)getBase64Image:(CGImageRef)imageRef {
+- (NSString *)getBase64Image:(CGImageRef)imageRef withQuality:(int) quality {
   NSString *base64Image = nil;
 
   @try {
     UIImage *image = [UIImage imageWithCGImage:imageRef];
-    NSData *imageData = UIImageJPEGRepresentation(image, 0.8);
+    NSData *imageData = UIImageJPEGRepresentation(image, quality);
     base64Image = [imageData base64EncodedStringWithOptions:0];
   }
   @catch (NSException *exception) {
@@ -296,25 +283,20 @@
   return base64Image;
 }
 
-- (double)radiansFromUIImageOrientation:(UIImageOrientation)orientation
-{
+- (double)radiansFromUIImageOrientation:(UIImageOrientation)orientation {
   double radians;
 
-  switch (orientation) {
-    case UIImageOrientationUp:
-        case UIImageOrientationUpMirrored:
+  switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+    case UIDeviceOrientationPortraitUp:
       radians = M_PI_2;
       break;
-        case UIImageOrientationLeft:
-case UIImageOrientationLeftMirrored:
+    case UIDeviceOrientationLandscapeLeft:
       radians = 0.f;
       break;
-case UIImageOrientationRight:
-        case UIImageOrientationRightMirrored:
+    case UIDeviceOrientationLandscapeRight:
       radians = M_PI;
       break;
-        case UIImageOrientationDown:
-case UIImageOrientationDownMirrored:
+    case UIDeviceOrientationPortraitUpsideDown:
       radians = -M_PI_2;
       break;
   }
@@ -322,8 +304,7 @@ case UIImageOrientationDownMirrored:
   return radians;
 }
 
--(CGImageRef) CGImageRotated:(CGImageRef) originalCGImage withRadiants:(double) radians
-{
+-(CGImageRef) CGImageRotated:(CGImageRef) originalCGImage withRadians:(double) radians {
   CGSize imageSize = CGSizeMake(CGImageGetWidth(originalCGImage), CGImageGetHeight(originalCGImage));
   CGSize rotatedSize;
   if (radians == M_PI_2 || radians == -M_PI_2) {
@@ -362,7 +343,11 @@ case UIImageOrientationDownMirrored:
   return rotatedCGImage;
 }
 
-- (void) invokeTakePicture:(CGFloat) maxWidth withHeight:(CGFloat) maxHeight {
+- (void) invokeTakePicture {
+  [self invokeTakePicture:0.0 withHeight:0.0 withQuality:0.85];
+}
+
+- (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(int) quality{
     AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
 
@@ -382,9 +367,9 @@ case UIImageOrientationDownMirrored:
         CIImage *capturedCImage;
         //image resize
 
-        if(maxWidth > 0 && maxHeight > 0){
-          CGFloat scaleHeight = maxWidth/capturedImage.size.height;
-          CGFloat scaleWidth = maxHeight/capturedImage.size.width;
+        if(width > 0 && height > 0){
+          CGFloat scaleHeight = width/capturedImage.size.height;
+          CGFloat scaleWidth = height/capturedImage.size.width;
           CGFloat scale = scaleHeight > scaleWidth ? scaleWidth : scaleHeight;
 
           CIFilter *resizeFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
@@ -392,8 +377,7 @@ case UIImageOrientationDownMirrored:
           [resizeFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputAspectRatio"];
           [resizeFilter setValue:[NSNumber numberWithFloat:scale] forKey:@"inputScale"];
           capturedCImage = [resizeFilter outputImage];
-        }
-        else{
+        }else{
           capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
         }
 
@@ -420,78 +404,23 @@ case UIImageOrientationDownMirrored:
 
         CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
 
-        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-
         dispatch_group_t group = dispatch_group_create();
 
-        __block NSString *originalPicturePath;
-        __block NSString *previewPicturePath;
-        __block NSError *photosAlbumError;
-
-        ALAssetOrientation orientation;
-        switch ([[UIApplication sharedApplication] statusBarOrientation]) {
-          case UIDeviceOrientationPortraitUpsideDown:
-            orientation = ALAssetOrientationLeft;
-            break;
-          case UIDeviceOrientationLandscapeLeft:
-            orientation = ALAssetOrientationUp;
-            break;
-          case UIDeviceOrientationLandscapeRight:
-            orientation = ALAssetOrientationDown;
-            break;
-          case UIDeviceOrientationPortrait:
-                                   default:
-            orientation = ALAssetOrientationRight;
-        }
-
-        // task 1
-        dispatch_group_enter(group);
-        [library writeImageToSavedPhotosAlbum:previewImage orientation:ALAssetOrientationUp completionBlock:^(NSURL *assetURL, NSError *error) {
-          if (error) {
-            NSLog(@"FAILED to save Preview picture.");
-            photosAlbumError = error;
-          } else {
-            previewPicturePath = [assetURL absoluteString];
-            NSLog(@"previewPicturePath: %@", previewPicturePath);
-          }
-          dispatch_group_leave(group);
-        }];
-
-        //task 2
-        dispatch_group_enter(group);
-        [library writeImageToSavedPhotosAlbum:finalImage orientation:orientation completionBlock:^(NSURL *assetURL, NSError *error) {
-          if (error) {
-            NSLog(@"FAILED to save Original picture.");
-            photosAlbumError = error;
-          } else {
-            originalPicturePath = [assetURL absoluteString];
-            NSLog(@"originalPicturePath: %@", originalPicturePath);
-          }
-          dispatch_group_leave(group);
-        }];
-
         dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            NSMutableArray *params = [[NSMutableArray alloc] init];
-            if (photosAlbumError) {
-            // Error returns just one element in the returned array
-            NSString * remedy = @"";
-            if (-3311 == [photosAlbumError code]) {
-            remedy = @"Go to Settings > CodeStudio and allow access to Photos";
-            }
-            [params addObject:[NSString stringWithFormat:@"CameraPreview: %@ - %@ — %@", [photosAlbumError localizedDescription], [photosAlbumError localizedFailureReason], remedy]];
-            } else {
-            // Success returns two elements in the returned array
-            UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
-            double radiants = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
-            CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadiants:radiants];
+          NSMutableArray *params = [[NSMutableArray alloc] init];
 
-            NSString *base64Image = [self getBase64Image:resultFinalImage];
-            [params addObject:base64Image];
-            }
+          UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
+          double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
+          CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
 
-            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
-            [pluginResult setKeepCallbackAsBool:true];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
+          double quality = quality / 100.0;
+
+          NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
+          [params addObject:base64Image];
+
+          CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
+          [pluginResult setKeepCallbackAsBool:true];
+          [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
         });
       }
     }];

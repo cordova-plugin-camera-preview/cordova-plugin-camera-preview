@@ -8,7 +8,6 @@
 @synthesize delegate;
 
 
-
 - (CameraRenderController *)init {
   if (self = [super init]) {
     self.renderLock = [[NSLock alloc] init];
@@ -22,8 +21,7 @@
   [self setView:glkView];
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
   [super viewDidLoad];
 
   self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
@@ -57,8 +55,7 @@
 
   if (self.tapToTakePicture) {
     //tap to take picture
-    UITapGestureRecognizer *takePictureTap =
-      [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTakePictureTap:)];
+    UITapGestureRecognizer *takePictureTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTakePictureTap:)];
     [self.view addGestureRecognizer:takePictureTap];
   }
 
@@ -126,7 +123,7 @@
       [self.sessionManager.session stopRunning];
       });
 }
-//TODO:Use TEXTURE_2D
+
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
   if ([self.renderLock tryLock]) {
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
@@ -189,8 +186,7 @@
   }
 }
 
-- (void)viewDidUnload
-{
+- (void)viewDidUnload {
   [super viewDidUnload];
 
   if ([EAGLContext currentContext] == self.context) {
@@ -199,8 +195,7 @@
   self.context = nil;
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
   // Release any cached data, images, etc. that aren't in use.
 }
@@ -208,8 +203,9 @@
 - (BOOL)shouldAutorotate {
   return YES;
 }
--(void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
+
+-(void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
   [self.sessionManager updateOrientation:[self.sessionManager getCurrentOrientation:toInterfaceOrientation]];
 }
+
 @end

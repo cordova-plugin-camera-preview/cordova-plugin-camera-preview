@@ -2,8 +2,7 @@
 
 @implementation CameraSessionManager
 
-- (CameraSessionManager *)init
-{
+- (CameraSessionManager *)init {
   if (self = [super init]) {
     // Create the AVCaptureSession
     self.session = [[AVCaptureSession alloc] init];
@@ -16,20 +15,17 @@
   return self;
 }
 
-- (NSArray *) getDeviceFormats
-{
+- (NSArray *) getDeviceFormats {
   AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
 
   return videoDevice.formats;
 }
 
-- (AVCaptureVideoOrientation) getCurrentOrientation
-{
+- (AVCaptureVideoOrientation) getCurrentOrientation {
   return [self getCurrentOrientation: [[UIApplication sharedApplication] statusBarOrientation]];
 }
 
-- (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-{
+- (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
   AVCaptureVideoOrientation orientation;
   switch (toInterfaceOrientation) {
     case UIInterfaceOrientationPortraitUpsideDown:
@@ -48,8 +44,7 @@
   return orientation;
 }
 
-- (void) setupSession:(NSString *)defaultCamera
-{
+- (void) setupSession:(NSString *)defaultCamera {
   // If this fails, video input will just stream blank frames and the user will be notified. User only has to accept once.
   [self checkDeviceAuthorizationStatus];
 
@@ -107,8 +102,7 @@
   });
 }
 
-- (void) updateOrientation:(AVCaptureVideoOrientation)orientation
-{
+- (void) updateOrientation:(AVCaptureVideoOrientation)orientation {
   AVCaptureConnection *captureConnection;
   if (self.stillImageOutput != nil) {
     captureConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -124,8 +118,7 @@
   }
 }
 
-- (void) switchCamera
-{
+- (void) switchCamera {
   if (self.defaultCamera == AVCaptureDevicePositionFront) {
     self.defaultCamera = AVCaptureDevicePositionBack;
   } else {
@@ -172,8 +165,7 @@
   });
 }
 
-- (void)setFlashMode:(NSInteger)flashMode
-{
+- (void)setFlashMode:(NSInteger)flashMode {
 
   NSString *errMsg;
 
@@ -205,8 +197,7 @@
   }
 }
 
-- (void)checkDeviceAuthorizationStatus
-{
+- (void)checkDeviceAuthorizationStatus {
   NSString *mediaType = AVMediaTypeVideo;
 
   [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
@@ -224,8 +215,7 @@
 }
 
 // Find a camera with the specified AVCaptureDevicePosition, returning nil if one is not found
-- (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition) position
-{
+- (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition) position {
   NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
   for (AVCaptureDevice *device in devices){
     if ([device position] == position)
