@@ -89,11 +89,14 @@ public class CameraActivity extends Fragment {
     return view;
   }
 
+/*
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
   }
+*/
+
   public void setRect(int x, int y, int width, int height){
     this.x = x;
     this.y = y;
