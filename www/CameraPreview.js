@@ -91,11 +91,11 @@ CameraPreview.setPreviewSize = function(width, height, onSuccess, onError){
   return exec(onSuccess, onError, PLUGIN_NAME, "setPreviewSize", [width, height]);
 }
 
-CameraPreview.getSupportedPreviewSize = function(dimensions){
+CameraPreview.getSupportedPreviewSize = function(onSuccess, onError){
   return exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPreviewSize", []);
 };
 
-CameraPreview.getSupportedPictureSize = function(dimensions){
+CameraPreview.getSupportedPictureSize = function(onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPictureSize", []);
 };
 
