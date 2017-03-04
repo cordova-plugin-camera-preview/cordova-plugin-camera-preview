@@ -35,15 +35,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private final String takePictureAction = "takePicture";
   private final String showCameraAction = "showCamera";
   private final String hideCameraAction = "hideCamera";
-
-  private final String getSupportedPreviewSizesAction = "getSupportedPreviewSizes";
-  private final String getSupportedPictureSizesAction = "getSupportedPictureSizes";    
+  private final String getSupportedPreviewSizeAction = "getSupportedPreviewSize";
+  private final String getSupportedPictureSizeAction = "getSupportedPictureSize";    
 
 
   private final String [] permissions = {
-    Manifest.permission.CAMERA,
-    Manifest.permission.READ_EXTERNAL_STORAGE,
-    Manifest.permission.WRITE_EXTERNAL_STORAGE
+    Manifest.permission.CAMERA
   };
 
   private final int permissionsReqId = 0;
@@ -69,8 +66,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else if (startCameraAction.equals(action)) {
       if (cordova.hasPermission(permissions[0])) {
         return startCamera(args, callbackContext);
-      }
-      else {
+      } else {
         execCallback = callbackContext;
         execArgs = args;
         cordova.requestPermissions(this, 0, permissions);
@@ -93,10 +89,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return showCamera(args, callbackContext);
     } else if (switchCameraAction.equals(action)) {
       return switchCamera(args, callbackContext);
-    } else if (getSupportedPreviewSizesAction.equals(action)) {
-      return getSupportedResolutions("previews", callbackContext);
-    } else if (getSupportedPictureSizesAction.equals(action)) {
-      return getSupportedResolutions("pictures", callbackContext);
+    } else if (getSupportedPreviewSizeAction.equals(action)) {
+      return getSupportedResolutions("preview", callbackContext);
+    } else if (getSupportedPictureSizeAction.equals(action)) {
+      return getSupportedResolutions("picture", callbackContext);
     }        
 
     return false;
@@ -104,10 +100,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   @Override
   public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
-    for(int r:grantResults)
-    {
-      if(r == PackageManager.PERMISSION_DENIED)
-      {
+    for(int r:grantResults){
+      if(r == PackageManager.PERMISSION_DENIED){
         execCallback.sendPluginResult(new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION));
         return;
       }
@@ -123,7 +117,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
 
     if (camera != null) {
-      supportedSizes = (type.equals("previews")) ? camera.getParameters().getSupportedPreviewSizes() : camera.getParameters().getSupportedPictureSizes();
+      supportedSizes = (type.equals("preview")) ? camera.getParameters().getSupportedPreviewSizes() : camera.getParameters().getSupportedPictureSizes();
       if (supportedSizes != null) {
         JSONArray sizes = new JSONArray();
         for (int i=0; i<supportedSizes.size(); i++) {
@@ -217,6 +211,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         }
       }
     });
+
     return true;
   }
 
@@ -226,20 +221,25 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean takePicture(final JSONArray args, CallbackContext callbackContext) {
     if(fragment == null){
+      callbackContext.error("No preview");
       return false;
     }
-    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-    pluginResult.setKeepCallback(true);
-    callbackContext.sendPluginResult(pluginResult);
+
     try {
-      double maxWidth = 0;
-      double maxHeight = 0;
-      fragment.takePicture(maxWidth, maxHeight);
+      double width = (double) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(0), metrics);
+      double height = (double) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(1), metrics);
+      fragment.takePicture(width, height);
+
+      PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+      pluginResult.setKeepCallback(true);
+      callbackContext.sendPluginResult(pluginResult);
+
+      return true;
     } catch (Exception e) {
       e.printStackTrace();
+      callbackContext.error("takePicture failed");
       return false;
     }
-    return true;
   }
 
   public void onPictureTaken(String originalPicture) {
@@ -252,11 +252,13 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean setColorEffect(final JSONArray args, CallbackContext callbackContext) {
     if(fragment == null){
+      callbackContext.error("No preview");
       return false;
     }
 
     Camera camera = fragment.getCamera();
     if (camera == null){
+      callbackContext.error("No camera");
       return true;
     }
 
@@ -286,9 +288,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       }
 
       fragment.setCameraParameters(params);
+      callbackContext.success(effect);
       return true;
     } catch(Exception e) {
       e.printStackTrace();
+      callbackContext.error("Could not set effect");
       return false;
     }
   }
@@ -296,11 +300,13 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private boolean setZoom(final JSONArray args, CallbackContext callbackContext) {
 
     if (fragment == null) {
+      callbackContext.error("No preview");
       return false;
     }
 
     Camera camera = fragment.getCamera();
     if (camera == null) {
+      callbackContext.error("No camera");
       return false;
     }
 
@@ -311,24 +317,31 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       if (camera.getParameters().isZoomSupported()) {
         params.setZoom(zoom);
         fragment.setCameraParameters(params);
+        callbackContext.success(zoom);
+        return true;
+      }else{
+        callbackContext.error("Zoom not supported");
+        return false;
       }
-
-      return true;
     } catch (Exception e) {
       e.printStackTrace();
+      callbackContext.error("Could not set zoom");
       return false;
     }
   }
 
   private boolean setPreviewSize(final JSONArray args, CallbackContext callbackContext) {
     if (fragment == null) {
+      callbackContext.error("No preview");
       return false;
     }
 
     Camera camera = fragment.getCamera();
     if (camera == null) {
+      callbackContext.error("No camera");
       return false;
     }
+
 
     Camera.Parameters params = camera.getParameters();
     try {
@@ -339,21 +352,24 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       fragment.setCameraParameters(params);
       camera.startPreview();
 
+      callbackContext.success();
       return true;
     } catch (Exception e) {
       e.printStackTrace();
-
+      callbackContext.error("Could not set preview size");
       return false;
     }
   }
 
   private boolean setFlashMode(final JSONArray args, CallbackContext callbackContext) {
     if (fragment == null) {
+      callbackContext.error("No preview");
       return false;
     }
 
     Camera camera = fragment.getCamera();
     if (camera == null) {
+      callbackContext.error("No camera");
       return false;
     }
 
@@ -382,16 +398,18 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
       fragment.setCameraParameters(params);
 
+      callbackContext.success(mode);
       return true;
     } catch (Exception e) {
       e.printStackTrace();
-
+      callbackContext.error("Could not set flash mode");
       return false;
     }
   }
 
   private boolean stopCamera(final JSONArray args, CallbackContext callbackContext) {
     if(fragment == null){
+      callbackContext.error("No preview");
       return false;
     }
 
@@ -401,11 +419,13 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragmentTransaction.commit();
     fragment = null;
 
+    callbackContext.success();
     return true;
   }
 
   private boolean showCamera(final JSONArray args, CallbackContext callbackContext) {
     if(fragment == null){
+      callbackContext.error("No preview");
       return false;
     }
 
@@ -414,10 +434,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragmentTransaction.show(fragment);
     fragmentTransaction.commit();
 
+    callbackContext.success();
     return true;
   }
   private boolean hideCamera(final JSONArray args, CallbackContext callbackContext) {
     if(fragment == null) {
+      callbackContext.error("No preview");
       return false;
     }
 
@@ -426,19 +448,23 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragmentTransaction.hide(fragment);
     fragmentTransaction.commit();
 
+    callbackContext.success();
     return true;
   }
   private boolean switchCamera(final JSONArray args, CallbackContext callbackContext) {
     if(fragment == null){
+      callbackContext.error("No preview");
       return false;
     }
     fragment.switchCamera();
+    callbackContext.success();
     return true;
   }
 
   private boolean setOnPictureTakenHandler(JSONArray args, CallbackContext callbackContext) {
     Log.d(TAG, "setOnPictureTakenHandler");
     takePictureCallbackContext = callbackContext;
+    callbackContext.success();
     return true;
   }
 }

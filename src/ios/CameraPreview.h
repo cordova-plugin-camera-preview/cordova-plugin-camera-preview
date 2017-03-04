@@ -19,7 +19,7 @@
 - (void) getSupportedPreviewSizes:(CDVInvokedUrlCommand*)command;
 - (void) getSupportedPictureSizes:(CDVInvokedUrlCommand*)command;
 
-- (void) invokeTakePicture:(CGFloat) maxWidth withHeight:(CGFloat) maxHeight;
+- (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(int) quality;
 - (void) invokeTakePicture;
 
 @property (nonatomic) CameraSessionManager *sessionManager;

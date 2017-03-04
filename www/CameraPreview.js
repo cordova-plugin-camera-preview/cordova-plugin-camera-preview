@@ -6,7 +6,7 @@ var PLUGIN_NAME = "CameraPreview";
 
 var CameraPreview = function(){};
 
-CameraPreview.startCamera = function(options,onSuccess, onError){
+CameraPreview.startCamera = function(options, onSuccess, onError){
   options = options || {};
   if(typeof(options.x) === 'undefined'){
     options.x = 0;
@@ -55,9 +55,16 @@ CameraPreview.show = function(onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "showCamera", []);
 };
 
-CameraPreview.takePicture = function(dim, onSuccess, onError){
-  dim = dim || {};
-  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [dim.maxWidth || 0, dim.maxHeight || 0]);
+CameraPreview.takePicture = function(opts, onSuccess, onError){
+  opts = opts || {};
+  opts.width = opts.width || 0;
+  opts.height = opts.height || 0;
+
+  if(!opts.quality || !(opts.quality <= 100 && opts.quality >= 0)){
+    opts.quality = 85;
+  }
+
+  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [opts.width, opts.height, opts.quality]);
 };
 
 CameraPreview.setOnPictureTakenHandler = function(onSuccess, onError) {
@@ -73,15 +80,23 @@ CameraPreview.setZoom = function(zoom, onSuccess, onError){
 }
 
 CameraPreview.setPreviewSize = function(width, height, onSuccess, onError){
+  if(!width){
+    width = 0;
+  }
+
+  if(!height){
+    height = 0;
+  }
+
   return exec(onSuccess, onError, PLUGIN_NAME, "setPreviewSize", [width, height]);
 }
 
-CameraPreview.getSupportedPreviewSizes = function(onSuccess, onError){
-  exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPreviewSizes", []);
+CameraPreview.getSupportedPreviewSize = function(dimensions){
+  return exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPreviewSize", []);
 };
 
-CameraPreview.getSupportedPictureSizes = function(onSuccess, onError){
-  exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPictureSizes", []);
+CameraPreview.getSupportedPictureSize = function(dimensions){
+  exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPictureSize", []);
 };
 
 CameraPreview.setOnLogHandler = function(onSuccess, onError) {

@@ -35,8 +35,6 @@ import android.widget.RelativeLayout;
 import org.apache.cordova.LOG;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.Exception;
 import java.lang.Integer;
@@ -340,7 +338,7 @@ public class CameraActivity extends Fragment {
     return ret;
   }
 
-  public void takePicture(final double maxWidth, final double maxHeight){
+  public void takePicture(final double maxWidth, final double maxHeight, final int quality){
     Log.d(TAG, "picture taken");
 
     final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
@@ -390,7 +388,7 @@ public class CameraActivity extends Fragment {
 
                   Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int) (finalPic.getWidth()), (int) (finalPic.getHeight()), matrix, false);
 
-                  generatePictureFromView(originalPicture);
+                  generatePictureFromView(originalPicture, compression);
                   canTakePicture = true;
                   camera.startPreview();
                 }
@@ -404,9 +402,7 @@ public class CameraActivity extends Fragment {
     }
   }
 
-  private void generatePictureFromView(final Bitmap originalPicture) {
-
-    //        final Bitmap image;
+  private void generatePictureFromView(final Bitmap originalPicture, final int quality){
     final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
     cameraLoader.setVisibility(View.VISIBLE);
     final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
@@ -414,9 +410,12 @@ public class CameraActivity extends Fragment {
       public void run() {
 
         try {
-          final File originalPictureFile = storeImage(originalPicture, "_original");
+          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+          originalPicture.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream);
+          byte[] byteArray = byteArrayOutputStream.toByteArray();
+          String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
 
-          eventListener.onPictureTaken(originalPictureFile.getAbsolutePath());
+          eventListener.onPictureTaken(encodedImage);
 
           getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -437,67 +436,6 @@ public class CameraActivity extends Fragment {
         }
       }
     }.start();
-  }
-
-  private File getOutputMediaFile(String suffix){
-
-    File mediaStorageDir = getActivity().getApplicationContext().getFilesDir();
-    /*if(Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED && Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED_READ_ONLY) {
-      mediaStorageDir = new File(Environment.getExternalStorageDirectory() + "/Android/data/" + getActivity().getApplicationContext().getPackageName() + "/Files");
-      }*/
-    if (! mediaStorageDir.exists()){
-      if (! mediaStorageDir.mkdirs()){
-        return null;
-      }
-    }
-    // Create a media file name
-    String timeStamp = new SimpleDateFormat("dd_MM_yyyy_HHmm_ss").format(new Date());
-    File mediaFile;
-    String mImageName = "camerapreview_" + timeStamp + suffix + ".jpg";
-    mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
-    return mediaFile;
-  }
-
-  private File storeImage(Bitmap image, String suffix) {
-    File pictureFile = getOutputMediaFile(suffix);
-    if (pictureFile != null) {
-      try {
-        FileOutputStream fos = new FileOutputStream(pictureFile);
-        image.compress(Bitmap.CompressFormat.JPEG, 80, fos);
-        fos.close();
-        return pictureFile;
-      } catch (Exception ex) {
-      }
-    }
-    return null;
-  }
-
-  public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-    // Raw height and width of image
-    final int height = options.outHeight;
-    final int width = options.outWidth;
-    int inSampleSize = 1;
-
-    if (height > reqHeight || width > reqWidth) {
-
-      final int halfHeight = height / 2;
-      final int halfWidth = width / 2;
-
-      // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-      // height and width larger than the requested height and width.
-      while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth) {
-        inSampleSize *= 2;
-      }
-    }
-    return inSampleSize;
-  }
-
-  private Bitmap loadBitmapFromView(View v) {
-    Bitmap b = Bitmap.createBitmap(v.getMeasuredWidth(), v.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-    Canvas c = new Canvas(b);
-    v.layout(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
-    v.draw(c);
-    return b;
   }
 
   @Override
