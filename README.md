@@ -8,6 +8,7 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
 **PR's are greatly appreciated. If your interested in maintainer status please create a couple PR's and then contact westonganger@gmail.com**
 
 ### Features
+
 <ul>
   <li>Start a camera preview from HTML code.</li>
   <li>Drag the preview box.</li>
@@ -20,7 +21,9 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
 </ul>
 
 #### Android only features
-<p>These are some features that are currently Android only, however we would love to see PR's for this functionality in iOS.
+
+These are some features that are currently Android only, however we would love to see PR's for this functionality in iOS.
+
 <ul>
   <li>Zoom</li>
   <li>Auto focus</li>
