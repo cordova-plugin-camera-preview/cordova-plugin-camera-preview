@@ -7,7 +7,7 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
 
 **PR's are greatly appreciated. If your interested in maintainer status please create a couple PR's and then contact westonganger@gmail.com**
 
-### Features
+# Features
 
 <ul>
   <li>Start a camera preview from HTML code.</li>
@@ -20,7 +20,7 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Maintain HTML interactivity.</li>
 </ul>
 
-#### Android only features
+### Android only features
 
 These are some features that are currently Android only, however we would love to see PR's for this functionality in iOS.
 
@@ -30,7 +30,7 @@ These are some features that are currently Android only, however we would love t
   <li>Different modes of flash</li>
 </ul>
 
-### Installation
+# Installation
 
 Use any one of the installation methods listed below depending on which framework you use.
 
@@ -57,11 +57,12 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 ```
 -->
 
-### Methods
+# Methods
 
-* Note: The successCallback and errorCallback options are all optional *
+**Note: The successCallback and errorCallback options are all optional**
 
-**startCamera(options, [successCallback, errorCallback])**<br/>
+### startCamera(options, [successCallback, errorCallback])
+
 <info>
 Starts the camera preview instance.
 <br/>
@@ -80,14 +81,16 @@ html, body {
 CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", tapPhoto: true, previewDrag: false, toBack: false});
 ```
 
-**stopCamera([successCallback, errorCallback])**<br/>
+### stopCamera([successCallback, errorCallback])
+
 <info>Stops the camera preview instance.</info><br/>
 
 ```javascript
 CameraPreview.stopCamera();
 ```
 
-**setOnPictureTakenHandler(onPictureTakenCallback)**<br/>
+### setOnPictureTakenHandler(onPictureTakenCallback)
+
 <info>Register a callback function that receives the image captured from the preview box.</info><br/>
 
 ```javascript
@@ -103,63 +106,72 @@ CameraPreview.setOnPictureTakenHandler(function(base64PictureData) {
 });
 ```
 
-**takePicture([dimensions, quality=85, successCallback, errorCallback])**<br/>
+### takePicture([dimensions, quality=85, successCallback, errorCallback])
+
 <info>Take the picture. The arguments `dimensions` defaults to max supported photo resolution. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
 
 ```javascript
 CameraPreview.takePicture({width:640, height:640});
 ```
 
-**switchCamera([successCallback, errorCallback])**<br/>
+### switchCamera([successCallback, errorCallback])
+
 <info>Switch between the rear camera and front camera, if available.</info><br/>
 
 ```javascript
 CameraPreview.switchCamera();
 ```
 
-**show([successCallback, errorCallback])**<br/>
+### show([successCallback, errorCallback])
+
 <info>Show the camera preview box.</info><br/>
 
 ```javascript
 CameraPreview.show();
 ```
 
-**hide([successCallback, errorCallback])**<br/>
+### hide([successCallback, errorCallback])
+
 <info>Hide the camera preview box.</info><br/>
 
 ```javascript
 CameraPreview.hide();
 ```
 
-**setFlashMode(flashMode, [successCallback, errorCallback])**<br/>
+### setFlashMode(flashMode, [successCallback, errorCallback])
+
 <info>Set the flash mode. Options are `OFF`, `ON`, `AUTO`, `TORCH`</info><br/>
 
 ```javascript
 CameraPreview.setFlashMode('ON');
 ```
 
-**setColorEffect(colorEffect, [successCallback, errorCallback])**<br/>
+### setColorEffect(colorEffect, [successCallback, errorCallback])
+
 <info>Set the color effect.<br>iOS Effects: `none`, `mono`, `negative`, `posterize`, `sepia`.<br>Android Effects: `none`, `mono`, `negative`, `posterize`, `sepia`, `aqua`, `blackboard`, `solarize`, `whiteboard`</info><br/>
 
 ```javascript
 CameraPreview.setColorEffect('sepia');
 ```
 
-**setZoom(zoomMultiplier, [successCallback, errorCallback])**<br/>
+### setZoom(zoomMultiplier, [successCallback, errorCallback])
+
 <info>Set the zoom level. zoomMultipler option accepts an integer.</info><br/>
 
 ```javascript
 CameraPreview.setZoom(2);
 ```
 
-**setPreviewSize(width, height, [successCallback, errorCallback])**<br/>
+### setPreviewSize(width, height, [successCallback, errorCallback])
+
 <info>Change the size of the preview window.</info><br/>
 
 ```javascript
 CameraPreview.setPreviewSize(window.screen.width, window.screen.height);
 ```
 
-**getSupportedPreviewSize([successCallback, errorCallback])**<br/>
+### getSupportedPreviewSize([successCallback, errorCallback])
+
 <info></info><br/>
 
 ```javascript
@@ -169,7 +181,8 @@ CameraPreview.getSupportedPreviewSize(function(dimensions){
 });
 ```
 
-**getSupportedPictureSize([successCallback, errorCallback])**<br/>
+### getSupportedPictureSize([successCallback, errorCallback])
+
 <info></info><br/>
 
 ```javascript
@@ -179,7 +192,8 @@ CameraPreview.getSupportedPictureSize(function(dimensions){
 });
 ```
 
-**setOnLogHandler([successCallback, errorCallback])**<br/>
+### setOnLogHandler([successCallback, errorCallback])
+
 <info></info><br/>
 
 ```javascript
@@ -191,7 +205,6 @@ CameraPreview.setOnLogHandler(function(){
 
 ### IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
-
 
 ### Sample App
 <a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview-sample-app">cordova-plugin-camera-preview-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
