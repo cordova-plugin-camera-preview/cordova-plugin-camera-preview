@@ -203,12 +203,21 @@ CameraPreview.setOnLogHandler(function(){
 ```
 
 
-### IOS Quirks
+# IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
 
-### Sample App
+# Sample App
+
 <a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview-sample-app">cordova-plugin-camera-preview-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
 
-### Screenshots
-<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/></p>
-<p><img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/></p>
+# Screenshots
+
+<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/>
+
+<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/>
+
+# Credits
+
+Maintained by Weston Ganger - [@westonganger](https://github.com/westonganger)
+
+Created by Marcel Barbosa Pinto [@mbppower](https://github.com/mbppower)
