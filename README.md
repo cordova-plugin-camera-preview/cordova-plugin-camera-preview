@@ -172,8 +172,6 @@ CameraPreview.setPreviewSize({width: window.screen.width, height: window.screen.
 
 ### getSupportedPreviewSize([successCallback, errorCallback])
 
-<info></info><br/>
-
 ```javascript
 CameraPreview.getSupportedPreviewSize(function(dimensions){
   console.log('Width: ' + dimensions.width); 
@@ -183,8 +181,6 @@ CameraPreview.getSupportedPreviewSize(function(dimensions){
 
 ### getSupportedPictureSize([successCallback, errorCallback])
 
-<info></info><br/>
-
 ```javascript
 CameraPreview.getSupportedPictureSize(function(dimensions){
   console.log('Width: ' + dimensions.width); 
@@ -192,6 +188,13 @@ CameraPreview.getSupportedPictureSize(function(dimensions){
 });
 ```
 
+### setOnLogHandler([successCallback, errorCallback])
+
+```javascript
+CameraPreview.setOnLogHandler(function(){
+  console.log('log handler set!');
+});
+```
 
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
@@ -202,9 +205,7 @@ It is not possible to use your computers webcam during testing in the simulator,
 
 # Screenshots
 
-<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/>
-
-<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/>
+<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/> <img hspace="20" src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/>
 
 # Credits
 
