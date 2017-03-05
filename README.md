@@ -162,17 +162,15 @@ CameraPreview.setColorEffect('sepia');
 CameraPreview.setZoom(2);
 ```
 
-### setPreviewSize(width, height, [successCallback, errorCallback])
+### setPreviewSize([dimensions, successCallback, errorCallback])
 
 <info>Change the size of the preview window.</info><br/>
 
 ```javascript
-CameraPreview.setPreviewSize(window.screen.width, window.screen.height);
+CameraPreview.setPreviewSize({width: window.screen.width, height: window.screen.height});
 ```
 
 ### getSupportedPreviewSize([successCallback, errorCallback])
-
-<info></info><br/>
 
 ```javascript
 CameraPreview.getSupportedPreviewSize(function(dimensions){
@@ -183,8 +181,6 @@ CameraPreview.getSupportedPreviewSize(function(dimensions){
 
 ### getSupportedPictureSize([successCallback, errorCallback])
 
-<info></info><br/>
-
 ```javascript
 CameraPreview.getSupportedPictureSize(function(dimensions){
   console.log('Width: ' + dimensions.width); 
@@ -193,8 +189,6 @@ CameraPreview.getSupportedPictureSize(function(dimensions){
 ```
 
 ### setOnLogHandler([successCallback, errorCallback])
-
-<info></info><br/>
 
 ```javascript
 CameraPreview.setOnLogHandler(function(){

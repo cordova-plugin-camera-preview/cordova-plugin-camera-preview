@@ -172,7 +172,8 @@
   if (self.cameraRenderController != NULL) {
     CGFloat width = (CGFloat)[command.arguments[0] floatValue];
     CGFloat height = (CGFloat)[command.arguments[1] floatValue];
-    [self invokeTakePicture:width withHeight:height withQuality:85];
+    CGFloat quality = (CGFloat)[command.arguments[2] floatValue] / 100;
+    [self invokeTakePicture:width withHeight:height withQuality:quality];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -412,8 +413,6 @@
           UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
           double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
           CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
-
-          double quality = quality / 100.0;
 
           NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
           [params addObject:base64Image];

@@ -8,30 +8,16 @@ var CameraPreview = function(){};
 
 CameraPreview.startCamera = function(options, onSuccess, onError){
   options = options || {};
-  if(typeof(options.x) === 'undefined'){
-    options.x = 0;
-  }
-  if(typeof(options.y) === 'undefined'){
-    options.y = 0;
-  }
-  if(typeof(options.width) === 'undefined'){
-    options.width = window.screen.width;
-  }
-  if(typeof(options.height) === 'undefined'){
-    options.height = window.screen.height;
-  }
-  if(typeof(options.camera) === 'undefined'){
-    options.camera = 'front';
-  }
+  options.x = options.x || 0;
+  options.y = options.y || 0;
+  options.width = options.width || window.screen.width;
+  options.height = options.height || window.screen.height;
+  options.camera = options.camera || 'front';
   if(typeof(options.tapPhoto) === 'undefined'){
     options.tapPhoto = true;
   }
-  if(typeof(options.previewDrag) === 'undefined'){
-    options.previewDrag = false;
-  }
-  if(typeof(options.toBack) === 'undefined'){
-    options.toBack = false;
-  }
+  options.previewDrag = options.previewDrag || false;
+  options.toBack = options.toBack || false;
   if(typeof(options.alpha) === 'undefined'){
     options.alpha = 1;
   }
@@ -79,16 +65,12 @@ CameraPreview.setZoom = function(zoom, onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "setZoom", [zoom]);
 }
 
-CameraPreview.setPreviewSize = function(width, height, onSuccess, onError){
-  if(!width){
-    width = 0;
-  }
+CameraPreview.setPreviewSize = function(dimensions, onSuccess, onError){
+  dimensions = dimensions || {};
+  dimensions.width = dimensions.width || window.screen.width;
+  dimensions.height = dimensions.height || window.screen.height;
 
-  if(!height){
-    height = 0;
-  }
-
-  return exec(onSuccess, onError, PLUGIN_NAME, "setPreviewSize", [width, height]);
+  return exec(onSuccess, onError, PLUGIN_NAME, "setPreviewSize", [dimensions.width, dimensions.height]);
 }
 
 CameraPreview.getSupportedPreviewSize = function(onSuccess, onError){
