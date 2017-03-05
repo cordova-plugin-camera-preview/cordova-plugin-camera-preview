@@ -142,7 +142,7 @@ public class CameraActivity extends Fragment {
               boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
               if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
                 if (tapToTakePicture) {
-                  takePicture(0, 0);
+                  takePicture(0, 0, 85);
                 }
                 return true;
               }
@@ -391,7 +391,7 @@ public class CameraActivity extends Fragment {
 
                   Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int) (finalPic.getWidth()), (int) (finalPic.getHeight()), matrix, false);
 
-                  generatePictureFromView(originalPicture, compression);
+                  generatePictureFromView(originalPicture, quality);
                   canTakePicture = true;
                   camera.startPreview();
                 }
