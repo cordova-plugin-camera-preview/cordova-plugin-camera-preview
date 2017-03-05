@@ -250,6 +250,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     pluginResult.setKeepCallback(true);
     Log.d(TAG, "returning picture");
     takePictureCallbackContext.sendPluginResult(pluginResult);
+    return true;
   }
 
   private boolean setColorEffect(final JSONArray args, CallbackContext callbackContext) {
