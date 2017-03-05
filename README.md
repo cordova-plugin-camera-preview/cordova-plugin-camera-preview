@@ -106,12 +106,12 @@ CameraPreview.setOnPictureTakenHandler(function(base64PictureData) {
 });
 ```
 
-### takePicture([dimensions, quality=85, successCallback, errorCallback])
+### takePicture([options, successCallback, errorCallback])
 
-<info>Take the picture. The arguments `dimensions` defaults to max supported photo resolution. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
+<info>Take the picture. The defaults to max supported photo resolution if no width or height speicified. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
 
 ```javascript
-CameraPreview.takePicture({width:640, height:640});
+CameraPreview.takePicture({width:640, height:640, quality: 85});
 ```
 
 ### switchCamera([successCallback, errorCallback])
