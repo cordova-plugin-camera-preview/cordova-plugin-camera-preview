@@ -47,7 +47,7 @@
 
     if (toBack) {
       // display the camera below the webview
-      
+
       // make transparent
       self.webView.opaque = NO;
       self.webView.backgroundColor = [UIColor clearColor];
@@ -172,7 +172,7 @@
   if (self.cameraRenderController != NULL) {
     CGFloat width = (CGFloat)[command.arguments[0] floatValue];
     CGFloat height = (CGFloat)[command.arguments[1] floatValue];
-    [self invokeTakePicture:width withHeight:height];
+    [self invokeTakePicture:width withHeight:height withQuality:0.85];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -287,7 +287,7 @@
   double radians;
 
   switch ([[UIApplication sharedApplication] statusBarOrientation]) {
-    case UIDeviceOrientationPortraitUp:
+    case UIDeviceOrientationPortrait:
       radians = M_PI_2;
       break;
     case UIDeviceOrientationLandscapeLeft:
@@ -387,9 +387,9 @@
         //fix front mirroring
         if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
           CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
-          imageToFilter = [capturedCImage imageByApplyingTransform:matrix]; 
+          imageToFilter = [capturedCImage imageByApplyingTransform:matrix];
         } else {
-          imageToFilter = capturedCImage;                    
+          imageToFilter = capturedCImage;
         }
 
         CIFilter *filter = [self.sessionManager ciFilter];
