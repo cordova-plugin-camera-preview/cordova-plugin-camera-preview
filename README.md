@@ -74,7 +74,7 @@ All options stated are optional and will default to values here
 * `y` - Defaults to 0
 * `width` - Defaults to window.device.width
 * `height` - Defaults to window.device.height
-* `camera` - Options are 'front' and 'back'  - Defaults to 'front'
+* `camera` - Options are 'front' and 'rear'  - Defaults to 'rear'
 * `toBack` - Defaults to false - Set to true if you want your html in front of your preview
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
 * `previewDrag` - Defaults to true - Does not work if toBack is set to false
