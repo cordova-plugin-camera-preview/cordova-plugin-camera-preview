@@ -41,7 +41,7 @@ CameraPreview.show = function(onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "showCamera", []);
 };
 
-CameraPreview.takePicture = function(opts, onSuccess, onError){
+CameraPreview.takePicture = function(opts, onError){
   opts = opts || {};
   opts.width = opts.width || 0;
   opts.height = opts.height || 0;
@@ -50,7 +50,7 @@ CameraPreview.takePicture = function(opts, onSuccess, onError){
     opts.quality = 85;
   }
 
-  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [opts.width, opts.height, opts.quality]);
+  exec(null, onError, PLUGIN_NAME, "takePicture", [opts.width, opts.height, opts.quality]);
 };
 
 CameraPreview.setOnPictureTakenHandler = function(cb) {
