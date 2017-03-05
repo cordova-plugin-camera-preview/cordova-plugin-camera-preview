@@ -172,7 +172,7 @@
   if (self.cameraRenderController != NULL) {
     CGFloat width = (CGFloat)[command.arguments[0] floatValue];
     CGFloat height = (CGFloat)[command.arguments[1] floatValue];
-    [self invokeTakePicture:width withHeight:height withQuality:0.85];
+    [self invokeTakePicture:width withHeight:height withQuality:85];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -344,7 +344,7 @@
 }
 
 - (void) invokeTakePicture {
-  [self invokeTakePicture:0.0 withHeight:0.0 withQuality:0.85];
+  [self invokeTakePicture:0.0 withHeight:0.0 withQuality:85];
 }
 
 - (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(int) quality{
