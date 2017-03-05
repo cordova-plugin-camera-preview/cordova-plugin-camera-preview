@@ -67,18 +67,28 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 Starts the camera preview instance.
 <br/>
 <br/>
+**Options:**
+All options stated are optional and will default to values here
+
+* `x` - Defaults to 0
+* `y` - Defaults to 0
+* `width` - Defaults to window.device.width
+* `height` - Defaults to window.device.height
+* `camera` - Options are 'front' and 'back'  - Defaults to 'front'
+* `toBack` - Defaults to false - Set to true if you want your html in front of your preview
+* `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
+* `previewDrag` - Defaults to true - Does not work if toBack is set to false
+
+```javascript
+CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", toBack: false, tapPhoto: true, previewDrag: false});
+```
+
 When setting the toBack to true, remember to add the style below on your app's HTML or body element:
-</info>
 
 ```css
 html, body {
   background-color: transparent;
 }
-```
-
-```javascript
-/* All options stated are optional and will default to values here */
-CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", tapPhoto: true, previewDrag: false, toBack: false});
 ```
 
 ### stopCamera([successCallback, errorCallback])
