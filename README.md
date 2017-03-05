@@ -99,7 +99,7 @@ html, body {
 CameraPreview.stopCamera();
 ```
 
-### setOnPictureTakenHandler(onPictureTakenCallback)
+### setOnPictureTakenHandler(cb)
 
 <info>Register a callback function that receives the image captured from the preview box.</info><br/>
 
@@ -180,7 +180,7 @@ CameraPreview.setZoom(2);
 CameraPreview.setPreviewSize({width: window.screen.width, height: window.screen.height});
 ```
 
-### getSupportedPreviewSize([successCallback, errorCallback])
+### getSupportedPreviewSize(cb, [errorCallback])
 
 ```javascript
 CameraPreview.getSupportedPreviewSize(function(dimensions){
@@ -189,7 +189,7 @@ CameraPreview.getSupportedPreviewSize(function(dimensions){
 });
 ```
 
-### getSupportedPictureSize([successCallback, errorCallback])
+### getSupportedPictureSize(cb, [errorCallback])
 
 ```javascript
 CameraPreview.getSupportedPictureSize(function(dimensions){
