@@ -93,7 +93,7 @@ public class CameraActivity extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
   }
 */
 
@@ -142,7 +142,7 @@ public class CameraActivity extends Fragment {
               boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
               if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
                 if (tapToTakePicture) {
-                  takePicture(0, 0);
+                  takePicture(0, 0, 85);
                 }
                 return true;
               }
@@ -262,7 +262,7 @@ public class CameraActivity extends Fragment {
     if (mCamera != null) {
       setDefaultCameraId();
       mPreview.setCamera(null, -1);
-      mCamera.setPreviewCallback(null);           
+      mCamera.setPreviewCallback(null);
       mCamera.release();
       mCamera = null;
     }
@@ -391,7 +391,7 @@ public class CameraActivity extends Fragment {
 
                   Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int) (finalPic.getWidth()), (int) (finalPic.getHeight()), matrix, false);
 
-                  generatePictureFromView(originalPicture, compression);
+                  generatePictureFromView(originalPicture, quality);
                   canTakePicture = true;
                   camera.startPreview();
                 }
