@@ -13,33 +13,57 @@
       </div>
 
       <div class="block">
-        <p><button id="startCameraAnotherPosButton">Start Camera at front</button></p>
+        <p style="margin-top:0px"><button id="startCameraAnotherPosButton">Start Camera at front</button></p>
 
-        <p>Color Effect:
-        <select id="colorEffectCombo">
-          <option selected value="none">None</option>
-          <option value="aqua">Aqua</option>
-          <option value="blackboard">Blackboard</option>
-          <option value="mono">Mono</option>
-          <option value="negative">Negative</option>
-          <option value="posterize">Posterize</option>
-          <option value="sepia">Sepia</option>
-          <option value="solarize">Solarize</option>
-          <option value="whiteboard">Whiteboard</option>
-        </select>
+        <p style="margin-bottom:0px">
+          Color Effect:
+          <select id="selectColorEffect">
+            <option selected value="none">none</option>
+            <option value="aqua">aqua</option>
+            <option value="blackboard">blackboard</option>
+            <option value="mono">mono</option>
+            <option value="negative">negative</option>
+            <option value="posterize">Posterize</option>
+            <option value="sepia">Sepia</option>
+            <option value="solarize">Solarize</option>
+            <option value="whiteboard">Whiteboard</option>
+          </select>
         </p>
+
+        <div id="androidOnly">
+          <p style="margin-bottom:0px;">
+            Flash Mode:
+            <select id="selectFlashMode">
+              <option selected value="OFF">OFF</option>
+              <option value="ON">ON</option>
+              <option value="AUTO">AUTO</option>
+              <option value="TORCH">TORCH</option>
+            </select>
+          </p>
+
+          <p style="margin-bottom:0px;">
+            Zoom:
+            <span id="zoomValue"style="margin: 0 5px;"></span>
+            <input type="range" id="zoomSlider" min="0" max="5" />
+          </p>
+        </div>
       </div>
       <div class="block">
         <button id="takePictureButton">Take Picture</button>
         <button id="switchCameraButton">Switch Camera</button>
+        <button id="togglePreviewSize">Change Preview Size</button>
       </div>
       <div class="block">
         <button id="hideButton">Hide</button>
         <button id="showButton">Show</button>
       </div>
+      <div class="block">
+        <button id="showSupportedPreviewSize">Supported Preview Size</button>
+        <button id="showSupportedPictureSize">Supported Picture Size</button>
+      </div>
     </div>
+
     <div class="pictures">
-      <p><img id="previewPicture" width="200"/></p>
       <p><img id="originalPicture" width="200"/></p>
     </div>
 
