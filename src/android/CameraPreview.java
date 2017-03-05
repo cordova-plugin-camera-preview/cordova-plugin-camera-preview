@@ -467,7 +467,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private boolean setOnPictureTakenHandler(JSONArray args, CallbackContext callbackContext) {
     Log.d(TAG, "setOnPictureTakenHandler");
     takePictureCallbackContext = callbackContext;
-    callbackContext.success();
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+    pluginResult.setKeepCallback(true);
+    callbackContext.sendPluginResult(pluginResult);
     return true;
   }
 }
