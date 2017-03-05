@@ -172,8 +172,6 @@ CameraPreview.setPreviewSize({width: window.screen.width, height: window.screen.
 
 ### getSupportedPreviewSize([successCallback, errorCallback])
 
-<info></info><br/>
-
 ```javascript
 CameraPreview.getSupportedPreviewSize(function(dimensions){
   console.log('Width: ' + dimensions.width); 
@@ -183,8 +181,6 @@ CameraPreview.getSupportedPreviewSize(function(dimensions){
 
 ### getSupportedPictureSize([successCallback, errorCallback])
 
-<info></info><br/>
-
 ```javascript
 CameraPreview.getSupportedPictureSize(function(dimensions){
   console.log('Width: ' + dimensions.width); 
@@ -193,8 +189,6 @@ CameraPreview.getSupportedPictureSize(function(dimensions){
 ```
 
 ### setOnLogHandler([successCallback, errorCallback])
-
-<info></info><br/>
 
 ```javascript
 CameraPreview.setOnLogHandler(function(){
