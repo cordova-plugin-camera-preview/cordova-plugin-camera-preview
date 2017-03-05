@@ -35,14 +35,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private final String takePictureAction = "takePicture";
   private final String showCameraAction = "showCamera";
   private final String hideCameraAction = "hideCamera";
-<<<<<<< HEAD
-
-  private final String getSupportedPreviewSizesAction = "getSupportedPreviewSizes";
-  private final String getSupportedPictureSizesAction = "getSupportedPictureSizes";
-=======
   private final String getSupportedPreviewSizeAction = "getSupportedPreviewSize";
-  private final String getSupportedPictureSizeAction = "getSupportedPictureSize";    
->>>>>>> a08c8e37682d75fc761172a581fc301e2a5d07cb
+  private final String getSupportedPictureSizeAction = "getSupportedPictureSize";
 
 
   private final String [] permissions = {
@@ -95,19 +89,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return showCamera(args, callbackContext);
     } else if (switchCameraAction.equals(action)) {
       return switchCamera(args, callbackContext);
-<<<<<<< HEAD
-    } else if (getSupportedPreviewSizesAction.equals(action)) {
-      return getSupportedResolutions("previews", callbackContext);
-    } else if (getSupportedPictureSizesAction.equals(action)) {
-      return getSupportedResolutions("pictures", callbackContext);
-    }
-=======
     } else if (getSupportedPreviewSizeAction.equals(action)) {
       return getSupportedResolutions("preview", callbackContext);
     } else if (getSupportedPictureSizeAction.equals(action)) {
       return getSupportedResolutions("picture", callbackContext);
-    }        
->>>>>>> a08c8e37682d75fc761172a581fc301e2a5d07cb
+    }
 
     return false;
   }

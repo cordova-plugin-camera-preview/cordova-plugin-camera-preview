@@ -413,23 +413,11 @@ public class CameraActivity extends Fragment {
       public void run() {
 
         try {
-<<<<<<< HEAD
-          //final File originalPictureFile = storeImage(originalPicture, "_original");
-
-          //eventListener.onPictureTaken(originalPictureFile.getAbsolutePath());
-          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-          originalPicture.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream);
-          byte[] byteArray = byteArrayOutputStream.toByteArray();
-
-          String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
-
-=======
           ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
           originalPicture.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream);
           byte[] byteArray = byteArrayOutputStream.toByteArray();
           String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
 
->>>>>>> a08c8e37682d75fc761172a581fc301e2a5d07cb
           eventListener.onPictureTaken(encodedImage);
 
           getActivity().runOnUiThread(new Runnable() {
