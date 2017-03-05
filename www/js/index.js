@@ -1,10 +1,10 @@
 var app = {
   startCamera: function(){
-    CameraPreview.startCamera();
+    CameraPreview.startCamera({x: 50, y: 50, width: 300, height: 300, toBack: false, previewDrag: true, tapPhoto: true});
   },
 
   startCameraAnotherPos: function(){
-    CameraPreview.startCamera({x: 50, y: 100, width: 300, height:300, camera: "back", tapPhoto: true, previewDrag: true, toBack: false});
+    CameraPreview.startCamera({x: 50, y: 50, width: 300, height:300, camera: "front", tapPhoto: true, previewDrag: false, toBack: true});
   },
 
   stopCamera: function(){
@@ -52,18 +52,17 @@ var app = {
     }
   },
 
-  showSupportedSize: function(type){
-    if(type === 'picture'){
-      CameraPreview.getSupportedPictureSize(function(dimensions){
-        alert("Supported Picture Size\n\nWidth: " + dimensions.width + "\nHeight: " + 'dimensions.height');
-      });
-    }else{
-      CameraPreview.getSupportedPreviewSize(function(dimensions){
-        alert("Supported Preview Size\n\nWidth: " + dimensions.width + "\nHeight: " + 'dimensions.height');
-      });
-    }
-  }
+  showSupportedPreviewSize: function(){
+    CameraPreview.getSupportedPreviewSize(function(dimensions){
+      alert("Supported Preview Size\n\nWidth: " + dimensions.width + "\nHeight: " + 'dimensions.height');
+    });
+  },
 
+  showSupportedPictureSize: function(){
+    CameraPreview.getSupportedPictureSize(function(dimensions){
+      alert("Supported Picture Size\n\nWidth: " + dimensions.width + "\nHeight: " + 'dimensions.height');
+    });
+  },
 
   init: function(){
     document.getElementById('startCameraButton').addEventListener('click', this.startCamera, false);
@@ -75,6 +74,7 @@ var app = {
     document.getElementById('hideButton').addEventListener('click', this.hide, false);
     
     CameraPreview.setOnPictureTakenHandler(function(imgData){
+      alert('pic taken');
       document.getElementById('originalPicture').src = 'data:image/jpeg;base64,' + imgData;
     });
 
@@ -90,10 +90,10 @@ var app = {
     }
 
     window.smallPreview = false;
-    document.getElementById('togglePreviewSize').addEventListener('click', this.changePreviewSize, false);
+    document.getElementById('chagePreviewSize').addEventListener('click', this.changePreviewSize, false);
 
-    document.getElementById('showSupportedPreviewSize').addEventListener('click', this.showSupportedSize('preview'), false);
-    document.getElementById('showSupportedPictureSize').addEventListener('click', this.showSupportedSize('picture'), false);
+    document.getElementById('showSupportedPreviewSize').addEventListener('click', this.showSupportedPreviewSize, false);
+    document.getElementById('showSupportedPictureSize').addEventListener('click', this.showSupportedPictureSize, false);
 
     // legacy - not sure if this was supposed to fix anything
     //window.addEventListener('orientationchange', this.onStopCamera, false);

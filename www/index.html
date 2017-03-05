@@ -8,12 +8,12 @@
   <body>
     <div class="controls">
       <div class="block">
-        <button id="startCameraButton">Start Camera at back</button>
+        <button id="startCameraButton">Start Rear Camera toBack=false</button>
         <button id="stopCameraButton">Stop Camera</button>
       </div>
 
       <div class="block">
-        <p style="margin-top:0px"><button id="startCameraAnotherPosButton">Start Camera at front</button></p>
+        <p style="margin-top:0px"><button id="startCameraAnotherPosButton">Start Front Camera toBack=true</button></p>
 
         <p style="margin-bottom:0px">
           Color Effect:
@@ -23,10 +23,10 @@
             <option value="blackboard">blackboard</option>
             <option value="mono">mono</option>
             <option value="negative">negative</option>
-            <option value="posterize">Posterize</option>
-            <option value="sepia">Sepia</option>
-            <option value="solarize">Solarize</option>
-            <option value="whiteboard">Whiteboard</option>
+            <option value="posterize">posterize</option>
+            <option value="sepia">sepia</option>
+            <option value="solarize">solarize</option>
+            <option value="whiteboard">whiteboard</option>
           </select>
         </p>
 
@@ -51,7 +51,7 @@
       <div class="block">
         <button id="takePictureButton">Take Picture</button>
         <button id="switchCameraButton">Switch Camera</button>
-        <button id="togglePreviewSize">Change Preview Size</button>
+        <button id="changePreviewSize">Change Preview Size</button>
       </div>
       <div class="block">
         <button id="hideButton">Hide</button>
@@ -68,7 +68,7 @@
     </div>
 
     <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="js/index.js"></script>
     <script type="text/javascript" src="CameraPreview.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
   </body>
 </html>
