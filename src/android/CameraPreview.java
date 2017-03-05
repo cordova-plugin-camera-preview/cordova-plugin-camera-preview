@@ -229,7 +229,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
       double width = (double) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(0), metrics);
       double height = (double) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(1), metrics);
-      int quality = args.getInt(3);
+      int quality = args.getInt(2);
       fragment.takePicture(width, height, quality);
 
       PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
