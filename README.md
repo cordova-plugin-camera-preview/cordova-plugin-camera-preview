@@ -188,14 +188,6 @@ CameraPreview.getSupportedPictureSize(function(dimensions){
 });
 ```
 
-### setOnLogHandler([successCallback, errorCallback])
-
-```javascript
-CameraPreview.setOnLogHandler(function(){
-  console.log('log handler set!');
-});
-```
-
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
 
