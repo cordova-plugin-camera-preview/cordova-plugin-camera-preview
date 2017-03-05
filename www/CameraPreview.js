@@ -41,7 +41,7 @@ CameraPreview.show = function(onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "showCamera", []);
 };
 
-CameraPreview.takePicture = function(opts, onSuccess, onError){
+CameraPreview.takePicture = function(opts, onError){
   opts = opts || {};
   opts.width = opts.width || 0;
   opts.height = opts.height || 0;
@@ -50,11 +50,11 @@ CameraPreview.takePicture = function(opts, onSuccess, onError){
     opts.quality = 85;
   }
 
-  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [opts.width, opts.height, opts.quality]);
+  exec(null, onError, PLUGIN_NAME, "takePicture", [opts.width, opts.height, opts.quality]);
 };
 
-CameraPreview.setOnPictureTakenHandler = function(onSuccess, onError) {
-  exec(onSuccess, onError, PLUGIN_NAME, "setOnPictureTakenHandler", []);
+CameraPreview.setOnPictureTakenHandler = function(cb) {
+  exec(cb, null, PLUGIN_NAME, "setOnPictureTakenHandler", []);
 };
 
 CameraPreview.setColorEffect = function(effect, onSuccess, onError){
@@ -79,10 +79,6 @@ CameraPreview.getSupportedPreviewSize = function(onSuccess, onError){
 
 CameraPreview.getSupportedPictureSize = function(onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPictureSize", []);
-};
-
-CameraPreview.setOnLogHandler = function(onSuccess, onError) {
-  exec(onSuccess, onError, PLUGIN_NAME, "wLog", []);
 };
 
 CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {

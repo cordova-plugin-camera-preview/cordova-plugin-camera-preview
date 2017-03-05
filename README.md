@@ -67,18 +67,28 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 Starts the camera preview instance.
 <br/>
 <br/>
+**Options:**
+All options stated are optional and will default to values here
+
+* `x` - Defaults to 0
+* `y` - Defaults to 0
+* `width` - Defaults to window.device.width
+* `height` - Defaults to window.device.height
+* `camera` - Options are 'front' and 'rear'  - Defaults to 'rear'
+* `toBack` - Defaults to false - Set to true if you want your html in front of your preview
+* `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
+* `previewDrag` - Defaults to true - Does not work if toBack is set to false
+
+```javascript
+CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", toBack: false, tapPhoto: true, previewDrag: false});
+```
+
 When setting the toBack to true, remember to add the style below on your app's HTML or body element:
-</info>
 
 ```css
 html, body {
   background-color: transparent;
 }
-```
-
-```javascript
-/* All options stated are optional and will default to values here */
-CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", tapPhoto: true, previewDrag: false, toBack: false});
 ```
 
 ### stopCamera([successCallback, errorCallback])
@@ -89,7 +99,7 @@ CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: windo
 CameraPreview.stopCamera();
 ```
 
-### setOnPictureTakenHandler(onPictureTakenCallback)
+### setOnPictureTakenHandler(cb)
 
 <info>Register a callback function that receives the image captured from the preview box.</info><br/>
 
@@ -106,12 +116,12 @@ CameraPreview.setOnPictureTakenHandler(function(base64PictureData) {
 });
 ```
 
-### takePicture([dimensions, quality=85, successCallback, errorCallback])
+### takePicture(options, [errorCallback])
 
-<info>Take the picture. The arguments `dimensions` defaults to max supported photo resolution. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
+<info>Take the picture. The defaults to max supported photo resolution if no width or height speicified. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
 
 ```javascript
-CameraPreview.takePicture({width:640, height:640});
+CameraPreview.takePicture({width:640, height:640, quality: 85});
 ```
 
 ### switchCamera([successCallback, errorCallback])
@@ -170,7 +180,7 @@ CameraPreview.setZoom(2);
 CameraPreview.setPreviewSize({width: window.screen.width, height: window.screen.height});
 ```
 
-### getSupportedPreviewSize([successCallback, errorCallback])
+### getSupportedPreviewSize(cb, [errorCallback])
 
 ```javascript
 CameraPreview.getSupportedPreviewSize(function(dimensions){
@@ -179,7 +189,7 @@ CameraPreview.getSupportedPreviewSize(function(dimensions){
 });
 ```
 
-### getSupportedPictureSize([successCallback, errorCallback])
+### getSupportedPictureSize(cb, [errorCallback])
 
 ```javascript
 CameraPreview.getSupportedPictureSize(function(dimensions){
@@ -187,15 +197,6 @@ CameraPreview.getSupportedPictureSize(function(dimensions){
   console.log('Height: ' + dimensions.height); 
 });
 ```
-
-### setOnLogHandler([successCallback, errorCallback])
-
-```javascript
-CameraPreview.setOnLogHandler(function(){
-  console.log('log handler set!');
-});
-```
-
 
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
@@ -206,9 +207,7 @@ It is not possible to use your computers webcam during testing in the simulator,
 
 # Screenshots
 
-<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/>
-
-<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/>
+<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/> <img hspace="20" src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/>
 
 # Credits
 
