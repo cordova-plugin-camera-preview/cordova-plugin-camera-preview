@@ -328,11 +328,11 @@ public class CameraActivity extends Fragment {
     return ret;
   }
 
-  public void takePicture(int width, int height, final int quality){
+  public void takePicture(final int width, final int height, final int quality){
     Log.d(TAG, "picture taken");
 
     //final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
-    
+
     if(mPreview != null) {
 
       if(!canTakePicture){
@@ -348,15 +348,45 @@ public class CameraActivity extends Fragment {
 
           new Thread() {
             public void run() {
-
+              int w = width;
+              int h = height;
+              /*
               if(w == 0 || h == 0){
-                List<Camera.Size> sizeList = camera.getParameters().getSupportedPictureSizes();
-                width = sizes.get(sizeList.size() - 1).width();
-                height = sizes.get(sizeList.size() - 1).height();
+                // dimensions not specified, set the highest resolution that
+                // best matches the current preview aspect ratio
+                Camera.Parameters params = camera.getParameters();
+                Log.d(TAG, "preview width: " + params.getPreviewSize().width + ", height: " + params.getPreviewSize().height);
+                double previewAspectRatio  = params.getPreviewSize().width / params.getPreviewSize().height;
+                if (previewAspectRatio < 1.0) {
+                  // reset ratio to landscape
+                  previewAspectRatio = 1 / previewAspectRatio;
+                }
+                double bestMatch = 10.0;
+                double matchTolerance = 0.01;
+                // scan supported sizes, starting at highest resolution
+                List<Camera.Size> sizeList = params.getSupportedPictureSizes();
+                for (int i = sizeList.size() - 1; i >= 0; i--) {
+                  double pictureAspectRatio = sizeList.get(i).width / sizeList.get(i).height;
+                  if (Math.abs(pictureAspectRatio - previewAspectRatio) < (bestMatch - matchTolerance)) {
+                    bestMatch = Math.abs(pictureAspectRatio - previewAspectRatio);
+                    if (width > height) {
+                      w = sizeList.get(i).width;
+                      h = sizeList.get(i).height;
+                    } else {
+                      w = sizeList.get(i).height;
+                      h = sizeList.get(i).width;
+                    }
+                    Log.d(TAG, "bestMatch: " + bestMatch + ", width: " + w + ", height: " + h);
+                  }
+                }
+                Log.d(TAG, "Calculated picture width: " + w + ", height: " + h);
               }
-
+              */
+              Camera.Parameters params = camera.getParameters();
+              w = params.getPreviewSize().width;
+              h = params.getPreviewSize().height;
               //raw picture
-              byte[] bytes = mPreview.getFramePicture(data, camera, width, height, quality); // raw bytes from preview
+              byte[] bytes = mPreview.getFramePicture(data, camera, w, h, quality); // raw bytes from preview
               final Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length); // Bitmap from preview
 
               /*
