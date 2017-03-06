@@ -105,7 +105,7 @@ CameraPreview.stopCamera();
 
 ```javascript
 CameraPreview.setOnPictureTakenHandler(function(base64PictureData) {
-  /* 
+  /*
     base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
     Its up to the you to figure out the best way to save it to disk or whatever for your application.
   */
@@ -183,9 +183,19 @@ CameraPreview.setPreviewSize({width: window.screen.width, height: window.screen.
 ### getSupportedPreviewSize(cb, [errorCallback])
 
 ```javascript
-CameraPreview.getSupportedPreviewSize(function(dimensions){
-  console.log('Width: ' + dimensions.width); 
-  console.log('Height: ' + dimensions.height); 
+CameraPreview.getSupportedPreviewSize(function(dimensions) {
+   if (typeof dimensions === 'string') {
+     // string 'universal' : all dimensions allowed.
+     // If you need the content of the preview to exactly match the content of the picture,
+     // then choose a preview aspect ratio (width / height) that matches the aspect ratio of
+     // one of the supported picture sizes
+     console.log(dimensions);
+   } else {
+     // note that the portrait version, width and height swapped, of these dimensions are also supported
+     dimensions.forEach(function(dimension){
+       console.log(dimension.width + 'x' + dimension.height);
+     });
+  }
 });
 ```
 
@@ -193,8 +203,10 @@ CameraPreview.getSupportedPreviewSize(function(dimensions){
 
 ```javascript
 CameraPreview.getSupportedPictureSize(function(dimensions){
-  console.log('Width: ' + dimensions.width); 
-  console.log('Height: ' + dimensions.height); 
+  // note that the portrait version, width and height swapped, of these dimensions are also supported
+  dimensions.forEach(function(dimension) {
+       console.log(dimension.width + 'x' + dimension.height);
+  });
 });
 ```
 
