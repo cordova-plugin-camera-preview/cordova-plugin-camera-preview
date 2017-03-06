@@ -83,9 +83,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
   }
   private void setCameraDisplayOrientation() {
     Camera.CameraInfo info = new Camera.CameraInfo();
-    int rotation =
-      ((Activity) getContext()).getWindowManager().getDefaultDisplay()
-      .getRotation();
+    int rotation = ((Activity) getContext()).getWindowManager().getDefaultDisplay().getRotation();
     int degrees = 0;
     DisplayMetrics dm = new DisplayMetrics();
 
@@ -115,8 +113,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     }
 
     Log.d(TAG, "screen is rotated " + degrees + "deg from natural");
-    Log.d(TAG, (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT ? "front" : "back")
-        + " camera is oriented -" + info.orientation + "deg from natural");
+    Log.d(TAG, (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT ? "front" : "back") + " camera is oriented -" + info.orientation + "deg from natural");
     Log.d(TAG, "need to rotate preview " + displayOrientation + "deg");
     mCamera.setDisplayOrientation(displayOrientation);
   }
@@ -242,7 +239,10 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     if (displayOrientation == 90 || displayOrientation == 270) {
       targetRatio = (double) h / w;
     }
-    if (sizes == null) return null;
+
+    if(sizes == null){
+      return null;
+    }
 
     Camera.Size optimalSize = null;
     double minDiff = Double.MAX_VALUE;
@@ -291,7 +291,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     }
   }
 
-  public byte[] getFramePicture(byte[] data, Camera camera, final double width, final double height, final int quality) {
+  public byte[] getFramePicture(byte[] data, Camera camera, final int width, final int height, final int quality) {
     Camera.Parameters parameters = camera.getParameters();
     int format = parameters.getPreviewFormat();
 

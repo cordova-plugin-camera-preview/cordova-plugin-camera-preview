@@ -137,8 +137,7 @@ public class CameraActivity extends Fragment {
                   takePicture(0, 0, 85);
                 }
                 return true;
-              }
-              else {
+              } else {
                 if (dragEnabled) {
                   int x;
                   int y;
@@ -249,8 +248,7 @@ public class CameraActivity extends Fragment {
   public void onPause() {
     super.onPause();
 
-    // Because the Camera object is a shared resource, it's very
-    // important to release it when the activity is paused.
+    // Because the Camera object is a shared resource, it's very important to release it when the activity is paused.
     if (mCamera != null) {
       setDefaultCameraId();
       mPreview.setCamera(null, -1);
@@ -271,8 +269,7 @@ public class CameraActivity extends Fragment {
     }else{
       Log.d(TAG, "numberOfCameras: " + numberOfCameras);
 
-      // OK, we have multiple cameras.
-      // Release this camera -> cameraCurrentlyLocked
+      // OK, we have multiple cameras. Release this camera -> cameraCurrentlyLocked
       if (mCamera != null) {
         mCamera.stopPreview();
         mPreview.setCamera(null, -1);
@@ -280,8 +277,7 @@ public class CameraActivity extends Fragment {
         mCamera = null;
       }
 
-      // Acquire the next camera and request Preview to reconfigure
-      // parameters.
+      // Acquire the next camera and request Preview to reconfigure parameters.
       mCamera = Camera.open((cameraCurrentlyLocked + 1) % numberOfCameras);
 
       if (cameraParameters != null) {
@@ -307,7 +303,6 @@ public class CameraActivity extends Fragment {
 
       mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
 
-      // Start the preview
       mCamera.startPreview();
     }
   }
@@ -333,7 +328,7 @@ public class CameraActivity extends Fragment {
     return ret;
   }
 
-  public void takePicture(final double width, final double height, final int quality){
+  public void takePicture(int width, int height, final int quality){
     Log.d(TAG, "picture taken");
 
     //final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
@@ -353,6 +348,12 @@ public class CameraActivity extends Fragment {
 
           new Thread() {
             public void run() {
+
+              if(w == 0 || h == 0){
+                List<Camera.Size> sizeList = camera.getParameters().getSupportedPictureSizes();
+                width = sizes.get(sizeList.size() - 1).width();
+                height = sizes.get(sizeList.size() - 1).height();
+              }
 
               //raw picture
               byte[] bytes = mPreview.getFramePicture(data, camera, width, height, quality); // raw bytes from preview
