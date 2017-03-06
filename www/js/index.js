@@ -52,20 +52,8 @@ var app = {
     }
   },
 
-  showSupportedPreviewSize: function(){
-    CameraPreview.getSupportedPreviewSize(function(dimensions){
-      if(typeof dimensions === 'string'){
-        console.log(dimensions);
-      }else{
-        dimensions.forEach(function(dimension){
-          console.log(dimension.width + 'x' + dimension.height);
-        });
-      }
-    });
-  },
-
-  showSupportedPictureSize: function(){
-    CameraPreview.getSupportedPictureSize(function(dimensions){
+  showSupportedPictureSizes: function(){
+    CameraPreview.getSupportedPictureSizes(function(dimensions){
       dimensions.forEach(function(dimension) {
         console.log(dimension.width + 'x' + dimension.height);
       });
@@ -100,7 +88,6 @@ var app = {
     window.smallPreview = false;
     document.getElementById('changePreviewSize').addEventListener('click', this.changePreviewSize, false);
 
-    document.getElementById('showSupportedPreviewSize').addEventListener('click', this.showSupportedPreviewSize, false);
     document.getElementById('showSupportedPictureSize').addEventListener('click', this.showSupportedPictureSize, false);
 
     // legacy - not sure if this was supposed to fix anything
