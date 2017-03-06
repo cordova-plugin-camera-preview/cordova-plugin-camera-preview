@@ -39,7 +39,7 @@ var app = {
 
   changeZoom: function(){
     var zoom = document.getElementById('zoomSlider').value;
-    document.getElementById('zoomValue').textContent = zoom;
+    document.getElementById('zoomValue').innerHTML = zoom;
     CameraPreview.setZoom(zoom);
   },
 
