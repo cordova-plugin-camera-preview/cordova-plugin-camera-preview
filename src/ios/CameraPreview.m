@@ -210,8 +210,8 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void) getSupportedPictureSize:(CDVInvokedUrlCommand*)command {
-  NSLog(@"getSupportedPictureSize");
+- (void) getSupportedPictureSizes:(CDVInvokedUrlCommand*)command {
+  NSLog(@"getSupportedPictureSizes");
   CDVPluginResult *pluginResult;
 
   if(self.sessionManager != nil){
