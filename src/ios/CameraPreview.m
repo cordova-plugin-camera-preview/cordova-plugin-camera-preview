@@ -210,19 +210,6 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void) getSupportedPreviewSize:(CDVInvokedUrlCommand*)command {
-  NSLog(@"getSupportedPreviewSize");
-  CDVPluginResult *pluginResult;
-
-  if(self.sessionManager != nil){
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"universal"];
-  } else {
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
-  }
-
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
 - (void) getSupportedPictureSize:(CDVInvokedUrlCommand*)command {
   NSLog(@"getSupportedPictureSize");
   CDVPluginResult *pluginResult;
@@ -342,10 +329,12 @@
       if (error) {
         NSLog(@"%@", error);
       } else {
+        /*
         [self.cameraRenderController.renderLock lock];
         CIImage *previewCImage = self.cameraRenderController.latestFrame;
         CGImageRef previewImage = [self.cameraRenderController.ciContext createCGImage:previewCImage fromRect:previewCImage.extent];
         [self.cameraRenderController.renderLock unlock];
+        */
 
         NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
         UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];

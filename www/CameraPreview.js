@@ -73,12 +73,8 @@ CameraPreview.setPreviewSize = function(dimensions, onSuccess, onError){
   return exec(onSuccess, onError, PLUGIN_NAME, "setPreviewSize", [dimensions.width, dimensions.height]);
 }
 
-CameraPreview.getSupportedPreviewSize = function(onSuccess, onError){
-  return exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPreviewSize", []);
-};
-
-CameraPreview.getSupportedPictureSize = function(onSuccess, onError){
-  exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPictureSize", []);
+CameraPreview.getSupportedPictureSizes = function(onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPictureSizes", []);
 };
 
 CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {

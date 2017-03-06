@@ -291,7 +291,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     }
   }
 
-  public byte[] getFramePicture(byte[] data, Camera camera) {
+  public byte[] getFramePicture(byte[] data, Camera camera, int quality) {
     Camera.Parameters parameters = camera.getParameters();
     int format = parameters.getPreviewFormat();
 
@@ -305,7 +305,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
       // Convert YuV to Jpeg
       Rect rect = new Rect(0, 0, w, h);
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      yuvImage.compressToJpeg(rect, 80, outputStream);
+      yuvImage.compressToJpeg(rect, quality, outputStream);
       return outputStream.toByteArray();
     }
     return data;

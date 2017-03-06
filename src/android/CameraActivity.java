@@ -333,14 +333,16 @@ public class CameraActivity extends Fragment {
     return ret;
   }
 
-  public void takePicture(final double maxWidth, final double maxHeight, final int quality){
+  public void takePicture(final double width, final double height, final int quality){
     Log.d(TAG, "picture taken");
 
-    final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
+    //final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
+    
     if(mPreview != null) {
 
-      if(!canTakePicture)
+      if(!canTakePicture){
         return;
+      }
 
       canTakePicture = false;
 
@@ -353,12 +355,14 @@ public class CameraActivity extends Fragment {
             public void run() {
 
               //raw picture
-              byte[] bytes = mPreview.getFramePicture(data, camera); // raw bytes from preview
+              byte[] bytes = mPreview.getFramePicture(data, camera, quality); // raw bytes from preview
               final Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length); // Bitmap from preview
 
+              /*
               //scale down
               float scale = (float) pictureView.getWidth() / (float) pic.getWidth();
               Bitmap scaledBitmap = Bitmap.createScaledBitmap(pic, (int) (pic.getWidth() * scale), (int) (pic.getHeight() * scale), false);
+              */
 
               final Matrix matrix = new Matrix();
               if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
@@ -368,20 +372,25 @@ public class CameraActivity extends Fragment {
               Log.d(TAG, "preRotate " + mPreview.getDisplayOrientation() + "deg");
               matrix.postRotate(mPreview.getDisplayOrientation());
 
+              /*
               final Bitmap fixedPic = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, false);
               final Rect rect = new Rect(mPreview.mSurfaceView.getLeft(), mPreview.mSurfaceView.getTop(), mPreview.mSurfaceView.getRight(), mPreview.mSurfaceView.getBottom());
+              */
 
               Log.d(TAG, mPreview.mSurfaceView.getLeft() + " " + mPreview.mSurfaceView.getTop() + " " + mPreview.mSurfaceView.getRight() + " " + mPreview.mSurfaceView.getBottom());
 
               getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                  /*
                   pictureView.setImageBitmap(fixedPic);
                   pictureView.layout(rect.left, rect.top, rect.right, rect.bottom);
 
                   Bitmap finalPic = pic;
-
                   Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int) (finalPic.getWidth()), (int) (finalPic.getHeight()), matrix, false);
+                  */
+
+                  Bitmap originalPicture = Bitmap.createBitmap(pic, 0, 0, (int) (pic.getWidth()), (int) (pic.getHeight()), matrix, false);
 
                   generatePictureFromView(originalPicture, quality);
                   canTakePicture = true;

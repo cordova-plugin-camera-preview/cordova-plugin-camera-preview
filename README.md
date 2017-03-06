@@ -171,7 +171,7 @@ CameraPreview.setColorEffect('sepia');
 
 ### setZoom(zoomMultiplier, [successCallback, errorCallback])
 
-<info>Set the zoom level. zoomMultipler option accepts an integer.</info><br/>
+<info>Set the zoom level. zoomMultipler option accepts an integer. Zoom level is initially at 1</info><br/>
 
 ```javascript
 CameraPreview.setZoom(2);
@@ -185,32 +185,13 @@ CameraPreview.setZoom(2);
 CameraPreview.setPreviewSize({width: window.screen.width, height: window.screen.height});
 ```
 
-### getSupportedPreviewSize(cb, [errorCallback])
+### getSupportedPictureSizes(cb, [errorCallback])
 
 ```javascript
-CameraPreview.getSupportedPreviewSize(function(dimensions) {
-   if (typeof dimensions === 'string') {
-     // string 'universal' : all dimensions allowed.
-     // If you need the content of the preview to exactly match the content of the picture,
-     // then choose a preview aspect ratio (width / height) that matches the aspect ratio of
-     // one of the supported picture sizes
-     console.log(dimensions);
-   } else {
-     // note that the portrait version, width and height swapped, of these dimensions are also supported
-     dimensions.forEach(function(dimension){
-       console.log(dimension.width + 'x' + dimension.height);
-     });
-  }
-});
-```
-
-### getSupportedPictureSize(cb, [errorCallback])
-
-```javascript
-CameraPreview.getSupportedPictureSize(function(dimensions){
+CameraPreview.getSupportedPictureSizes(function(dimensions){
   // note that the portrait version, width and height swapped, of these dimensions are also supported
   dimensions.forEach(function(dimension) {
-       console.log(dimension.width + 'x' + dimension.height);
+    console.log(dimension.width + 'x' + dimension.height);
   });
 });
 ```
