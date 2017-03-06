@@ -78,7 +78,7 @@ var app = {
 
     document.getElementById('selectColorEffect').addEventListener('change', this.changeColorEffect, false);
 
-    if(device.platform === 'Android'){
+    if(navigator.userAgent.match(/Android/i)  == "Android"){
       document.getElementById('selectFlashMode').addEventListener('change', this.changeFlashMode, false);
       document.getElementById('zoomSlider').addEventListener('change', this.changeZoom, false);
     }else{
