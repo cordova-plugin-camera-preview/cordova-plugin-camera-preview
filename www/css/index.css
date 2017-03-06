@@ -6,7 +6,7 @@ body{
   text-align: center;
   font-family: sans-serif;
   background-color: transparent;
-  background-image: url('img/background.png');
+  background-image: url('../img/background.png');
   background-repeat:repeat;
   background-size: cover;
 }

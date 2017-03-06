@@ -8,12 +8,12 @@
   <body>
     <div class="controls">
       <div class="block">
-        <button id="startCameraButton">Start Rear Camera toBack=false</button>
+        <button id="startCameraAboveButton">Start Camera Above HTML</button>
         <button id="stopCameraButton">Stop Camera</button>
       </div>
 
       <div class="block">
-        <p style="margin-top:0px"><button id="startCameraAnotherPosButton">Start Front Camera toBack=true</button></p>
+        <p style="margin-top:0px"><button id="startCameraBelowButton">Start Camera Behind HTML</button></p>
 
         <p style="margin-bottom:0px">
           Color Effect:
@@ -34,17 +34,17 @@
           <p style="margin-bottom:0px;">
             Flash Mode:
             <select id="selectFlashMode">
-              <option selected value="OFF">OFF</option>
-              <option value="ON">ON</option>
-              <option value="AUTO">AUTO</option>
-              <option value="TORCH">TORCH</option>
+              <option selected value="off">off</option>
+              <option value="on">on</option>
+              <option value="auto">auto</option>
+              <option value="torch">torch</option>
             </select>
           </p>
 
           <p style="margin-bottom:0px;">
             Zoom:
-            <span id="zoomValue"style="margin: 0 5px;"></span>
-            <input type="range" id="zoomSlider" min="0" max="5" />
+            <span id="zoomValue"style="margin: 0 5px;">0</span>
+            <input type="range" id="zoomSlider" min="0" max="5" value="0" />
           </p>
         </div>
       </div>
