@@ -27,7 +27,7 @@ These are some features that are currently Android only, however we would love t
 <ul>
   <li>Zoom</li>
   <li>Auto focus</li>
-  <li>Different modes of flash</li>
+  <li>Torch flash mode</li>
 </ul>
 
 # Installation
@@ -150,7 +150,7 @@ CameraPreview.hide();
 
 ### setFlashMode(flashMode, [successCallback, errorCallback])
 
-<info>Set the flash mode. Options are `OFF`, `ON`, `AUTO`, `TORCH`</info><br/>
+<info>Set the flash mode. Available flash modes are `off`, `on`, `auto`, `torch`. Torch mode is currently Android only</info><br/>
 
 ```javascript
 CameraPreview.setFlashMode('ON');
@@ -158,7 +158,12 @@ CameraPreview.setFlashMode('ON');
 
 ### setColorEffect(colorEffect, [successCallback, errorCallback])
 
-<info>Set the color effect.<br>iOS Effects: `none`, `mono`, `negative`, `posterize`, `sepia`.<br>Android Effects: `none`, `mono`, `negative`, `posterize`, `sepia`, `aqua`, `blackboard`, `solarize`, `whiteboard`</info><br/>
+<info>Set the color effect.
+<br>
+iOS Effects: `none`, `mono`, `negative`, `posterize`, `sepia`.
+<br>
+Android Effects: `none`, `mono`, `negative`, `posterize`, `sepia`, `aqua`, `blackboard`, `solarize`, `whiteboard`
+</info>
 
 ```javascript
 CameraPreview.setColorEffect('sepia');

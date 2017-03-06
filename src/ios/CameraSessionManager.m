@@ -186,7 +186,7 @@
       [self.device unlockForConfiguration];
       NSLog(@"%zd hey", self.defaultFlashMode);
     } else {
-      errMsg = @"This device has no flash or torch";
+      errMsg = @"This device has no flash";
     }
   } else {
     errMsg = @"Session is not started";

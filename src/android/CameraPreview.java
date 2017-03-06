@@ -378,7 +378,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera.Parameters params = camera.getParameters();
 
     try {
-      int mode = (int) args.getInt(0);
+      int mode = args.getInt(0);
 
       switch(mode) {
         case 0:
@@ -390,11 +390,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
           break;
 
         case 2:
-          params.setFlashMode(params.FLASH_MODE_TORCH);
+          params.setFlashMode(params.FLASH_MODE_AUTO);
           break;
 
         case 3:
-          params.setFlashMode(params.FLASH_MODE_AUTO);
+          params.setFlashMode(params.FLASH_MODE_TORCH);
           break;
       }
 

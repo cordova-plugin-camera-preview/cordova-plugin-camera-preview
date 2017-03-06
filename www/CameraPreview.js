@@ -46,7 +46,7 @@ CameraPreview.takePicture = function(opts, onError){
   opts.width = opts.width || 0;
   opts.height = opts.height || 0;
 
-  if(!opts.quality || !(opts.quality <= 100 && opts.quality >= 0)){
+  if(!opts.quality || opts.quality > 100 || opts.quality < 0){
     opts.quality = 85;
   }
 
@@ -82,9 +82,20 @@ CameraPreview.getSupportedPictureSize = function(onSuccess, onError){
 };
 
 CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {
+  flashMode = flashMode.toLowerCase();
+  if(flashMode === 'off'){
+    flashMode = 0;
+  }else if(flashMode === 'on'){
+    flashMode = 1;
+  }else if(flashMode === 'auto'){
+    flashMode = 2;
+  }else if(flashMode === 'torch' && window.device.platform() === 'Android'){
+    flashMode = 3;
+  }else{
+    return false;
+  }
+
   exec(onSuccess, onError, PLUGIN_NAME, "setFlashMode", [flashMode]);
 };
-
-CameraPreview.FlashMode = {OFF: 0, ON: 1, TORCH: 2, AUTO: 3};
 
 module.exports = CameraPreview;
