@@ -390,22 +390,18 @@
 
         CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
 
-        dispatch_group_t group = dispatch_group_create();
+        NSMutableArray *params = [[NSMutableArray alloc] init];
 
-        dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-          NSMutableArray *params = [[NSMutableArray alloc] init];
+        UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
+        double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
+        CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
 
-          UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
-          double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
-          CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
+        NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
+        [params addObject:base64Image];
 
-          NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
-          [params addObject:base64Image];
-
-          CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
-          [pluginResult setKeepCallbackAsBool:true];
-          [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
-        });
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
+        [pluginResult setKeepCallbackAsBool:true];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
       }
     }];
 }
