@@ -355,7 +355,7 @@ public class CameraActivity extends Fragment {
             public void run() {
 
               //raw picture
-              byte[] bytes = mPreview.getFramePicture(data, camera, quality); // raw bytes from preview
+              byte[] bytes = mPreview.getFramePicture(data, camera, width, height, quality); // raw bytes from preview
               final Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length); // Bitmap from preview
 
               /*
