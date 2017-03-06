@@ -246,6 +246,7 @@
 
   @try {
     UIImage *image = [UIImage imageWithCGImage:imageRef];
+    CFRelease(imageRef); // release CGImageRef to remove memory leaks
     NSData *imageData = UIImageJPEGRepresentation(image, quality);
     base64Image = [imageData base64EncodedStringWithOptions:0];
   }
@@ -377,15 +378,19 @@
           finalCImage = imageToFilter;
         }
 
-        CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
-
         NSMutableArray *params = [[NSMutableArray alloc] init];
 
+        CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
         UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
+        CFRelease(finalImage); // release CGImageRef to remove memory leaks
+
         double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
         CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
 
         NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
+
+        CFRelease(resultFinalImage); // release CGImageRef to remove memory leaks
+
         [params addObject:base64Image];
 
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
