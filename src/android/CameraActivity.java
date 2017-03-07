@@ -340,12 +340,9 @@ public class CameraActivity extends Fragment {
     return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
   }
 
-  ShutterCallback shutterCallback = new ShutterCallback()
-	{
+  ShutterCallback shutterCallback = new ShutterCallback(){
 		 public void onShutter()
-		 {
-			 // do nothing, availabilty of this callback causes default system
-       // shutter sound to work
+			 // do nothing, availabilty of this callback causes default system shutter sound to work
 		 }
 	};
 
