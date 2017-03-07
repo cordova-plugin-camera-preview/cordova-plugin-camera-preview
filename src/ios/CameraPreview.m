@@ -329,13 +329,6 @@
       if (error) {
         NSLog(@"%@", error);
       } else {
-        /*
-        [self.cameraRenderController.renderLock lock];
-        CIImage *previewCImage = self.cameraRenderController.latestFrame;
-        CGImageRef previewImage = [self.cameraRenderController.ciContext createCGImage:previewCImage fromRect:previewCImage.extent];
-        [self.cameraRenderController.renderLock unlock];
-        */
-
         NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
         UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
 
@@ -381,16 +374,15 @@
 
         CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
         UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
-        CFRelease(finalImage); // release CGImageRef to remove memory leaks
+        CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
 
         double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
         CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
 
         NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
-
-        CFRelease(resultFinalImage); // release CGImageRef to remove memory leaks
-
         [params addObject:base64Image];
+
+        CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
 
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
         [pluginResult setKeepCallbackAsBool:true];
