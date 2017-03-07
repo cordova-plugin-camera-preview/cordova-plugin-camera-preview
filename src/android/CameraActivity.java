@@ -330,9 +330,12 @@ public class CameraActivity extends Fragment {
     return ret;
   }
 
-  public static Bitmap rotateBitmap(Bitmap source, float angle)
+  public static Bitmap rotateBitmap(Bitmap source, float angle, boolean mirror)
   {
       Matrix matrix = new Matrix();
+      if (mirror) {
+        matrix.preScale(-1.0f, 1.0f);
+      }
       matrix.postRotate(angle);
       return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
   }
@@ -362,14 +365,15 @@ public class CameraActivity extends Fragment {
       Camera.Parameters params = mCamera.getParameters();
 			try {
 				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,data.length);
-        bitmap = rotateBitmap(bitmap, mPreview.getDisplayOrientation());
+        bitmap = rotateBitmap(bitmap, mPreview.getDisplayOrientation(), cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 				bitmap.compress(Bitmap.CompressFormat.JPEG, params.getJpegQuality(), outputStream);
         byte[] byteArray = outputStream.toByteArray();
         String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
-        Log.d(TAG, "CameraPreview callbck javascript onPictureTaken");
         eventListener.onPictureTaken(encodedImage);
-        Log.d(TAG, "CameraPreview done");
+        canTakePicture = true;
+        mCamera.startPreview();
+        Log.d(TAG, "CameraPreview pictureTakenHandler called back");
         // result = outputStream.toByteArray();
 			}
 			catch (Exception e)
@@ -389,7 +393,6 @@ public class CameraActivity extends Fragment {
       size.width = size.height;
       size.height = temp;
     }
-    Log.d(TAG, "CameraPreview preview size " + previewSize.width + 'x' + previewSize.height);
     // get the supportedPictureSize that:
     // - has the closest aspect ratio to the preview aspectratio
     // - has picture.width / picture.height closest to width and height
@@ -405,14 +408,12 @@ public class CameraActivity extends Fragment {
     //for (int i = supportedSizes.size() - 1; i >= 0; i--) {
     for (int i = 0; i < supportedSizes.size(); i++) {
       Camera.Size supportedSize = supportedSizes.get(i);
-      Log.d(TAG, "CameraPreview supportedSize " + supportedSize.width + "x" + supportedSize.height);
       double difference = Math.abs(previewAspectRatio - ((double)supportedSize.width / (double)supportedSize.height));
       if (difference < bestDifference - aspectTolerance) {
         // better aspectRatio found
         size.width = supportedSize.width;
         size.height = supportedSize.height;
         bestDifference = difference;
-        Log.d(TAG, "CameraPreview better aspectRatio " + (double)supportedSize.width / (double)supportedSize.height);
       } else if (difference < bestDifference + aspectTolerance) {
         // same aspectRatio found (within tolerance), get highest supported resolution
         if (width == 0 || height == 0) {
@@ -422,14 +423,10 @@ public class CameraActivity extends Fragment {
           }
         } else {
           // check if this pictureSize closer to width/height
-          Log.d(TAG, "CameraPreview width x height " + width + "x" + height + ", supported width x height: "+ supportedSize.width + 'x' + supportedSize.height);
-          Log.d(TAG, "CameraPreview current size width x height " + size.width + 'x' + size.height);
-          Log.d(TAG, "CameraPreview opp new " + Math.abs(width - supportedSize.width) * Math.abs(height - supportedSize.height) + ", opp old:" + Math.abs(width - size.width) * Math.abs(width - size.height));
           if (Math.abs(width - supportedSize.width) * Math.abs(height - supportedSize.height) <
             Math.abs(width - size.width) * Math.abs(height - size.height)) {
               size.width = supportedSize.width;
               size.height = supportedSize.height;
-              Log.d(TAG, "CameraPreview better width/height " + size.width + 'x' + size.height);
           }
         }
       }
@@ -451,82 +448,21 @@ public class CameraActivity extends Fragment {
 
       new Thread() {
         public void run() {
-          // this approach based on http://ibuzzlog.blogspot.nl/2012/08/how-to-use-camera-in-android.html
           Camera.Parameters params = mCamera.getParameters();
+          // this approach based on http://ibuzzlog.blogspot.nl/2012/08/how-to-use-camera-in-android.html
+          mCamera.stopPreview();
           Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
-          //params.setPictureSize(424, 240); // always defined in landscape, rotate later if necessary
           params.setPictureSize(size.width, size.height);
           params.setJpegQuality(quality);
           mCamera.setParameters(params);
           mCamera.takePicture(shutterCallback, rawPictureCallback, jpegPictureCallback);
         }
       }.start();
-
-/*
-      mPreview.setOneShotPreviewCallback(new Camera.PreviewCallback() {
-
-        @Override
-        public void onPreviewFrame(final byte[] data, final Camera camera) {
-
-          new Thread() {
-            public void run() {
-              int w = width;
-              int h = height;
-
-              Camera.Parameters params = camera.getParameters();
-              w = params.getPreviewSize().width;
-              h = params.getPreviewSize().height;
-              //raw picture
-              byte[] bytes = mPreview.getFramePicture(data, camera, w, h, quality); // raw bytes from preview
-              final Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length); // Bitmap from preview
-
-
-              //scale down
-              //float scale = (float) pictureView.getWidth() / (float) pic.getWidth();
-              //Bitmap scaledBitmap = Bitmap.createScaledBitmap(pic, (int) (pic.getWidth() * scale), (int) (pic.getHeight() * scale), false);
-
-
-              final Matrix matrix = new Matrix();
-              if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                Log.d(TAG, "mirror y axis");
-                matrix.preScale(-1.0f, 1.0f);
-              }
-              Log.d(TAG, "preRotate " + mPreview.getDisplayOrientation() + "deg");
-              matrix.postRotate(mPreview.getDisplayOrientation());
-
-
-              // final Bitmap fixedPic = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, false);
-              // final Rect rect = new Rect(mPreview.mSurfaceView.getLeft(), mPreview.mSurfaceView.getTop(), mPreview.mSurfaceView.getRight(), mPreview.mSurfaceView.getBottom());
-
-
-              Log.d(TAG, mPreview.mSurfaceView.getLeft() + " " + mPreview.mSurfaceView.getTop() + " " + mPreview.mSurfaceView.getRight() + " " + mPreview.mSurfaceView.getBottom());
-
-              getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                  //pictureView.setImageBitmap(fixedPic);
-                  //pictureView.layout(rect.left, rect.top, rect.right, rect.bottom);
-
-                  //Bitmap finalPic = pic;
-                  //Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int) (finalPic.getWidth()), (int) (finalPic.getHeight()), matrix, false);
-
-
-                  Bitmap originalPicture = Bitmap.createBitmap(pic, 0, 0, (int) (pic.getWidth()), (int) (pic.getHeight()), matrix, false);
-
-                  generatePictureFromView(originalPicture, quality);
-                  canTakePicture = true;
-                  camera.startPreview();
-                }
-              });
-            }
-          }.start();
-        }
-      }); */
     } else {
       canTakePicture = true;
     }
   }
+
 
   private void generatePictureFromView(final Bitmap originalPicture, final int quality){
     final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
