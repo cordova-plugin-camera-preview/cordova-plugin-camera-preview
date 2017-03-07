@@ -437,7 +437,7 @@ public class CameraActivity extends Fragment {
           params.setPictureSize(size.width, size.height);
           params.setJpegQuality(quality);
 
-          mCamera.stopPreview();
+          //mCamera.stopPreview();		//this couse the app to crash!
 
           mCamera.setParameters(params);
           mCamera.takePicture(null, null, null, jpegPictureCallback);
