@@ -12,7 +12,9 @@ var app = {
   },
 
   takePicture: function(){
-    CameraPreview.takePicture({width: window.screen.width, height: window.screen.height, quality: 90});
+    CameraPreview.takePicture(function(imgData){
+      document.getElementById('originalPicture').src = 'data:image/jpeg;base64,' + imgData;
+    });
   },
 
   switchCamera: function(){
@@ -68,14 +70,7 @@ var app = {
     document.getElementById('switchCameraButton').addEventListener('click', this.switchCamera, false);
     document.getElementById('showButton').addEventListener('click', this.show, false);
     document.getElementById('hideButton').addEventListener('click', this.hide, false);
-    
-    CameraPreview.setOnPictureTakenHandler(function(imgData){
-      alert('pic taken');
-      document.getElementById('originalPicture').src = 'data:image/jpeg;base64,' + imgData;
-    });
-
     document.getElementById('takePictureButton').addEventListener('click', this.takePicture, false);
-
     document.getElementById('selectColorEffect').addEventListener('change', this.changeColorEffect, false);
 
     if(navigator.userAgent.match(/Android/i)  == "Android"){
