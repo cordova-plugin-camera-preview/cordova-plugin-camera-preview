@@ -374,9 +374,11 @@
 
         CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
         UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
-        CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
 
         double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
+
+        CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
+
         CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
 
         NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
