@@ -14,7 +14,6 @@
 - (void) setFlashMode:(CDVInvokedUrlCommand*)command;
 - (void) switchCamera:(CDVInvokedUrlCommand*)command;
 - (void) takePicture:(CDVInvokedUrlCommand*)command;
-- (void) setOnPictureTakenHandler:(CDVInvokedUrlCommand*)command;
 - (void) setColorEffect:(CDVInvokedUrlCommand*)command;
 - (void) getSupportedPictureSizes:(CDVInvokedUrlCommand*)command;
 

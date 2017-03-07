@@ -6,6 +6,11 @@ var PLUGIN_NAME = "CameraPreview";
 
 var CameraPreview = function(){};
 
+function isFunction(obj){
+  return !!(obj && obj.constructor && obj.call && obj.apply);
+};
+
+
 CameraPreview.startCamera = function(options, onSuccess, onError){
   options = options || {};
   options.x = options.x || 0;
@@ -41,8 +46,14 @@ CameraPreview.show = function(onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "showCamera", []);
 };
 
-CameraPreview.takePicture = function(opts, onError){
-  opts = opts || {};
+CameraPreview.takePicture = function(opts, onSuccess, onError){
+  if(!opts){
+    opts = {};
+  }else if(isFunction(opts){
+    onSuccess = opts;
+    opts = {};
+  }
+
   opts.width = opts.width || 0;
   opts.height = opts.height || 0;
 
@@ -50,11 +61,7 @@ CameraPreview.takePicture = function(opts, onError){
     opts.quality = 85;
   }
 
-  exec(null, onError, PLUGIN_NAME, "takePicture", [opts.width, opts.height, opts.quality]);
-};
-
-CameraPreview.setOnPictureTakenHandler = function(cb) {
-  exec(cb, null, PLUGIN_NAME, "setOnPictureTakenHandler", []);
+  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [opts.width, opts.height, opts.quality]);
 };
 
 CameraPreview.setColorEffect = function(effect, onSuccess, onError){

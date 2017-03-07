@@ -59,8 +59,6 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 
 # Methods
 
-**Note: The successCallback and errorCallback options are all optional**
-
 ### startCamera(options, [successCallback, errorCallback])
 
 <info>
@@ -99,31 +97,6 @@ html, body {
 CameraPreview.stopCamera();
 ```
 
-### setOnPictureTakenHandler(cb)
-
-<info>Register a callback function that receives the image captured from the preview box.</info><br/>
-
-```javascript
-CameraPreview.setOnPictureTakenHandler(function(base64PictureData) {
-  /*
-    base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
-    Its up to the you to figure out the best way to save it to disk or whatever for your application.
-  */
-
-  // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
-  imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
-  $('img#my-img').attr('src', imageSrcData);
-});
-```
-
-### takePicture(options, [errorCallback])
-
-<info>Take the picture. It defaults to max supported picture resolution if no width or height specified. If width and height are specified, it will choose a supported photo size that is closest to width and height specified and has closest aspect ratio to the preview. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
-
-```javascript
-CameraPreview.takePicture({width:640, height:640, quality: 85});
-```
-
 ### switchCamera([successCallback, errorCallback])
 
 <info>Switch between the rear camera and front camera, if available.</info><br/>
@@ -146,6 +119,29 @@ CameraPreview.show();
 
 ```javascript
 CameraPreview.hide();
+```
+
+### takePicture(options, successCallback, [errorCallback])
+
+<info>Take the picture. It defaults to max supported picture resolution if no width or height specified. If width and height are specified, it will choose a supported photo size that is closest to width and height specified and has closest aspect ratio to the preview. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
+
+```javascript
+CameraPreview.takePicture({width:640, height:640, quality: 85}, function(base64PictureData){
+  /*
+    base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
+    Its up to the you to figure out the best way to save it to disk or whatever for your application.
+  */
+
+  // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
+  imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
+  $('img#my-img').attr('src', imageSrcData);
+});
+
+// OR if you want to use the default options.
+
+CameraPreview.takePicture(function(base64PictureData){
+  /* code here */
+});
 ```
 
 ### setFlashMode(flashMode, [successCallback, errorCallback])

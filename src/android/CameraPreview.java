@@ -24,7 +24,6 @@ import java.util.Arrays;
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
   private final String TAG = "CameraPreview";
-  private final String setOnPictureTakenHandlerAction = "setOnPictureTakenHandler";
   private final String setColorEffectAction = "setColorEffect";
   private final String setZoomAction = "setZoom";
   private final String setFlashModeAction = "setFlashMode";
@@ -36,7 +35,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private final String showCameraAction = "showCamera";
   private final String hideCameraAction = "hideCamera";
   private final String getSupportedPictureSizesAction = "getSupportedPictureSizes";
-
 
   private final String [] permissions = {
     Manifest.permission.CAMERA
@@ -59,9 +57,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
-    if (setOnPictureTakenHandlerAction.equals(action)){
-      return setOnPictureTakenHandler(args, callbackContext);
-    } else if (startCameraAction.equals(action)) {
+    if (startCameraAction.equals(action)) {
       if (cordova.hasPermission(permissions[0])) {
         return startCamera(args, callbackContext);
       } else {
@@ -217,14 +213,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     try {
+      takePictureCallbackContext = callbackContext;
+
       int width = args.getInt(0);
       int height = args.getInt(1);
       int quality = args.getInt(2);
       fragment.takePicture(width, height, quality);
-
-      PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-      pluginResult.setKeepCallback(true);
-      callbackContext.sendPluginResult(pluginResult);
 
       return true;
     } catch (Exception e) {
@@ -235,11 +229,13 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   }
 
   public void onPictureTaken(String originalPicture) {
+    Log.d(TAG, "returning picture");
+
     JSONArray data = new JSONArray();
     data.put(originalPicture);
+
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
     pluginResult.setKeepCallback(true);
-    Log.d(TAG, "returning picture");
     takePictureCallbackContext.sendPluginResult(pluginResult);
   }
 
@@ -451,12 +447,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
     fragment.switchCamera();
     callbackContext.success();
-    return true;
-  }
-
-  private boolean setOnPictureTakenHandler(JSONArray args, CallbackContext callbackContext) {
-    Log.d(TAG, "setOnPictureTakenHandler");
-    takePictureCallbackContext = callbackContext;
     return true;
   }
 }

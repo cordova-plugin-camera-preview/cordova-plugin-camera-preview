@@ -155,19 +155,17 @@
   CDVPluginResult *pluginResult;
 
   if (self.cameraRenderController != NULL) {
+    self.onPictureTakenHandlerId = command.callbackId;
+
     CGFloat width = (CGFloat)[command.arguments[0] floatValue];
     CGFloat height = (CGFloat)[command.arguments[1] floatValue];
     CGFloat quality = (CGFloat)[command.arguments[2] floatValue] / 100;
+
     [self invokeTakePicture:width withHeight:height withQuality:quality];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }
-}
-
--(void) setOnPictureTakenHandler:(CDVInvokedUrlCommand*)command {
-  NSLog(@"setOnPictureTakenHandler");
-  self.onPictureTakenHandlerId = command.callbackId;
 }
 
 -(void) setColorEffect:(CDVInvokedUrlCommand*)command {

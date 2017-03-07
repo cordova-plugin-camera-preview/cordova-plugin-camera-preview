@@ -46,10 +46,6 @@ import java.util.List;
 
 public class CameraActivity extends Fragment {
 
-  public interface CameraPreviewListener {
-    void onPictureTaken(String originalPicture);
-  }
-
   private CameraPreviewListener eventListener;
   private static final String TAG = "CameraActivity";
   public FrameLayout mainLayout;
@@ -341,20 +337,20 @@ public class CameraActivity extends Fragment {
   }
 
   ShutterCallback shutterCallback = new ShutterCallback(){
-		 public void onShutter(){
-			 // do nothing, availabilty of this callback causes default system shutter sound to work
-		 }
-	};
+    public void onShutter(){
+      // do nothing, availabilty of this callback causes default system shutter sound to work
+    }
+  };
 
   PictureCallback jpegPictureCallback = new PictureCallback(){
     public void onPictureTaken(byte[] data, Camera arg1){
       Log.d(TAG, "CameraPreview onPictureTaken");
       Camera.Parameters params = mCamera.getParameters();
       try {
-	      Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,data.length);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,data.length);
         bitmap = rotateBitmap(bitmap, mPreview.getDisplayOrientation(), cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-	      bitmap.compress(Bitmap.CompressFormat.JPEG, params.getJpegQuality(), outputStream);
+	bitmap.compress(Bitmap.CompressFormat.JPEG, params.getJpegQuality(), outputStream);
         byte[] byteArray = outputStream.toByteArray();
         String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
         eventListener.onPictureTaken(encodedImage);

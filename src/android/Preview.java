@@ -291,24 +291,6 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     }
   }
 
-  public byte[] getFramePicture(byte[] data, Camera camera, final int width, final int height, final int quality) {
-    Camera.Parameters parameters = camera.getParameters();
-    int format = parameters.getPreviewFormat();
-
-    //YUV formats require conversion
-    if (format == ImageFormat.NV21 || format == ImageFormat.YUY2 || format == ImageFormat.NV16) {
-      // Get the YuV image
-      YuvImage yuvImage = new YuvImage(data, format, width, height, null);
-      // Convert YuV to Jpeg
-      Rect rect = new Rect(0, 0, width, height);
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      yuvImage.compressToJpeg(rect, quality, outputStream);
-      return outputStream.toByteArray();
-    }
-
-    return data;
-  }
-
   public void setOneShotPreviewCallback(Camera.PreviewCallback callback) {
     if(mCamera != null) {
       mCamera.setOneShotPreviewCallback(callback);
