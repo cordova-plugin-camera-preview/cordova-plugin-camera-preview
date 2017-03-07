@@ -41,7 +41,7 @@ ionic plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin
 
 meteor add cordova:cordova-plugin-camera-preview@https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git#[latest_commit_id]
 
-<plugin spec="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-previewn.git" source="git" />
+<plugin spec="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git" source="git" />
 ```
 
 <!--
@@ -72,15 +72,15 @@ All options stated are optional and will default to values here
 
 * `x` - Defaults to 0
 * `y` - Defaults to 0
-* `width` - Defaults to window.device.width
-* `height` - Defaults to window.device.height
+* `width` - Defaults to window.screen.width
+* `height` - Defaults to window.screen.height
 * `camera` - Options are 'front' and 'rear'  - Defaults to 'rear'
 * `toBack` - Defaults to false - Set to true if you want your html in front of your preview
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
 * `previewDrag` - Defaults to true - Does not work if toBack is set to false
 
 ```javascript
-CameraPreview.startCamera({x: 0, y: 0, width: window.device.width, height: window.device.height, camera: "front", toBack: false, tapPhoto: true, previewDrag: false});
+CameraPreview.startCamera({x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: "front", toBack: false, tapPhoto: true, previewDrag: false});
 ```
 
 When setting the toBack to true, remember to add the style below on your app's HTML or body element:
