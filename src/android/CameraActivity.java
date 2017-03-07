@@ -415,8 +415,8 @@ public class CameraActivity extends Fragment {
             size.height = supportedSize.height;
           }
         } else {
-          // check if this pictureSize closer to width/height
-          if (Math.abs(width - supportedSize.width) * Math.abs(height - supportedSize.height) < Math.abs(width - size.width) * Math.abs(height - size.height)) {
+          // check if this pictureSize closer to requested width and height
+          if (Math.abs(width * height - supportedSize.width * supportedSize.height) < Math.abs(width * height - size.width * size.height)) {
             size.width = supportedSize.width;
             size.height = supportedSize.height;
           }
