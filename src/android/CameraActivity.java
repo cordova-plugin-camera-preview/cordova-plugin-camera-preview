@@ -16,6 +16,7 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.ShutterCallback;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.DisplayMetrics;
@@ -339,20 +340,28 @@ public class CameraActivity extends Fragment {
     return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
   }
 
+  ShutterCallback shutterCallback = new ShutterCallback()
+	{
+		 public void onShutter()
+		 {
+			 // do nothing, availabilty of this callback causes default system
+       // shutter sound to work
+		 }
+	};
+
   PictureCallback jpegPictureCallback = new PictureCallback(){
     public void onPictureTaken(byte[] data, Camera arg1){
       Log.d(TAG, "CameraPreview onPictureTaken");
       Camera.Parameters params = mCamera.getParameters();
       try {
-	Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,data.length);
+	      Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,data.length);
         bitmap = rotateBitmap(bitmap, mPreview.getDisplayOrientation(), cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-	bitmap.compress(Bitmap.CompressFormat.JPEG, params.getJpegQuality(), outputStream);
+	      bitmap.compress(Bitmap.CompressFormat.JPEG, params.getJpegQuality(), outputStream);
         byte[] byteArray = outputStream.toByteArray();
         String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
         eventListener.onPictureTaken(encodedImage);
         canTakePicture = true;
-        mCamera.startPreview();
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
       } catch (Exception e) {
         Log.d(TAG, "CameraPreview exception");
@@ -362,6 +371,12 @@ public class CameraActivity extends Fragment {
   };
 
   private Camera.Size getOptimalPictureSize(final int width, final int height, final Camera.Size previewSize, final List<Camera.Size> supportedSizes){
+    /*
+      get the supportedPictureSize that:
+      - has the closest aspect ratio to the preview aspect ratio
+      - has picture.width and picture.height closest to width and height
+      - has the highest supported picture width and height if width == 0 || height == 0
+    */
     Camera.Size size = mCamera.new Size(width, height);
 
     // convert to landscape if necessary
@@ -370,13 +385,6 @@ public class CameraActivity extends Fragment {
       size.width = size.height;
       size.height = temp;
     }
-
-    /* 
-      get the supportedPictureSize that:
-      - has the closest aspect ratio to the preview aspect ratio
-      - has picture.width / picture.height closest to width and height
-      - has the highest supported pictured width / height if width == 0 || height == 0
-    */
 
     double previewAspectRatio  = (double)previewSize.width / (double)previewSize.height;
 
@@ -437,10 +445,8 @@ public class CameraActivity extends Fragment {
           params.setPictureSize(size.width, size.height);
           params.setJpegQuality(quality);
 
-          mCamera.stopPreview();
-
           mCamera.setParameters(params);
-          mCamera.takePicture(null, null, null, jpegPictureCallback);
+          mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
         }
       }.start();
     } else {
