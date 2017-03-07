@@ -49,7 +49,7 @@ CameraPreview.show = function(onSuccess, onError){
 CameraPreview.takePicture = function(opts, onSuccess, onError){
   if(!opts){
     opts = {};
-  }else if(isFunction(opts){
+  }else if(isFunction(opts)){
     onSuccess = opts;
     opts = {};
   }
