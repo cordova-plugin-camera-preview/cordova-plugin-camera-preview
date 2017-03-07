@@ -210,10 +210,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  private String invertCamera(String originalCamera){
-    return originalCamera == "front" ? "back" : "front";
-  }
-
   private boolean takePicture(final JSONArray args, CallbackContext callbackContext) {
     if(fragment == null){
       callbackContext.error("No preview");

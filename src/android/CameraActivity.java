@@ -15,6 +15,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.DisplayMetrics;
@@ -188,7 +189,6 @@ public class CameraActivity extends Fragment {
   }
 
   private void setDefaultCameraId(){
-
     // Find the total number of cameras available
     numberOfCameras = Camera.getNumberOfCameras();
 
@@ -227,7 +227,9 @@ public class CameraActivity extends Fragment {
     Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
 
     final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
+
     ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
+
     if (viewTreeObserver.isAlive()) {
       viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
@@ -328,153 +330,121 @@ public class CameraActivity extends Fragment {
     return ret;
   }
 
-  public void takePicture(final int width, final int height, final int quality){
-    Log.d(TAG, "picture taken");
+  public static Bitmap rotateBitmap(Bitmap source, float angle, boolean mirror) {
+    Matrix matrix = new Matrix();
+    if (mirror) {
+      matrix.preScale(-1.0f, 1.0f);
+    }
+    matrix.postRotate(angle);
+    return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+  }
 
-    //final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
+  PictureCallback jpegPictureCallback = new PictureCallback(){
+    public void onPictureTaken(byte[] data, Camera arg1){
+      Log.d(TAG, "CameraPreview onPictureTaken");
+      Camera.Parameters params = mCamera.getParameters();
+      try {
+	Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,data.length);
+        bitmap = rotateBitmap(bitmap, mPreview.getDisplayOrientation(), cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	bitmap.compress(Bitmap.CompressFormat.JPEG, params.getJpegQuality(), outputStream);
+        byte[] byteArray = outputStream.toByteArray();
+        String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
+        eventListener.onPictureTaken(encodedImage);
+        canTakePicture = true;
+        mCamera.startPreview();
+        Log.d(TAG, "CameraPreview pictureTakenHandler called back");
+      } catch (Exception e) {
+        Log.d(TAG, "CameraPreview exception");
+        e.printStackTrace();
+      }
+    }
+  };
+
+  private Camera.Size getOptimalPictureSize(final int width, final int height, final Camera.Size previewSize, final List<Camera.Size> supportedSizes){
+    Camera.Size size = mCamera.new Size(width, height);
+
+    // convert to landscape if necessary
+    if (size.width < size.height) {
+      int temp = size.width;
+      size.width = size.height;
+      size.height = temp;
+    }
+
+    /* 
+      get the supportedPictureSize that:
+      - has the closest aspect ratio to the preview aspect ratio
+      - has picture.width / picture.height closest to width and height
+      - has the highest supported pictured width / height if width == 0 || height == 0
+    */
+
+    double previewAspectRatio  = (double)previewSize.width / (double)previewSize.height;
+
+    if (previewAspectRatio < 1.0) {
+      // reset ratio to landscape
+      previewAspectRatio = 1.0 / previewAspectRatio;
+    }
+
+    Log.d(TAG, "CameraPreview previewAspectRatio " + previewAspectRatio);
+
+    double aspectTolerance = 0.1;
+    double bestDifference = Double.MAX_VALUE;
+
+    for (int i = 0; i < supportedSizes.size(); i++) {
+      Camera.Size supportedSize = supportedSizes.get(i);
+      double difference = Math.abs(previewAspectRatio - ((double)supportedSize.width / (double)supportedSize.height));
+
+      if (difference < bestDifference - aspectTolerance) {
+        // better aspectRatio found
+        size.width = supportedSize.width;
+        size.height = supportedSize.height;
+        bestDifference = difference;
+      } else if (difference < bestDifference + aspectTolerance) {
+        // same aspectRatio found (within tolerance), get highest supported resolution
+        if (width == 0 || height == 0) {
+          if (size.width < supportedSize.width) {
+            size.width = supportedSize.width;
+            size.height = supportedSize.height;
+          }
+        } else {
+          // check if this pictureSize closer to width/height
+          if (Math.abs(width - supportedSize.width) * Math.abs(height - supportedSize.height) < Math.abs(width - size.width) * Math.abs(height - size.height)) {
+            size.width = supportedSize.width;
+            size.height = supportedSize.height;
+          }
+        }
+      }
+    }
+    Log.d(TAG, "CameraPreview optimalPictureSize " + size.width + 'x' + size.height);
+    return size;
+  }
+
+  public void takePicture(final int width, final int height, final int quality){
+    Log.d(TAG, "CameraPreview takePicture width: " + width + ", height: " + height + ", quality: " + quality);
 
     if(mPreview != null) {
-
       if(!canTakePicture){
         return;
       }
 
       canTakePicture = false;
 
-      mPreview.setOneShotPreviewCallback(new Camera.PreviewCallback() {
+      new Thread() {
+        public void run() {
+          Camera.Parameters params = mCamera.getParameters();
 
-        @Override
-        public void onPreviewFrame(final byte[] data, final Camera camera) {
+          Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
+          params.setPictureSize(size.width, size.height);
+          params.setJpegQuality(quality);
 
-          new Thread() {
-            public void run() {
-              int w = width;
-              int h = height;
-              /*
-              if(w == 0 || h == 0){
-                // dimensions not specified, set the highest resolution that
-                // best matches the current preview aspect ratio
-                Camera.Parameters params = camera.getParameters();
-                Log.d(TAG, "preview width: " + params.getPreviewSize().width + ", height: " + params.getPreviewSize().height);
-                double previewAspectRatio  = params.getPreviewSize().width / params.getPreviewSize().height;
-                if (previewAspectRatio < 1.0) {
-                  // reset ratio to landscape
-                  previewAspectRatio = 1 / previewAspectRatio;
-                }
-                double bestMatch = 10.0;
-                double matchTolerance = 0.01;
-                // scan supported sizes, starting at highest resolution
-                List<Camera.Size> sizeList = params.getSupportedPictureSizes();
-                for (int i = sizeList.size() - 1; i >= 0; i--) {
-                  double pictureAspectRatio = sizeList.get(i).width / sizeList.get(i).height;
-                  if (Math.abs(pictureAspectRatio - previewAspectRatio) < (bestMatch - matchTolerance)) {
-                    bestMatch = Math.abs(pictureAspectRatio - previewAspectRatio);
-                    if (width > height) {
-                      w = sizeList.get(i).width;
-                      h = sizeList.get(i).height;
-                    } else {
-                      w = sizeList.get(i).height;
-                      h = sizeList.get(i).width;
-                    }
-                    Log.d(TAG, "bestMatch: " + bestMatch + ", width: " + w + ", height: " + h);
-                  }
-                }
-                Log.d(TAG, "Calculated picture width: " + w + ", height: " + h);
-              }
-              */
-              Camera.Parameters params = camera.getParameters();
-              w = params.getPreviewSize().width;
-              h = params.getPreviewSize().height;
-              //raw picture
-              byte[] bytes = mPreview.getFramePicture(data, camera, w, h, quality); // raw bytes from preview
-              final Bitmap pic = BitmapFactory.decodeByteArray(bytes, 0, bytes.length); // Bitmap from preview
+          mCamera.stopPreview();
 
-              /*
-              //scale down
-              float scale = (float) pictureView.getWidth() / (float) pic.getWidth();
-              Bitmap scaledBitmap = Bitmap.createScaledBitmap(pic, (int) (pic.getWidth() * scale), (int) (pic.getHeight() * scale), false);
-              */
-
-              final Matrix matrix = new Matrix();
-              if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                Log.d(TAG, "mirror y axis");
-                matrix.preScale(-1.0f, 1.0f);
-              }
-              Log.d(TAG, "preRotate " + mPreview.getDisplayOrientation() + "deg");
-              matrix.postRotate(mPreview.getDisplayOrientation());
-
-              /*
-              final Bitmap fixedPic = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, false);
-              final Rect rect = new Rect(mPreview.mSurfaceView.getLeft(), mPreview.mSurfaceView.getTop(), mPreview.mSurfaceView.getRight(), mPreview.mSurfaceView.getBottom());
-              */
-
-              Log.d(TAG, mPreview.mSurfaceView.getLeft() + " " + mPreview.mSurfaceView.getTop() + " " + mPreview.mSurfaceView.getRight() + " " + mPreview.mSurfaceView.getBottom());
-
-              getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                  /*
-                  pictureView.setImageBitmap(fixedPic);
-                  pictureView.layout(rect.left, rect.top, rect.right, rect.bottom);
-
-                  Bitmap finalPic = pic;
-                  Bitmap originalPicture = Bitmap.createBitmap(finalPic, 0, 0, (int) (finalPic.getWidth()), (int) (finalPic.getHeight()), matrix, false);
-                  */
-
-                  Bitmap originalPicture = Bitmap.createBitmap(pic, 0, 0, (int) (pic.getWidth()), (int) (pic.getHeight()), matrix, false);
-
-                  generatePictureFromView(originalPicture, quality);
-                  canTakePicture = true;
-                  camera.startPreview();
-                }
-              });
-            }
-          }.start();
+          mCamera.setParameters(params);
+          mCamera.takePicture(null, null, null, jpegPictureCallback);
         }
-      });
+      }.start();
     } else {
       canTakePicture = true;
     }
-  }
-
-  private void generatePictureFromView(final Bitmap originalPicture, final int quality){
-    final FrameLayout cameraLoader = (FrameLayout) view.findViewById(getResources().getIdentifier("camera_loader", "id", appResourcesPackage));
-    cameraLoader.setVisibility(View.VISIBLE);
-    final ImageView pictureView = (ImageView) view.findViewById(getResources().getIdentifier("picture_view", "id", appResourcesPackage));
-    new Thread() {
-      public void run() {
-
-        try {
-          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-          originalPicture.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream);
-          byte[] byteArray = byteArrayOutputStream.toByteArray();
-          String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
-
-          eventListener.onPictureTaken(encodedImage);
-
-          getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-              cameraLoader.setVisibility(View.INVISIBLE);
-              pictureView.setImageBitmap(null);
-            }
-          });
-        } catch (Exception e) {
-          //An unexpected error occurred while saving the picture.
-          getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-              cameraLoader.setVisibility(View.INVISIBLE);
-              pictureView.setImageBitmap(null);
-            }
-          });
-        }
-      }
-    }.start();
-  }
-
-  @Override
-  public void onDestroy() {
-    super.onDestroy();
   }
 }
