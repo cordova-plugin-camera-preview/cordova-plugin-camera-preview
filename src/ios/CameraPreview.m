@@ -246,7 +246,6 @@
 
   @try {
     UIImage *image = [UIImage imageWithCGImage:imageRef];
-    CFRelease(imageRef); // release CGImageRef to remove memory leaks
     NSData *imageData = UIImageJPEGRepresentation(image, quality);
     base64Image = [imageData base64EncodedStringWithOptions:0];
   }
