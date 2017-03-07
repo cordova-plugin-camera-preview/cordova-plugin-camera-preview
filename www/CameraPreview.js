@@ -54,6 +54,10 @@ CameraPreview.takePicture = function(opts, onSuccess, onError){
     opts = {};
   }
 
+  if(!isFunction(onSuccess)){
+    return false;
+  }
+
   opts.width = opts.width || 0;
   opts.height = opts.height || 0;
 
