@@ -46,6 +46,10 @@ import java.util.List;
 
 public class CameraActivity extends Fragment {
 
+  public interface CameraPreviewListener {
+    void onPictureTaken(String originalPicture);
+  }
+
   private CameraPreviewListener eventListener;
   private static final String TAG = "CameraActivity";
   public FrameLayout mainLayout;
