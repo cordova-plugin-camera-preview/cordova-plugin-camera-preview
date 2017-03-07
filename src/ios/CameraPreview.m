@@ -210,8 +210,8 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void) getSupportedPictureSize:(CDVInvokedUrlCommand*)command {
-  NSLog(@"getSupportedPictureSize");
+- (void) getSupportedPictureSizes:(CDVInvokedUrlCommand*)command {
+  NSLog(@"getSupportedPictureSizes");
   CDVPluginResult *pluginResult;
 
   if(self.sessionManager != nil){
@@ -329,13 +329,6 @@
       if (error) {
         NSLog(@"%@", error);
       } else {
-        /*
-        [self.cameraRenderController.renderLock lock];
-        CIImage *previewCImage = self.cameraRenderController.latestFrame;
-        CGImageRef previewImage = [self.cameraRenderController.ciContext createCGImage:previewCImage fromRect:previewCImage.extent];
-        [self.cameraRenderController.renderLock unlock];
-        */
-
         NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
         UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
 
@@ -377,16 +370,21 @@
           finalCImage = imageToFilter;
         }
 
-        CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
-
         NSMutableArray *params = [[NSMutableArray alloc] init];
 
+        CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
         UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
+
         double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
+
+        CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
+
         CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
 
         NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
         [params addObject:base64Image];
+
+        CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
 
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
         [pluginResult setKeepCallbackAsBool:true];
