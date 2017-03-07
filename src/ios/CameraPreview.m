@@ -376,15 +376,12 @@
         UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
 
         double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
-
+        CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians]; // CGImageRotated gets autoreleased
+        
         CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
-
-        CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
 
         NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
         [params addObject:base64Image];
-
-        CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
 
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
         [pluginResult setKeepCallbackAsBool:true];
