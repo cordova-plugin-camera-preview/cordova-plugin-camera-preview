@@ -309,7 +309,6 @@
   CGImageRef rotatedCGImage = CGBitmapContextCreateImage(rotatedContext);
 
   UIGraphicsEndImageContext();
-  CFAutorelease((CFTypeRef)rotatedCGImage);
 
   return rotatedCGImage;
 }
@@ -374,11 +373,14 @@
         UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
 
         double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
-        CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians]; // CGImageRotated gets autoreleased
+        CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
         
         CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
 
         NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
+
+        CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
+
         [params addObject:base64Image];
 
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
