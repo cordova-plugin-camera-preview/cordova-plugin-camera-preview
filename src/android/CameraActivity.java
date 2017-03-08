@@ -348,17 +348,18 @@ public class CameraActivity extends Fragment {
 
   PictureCallback jpegPictureCallback = new PictureCallback(){
     public void onPictureTaken(byte[] data, Camera arg1){
-      Log.d(TAG, "CameraPreview onPictureTaken");
+      Log.d(TAG, "CameraPreview jpegPictureCallback");
       Camera.Parameters params = mCamera.getParameters();
       try {
         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,data.length);
         bitmap = rotateBitmap(bitmap, mPreview.getDisplayOrientation(), cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-	bitmap.compress(Bitmap.CompressFormat.JPEG, params.getJpegQuality(), outputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, params.getJpegQuality(), outputStream);
         byte[] byteArray = outputStream.toByteArray();
         String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
         eventListener.onPictureTaken(encodedImage);
         canTakePicture = true;
+        mCamera.startPreview();
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
       } catch (Exception e) {
         Log.d(TAG, "CameraPreview exception");
