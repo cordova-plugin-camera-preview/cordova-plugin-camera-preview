@@ -239,6 +239,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     takePictureCallbackContext.sendPluginResult(pluginResult);
   }
 
+  public void onPictureTakenError(String message) {
+    Log.d(TAG, "CameraPreview onPictureTakenError");
+    takePictureCallbackContext.error(message);
+  }
+
   private boolean setColorEffect(final JSONArray args, CallbackContext callbackContext) {
     if(fragment == null){
       callbackContext.error("No preview");
