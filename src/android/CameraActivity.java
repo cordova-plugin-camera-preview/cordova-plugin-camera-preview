@@ -48,6 +48,7 @@ public class CameraActivity extends Fragment {
 
   public interface CameraPreviewListener {
     void onPictureTaken(String originalPicture);
+    void onPictureTakenError(String message);
   }
 
   private CameraPreviewListener eventListener;
@@ -358,12 +359,17 @@ public class CameraActivity extends Fragment {
         byte[] byteArray = outputStream.toByteArray();
         String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
         eventListener.onPictureTaken(encodedImage);
+        Log.d(TAG, "CameraPreview pictureTakenHandler called back");
+      } catch (OutOfMemoryError e) {
+        // most likely failed to allocate memory for rotateBitmap
+        Log.d(TAG, "CameraPreview OutOfMemoryError");
+        // failed to allocate memory
+        eventListener.onPictureTakenError("Picture too large (memory)");
+      } catch (Exception e) {
+        Log.d(TAG, "CameraPreview onPictureTaken general exception");
+      } finally {
         canTakePicture = true;
         mCamera.startPreview();
-        Log.d(TAG, "CameraPreview pictureTakenHandler called back");
-      } catch (Exception e) {
-        Log.d(TAG, "CameraPreview exception");
-        e.printStackTrace();
       }
     }
   };
