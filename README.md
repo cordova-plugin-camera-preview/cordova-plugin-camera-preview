@@ -75,7 +75,7 @@ All options stated are optional and will default to values here
 * `camera` - Options are 'front' and 'rear'  - Defaults to 'rear'
 * `toBack` - Defaults to false - Set to true if you want your html in front of your preview
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
-* `previewDrag` - Defaults to true - Does not work if toBack is set to false
+* `previewDrag` - Defaults to false - Does not work if toBack is set to false
 
 ```javascript
 CameraPreview.startCamera({x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: "front", toBack: false, tapPhoto: true, previewDrag: false});
