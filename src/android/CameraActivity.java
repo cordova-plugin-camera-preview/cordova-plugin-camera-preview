@@ -379,7 +379,7 @@ public class CameraActivity extends Fragment {
       get the supportedPictureSize that:
       - has the closest aspect ratio to the preview aspect ratio
       - has picture.width and picture.height closest to width and height
-      - has the highest supported picture width and height if width == 0 || height == 0
+      - has the highest supported picture width and height up to 2 Megapixel if width == 0 || height == 0
     */
     Camera.Size size = mCamera.new Size(width, height);
 
@@ -408,13 +408,16 @@ public class CameraActivity extends Fragment {
 
       if (difference < bestDifference - aspectTolerance) {
         // better aspectRatio found
-        size.width = supportedSize.width;
-        size.height = supportedSize.height;
-        bestDifference = difference;
+        if ((width != 0 && height != 0) || (supportedSize.width * supportedSize.height < 2048 * 1024)) {
+          size.width = supportedSize.width;
+          size.height = supportedSize.height;
+          bestDifference = difference;
+        }
       } else if (difference < bestDifference + aspectTolerance) {
-        // same aspectRatio found (within tolerance), get highest supported resolution
+        // same aspectRatio found (within tolerance)
         if (width == 0 || height == 0) {
-          if (size.width < supportedSize.width) {
+          // set highest supported resolution below 2 Megapixel
+          if ((size.width < supportedSize.width) && (supportedSize.width * supportedSize.height < 2048 * 1024)) {
             size.width = supportedSize.width;
             size.height = supportedSize.height;
           }
