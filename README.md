@@ -123,7 +123,7 @@ CameraPreview.hide();
 
 ### takePicture(options, successCallback, [errorCallback])
 
-<info>Take the picture. It defaults to max supported picture resolution if no width or height specified. If width and height are specified, it will choose a supported photo size that is closest to width and height specified and has closest aspect ratio to the preview. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
+<info>Take the picture. If width and height are not specified or are 0 it will use the defaults. If width and height are specified, it will choose a supported photo size that is closest to width and height specified and has closest aspect ratio to the preview. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
 
 ```javascript
 CameraPreview.takePicture({width:640, height:640, quality: 85}, function(base64PictureData){
