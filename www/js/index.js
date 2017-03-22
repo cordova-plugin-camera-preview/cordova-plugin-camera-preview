@@ -83,7 +83,7 @@ var app = {
     window.smallPreview = false;
     document.getElementById('changePreviewSize').addEventListener('click', this.changePreviewSize, false);
 
-    document.getElementById('showSupportedPictureSize').addEventListener('click', this.showSupportedPictureSize, false);
+    document.getElementById('showSupportedPictureSizes').addEventListener('click', this.showSupportedPictureSizes, false);
 
     // legacy - not sure if this was supposed to fix anything
     //window.addEventListener('orientationchange', this.onStopCamera, false);
