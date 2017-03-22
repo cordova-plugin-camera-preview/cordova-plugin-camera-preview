@@ -72,9 +72,9 @@ var app = {
     document.getElementById('hideButton').addEventListener('click', this.hide, false);
     document.getElementById('takePictureButton').addEventListener('click', this.takePicture, false);
     document.getElementById('selectColorEffect').addEventListener('change', this.changeColorEffect, false);
+    document.getElementById('selectFlashMode').addEventListener('change', this.changeFlashMode, false);
 
     if(navigator.userAgent.match(/Android/i)  == "Android"){
-      document.getElementById('selectFlashMode').addEventListener('change', this.changeFlashMode, false);
       document.getElementById('zoomSlider').addEventListener('change', this.changeZoom, false);
     }else{
       document.getElementById('androidOnly').style.display = 'none';
