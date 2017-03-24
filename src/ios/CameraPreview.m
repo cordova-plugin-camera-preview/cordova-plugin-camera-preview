@@ -233,8 +233,7 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void) getSupporte
-dPictureSizes:(CDVInvokedUrlCommand*)command {
+- (void) getSupportedPictureSizes:(CDVInvokedUrlCommand*)command {
   NSLog(@"getSupportedPictureSizes");
   CDVPluginResult *pluginResult;
 
