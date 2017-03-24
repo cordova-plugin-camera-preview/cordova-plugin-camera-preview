@@ -138,7 +138,7 @@
   NSLog(@"Flash Mode");
   CDVPluginResult *pluginResult;
 
-  NSInteger flashMode = [command.arguments objectAtIndex:0];
+  NSInteger flashMode = [[command.arguments objectAtIndex:0] unsignedIntegerValue];
 
   if (self.sessionManager != nil) {
     [self.sessionManager setFlashMode:flashMode];
