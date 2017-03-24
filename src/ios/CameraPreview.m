@@ -222,8 +222,7 @@
         CGFloat width = (CGFloat)[command.arguments[0] floatValue];
         CGFloat height = (CGFloat)[command.arguments[1] floatValue];
         
-        //self.cameraRenderController.view.frame = CGRectMake(0, 0, width, height);
-        [self.cameraRenderController setViewFrame:CGRectMake(0, 0, width, height)];
+        self.cameraRenderController.view.frame = CGRectMake(0, 0, width, height);
         
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
