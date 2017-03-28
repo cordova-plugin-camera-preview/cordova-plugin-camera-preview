@@ -8,7 +8,9 @@
 - (void) setupSession:(NSString *)defaultCamera;
 - (void) switchCamera;
 - (void) setFlashMode:(NSInteger)flashMode;
+- (void) setZoom:(CGFloat)desiredZoomFactor;
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation;
+- (void) tapToFocus:(CGFloat)xPoint yPoint:(CGFloat)yPoint;
 - (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation;
 
 @property (atomic) CIFilter *ciFilter;

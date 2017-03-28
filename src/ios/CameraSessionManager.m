@@ -99,6 +99,7 @@
       }
 
       [self updateOrientation:[self getCurrentOrientation]];
+      self.device = videoDevice;
   });
 }
 
@@ -188,6 +189,61 @@
     } else {
       errMsg = @"This device has no flash";
     }
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (void)setZoom:(CGFloat)desiredZoomFactor {
+
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+    [self.device lockForConfiguration:nil];
+
+    self.videoZoomFactor = MAX(1.0, MIN(desiredZoomFactor, self.device.activeFormat.videoMaxZoomFactor));
+
+    [self.device setVideoZoomFactor:self.videoZoomFactor];
+    [self.device unlockForConfiguration];
+    NSLog(@"%zd zoom factor set", self.videoZoomFactor);
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (void) tapToFocus:(CGFloat)xPoint yPoint:(CGFloat)yPoint {
+
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+    [self.device lockForConfiguration:nil];
+
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    CGFloat screenWidth = screenRect.size.width;
+    CGFloat screenHeight = screenRect.size.height;
+    CGFloat focus_x = xPoint/screenWidth;
+    CGFloat focus_y = yPoint/screenHeight;
+
+    if ([self.device isFocusModeSupported:AVCaptureExposureModeAutoExpose]){
+      [self.device setFocusPointOfInterest:CGPointMake(focus_x,focus_y)];
+      [self.device setFocusMode:AVCaptureFocusModeAutoFocus];
+    }
+    if ([self.device isExposureModeSupported:AVCaptureExposureModeAutoExpose]){
+      [self.device setExposurePointOfInterest:CGPointMake(focus_x,focus_y)];
+      [self.device setExposureMode:AVCaptureExposureModeAutoExpose];
+    }
+
+    [self.device unlockForConfiguration];
   } else {
     errMsg = @"Session is not started";
   }
