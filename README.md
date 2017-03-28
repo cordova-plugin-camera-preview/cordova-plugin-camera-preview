@@ -69,7 +69,6 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 
 Starts the camera preview instance.
 <br>
-<br>
 
 <strong>Options:</strong>
 All options stated are optional and will default to values here
