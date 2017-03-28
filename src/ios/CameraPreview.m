@@ -150,6 +150,22 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void) setZoom:(CDVInvokedUrlCommand*)command {
+  NSLog(@"Zoom");
+  CDVPluginResult *pluginResult;
+
+  CGFloat desiredZoomFactor = [[command.arguments objectAtIndex:0] floatValue];
+
+  if (self.sessionManager != nil) {
+    [self.sessionManager setZoom:desiredZoomFactor];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not not zoomed"];
+  }
+
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void) takePicture:(CDVInvokedUrlCommand*)command {
   NSLog(@"takePicture");
   CDVPluginResult *pluginResult;
@@ -209,26 +225,26 @@
 }
 
 - (void) setPreviewSize: (CDVInvokedUrlCommand*)command {
-    
+
     CDVPluginResult *pluginResult;
-    
+
     if (self.sessionManager == nil) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera did not start!"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     if (command.arguments.count > 1) {
         CGFloat width = (CGFloat)[command.arguments[0] floatValue];
         CGFloat height = (CGFloat)[command.arguments[1] floatValue];
-        
+
         self.cameraRenderController.view.frame = CGRectMake(0, 0, width, height);
-        
+
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid number of parameters"];
     }
-    
+
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -276,6 +292,23 @@
   }
 
   return base64Image;
+}
+
+- (void) tapToFocus:(CDVInvokedUrlCommand*)command {
+  NSLog(@"tapToFocus");
+  CDVPluginResult *pluginResult;
+
+  CGFloat xPoint = [[command.arguments objectAtIndex:0] floatValue];
+  CGFloat yPoint = [[command.arguments objectAtIndex:1] floatValue];
+
+  if (self.sessionManager != nil) {
+    [self.sessionManager tapToFocus:xPoint yPoint:yPoint];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not tapped to focus"];
+  }
+
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (double)radiansFromUIImageOrientation:(UIImageOrientation)orientation {
@@ -398,7 +431,7 @@
 
         double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
         CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
-        
+
         CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
 
         NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];

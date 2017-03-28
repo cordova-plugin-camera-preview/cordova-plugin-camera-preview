@@ -74,7 +74,7 @@ CameraPreview.setColorEffect = function(effect, onSuccess, onError){
 
 CameraPreview.setZoom = function(zoom, onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "setZoom", [zoom]);
-}
+};
 
 CameraPreview.setPreviewSize = function(dimensions, onSuccess, onError){
   dimensions = dimensions || {};
@@ -82,7 +82,7 @@ CameraPreview.setPreviewSize = function(dimensions, onSuccess, onError){
   dimensions.height = dimensions.height || window.screen.height;
 
   return exec(onSuccess, onError, PLUGIN_NAME, "setPreviewSize", [dimensions.width, dimensions.height]);
-}
+};
 
 CameraPreview.getSupportedPictureSizes = function(onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPictureSizes", []);
@@ -103,6 +103,10 @@ CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {
   }
 
   exec(onSuccess, onError, PLUGIN_NAME, "setFlashMode", [flashMode]);
+};
+
+CameraPreview.tapToFocus = function(xPoint, yPoint, onSuccess, onError){
+  exec(onSuccess, onError, PLUGIN_NAME, "tapToFocus", [xPoint, yPoint]);
 };
 
 module.exports = CameraPreview;
