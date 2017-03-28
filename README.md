@@ -25,9 +25,15 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
 These are some features that are currently Android only, however we would love to see PR's for this functionality in iOS.
 
 <ul>
-  <li>Zoom</li>
-  <li>Auto focus</li>
   <li>Torch flash mode</li>
+</ul>
+
+### iOS only features
+
+These are some features that are currently iOS only, however we would love to see PR's for this functionality in Android.
+
+<ul>
+  <li>Tap to focus</li>
 </ul>
 
 # Installation
@@ -190,6 +196,16 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
     console.log(dimension.width + 'x' + dimension.height);
   });
 });
+```
+
+### tapToFocus(xPoint, yPoint, [successCallback, errorCallback])
+
+<info>Set specific focus point. Note, this assumes the camera is full-screen.</info><br/>
+
+```javascript
+let xPoint = event.x;
+let yPoint = event.y
+CameraPreview.tapToFocus(xPoint, yPoint);
 ```
 
 # IOS Quirks
