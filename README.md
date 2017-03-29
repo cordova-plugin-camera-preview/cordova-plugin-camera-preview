@@ -89,7 +89,7 @@ CameraPreview.startCamera({x: 0, y: 0, width: window.screen.width, height: windo
 When setting the toBack to true, remember to add the style below on your app's HTML or body element:
 
 ```css
-html, body {
+html, body, .ion-app, .ion-content {
   background-color: transparent;
 }
 ```
