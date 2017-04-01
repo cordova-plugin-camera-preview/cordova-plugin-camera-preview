@@ -234,7 +234,7 @@
     CGFloat focus_x = xPoint/screenWidth;
     CGFloat focus_y = yPoint/screenHeight;
 
-    if ([self.device isFocusModeSupported:AVCaptureExposureModeAutoExpose]){
+    if ([self.device isFocusModeSupported:AVCaptureFocusModeAutoFocus]){
       [self.device setFocusPointOfInterest:CGPointMake(focus_x,focus_y)];
       [self.device setFocusMode:AVCaptureFocusModeAutoFocus];
     }
