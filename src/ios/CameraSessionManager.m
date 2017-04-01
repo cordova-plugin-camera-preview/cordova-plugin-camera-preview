@@ -167,27 +167,26 @@
 }
 
 - (void)setFlashMode:(NSInteger)flashMode {
-
+  NSError *error = nil;
   NSString *errMsg;
 
   // check session is started
   if (self.session) {
-    if ([self.device hasFlash]) {
-      [self.device lockForConfiguration:nil];
+    // Let's save the setting even if we can't set it up on this camera.
+    self.defaultFlashMode = flashMode;
 
-      if (flashMode == AVCaptureFlashModeOn) {
-        self.defaultFlashMode = AVCaptureFlashModeOn;
-      } else if (flashMode == AVCaptureFlashModeOff) {
-        self.defaultFlashMode = AVCaptureFlashModeOff;
-      } else if (flashMode == AVCaptureFlashModeAuto) {
-        self.defaultFlashMode = AVCaptureFlashModeAuto;
+    if ([self.device hasFlash] && [self.device isFlashModeSupported:self.defaultFlashMode]) {
+
+      if ([self.device lockForConfiguration:&error]) {
+
+        [self.device setFlashMode:self.defaultFlashMode];
+        [self.device unlockForConfiguration];
+
+      } else {
+          NSLog(@"%@", error);
       }
-
-      [self.device setFlashMode:self.defaultFlashMode];
-      [self.device unlockForConfiguration];
-      NSLog(@"%zd hey", self.defaultFlashMode);
     } else {
-      errMsg = @"This device has no flash";
+      errMsg = @"Camera has no flash or flash mode not supported";
     }
   } else {
     errMsg = @"Session is not started";
