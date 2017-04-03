@@ -77,7 +77,7 @@ All options stated are optional and will default to values here
 * `y` - Defaults to 0
 * `width` - Defaults to window.screen.width
 * `height` - Defaults to window.screen.height
-* `camera` - <code>[CameraDirection](#camera_Settings.CameraDirection)</code> - Defaults to <code>FRONT</code>
+* `camera` - <code>[CAMERA_DIRECTION](#camera_Settings.CameraDirection)</code> - Defaults to <code>FRONT</code>
 * `toBack` - Defaults to false - Set to true if you want your html in front of your preview
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
 * `previewDrag` - Defaults to false - Does not work if toBack is set to false
@@ -88,7 +88,7 @@ let options = {
   y: 0,
   width: window.screen.width,
   height: window.screen.height,
-  camera: CameraPreview.CameraDirection.BACK,
+  camera: CameraPreview.CAMERA_DIRECTION.BACK,
   toBack: false,
   tapPhoto: true,
   previewDrag: false
@@ -163,21 +163,21 @@ CameraPreview.takePicture(function(base64PictureData){
 ### setFlashMode(flashMode, [successCallback, errorCallback])
 
 <info>Set the flash mode.</info><br/>
-* `flashMode` - <code>[FlashMode](#camera_Settings.FlashMode)</code>
+* `flashMode` - <code>[FLASH_MODE](#camera_Settings.FlashMode)</code>
 
 ```javascript
-CameraPreview.setFlashMode(CameraPreview.FlashMode.ON);
+CameraPreview.setFlashMode(CameraPreview.FLASH_MODE.ON);
 ```
 
 ### setColorEffect(colorEffect, [successCallback, errorCallback])
 
 <info>Set the color effect.</info><br/>
 
-* `colorEffect` - <code>[ColorEffect](#camera_Settings.ColorEffect)</code>
+* `colorEffect` - <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code>
 
 
 ```javascript
-CameraPreview.setColorEffect(CameraPreview.ColorEffect.NEGATIVE);
+CameraPreview.setColorEffect(CameraPreview.COLOR_EFFECT.NEGATIVE);
 ```
 
 ### setZoom(zoomMultiplier, [successCallback, errorCallback])
@@ -221,7 +221,7 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 
 <a name="camera_Settings.FlashMode"></a>
 
-### FlashMode
+### FLASH_MODE
 
 <info>Flash mode settings:</info><br/>
 
@@ -234,7 +234,7 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 
 <a name="camera_Settings.CameraDirection"></a>
 
-### CameraDirection
+### CAMERA_DIRECTION
 
 <info>Camera direction settings:</info><br/>
 
@@ -245,7 +245,7 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 
 <a name="camera_Settings.ColorEffect"></a>
 
-### ColorEffect
+### COLOR_EFFECT
 
 <info>Color effect settings:</info><br/>
 

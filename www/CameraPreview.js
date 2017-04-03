@@ -16,7 +16,7 @@ CameraPreview.startCamera = function(options, onSuccess, onError){
   options.y = options.y || 0;
   options.width = options.width || window.screen.width;
   options.height = options.height || window.screen.height;
-  options.camera = options.camera || CameraPreview.CameraDirection.FRONT;
+  options.camera = options.camera || CameraPreview.CAMERA_DIRECTION.FRONT;
   if(typeof(options.tapPhoto) === 'undefined'){
     options.tapPhoto = true;
   }
@@ -95,14 +95,14 @@ CameraPreview.tapToFocus = function(xPoint, yPoint, onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "tapToFocus", [xPoint, yPoint]);
 };
 
-CameraPreview.FlashMode = {
+CameraPreview.FLASH_MODE = {
   OFF: 'off',
   ON: 'on',
   AUTO: 'auto',
   TORCH: 'torch' // Android Only
 };
 
-CameraPreview.ColorEffect = {
+CameraPreview.COLOR_EFFECT = {
   AQUA: 'aqua', // Android Only
   BLACKBOARD: 'blackboard', // Android Only
   MONO: 'mono',
@@ -114,7 +114,7 @@ CameraPreview.ColorEffect = {
   WHITEBOARD: 'whiteboard' // Android Only
 };
 
-CameraPreview.CameraDirection = {
+CameraPreview.CAMERA_DIRECTION = {
   BACK: 'back',
   FRONT: 'front'
 };
