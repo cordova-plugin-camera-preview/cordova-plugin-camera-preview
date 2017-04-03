@@ -77,7 +77,7 @@ All options stated are optional and will default to values here
 * `y` - Defaults to 0
 * `width` - Defaults to window.screen.width
 * `height` - Defaults to window.screen.height
-* `camera` - <code>[CAMERA_DIRECTION](#camera_Settings.CameraDirection)</code> - Defaults to <code>FRONT</code>
+* `camera` - See <code>[CAMERA_DIRECTION](#camera_Settings.CameraDirection)</code> - Defaults to front camera/code>
 * `toBack` - Defaults to false - Set to true if you want your html in front of your preview
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
 * `previewDrag` - Defaults to false - Does not work if toBack is set to false
@@ -227,10 +227,10 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 
 | Name | Type | Default | Note |
 | --- | --- | --- | --- |
-| OFF | <code>string</code> | <code>off</code> |  |
-| ON | <code>string</code> | <code>on</code> |  |
-| AUTO | <code>string</code> | <code>auto</code> |  |
-| TORCH | <code>string</code> | <code>torch</code> | Android Only |
+| OFF | string | off |  |
+| ON | string | on |  |
+| AUTO | string | auto |  |
+| TORCH | string | torch | Android Only |
 
 <a name="camera_Settings.CameraDirection"></a>
 
@@ -240,8 +240,8 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 
 | Name | Type | Default |
 | --- | --- | --- |
-| BACK | <code>string</code> | <code>back</code> |
-| FRONT | <code>string</code> | <code>front</code> |
+| BACK | string | back |
+| FRONT | string | front |
 
 <a name="camera_Settings.ColorEffect"></a>
 
@@ -251,15 +251,15 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 
 | Name | Type | Default | Note |
 | --- | --- | --- | --- |
-| AQUA | <code>string</code> | <code>aqua</code> | Android Only |
-| BLACKBOARD | <code>string</code> | <code>blackboard</code> | Android Only |
-| MONO | <code>string</code> | <code>mono</code> | |
-| NEGATIVE | <code>string</code> | <code>negative</code> | |
-| NONE | <code>string</code> | <code>none</code> | |
-| POSTERIZE | <code>string</code> | <code>posterize</code> | |
-| SEPIA | <code>string</code> | <code>sepia</code> | |
-| SOLARIZE | <code>string</code> | <code>solarize</code> | Android Only |
-| WHITEBOARD | <code>string</code> | <code>whiteboard</code> | Android Only |
+| AQUA | string | aqua | Android Only |
+| BLACKBOARD | string | blackboard | Android Only |
+| MONO | string | mono | |
+| NEGATIVE | string | negative | |
+| NONE | string | none | |
+| POSTERIZE | string | posterize | |
+| SEPIA | string | sepia | |
+| SOLARIZE | string | solarize | Android Only |
+| WHITEBOARD | string | whiteboard | Android Only |
 
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
