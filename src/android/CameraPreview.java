@@ -128,7 +128,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean getSupportedPictureSizes(CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
-      return false;
+      return true;
     }
 
     List<Camera.Size> supportedSizes;
@@ -156,14 +156,14 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     callbackContext.error("Camera Parameters access error");
-    return false;
+    return true;
   }
 
   private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, CallbackContext callbackContext) {
     Log.d(TAG, "start camera action");
     if (fragment != null) {
       callbackContext.error("Camera already started");
-      return false;
+      return true;
     }
 
     final float opacity = Float.parseFloat(alpha);
@@ -226,7 +226,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean takePicture(int width, int height, int quality, CallbackContext callbackContext) {
     if(this.hasView(callbackContext) == false){
-      return false;
+      return true;
     }
 
     takePictureCallbackContext = callbackContext;
@@ -254,7 +254,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean setColorEffect(String effect, CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
-      return false;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -288,7 +288,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean setZoom(int zoom, CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
-      return false;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -299,17 +299,16 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       fragment.setCameraParameters(params);
 
       callbackContext.success(zoom);
-      return true;
     } else {
       callbackContext.error("Zoom not supported");
-      return false;
     }
+
+    return true;
   }
 
   private boolean setPreviewSize(int width, int height, CallbackContext callbackContext) {
-
     if(this.hasCamera(callbackContext) == false){
-      return false;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -325,7 +324,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean setFlashMode(int mode, CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
-      return false;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -357,7 +356,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean stopCamera(CallbackContext callbackContext) {
     if(this.hasView(callbackContext) == false){
-      return false;
+      return true;
     }
 
     FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
@@ -372,7 +371,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean showCamera(CallbackContext callbackContext) {
     if(this.hasView(callbackContext) == false){
-      return false;
+      return true;
     }
 
     FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
@@ -386,7 +385,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean hideCamera(CallbackContext callbackContext) {
     if(this.hasView(callbackContext) == false){
-      return false;
+      return true;
     }
 
     FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
@@ -400,7 +399,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private boolean switchCamera(CallbackContext callbackContext) {
     if(this.hasView(callbackContext) == false){
-      return false;
+      return true;
     }
 
     fragment.switchCamera();
