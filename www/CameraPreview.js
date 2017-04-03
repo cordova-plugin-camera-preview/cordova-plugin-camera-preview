@@ -100,8 +100,19 @@ CameraPreview.FlashMode = {
   OFF: 'off',
   ON: 'on',
   AUTO: 'auto',
-  // Only available for Android
-  TORCH: 'torch'
+  TORCH: 'torch' // Android Only
+};
+
+CameraPreview.ColorEffect = {
+  AQUA: 'aqua', // Android Only
+  BLACKBOARD: 'blackboard', // Android Only
+  MONO: 'mono',
+  NEGATIVE: 'negative',
+  NONE: 'none',
+  POSTERIZE: 'posterize',
+  SEPIA: 'sepia',
+  SOLARIZE: 'solarize', // Android Only
+  WHITEBOARD: 'whiteboard' // Android Only
 };
 
 module.exports = CameraPreview;
