@@ -10,14 +10,13 @@ function isFunction(obj){
   return !!(obj && obj.constructor && obj.call && obj.apply);
 };
 
-
 CameraPreview.startCamera = function(options, onSuccess, onError){
   options = options || {};
   options.x = options.x || 0;
   options.y = options.y || 0;
   options.width = options.width || window.screen.width;
   options.height = options.height || window.screen.height;
-  options.camera = options.camera || 'front';
+  options.camera = options.camera || CameraPreview.CameraDirection.FRONT;
   if(typeof(options.tapPhoto) === 'undefined'){
     options.tapPhoto = true;
   }
@@ -113,6 +112,11 @@ CameraPreview.ColorEffect = {
   SEPIA: 'sepia',
   SOLARIZE: 'solarize', // Android Only
   WHITEBOARD: 'whiteboard' // Android Only
+};
+
+CameraPreview.CameraDirection = {
+  BACK: 'back',
+  FRONT: 'front'
 };
 
 module.exports = CameraPreview;
