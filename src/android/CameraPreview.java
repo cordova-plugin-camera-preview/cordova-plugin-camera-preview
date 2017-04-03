@@ -334,19 +334,19 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     switch(mode) {
       case 0:
-        params.setFlashMode(params.FLASH_MODE_OFF);
+        params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
         break;
 
       case 1:
-        params.setFlashMode(params.FLASH_MODE_ON);
+        params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
         break;
 
       case 2:
-        params.setFlashMode(params.FLASH_MODE_AUTO);
+        params.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
         break;
 
       case 3:
-        params.setFlashMode(params.FLASH_MODE_TORCH);
+        params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
         break;
     }
 
