@@ -23,24 +23,25 @@ import java.util.Arrays;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
-  private final String TAG = "CameraPreview";
-  private final String setColorEffectAction = "setColorEffect";
-  private final String setZoomAction = "setZoom";
-  private final String setFlashModeAction = "setFlashMode";
-  private final String startCameraAction = "startCamera";
-  private final String stopCameraAction = "stopCamera";
-  private final String previewSizeAction = "setPreviewSize";
-  private final String switchCameraAction = "switchCamera";
-  private final String takePictureAction = "takePicture";
-  private final String showCameraAction = "showCamera";
-  private final String hideCameraAction = "hideCamera";
-  private final String getSupportedPictureSizesAction = "getSupportedPictureSizes";
+  private static final String TAG = "CameraPreview";
 
-  private final String [] permissions = {
+  private static final String COLOR_EFFECT_ACTION = "setColorEffect";
+  private static final String ZOOM_ACTION = "setZoom";
+  private static final String FLASH_MODE_ACTION = "setFlashMode";
+  private static final String START_CAMERA_ACTION = "startCamera";
+  private static final String STOP_CAMERA_ACTION = "stopCamera";
+  private static final String PREVIEW_SIZE_ACTION = "setPreviewSize";
+  private static final String SWITCH_CAMERA_ACTION = "switchCamera";
+  private static final String TAKE_PICTURE_ACTION = "takePicture";
+  private static final String SHOW_CAMERA_ACTION = "showCamera";
+  private static final String HIDE_CAMERA_ACTION = "hideCamera";
+  private static final String SUPPORTED_PICTURE_SIZES_ACTION = "getSupportedPictureSizes";
+
+  private static final int CAM_REQ_CODE = 0;
+
+  private static final String [] permissions = {
     Manifest.permission.CAMERA
   };
-
-  private final int permissionsReqId = 0;
 
   private CameraActivity fragment;
   private CallbackContext takePictureCallbackContext;
@@ -57,33 +58,33 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
-    if (startCameraAction.equals(action)) {
+    if (START_CAMERA_ACTION.equals(action)) {
       if (cordova.hasPermission(permissions[0])) {
         return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4), args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), callbackContext);
       } else {
         this.execCallback = callbackContext;
         this.execArgs = args;
-        cordova.requestPermissions(this, 0, permissions);
+        cordova.requestPermissions(this, CAM_REQ_CODE, permissions);
       }
-    } else if (takePictureAction.equals(action)) {
+    } else if (TAKE_PICTURE_ACTION.equals(action)) {
       return takePicture(args.getInt(0), args.getInt(1), args.getInt(2), callbackContext);
-    } else if (setColorEffectAction.equals(action)) {
+    } else if (COLOR_EFFECT_ACTION.equals(action)) {
       return setColorEffect(args.getString(0), callbackContext);
-    } else if (setZoomAction.equals(action)) {
+    } else if (ZOOM_ACTION.equals(action)) {
       return setZoom(args.getInt(0), callbackContext);
-    } else if (previewSizeAction.equals(action)) {
+    } else if (PREVIEW_SIZE_ACTION.equals(action)) {
       return setPreviewSize(args.getInt(0), args.getInt(1), callbackContext);
-    } else if (setFlashModeAction.equals(action)) {
+    } else if (FLASH_MODE_ACTION.equals(action)) {
       return setFlashMode(args.getInt(0), callbackContext);
-    } else if (stopCameraAction.equals(action)){
+    } else if (STOP_CAMERA_ACTION.equals(action)){
       return stopCamera(callbackContext);
-    } else if (hideCameraAction.equals(action)) {
+    } else if (HIDE_CAMERA_ACTION.equals(action)) {
       return hideCamera(callbackContext);
-    } else if (showCameraAction.equals(action)) {
+    } else if (SHOW_CAMERA_ACTION.equals(action)) {
       return showCamera(callbackContext);
-    } else if (switchCameraAction.equals(action)) {
+    } else if (SWITCH_CAMERA_ACTION.equals(action)) {
       return switchCamera(callbackContext);
-    } else if (getSupportedPictureSizesAction.equals(action)) {
+    } else if (SUPPORTED_PICTURE_SIZES_ACTION.equals(action)) {
       return getSupportedPictureSizes(callbackContext);
     }
 
@@ -98,7 +99,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         return;
       }
     }
-    if (requestCode == permissionsReqId) {
+    if (requestCode == CAM_REQ_CODE) {
       startCamera(this.execArgs.getInt(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getString(4), this.execArgs.getBoolean(5), this.execArgs.getBoolean(6), this.execArgs.getBoolean(7), this.execArgs.getString(8), this.execCallback);
     }
   }
