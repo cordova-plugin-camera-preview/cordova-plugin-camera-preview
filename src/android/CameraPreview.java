@@ -75,7 +75,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else if (PREVIEW_SIZE_ACTION.equals(action)) {
       return setPreviewSize(args.getInt(0), args.getInt(1), callbackContext);
     } else if (FLASH_MODE_ACTION.equals(action)) {
-      return setFlashMode(args.getInt(0), callbackContext);
+      return setFlashMode(args.getString(0), callbackContext);
     } else if (STOP_CAMERA_ACTION.equals(action)){
       return stopCamera(callbackContext);
     } else if (HIDE_CAMERA_ACTION.equals(action)) {
@@ -260,24 +260,27 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
     Camera.Parameters params = camera.getParameters();
 
-    if (effect.equals("aqua")) {
+    if (effect.equals(Camera.Parameters.EFFECT_AQUA)) {
       params.setColorEffect(Camera.Parameters.EFFECT_AQUA);
-    } else if (effect.equals("blackboard")) {
+    } else if (effect.equals(Camera.Parameters.EFFECT_BLACKBOARD)) {
       params.setColorEffect(Camera.Parameters.EFFECT_BLACKBOARD);
-    } else if (effect.equals("mono")) {
+    } else if (effect.equals(Camera.Parameters.EFFECT_MONO)) {
       params.setColorEffect(Camera.Parameters.EFFECT_MONO);
-    } else if (effect.equals("negative")) {
+    } else if (effect.equals(Camera.Parameters.EFFECT_NEGATIVE)) {
       params.setColorEffect(Camera.Parameters.EFFECT_NEGATIVE);
-    } else if (effect.equals("none")) {
+    } else if (effect.equals(Camera.Parameters.EFFECT_NONE)) {
       params.setColorEffect(Camera.Parameters.EFFECT_NONE);
-    } else if (effect.equals("posterize")) {
+    } else if (effect.equals(Camera.Parameters.EFFECT_POSTERIZE)) {
       params.setColorEffect(Camera.Parameters.EFFECT_POSTERIZE);
-    } else if (effect.equals("sepia")) {
+    } else if (effect.equals(Camera.Parameters.EFFECT_SEPIA)) {
       params.setColorEffect(Camera.Parameters.EFFECT_SEPIA);
-    } else if (effect.equals("solarize")) {
+    } else if (effect.equals(Camera.Parameters.EFFECT_SOLARIZE)) {
       params.setColorEffect(Camera.Parameters.EFFECT_SOLARIZE);
-    } else if (effect.equals("whiteboard")) {
+    } else if (effect.equals(Camera.Parameters.EFFECT_WHITEBOARD)) {
       params.setColorEffect(Camera.Parameters.EFFECT_WHITEBOARD);
+    } else {
+      callbackContext.error("Color effect not supported" + effect);
+      return true;
     }
 
     fragment.setCameraParameters(params);
@@ -322,7 +325,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  private boolean setFlashMode(int mode, CallbackContext callbackContext) {
+  private boolean setFlashMode(String flashMode, CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
     }
@@ -330,27 +333,22 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
     Camera.Parameters params = camera.getParameters();
 
-    switch(mode) {
-      case 0:
-        params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-        break;
-
-      case 1:
-        params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
-        break;
-
-      case 2:
-        params.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
-        break;
-
-      case 3:
-        params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-        break;
+    if (flashMode.equals(Camera.Parameters.FLASH_MODE_OFF)) {
+      params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+    } else if(flashMode.equals(Camera.Parameters.FLASH_MODE_ON)) {
+      params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+    } else if(flashMode.equals(Camera.Parameters.FLASH_MODE_AUTO)) {
+      params.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+    } else if(flashMode.equals(Camera.Parameters.FLASH_MODE_TORCH)) {
+      params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+    } else {
+      callbackContext.error("Flash Mode not recognised" + flashMode);
+      return true;
     }
 
     fragment.setCameraParameters(params);
 
-    callbackContext.success(mode);
+    callbackContext.success(flashMode);
     return true;
   }
 

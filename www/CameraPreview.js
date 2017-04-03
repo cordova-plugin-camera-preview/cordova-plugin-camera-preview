@@ -10,14 +10,13 @@ function isFunction(obj){
   return !!(obj && obj.constructor && obj.call && obj.apply);
 };
 
-
 CameraPreview.startCamera = function(options, onSuccess, onError){
   options = options || {};
   options.x = options.x || 0;
   options.y = options.y || 0;
   options.width = options.width || window.screen.width;
   options.height = options.height || window.screen.height;
-  options.camera = options.camera || 'front';
+  options.camera = options.camera || CameraPreview.CAMERA_DIRECTION.FRONT;
   if(typeof(options.tapPhoto) === 'undefined'){
     options.tapPhoto = true;
   }
@@ -89,24 +88,35 @@ CameraPreview.getSupportedPictureSizes = function(onSuccess, onError){
 };
 
 CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {
-  flashMode = flashMode.toLowerCase();
-  if(flashMode === 'off'){
-    flashMode = 0;
-  }else if(flashMode === 'on'){
-    flashMode = 1;
-  }else if(flashMode === 'auto'){
-    flashMode = 2;
-  }else if(flashMode === 'torch' && navigator.userAgent.match(/Android/i)  == "Android"){
-    flashMode = 3;
-  }else{
-    return false;
-  }
-
   exec(onSuccess, onError, PLUGIN_NAME, "setFlashMode", [flashMode]);
 };
 
 CameraPreview.tapToFocus = function(xPoint, yPoint, onSuccess, onError){
   exec(onSuccess, onError, PLUGIN_NAME, "tapToFocus", [xPoint, yPoint]);
+};
+
+CameraPreview.FLASH_MODE = {
+  OFF: 'off',
+  ON: 'on',
+  AUTO: 'auto',
+  TORCH: 'torch' // Android Only
+};
+
+CameraPreview.COLOR_EFFECT = {
+  AQUA: 'aqua', // Android Only
+  BLACKBOARD: 'blackboard', // Android Only
+  MONO: 'mono',
+  NEGATIVE: 'negative',
+  NONE: 'none',
+  POSTERIZE: 'posterize',
+  SEPIA: 'sepia',
+  SOLARIZE: 'solarize', // Android Only
+  WHITEBOARD: 'whiteboard' // Android Only
+};
+
+CameraPreview.CAMERA_DIRECTION = {
+  BACK: 'back',
+  FRONT: 'front'
 };
 
 module.exports = CameraPreview;

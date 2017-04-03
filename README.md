@@ -77,13 +77,24 @@ All options stated are optional and will default to values here
 * `y` - Defaults to 0
 * `width` - Defaults to window.screen.width
 * `height` - Defaults to window.screen.height
-* `camera` - Options are 'front' and 'rear'  - Defaults to 'rear'
+* `camera` - <code>[CAMERA_DIRECTION](#camera_Settings.CameraDirection)</code> - Defaults to <code>FRONT</code>
 * `toBack` - Defaults to false - Set to true if you want your html in front of your preview
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
 * `previewDrag` - Defaults to false - Does not work if toBack is set to false
 
 ```javascript
-CameraPreview.startCamera({x: 0, y: 0, width: window.screen.width, height: window.screen.height, camera: "front", toBack: false, tapPhoto: true, previewDrag: false});
+let options = {
+  x: 0,
+  y: 0,
+  width: window.screen.width,
+  height: window.screen.height,
+  camera: CameraPreview.CAMERA_DIRECTION.BACK,
+  toBack: false,
+  tapPhoto: true,
+  previewDrag: false
+};
+
+CameraPreview.startCamera(options);
 ```
 
 When setting the toBack to true, remember to add the style below on your app's HTML or body element:
@@ -151,23 +162,22 @@ CameraPreview.takePicture(function(base64PictureData){
 
 ### setFlashMode(flashMode, [successCallback, errorCallback])
 
-<info>Set the flash mode. Available flash modes are `off`, `on`, `auto`, `torch`. Torch mode is currently Android only</info><br/>
+<info>Set the flash mode.</info><br/>
+* `flashMode` - <code>[FLASH_MODE](#camera_Settings.FlashMode)</code>
 
 ```javascript
-CameraPreview.setFlashMode('ON');
+CameraPreview.setFlashMode(CameraPreview.FLASH_MODE.ON);
 ```
 
 ### setColorEffect(colorEffect, [successCallback, errorCallback])
 
-<info>Set the color effect.
-<br>
-iOS Effects: `none`, `mono`, `negative`, `posterize`, `sepia`.
-<br>
-Android Effects: `none`, `mono`, `negative`, `posterize`, `sepia`, `aqua`, `blackboard`, `solarize`, `whiteboard`
-</info>
+<info>Set the color effect.</info><br/>
+
+* `colorEffect` - <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code>
+
 
 ```javascript
-CameraPreview.setColorEffect('sepia');
+CameraPreview.setColorEffect(CameraPreview.COLOR_EFFECT.NEGATIVE);
 ```
 
 ### setZoom(zoomMultiplier, [successCallback, errorCallback])
@@ -206,6 +216,50 @@ let xPoint = event.x;
 let yPoint = event.y
 CameraPreview.tapToFocus(xPoint, yPoint);
 ```
+
+# Settings
+
+<a name="camera_Settings.FlashMode"></a>
+
+### FLASH_MODE
+
+<info>Flash mode settings:</info><br/>
+
+| Name | Type | Default | Note |
+| --- | --- | --- | --- |
+| OFF | <code>string</code> | <code>off</code> |  |
+| ON | <code>string</code> | <code>on</code> |  |
+| AUTO | <code>string</code> | <code>auto</code> |  |
+| TORCH | <code>string</code> | <code>torch</code> | Android Only |
+
+<a name="camera_Settings.CameraDirection"></a>
+
+### CAMERA_DIRECTION
+
+<info>Camera direction settings:</info><br/>
+
+| Name | Type | Default |
+| --- | --- | --- |
+| BACK | <code>string</code> | <code>back</code> |
+| FRONT | <code>string</code> | <code>front</code> |
+
+<a name="camera_Settings.ColorEffect"></a>
+
+### COLOR_EFFECT
+
+<info>Color effect settings:</info><br/>
+
+| Name | Type | Default | Note |
+| --- | --- | --- | --- |
+| AQUA | <code>string</code> | <code>aqua</code> | Android Only |
+| BLACKBOARD | <code>string</code> | <code>blackboard</code> | Android Only |
+| MONO | <code>string</code> | <code>mono</code> | |
+| NEGATIVE | <code>string</code> | <code>negative</code> | |
+| NONE | <code>string</code> | <code>none</code> | |
+| POSTERIZE | <code>string</code> | <code>posterize</code> | |
+| SEPIA | <code>string</code> | <code>sepia</code> | |
+| SOLARIZE | <code>string</code> | <code>solarize</code> | Android Only |
+| WHITEBOARD | <code>string</code> | <code>whiteboard</code> | Android Only |
 
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
