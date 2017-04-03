@@ -189,36 +189,40 @@
   CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   NSString *filterName = command.arguments[0];
 
-  if ([filterName isEqual: @"none"]) {
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-        [self.sessionManager setCiFilter:nil];
-        });
-  } else if ([filterName isEqual: @"mono"]) {
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-        CIFilter *filter = [CIFilter filterWithName:@"CIColorMonochrome"];
-        [filter setDefaults];
-        [self.sessionManager setCiFilter:filter];
-        });
-  } else if ([filterName isEqual: @"negative"]) {
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-        CIFilter *filter = [CIFilter filterWithName:@"CIColorInvert"];
-        [filter setDefaults];
-        [self.sessionManager setCiFilter:filter];
-        });
-  } else if ([filterName isEqual: @"posterize"]) {
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-        CIFilter *filter = [CIFilter filterWithName:@"CIColorPosterize"];
-        [filter setDefaults];
-        [self.sessionManager setCiFilter:filter];
-        });
-  } else if ([filterName isEqual: @"sepia"]) {
-    dispatch_async(self.sessionManager.sessionQueue, ^{
-        CIFilter *filter = [CIFilter filterWithName:@"CISepiaTone"];
-        [filter setDefaults];
-        [self.sessionManager setCiFilter:filter];
-        });
+  if(self.sessionManager != nil){
+    if ([filterName isEqual: @"none"]) {
+      dispatch_async(self.sessionManager.sessionQueue, ^{
+          [self.sessionManager setCiFilter:nil];
+          });
+    } else if ([filterName isEqual: @"mono"]) {
+      dispatch_async(self.sessionManager.sessionQueue, ^{
+          CIFilter *filter = [CIFilter filterWithName:@"CIColorMonochrome"];
+          [filter setDefaults];
+          [self.sessionManager setCiFilter:filter];
+          });
+    } else if ([filterName isEqual: @"negative"]) {
+      dispatch_async(self.sessionManager.sessionQueue, ^{
+          CIFilter *filter = [CIFilter filterWithName:@"CIColorInvert"];
+          [filter setDefaults];
+          [self.sessionManager setCiFilter:filter];
+          });
+    } else if ([filterName isEqual: @"posterize"]) {
+      dispatch_async(self.sessionManager.sessionQueue, ^{
+          CIFilter *filter = [CIFilter filterWithName:@"CIColorPosterize"];
+          [filter setDefaults];
+          [self.sessionManager setCiFilter:filter];
+          });
+    } else if ([filterName isEqual: @"sepia"]) {
+      dispatch_async(self.sessionManager.sessionQueue, ^{
+          CIFilter *filter = [CIFilter filterWithName:@"CISepiaTone"];
+          [filter setDefaults];
+          [self.sessionManager setCiFilter:filter];
+          });
+    } else {
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Filter not found"];
+    }
   } else {
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Filter not found"];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
   }
 
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
