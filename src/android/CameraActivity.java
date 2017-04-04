@@ -281,13 +281,6 @@ public class CameraActivity extends Fragment {
         mCamera = null;
       }
 
-      // Acquire the next camera and request Preview to reconfigure parameters.
-      mCamera = Camera.open((cameraCurrentlyLocked + 1) % numberOfCameras);
-
-      if (cameraParameters != null) {
-        mCamera.setParameters(cameraParameters);
-      }
-
       Log.d(TAG, "cameraCurrentlyLocked := " + Integer.toString(cameraCurrentlyLocked));
       try {
         cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
@@ -296,6 +289,7 @@ public class CameraActivity extends Fragment {
         Log.d(TAG, exception.getMessage());
       }
 
+      // Acquire the next camera and request Preview to reconfigure parameters.
       mCamera = Camera.open(cameraCurrentlyLocked);
 
       if (cameraParameters != null) {
