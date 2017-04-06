@@ -13,10 +13,6 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Start a camera preview from HTML code.</li>
   <li>Drag the preview box.</li>
   <li>Set camera color effect.</li>
-  <li>Set the flash mode</li>
-  <li>Get and set the camera zoom</li>
-  <li>Get and set the auto-exposure lock</li>
-  <li>Get and set the axposure compensation</li>
   <li>Send the preview box to back of the HTML content.</li>
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
@@ -30,13 +26,10 @@ These are some features that are currently Android only, however we would love t
 
 <ul>
   <li>Torch flash mode</li>
-  <li>getZoom() method</li>
-  <li>getMaxZoom() method</li>
-  <li>getAutoExposureLock() method</li>
-  <li>setAutoExposureLock() method</li>
-  <li>getExposureCompensation() method</li>
-  <li>setExposureCompensation() method</li>
-  <li>getExposureCompensationRange() method</li>
+  <li>get current zoom</li>
+  <li>get max zoom</li>
+  <li>get and set auto-exposure lock</li>
+  <li>get and set exposure compensation</li>
 </ul>
 
 ### iOS only features
@@ -250,7 +243,7 @@ CameraPreview.getExposureCompensation(function(expoxureCompensation){
 <info>Get the minimum and maximum exposure compensation. Returns an object containing min and max integers. Android only</info><br/>
 
 ```javascript
-CameraPreview.getExposureCompensation(function(expoxureRange){
+CameraPreview.getExposureCompensationRange(function(expoxureRange){
   console.log("min: " + exposureRange.min);
   console.log("max: " + exposureRange.max);
 });
