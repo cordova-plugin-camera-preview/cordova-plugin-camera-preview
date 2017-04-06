@@ -13,6 +13,10 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Start a camera preview from HTML code.</li>
   <li>Drag the preview box.</li>
   <li>Set camera color effect.</li>
+  <li>Set the flash mode</li>
+  <li>Get and set the camera zoom</li>
+  <li>Get and set the auto-exposure lock</li>
+  <li>Get and set the axposure compensation</li>
   <li>Send the preview box to back of the HTML content.</li>
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
@@ -26,6 +30,13 @@ These are some features that are currently Android only, however we would love t
 
 <ul>
   <li>Torch flash mode</li>
+  <li>getZoom() method</li>
+  <li>getMaxZoom() method</li>
+  <li>getAutoExposureLock() method</li>
+  <li>setAutoExposureLock() method</li>
+  <li>getExposureCompensation() method</li>
+  <li>setExposureCompensation() method</li>
+  <li>getExposureCompensationRange() method</li>
 </ul>
 
 ### iOS only features
@@ -186,6 +197,71 @@ CameraPreview.setColorEffect(CameraPreview.COLOR_EFFECT.NEGATIVE);
 
 ```javascript
 CameraPreview.setZoom(2);
+```
+
+### getZoom(cb, [errorCallback])
+
+<info>Get the current zoom level. Returns an integer representing the current zomm level. Android only</info><br/>
+
+```javascript
+CameraPreview.getZoom(function(currentZoom){
+  console.log(currentZoom);
+});
+```
+
+### getMaxZoom(cb, [errorCallback])
+
+<info>Get the maximum zoom level. Returns an integer representing the manimum zoom level. Android only</info><br/>
+
+```javascript
+CameraPreview.getMaxZoom(function(maxZoom){
+  console.log(maxZoom);
+});
+```
+### getAutoExposureLock(cb, [errorCallback])
+
+<info>Get the auto-exposure lock flag. Returns "locked" if the the auto-exposure is currently locked, otherwhise "unlocked" is returned. Android only</info><br/>
+
+```javascript
+CameraPreview.getAutoExposureLock(function(autoExposureLock){
+  console.log(autoExposureLock);
+});
+```
+### setAutoExposureLock(lock, [successCallback, errorCallback])
+
+<info>Set the auto exposure lock flag. lock accepts a boolean. If lock is true, the auto-exposure will be locked. If lock is false, the auto-exposure will be unlocked. Android only</info><br/>
+
+```javascript
+CameraPreview.setAutoExposureLock(true);
+```
+
+### getExposureCompensation(cb, [errorCallback])
+
+<info>Get the current exposure compensation. Returns an integer representing the current exposure compensation. Android only</info><br/>
+
+```javascript
+CameraPreview.getExposureCompensation(function(expoxureCompensation){
+  console.log(exposureCompensation);
+});
+```
+
+### getExposureCompensationRange(cb, [errorCallback])
+
+<info>Get the minimum and maximum exposure compensation. Returns an object containing min and max integers. Android only</info><br/>
+
+```javascript
+CameraPreview.getExposureCompensation(function(expoxureRange){
+  console.log("min: " + exposureRange.min);
+  console.log("max: " + exposureRange.max);
+});
+```
+### setExposureCompensation(exposureCompensation, [successCallback, errorCallback])
+
+<info>Set the exposure compensation. exposureCompensation accepts an integer. if exposureCompensation is lesser than the minimum exposure compensation, it i set to the minimum. if exposureCompensation is greater than the maximum exposure compensation, it i set to the maximum. (see getExposureCompensationRange() to get the minumum an maximum exposure compensation). Android only</info><br/>
+
+```javascript
+CameraPreview.setExposureCompensation(-2);
+CameraPreview.setExposureCompensation(3);
 ```
 
 ### setPreviewSize([dimensions, successCallback, errorCallback])
