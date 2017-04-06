@@ -7,7 +7,14 @@ interface CameraPreview {
   takePicture(options?:any, onSuccess?:any, onError?:any):any;
   setColorEffect(effect:string, onSuccess?:any, onError?:any):any;
   setZoom(zoom?:any, onSuccess?:any, onError?:any):any;
+  getMaxZoom(onSuccess?:any, onError?:any):any;
+  getZoom(onSuccess?:any, onError?:any):any;
   setPreviewSize(dimensions?:any, onSuccess?:any, onError?:any):any;
   getSupportedPictureSizes(onSuccess?:any, onError?:any):any;
+  getAutoExposureLock(onSuccess?:any, onError?:any):any;
+  setAutoExposureLock(lock?:any, onSuccess?:any, onError?:any):any;
+  getExposureCompensation(onSuccess?:any, onError?:any):any;
+  setExposureCompensation(exposureCompensation?:any, onSuccess?:any, onError?:any):any;
+  getExposureCompensationRange(onSuccess?:any, onError?:any):any;
   setFlashMode(flashMode:string, onSuccess?:any, onError?:any):any;
 }
