@@ -194,7 +194,7 @@ CameraPreview.setZoom(2);
 
 ### getZoom(cb, [errorCallback])
 
-<info>Get the current zoom level. Returns an integer representing the current zomm level. Android only</info><br/>
+<info>Get the current zoom level. Returns an integer representing the current zoom level. Android only</info><br/>
 
 ```javascript
 CameraPreview.getZoom(function(currentZoom){
@@ -250,7 +250,7 @@ CameraPreview.getExposureCompensationRange(function(expoxureRange){
 ```
 ### setExposureCompensation(exposureCompensation, [successCallback, errorCallback])
 
-<info>Set the exposure compensation. exposureCompensation accepts an integer. if exposureCompensation is lesser than the minimum exposure compensation, it i set to the minimum. if exposureCompensation is greater than the maximum exposure compensation, it i set to the maximum. (see getExposureCompensationRange() to get the minumum an maximum exposure compensation). Android only</info><br/>
+<info>Set the exposure compensation. exposureCompensation accepts an integer. if exposureCompensation is lesser than the minimum exposure compensation, it is set to the minimum. if exposureCompensation is greater than the maximum exposure compensation, it is set to the maximum. (see getExposureCompensationRange() to get the minumum an maximum exposure compensation). Android only</info><br/>
 
 ```javascript
 CameraPreview.setExposureCompensation(-2);
