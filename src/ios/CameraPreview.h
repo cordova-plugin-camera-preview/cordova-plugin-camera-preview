@@ -13,6 +13,14 @@
 - (void) hideCamera:(CDVInvokedUrlCommand*)command;
 - (void) setFlashMode:(CDVInvokedUrlCommand*)command;
 - (void) setZoom:(CDVInvokedUrlCommand*)command;
+- (void) getZoom:(CDVInvokedUrlCommand*)command;
+- (void) getMaxZoom:(CDVInvokedUrlCommand*)command;
+- (void) getExposureModes:(CDVInvokedUrlCommand*)command;
+- (void) getExposureMode:(CDVInvokedUrlCommand*)command;
+- (void) setExposureMode:(CDVInvokedUrlCommand*)command;
+- (void) getExposureCompensation:(CDVInvokedUrlCommand*)command;
+- (void) setExposureCompensation:(CDVInvokedUrlCommand*)command;
+- (void) getExposureCompensationRange:(CDVInvokedUrlCommand*)command;
 - (void) setPreviewSize: (CDVInvokedUrlCommand*)command;
 - (void) switchCamera:(CDVInvokedUrlCommand*)command;
 - (void) takePicture:(CDVInvokedUrlCommand*)command;
