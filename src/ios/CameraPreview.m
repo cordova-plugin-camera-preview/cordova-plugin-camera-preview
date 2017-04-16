@@ -134,6 +134,19 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void) getSupportedFlashModes:(CDVInvokedUrlCommand*)command {
+  CDVPluginResult *pluginResult;
+
+  if (self.sessionManager != nil) {
+    NSArray * flashModes = [self.sessionManager getFlashModes];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:flashModes];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Flash not supported"];
+  }
+
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void) setFlashMode:(CDVInvokedUrlCommand*)command {
   NSLog(@"Flash Mode");
   NSString *errMsg;

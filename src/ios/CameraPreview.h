@@ -26,6 +26,7 @@
 - (void) takePicture:(CDVInvokedUrlCommand*)command;
 - (void) setColorEffect:(CDVInvokedUrlCommand*)command;
 - (void) getSupportedPictureSizes:(CDVInvokedUrlCommand*)command;
+- (void) getSupportedFlashModes:(CDVInvokedUrlCommand*)command;
 - (void) tapToFocus:(CDVInvokedUrlCommand*)command;
 
 - (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(int) quality;

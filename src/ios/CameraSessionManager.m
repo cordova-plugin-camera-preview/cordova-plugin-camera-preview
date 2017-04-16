@@ -166,6 +166,40 @@
   });
 }
 
+- (NSArray *)getFlashModes {
+
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+  //  AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    if ([self.device hasFlash]) {
+      NSMutableArray * flashModes = [[NSMutableArray alloc] init];
+      if ([self.device isFlashModeSupported:0]) {
+        [flashModes addObject:@"off"];
+      };
+      if ([self.device isFlashModeSupported:1]) {
+        [flashModes addObject:@"on"];
+      };
+      if ([self.device isFlashModeSupported:2]) {
+        [flashModes addObject:@"auto"];
+      };
+      if ([self.device hasTorch]) {
+        [flashModes addObject:@"torch"];
+      };
+      return (NSArray *) flashModes;
+    } else {
+      errMsg = @"Flash not supported";
+    }
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
 - (void)setFlashMode:(NSInteger)flashMode {
   NSError *error = nil;
   NSString *errMsg;
@@ -322,7 +356,6 @@
 
   if (errMsg) {
     NSLog(@"%@", errMsg);
-    return 0;
   }
 }
 
@@ -357,7 +390,6 @@
   }
   if (errMsg) {
     NSLog(@"%@", errMsg);
-    return 0;
   }
 }
 
