@@ -17,6 +17,9 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Set a custom alpha for the preview box.</li>
+  <li>get current zoom and maximum zoom factors</li>
+  <li>get and set exposure mode</li>
+  <li>get and set exposure compensation</li>
   <li>Maintain HTML interactivity.</li>
 </ul>
 
@@ -26,10 +29,6 @@ These are some features that are currently Android only, however we would love t
 
 <ul>
   <li>Torch flash mode</li>
-  <li>get current zoom</li>
-  <li>get max zoom</li>
-  <li>get and set auto-exposure lock</li>
-  <li>get and set exposure compensation</li>
 </ul>
 
 ### iOS only features
@@ -211,33 +210,32 @@ CameraPreview.getMaxZoom(function(maxZoom){
   console.log(maxZoom);
 });
 ```
-### getAutoExposureLock(cb, [errorCallback])
+### getExposureModes(cb, [errorCallback])
 
-<info>Get the auto-exposure lock flag. Returns "locked" if the the auto-exposure is currently locked, otherwhise "unlocked" is returned. Android only</info><br/>
-
-```javascript
-CameraPreview.getAutoExposureLock(function(autoExposureLock){
-  console.log(autoExposureLock);
-});
-```
-### setAutoExposureLock(lock, [successCallback, errorCallback])
-
-<info>Set the auto exposure lock flag. lock accepts a boolean. If lock is true, the auto-exposure will be locked. If lock is false, the auto-exposure will be unlocked. Android only</info><br/>
+<info>Returns an array with supported exposure modes. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values returned.</info><br/>
 
 ```javascript
-CameraPreview.setAutoExposureLock(true);
-```
-
-### getExposureCompensation(cb, [errorCallback])
-
-<info>Get the current exposure compensation. Returns an integer representing the current exposure compensation. Android only</info><br/>
-
-```javascript
-CameraPreview.getExposureCompensation(function(expoxureCompensation){
-  console.log(exposureCompensation);
+CameraPreview.getExposureModes(function(exposureModes){
+  console.log(exposureModes);
 });
 ```
 
+### getExposureMode(cb, [errorCallback])
+
+<info>Get the curent exposure mode of the device. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values returned.</info><br/>
+
+```javascript
+CameraPreview.getExposureMode(function(exposureMode){
+  console.log(exposureMode);
+});
+```
+### setExposureMode(exposureMode, [successCallback, errorCallback])
+
+<info>Set the exposure mode. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values for exposureMode.</info><br/>
+
+```javascript
+CameraPreview.setExposureMode(CameraPreview.EXPOSURE_MODE.CONTINUOUS);
+```
 ### getExposureCompensationRange(cb, [errorCallback])
 
 <info>Get the minimum and maximum exposure compensation. Returns an object containing min and max integers. Android only</info><br/>
@@ -246,6 +244,15 @@ CameraPreview.getExposureCompensation(function(expoxureCompensation){
 CameraPreview.getExposureCompensationRange(function(expoxureRange){
   console.log("min: " + exposureRange.min);
   console.log("max: " + exposureRange.max);
+});
+```
+### getExposureCompensation(cb, [errorCallback])
+
+<info>Get the current exposure compensation. Returns an integer representing the current exposure compensation. Android only</info><br/>
+
+```javascript
+CameraPreview.getExposureCompensation(function(expoxureCompensation){
+  console.log(exposureCompensation);
 });
 ```
 ### setExposureCompensation(exposureCompensation, [successCallback, errorCallback])
@@ -329,6 +336,21 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 | SEPIA | string | sepia | |
 | SOLARIZE | string | solarize | Android Only |
 | WHITEBOARD | string | whiteboard | Android Only |
+
+<a name="camera_Settings.ExposureMode"></a>
+
+### EXPOSURE_MODE
+
+<info>Exposure mode settings:</info><br/>
+
+| Name | Type | Default | Note |
+| --- | --- | --- | --- |
+| AUTO | string | auto | IOS Only |
+| CONTINUOUS | string | continuous | |
+| CUSTOM | string | custom | |
+| LOCKED | string | custom | IOS Only |
+
+Note: Use AUTO to allow the device automatically adjusts the exposure once and then changes the exposure mode to LOCK.
 
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
