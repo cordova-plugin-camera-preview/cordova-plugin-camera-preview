@@ -25,11 +25,7 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
 
 ### Android only features
 
-These are some features that are currently Android only, however we would love to see PR's for this functionality in iOS.
-
-<ul>
-  <li>Torch flash mode</li>
-</ul>
+None
 
 ### iOS only features
 
@@ -306,7 +302,7 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 | OFF | string | off |  |
 | ON | string | on |  |
 | AUTO | string | auto |  |
-| TORCH | string | torch | Android Only |
+| TORCH | string | torch |  |
 
 <a name="camera_Settings.CameraDirection"></a>
 
