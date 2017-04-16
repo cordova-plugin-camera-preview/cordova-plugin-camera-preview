@@ -316,7 +316,7 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 | OFF | string | off |  |
 | ON | string | on |  |
 | AUTO | string | auto |  |
-| RED_EYE | string | red-eye |  |
+| RED_EYE | string | red-eye | Android Only |
 | TORCH | string | torch |  |
 
 <a name="camera_Settings.CameraDirection"></a>
