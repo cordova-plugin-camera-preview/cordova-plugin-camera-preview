@@ -25,7 +25,9 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
 
 ### Android only features
 
-None
+<ul>
+  <li>RED_EYE flash mode do not have a corresponding API in IOS.</li>
+</ul>
 
 ### iOS only features
 
@@ -156,6 +158,18 @@ CameraPreview.takePicture({width:640, height:640, quality: 85}, function(base64P
 
 CameraPreview.takePicture(function(base64PictureData){
   /* code here */
+});
+```
+### getSupportedPictureSizes(cb, [errorCallback])
+
+<info>Get the flash modes supported by the device. Returns an array containing supported flash modes. See <code>[FLASH_MODE](#camera_Settings.FlashMode)</code> for posible values that can be returned</info><br/>
+
+```javascript
+CameraPreview.getSupportedFlashModes(function(flashModes){
+  // note that the portrait version, width and height swapped, of these dimensions are also supported
+  flashModes.forEach(function(flashMode) {
+    console.log(flashMode + ', ');
+  });
 });
 ```
 
@@ -302,6 +316,7 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 | OFF | string | off |  |
 | ON | string | on |  |
 | AUTO | string | auto |  |
+| RED_EYE | string | red-eye |  |
 | TORCH | string | torch |  |
 
 <a name="camera_Settings.CameraDirection"></a>
