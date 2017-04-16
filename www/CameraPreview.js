@@ -103,12 +103,17 @@ CameraPreview.tapToFocus = function(xPoint, yPoint, onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "tapToFocus", [xPoint, yPoint]);
 };
 
-CameraPreview.getAutoExposureLock = function(onSuccess, onError) {
-    exec(onSuccess, onError, PLUGIN_NAME, "getAutoExposureLock", []);
+
+CameraPreview.getExposureModes = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getExposureModes", []);
 };
 
-CameraPreview.setAutoExposureLock = function(lock, onSuccess, onError) {
-    exec(onSuccess, onError, PLUGIN_NAME, "setAutoExposureLock", [lock]);
+CameraPreview.getExposureMode = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getExposureMode", []);
+};
+
+CameraPreview.setExposureMode = function(lock, onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "setExposureMode", [lock]);
 };
 
 CameraPreview.getExposureCompensation = function(onSuccess, onError) {
@@ -121,6 +126,13 @@ CameraPreview.setExposureCompensation = function(exposureCompensation, onSuccess
 
 CameraPreview.getExposureCompensationRange = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getExposureCompensationRange", []);
+};
+
+CameraPreview.EXPOSURE_MODE = {
+    LOCK: 'lock',
+    AUTO: 'auto', // IOS Only
+    CONTINUOUS: 'continuous', // IOS Only
+    CUSTOM: 'custom' // IOS Only
 };
 
 CameraPreview.FLASH_MODE = {
