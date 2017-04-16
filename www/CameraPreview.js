@@ -95,6 +95,10 @@ CameraPreview.getSupportedPictureSizes = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getSupportedPictureSizes", []);
 };
 
+CameraPreview.getSupportedFlashModes = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getSupportedFlashModes", []);
+};
+
 CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "setFlashMode", [flashMode]);
 };
@@ -139,7 +143,8 @@ CameraPreview.FLASH_MODE = {
     OFF: 'off',
     ON: 'on',
     AUTO: 'auto',
-    TORCH: 'torch' // Android Only
+    RED_EYE: 'red-eye', // Android Only
+    TORCH: 'torch'
 };
 
 CameraPreview.COLOR_EFFECT = {
