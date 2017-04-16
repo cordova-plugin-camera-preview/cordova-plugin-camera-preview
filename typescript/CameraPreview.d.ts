@@ -17,5 +17,6 @@ interface CameraPreview {
   getExposureCompensation(onSuccess?:any, onError?:any):any;
   setExposureCompensation(exposureCompensation?:any, onSuccess?:any, onError?:any):any;
   getExposureCompensationRange(onSuccess?:any, onError?:any):any;
+  getSupportedFlashModes(onSuccess?:any, onError?:any):any;
   setFlashMode(flashMode:string, onSuccess?:any, onError?:any):any;
 }
