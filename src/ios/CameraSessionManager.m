@@ -178,10 +178,48 @@
     if ([self.device hasFlash] && [self.device isFlashModeSupported:self.defaultFlashMode]) {
 
       if ([self.device lockForConfiguration:&error]) {
-
+        if ([self.device hasTorch] && [self.device isTorchAvailable]) {
+          self.device.torchMode=0;
+        }
         [self.device setFlashMode:self.defaultFlashMode];
         [self.device unlockForConfiguration];
 
+      } else {
+          NSLog(@"%@", error);
+      }
+    } else {
+      errMsg = @"Camera has no flash or flash mode not supported";
+    }
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (void)setTorchMode {
+  NSError *error = nil;
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+    // Let's save the setting even if we can't set it up on this camera.
+    //self.defaultFlashMode = flashMode;
+
+    if ([self.device hasTorch] && [self.device isTorchAvailable]) {
+
+      if ([self.device lockForConfiguration:&error]) {
+
+        if ([self.device isTorchModeSupported:1]) {
+          self.device.torchMode=1;  
+        } else if ([self.device isTorchModeSupported:2]) {
+          self.device.torchMode=2;
+        } else {
+          self.device.torchMode=0;
+        }
+        [self.device unlockForConfiguration];
       } else {
           NSLog(@"%@", error);
       }
@@ -420,17 +458,19 @@
 }
 
 - (void)setExposureCompensation:(CGFloat)exposureCompensation {
-
+  NSError *error = nil;
   NSString *errMsg;
 
   // check session is started
 
   if (self.session) {
-    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
-    [self.device lockForConfiguration:nil];
-    CGFloat exposureTargetBias = MAX(videoDevice.minExposureTargetBias, MIN(exposureCompensation, videoDevice.maxExposureTargetBias));
-    [videoDevice setExposureTargetBias:exposureTargetBias completionHandler:nil];
-    [self.device unlockForConfiguration];
+    if ([self.device lockForConfiguration:&error]) {
+      CGFloat exposureTargetBias = MAX(self.device.minExposureTargetBias, MIN(exposureCompensation, self.device.maxExposureTargetBias));
+      [self.device setExposureTargetBias:exposureTargetBias completionHandler:nil];
+      [self.device unlockForConfiguration];
+    } else {
+          NSLog(@"%@", error);
+    }  
   } else {
     errMsg = @"Session is not started";
   }

@@ -19,6 +19,7 @@
 - (void) setExposureCompensation:(CGFloat)exposureCompensation;
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation;
 - (void) tapToFocus:(CGFloat)xPoint yPoint:(CGFloat)yPoint;
+- (void) setTorchMode;
 - (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation;
 
 @property (atomic) CIFilter *ciFilter;

@@ -146,8 +146,10 @@
       [self.sessionManager setFlashMode:AVCaptureFlashModeOff];
     } else if ([flashMode isEqual: @"on"]) {
       [self.sessionManager setFlashMode:AVCaptureFlashModeOn];
-    } else if ([flashMode isEqual: @"auto"]) {
+    } else if ([flashMode isEqual: @"auto"]) {  
       [self.sessionManager setFlashMode:AVCaptureFlashModeAuto];
+    } else if ([flashMode isEqual: @"torch"]) {
+      [self.sessionManager setTorchMode];  
     } else {
       errMsg = @"Flash Mode not supported";
     }
