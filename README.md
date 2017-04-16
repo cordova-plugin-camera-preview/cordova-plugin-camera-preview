@@ -348,7 +348,7 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 | AUTO | string | auto | IOS Only |
 | CONTINUOUS | string | continuous | |
 | CUSTOM | string | custom | |
-| LOCKED | string | custom | IOS Only |
+| LOCK | string | lock | IOS Only |
 
 Note: Use AUTO to allow the device automatically adjusts the exposure once and then changes the exposure mode to LOCK.
 
