@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.List;
+import java.io.Console;
 import java.util.Arrays;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
@@ -29,6 +30,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String ZOOM_ACTION = "setZoom";
   private static final String GET_ZOOM_ACTION = "getZoom";
   private static final String GET_MAX_ZOOM_ACTION = "getMaxZoom";
+  private static final String SUPPORTED_FLASH_MODES_ACTION = "getSupportedFlashModes";
   private static final String FLASH_MODE_ACTION = "setFlashMode";
   private static final String START_CAMERA_ACTION = "startCamera";
   private static final String STOP_CAMERA_ACTION = "stopCamera";
@@ -86,6 +88,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return getMaxZoom(callbackContext);
     } else if (PREVIEW_SIZE_ACTION.equals(action)) {
       return setPreviewSize(args.getInt(0), args.getInt(1), callbackContext);
+    } else if (SUPPORTED_FLASH_MODES_ACTION.equals(action)) {
+      return getSupportedFlashModes(callbackContext);  
     } else if (FLASH_MODE_ACTION.equals(action)) {
       return setFlashMode(args.getString(0), callbackContext);
     } else if (STOP_CAMERA_ACTION.equals(action)){
@@ -180,7 +184,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, CallbackContext callbackContext) {
+    private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, CallbackContext callbackContext) {
     Log.d(TAG, "start camera action");
     if (fragment != null) {
       callbackContext.error("Camera already started");
@@ -513,6 +517,28 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
+private boolean getSupportedFlashModes(CallbackContext callbackContext) {
+    if(this.hasCamera(callbackContext) == false){
+      return true;
+    }
+
+    Camera camera = fragment.getCamera();
+    Camera.Parameters params = camera.getParameters();
+    List<String> supportedFlashModes;
+    supportedFlashModes = params.getSupportedFlashModes();
+    
+    if (supportedFlashModes != null) {
+      JSONArray jsonFlashModes = new JSONArray();
+      for (int i=0; i<supportedFlashModes.size(); i++) {
+          jsonFlashModes.put(new String(supportedFlashModes.get(i)));
+      }
+      callbackContext.success(jsonFlashModes);
+      return true;
+    }
+    callbackContext.error("Camera flash modes parameters access error");
+    return true;
+  }
+
   private boolean setFlashMode(String flashMode, CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
@@ -521,16 +547,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
     Camera.Parameters params = camera.getParameters();
 
-    if (flashMode.equals(Camera.Parameters.FLASH_MODE_OFF)) {
-      params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-    } else if(flashMode.equals(Camera.Parameters.FLASH_MODE_ON)) {
-      params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
-    } else if(flashMode.equals(Camera.Parameters.FLASH_MODE_AUTO)) {
-      params.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
-    } else if(flashMode.equals(Camera.Parameters.FLASH_MODE_TORCH)) {
-      params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+    List<String> supportedFlashModes;
+    supportedFlashModes = camera.getParameters().getSupportedFlashModes();
+    if (supportedFlashModes.indexOf(flashMode) > -1) {
+      params.setFlashMode(flashMode);
     } else {
-      callbackContext.error("Flash Mode not recognised" + flashMode);
+      callbackContext.error("Flash mode not recognised: " + flashMode);
       return true;
     }
 
