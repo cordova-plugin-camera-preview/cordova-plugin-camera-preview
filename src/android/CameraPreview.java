@@ -38,8 +38,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String SHOW_CAMERA_ACTION = "showCamera";
   private static final String HIDE_CAMERA_ACTION = "hideCamera";
   private static final String SUPPORTED_PICTURE_SIZES_ACTION = "getSupportedPictureSizes";
-  private static final String GET_AUTOEXPOSURE_LOCK_ACTION = "getAutoExposureLock";
-  private static final String SET_AUTOEXPOSURE_LOCK_ACTION = "setAutoExposureLock";
+  private static final String GET_EXPOSURE_MODES_ACTION = "getExposureModes";
+  private static final String GET_EXPOSURE_MODE_ACTION = "getExposureMode";
+  private static final String SET_EXPOSURE_MODE_ACTION = "setExposureMode";
   private static final String GET_EXPOSURE_COMPENSATION_ACTION = "getExposureCompensation";
   private static final String SET_EXPOSURE_COMPENSATION_ACTION = "setExposureCompensation";
   private static final String GET_EXPOSURE_COMPENSATION_RANGE_ACTION = "getExposureCompensationRange";
@@ -97,10 +98,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return switchCamera(callbackContext);
     } else if (SUPPORTED_PICTURE_SIZES_ACTION.equals(action)) {
       return getSupportedPictureSizes(callbackContext);
-    } else if (GET_AUTOEXPOSURE_LOCK_ACTION.equals(action)) {
-      return getAutoExposureLock(callbackContext);  
-    } else if (SET_AUTOEXPOSURE_LOCK_ACTION.equals(action)) {
-      return setAutoExposureLock(args.getBoolean(0), callbackContext);
+    } else if (GET_EXPOSURE_MODES_ACTION.equals(action)) {
+      return getExposureModes(callbackContext);  
+    } else if (GET_EXPOSURE_MODE_ACTION.equals(action)) {
+      return getExposureMode(callbackContext);  
+    } else if (SET_EXPOSURE_MODE_ACTION.equals(action)) {
+      return setExposureMode(args.getString(0), callbackContext);
     } else if (GET_EXPOSURE_COMPENSATION_ACTION.equals(action)) {
       return getExposureCompensation(callbackContext);
     } else if (SET_EXPOSURE_COMPENSATION_ACTION.equals(action)) {
@@ -307,7 +310,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  private boolean getAutoExposureLock(CallbackContext callbackContext) {
+  private boolean getExposureModes(CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
     }
@@ -315,22 +318,42 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
     Camera.Parameters params = camera.getParameters();
 
-    String autoExposureLock;
-
     if (camera.getParameters().isAutoExposureLockSupported()) {
-      if (camera.getParameters().getAutoExposureLock()) {
-        autoExposureLock = "locked";   
-      } else {
-        autoExposureLock = "unlocked";    
-      }; 
-      callbackContext.success(autoExposureLock);
+ //     String[] exposureModes = {"lock", "unlock"};
+      JSONArray jsonExposureModes = new JSONArray();
+      jsonExposureModes.put(new String("continuous"));
+      jsonExposureModes.put(new String("custom"));  
+      callbackContext.success(jsonExposureModes);
     } else {
-      callbackContext.error("AutoExposureLock not supported");
+      callbackContext.error("Exposure modes not supported");
     }
     return true;
   }
 
-  private boolean setAutoExposureLock(boolean lock, CallbackContext callbackContext) {
+  private boolean getExposureMode(CallbackContext callbackContext) {
+    if(this.hasCamera(callbackContext) == false){
+      return true;
+    }
+
+    Camera camera = fragment.getCamera();
+    Camera.Parameters params = camera.getParameters();
+
+    String exposureMode;
+
+    if (camera.getParameters().isAutoExposureLockSupported()) {
+      if (camera.getParameters().getAutoExposureLock()) {
+        exposureMode = "continuous";   
+      } else {
+        exposureMode = "custom";    
+      }; 
+      callbackContext.success(exposureMode);
+    } else {
+      callbackContext.error("Exposure mode not supported");
+    }
+    return true;
+  }
+
+  private boolean setExposureMode(String exposureMode, CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
     }
@@ -339,12 +362,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera.Parameters params = camera.getParameters();
 
     if (camera.getParameters().isAutoExposureLockSupported()) {
-      params.setAutoExposureLock(lock);
+      params.setAutoExposureLock("continuous".equals(exposureMode));
       fragment.setCameraParameters(params);
-
       callbackContext.success();
     } else {
-      callbackContext.error("AutoExposureLock not supported");
+      callbackContext.error("Exposure mode not supported");
     }
     return true;
   }
