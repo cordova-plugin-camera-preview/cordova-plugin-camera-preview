@@ -17,15 +17,16 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Set a custom alpha for the preview box.</li>
+  <li>get current zoom and maximum zoom factors</li>
+  <li>get and set exposure mode</li>
+  <li>get and set exposure compensation</li>
   <li>Maintain HTML interactivity.</li>
 </ul>
 
 ### Android only features
 
-These are some features that are currently Android only, however we would love to see PR's for this functionality in iOS.
-
 <ul>
-  <li>Torch flash mode</li>
+  <li>RED_EYE flash mode do not have a corresponding API in IOS.</li>
 </ul>
 
 ### iOS only features
@@ -159,6 +160,18 @@ CameraPreview.takePicture(function(base64PictureData){
   /* code here */
 });
 ```
+### getSupportedPictureSizes(cb, [errorCallback])
+
+<info>Get the flash modes supported by the device. Returns an array containing supported flash modes. See <code>[FLASH_MODE](#camera_Settings.FlashMode)</code> for posible values that can be returned</info><br/>
+
+```javascript
+CameraPreview.getSupportedFlashModes(function(flashModes){
+  // note that the portrait version, width and height swapped, of these dimensions are also supported
+  flashModes.forEach(function(flashMode) {
+    console.log(flashMode + ', ');
+  });
+});
+```
 
 ### setFlashMode(flashMode, [successCallback, errorCallback])
 
@@ -186,6 +199,79 @@ CameraPreview.setColorEffect(CameraPreview.COLOR_EFFECT.NEGATIVE);
 
 ```javascript
 CameraPreview.setZoom(2);
+```
+
+### getZoom(cb, [errorCallback])
+
+<info>Get the current zoom level. Returns an integer representing the current zoom level. Android only</info><br/>
+
+```javascript
+CameraPreview.getZoom(function(currentZoom){
+  console.log(currentZoom);
+});
+```
+
+### getMaxZoom(cb, [errorCallback])
+
+<info>Get the maximum zoom level. Returns an integer representing the manimum zoom level. Android only</info><br/>
+
+```javascript
+CameraPreview.getMaxZoom(function(maxZoom){
+  console.log(maxZoom);
+});
+```
+### getExposureModes(cb, [errorCallback])
+
+<info>Returns an array with supported exposure modes. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values returned.</info><br/>
+
+```javascript
+CameraPreview.getExposureModes(function(exposureModes){
+  console.log(exposureModes);
+});
+```
+
+### getExposureMode(cb, [errorCallback])
+
+<info>Get the curent exposure mode of the device. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values returned.</info><br/>
+
+```javascript
+CameraPreview.getExposureMode(function(exposureMode){
+  console.log(exposureMode);
+});
+```
+### setExposureMode(exposureMode, [successCallback, errorCallback])
+
+<info>Set the exposure mode. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values for exposureMode.</info><br/>
+
+```javascript
+CameraPreview.setExposureMode(CameraPreview.EXPOSURE_MODE.CONTINUOUS);
+```
+### getExposureCompensationRange(cb, [errorCallback])
+
+<info>Get the minimum and maximum exposure compensation. Returns an object containing min and max integers. Android only</info><br/>
+
+```javascript
+CameraPreview.getExposureCompensationRange(function(expoxureRange){
+  console.log("min: " + exposureRange.min);
+  console.log("max: " + exposureRange.max);
+});
+```
+### getExposureCompensation(cb, [errorCallback])
+
+<info>Get the current exposure compensation. Returns an integer representing the current exposure compensation. Android only</info><br/>
+
+```javascript
+CameraPreview.getExposureCompensation(function(expoxureCompensation){
+  console.log(exposureCompensation);
+});
+```
+### setExposureCompensation(exposureCompensation, [successCallback, errorCallback])
+
+<info>Set the exposure compensation. exposureCompensation accepts an integer. if exposureCompensation is lesser than the minimum exposure compensation, it is set to the minimum. if exposureCompensation is greater than the maximum exposure compensation, it is set to the maximum. (see getExposureCompensationRange() to get the minumum an maximum exposure compensation). Android only</info><br/>
+
+```javascript
+CameraPreview.setExposureCompensation(-2);
+CameraPreview.setExposureCompensation(3);
 ```
 
 ### setPreviewSize([dimensions, successCallback, errorCallback])
@@ -230,7 +316,8 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 | OFF | string | off |  |
 | ON | string | on |  |
 | AUTO | string | auto |  |
-| TORCH | string | torch | Android Only |
+| RED_EYE | string | red-eye | Android Only |
+| TORCH | string | torch |  |
 
 <a name="camera_Settings.CameraDirection"></a>
 
@@ -260,6 +347,21 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 | SEPIA | string | sepia | |
 | SOLARIZE | string | solarize | Android Only |
 | WHITEBOARD | string | whiteboard | Android Only |
+
+<a name="camera_Settings.ExposureMode"></a>
+
+### EXPOSURE_MODE
+
+<info>Exposure mode settings:</info><br/>
+
+| Name | Type | Default | Note |
+| --- | --- | --- | --- |
+| AUTO | string | auto | IOS Only |
+| CONTINUOUS | string | continuous | |
+| CUSTOM | string | custom | |
+| LOCK | string | lock | IOS Only |
+
+Note: Use AUTO to allow the device automatically adjusts the exposure once and then changes the exposure mode to LOCK.
 
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.

@@ -166,6 +166,40 @@
   });
 }
 
+- (NSArray *)getFlashModes {
+
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+  //  AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    if ([self.device hasFlash]) {
+      NSMutableArray * flashModes = [[NSMutableArray alloc] init];
+      if ([self.device isFlashModeSupported:0]) {
+        [flashModes addObject:@"off"];
+      };
+      if ([self.device isFlashModeSupported:1]) {
+        [flashModes addObject:@"on"];
+      };
+      if ([self.device isFlashModeSupported:2]) {
+        [flashModes addObject:@"auto"];
+      };
+      if ([self.device hasTorch]) {
+        [flashModes addObject:@"torch"];
+      };
+      return (NSArray *) flashModes;
+    } else {
+      errMsg = @"Flash not supported";
+    }
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
 - (void)setFlashMode:(NSInteger)flashMode {
   NSError *error = nil;
   NSString *errMsg;
@@ -178,10 +212,48 @@
     if ([self.device hasFlash] && [self.device isFlashModeSupported:self.defaultFlashMode]) {
 
       if ([self.device lockForConfiguration:&error]) {
-
+        if ([self.device hasTorch] && [self.device isTorchAvailable]) {
+          self.device.torchMode=0;
+        }
         [self.device setFlashMode:self.defaultFlashMode];
         [self.device unlockForConfiguration];
 
+      } else {
+          NSLog(@"%@", error);
+      }
+    } else {
+      errMsg = @"Camera has no flash or flash mode not supported";
+    }
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (void)setTorchMode {
+  NSError *error = nil;
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+    // Let's save the setting even if we can't set it up on this camera.
+    //self.defaultFlashMode = flashMode;
+
+    if ([self.device hasTorch] && [self.device isTorchAvailable]) {
+
+      if ([self.device lockForConfiguration:&error]) {
+
+        if ([self.device isTorchModeSupported:1]) {
+          self.device.torchMode=1;  
+        } else if ([self.device isTorchModeSupported:2]) {
+          self.device.torchMode=2;
+        } else {
+          self.device.torchMode=0;
+        }
+        [self.device unlockForConfiguration];
       } else {
           NSLog(@"%@", error);
       }
@@ -204,12 +276,233 @@
   // check session is started
   if (self.session) {
     [self.device lockForConfiguration:nil];
-
     self.videoZoomFactor = MAX(1.0, MIN(desiredZoomFactor, self.device.activeFormat.videoMaxZoomFactor));
 
     [self.device setVideoZoomFactor:self.videoZoomFactor];
     [self.device unlockForConfiguration];
     NSLog(@"%zd zoom factor set", self.videoZoomFactor);
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (CGFloat)getZoom {
+
+  NSString *errMsg;
+
+  // check session is started
+    
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    return videoDevice.videoZoomFactor;
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+    return 0;
+  }
+}
+
+- (CGFloat)getMaxZoom {
+
+  NSString *errMsg;
+
+  // check session is started
+
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    return videoDevice.activeFormat.videoMaxZoomFactor;
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+    return 0;
+  }
+}
+
+- (NSArray *)getExposureModes {
+
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    NSMutableArray *exposureModes = [[NSMutableArray alloc] init];
+    if ([videoDevice isExposureModeSupported:0]) {
+      [exposureModes addObject:@"lock"];
+    };
+    if ([videoDevice isExposureModeSupported:1]) {
+      [exposureModes addObject:@"auto"];
+    };
+    if ([videoDevice isExposureModeSupported:2]) {
+      [exposureModes addObject:@"cotinuous"];
+    };
+    if ([videoDevice isExposureModeSupported:3]) {
+      [exposureModes addObject:@"custom"];
+    };
+    NSLog(@"%@", exposureModes);
+    return (NSArray *) exposureModes;
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (NSString *) getExposureMode {
+
+  NSString *errMsg;
+  NSString *exposureMode;
+
+  // check session is started 
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    switch (videoDevice.exposureMode) {
+      case 0:
+          exposureMode = @"lock";
+        break;
+      case 1:
+        exposureMode = @"auto";
+        break;
+      case 2:
+        exposureMode = @"continuous";
+        break;  
+      case 3:
+        exposureMode = @"custom";
+        break;
+      default:
+        exposureMode = @"unsupported";
+        errMsg = @"Mode not supported";
+    }
+    return exposureMode;
+  } else {
+    errMsg = @"Session is not started";
+  }
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (NSString *) setExposureMode:(NSString *)exposureMode {
+
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    [self.device lockForConfiguration:nil];
+    if ([exposureMode isEqual:@"lock"]) {
+      if ([videoDevice isExposureModeSupported:0]) {
+        videoDevice.exposureMode = 0;
+        return exposureMode;
+      } else {
+        errMsg = @"Exposure mode not supported";
+        return @"ERR01";
+      };
+    } else if ([exposureMode isEqual:@"auto"]) {
+      if ([videoDevice isExposureModeSupported:1]) {
+        videoDevice.exposureMode = 1;
+        return exposureMode;
+    } else {
+        errMsg = @"Exposure mode not supported";
+        return @"ERR01";
+      };
+    } else if ([exposureMode isEqual:@"continuous"]) {
+      if ([videoDevice isExposureModeSupported:2]) {
+        videoDevice.exposureMode = 2;
+        return exposureMode;
+      } else {
+        errMsg = @"Exposure mode not supported";
+        return @"ERR01";
+      };  
+    } else if ([exposureMode isEqual:@"custom"]) {
+      if ([videoDevice isExposureModeSupported:3]) {
+        videoDevice.exposureMode = 3;
+        return exposureMode;
+      } else {
+        errMsg = @"Exposure mode not supported";
+        return @"ERR01";
+      };
+    } else {
+        errMsg = @"Exposure mode not supported";
+        return @"ERR01";
+    } 
+    [self.device unlockForConfiguration];
+  } else {
+    errMsg = @"Session is not started";
+    return @"ERR02";
+  }
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (NSArray *)getExposureCompensationRange {
+
+  NSString *errMsg;
+
+  // check session is started
+    
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    CGFloat maxExposureCompensation = videoDevice.maxExposureTargetBias;
+    CGFloat minExposureCompensation = videoDevice.minExposureTargetBias;
+    NSArray * exposureCompensationRange = [[NSArray alloc] initWithObjects: [NSNumber numberWithFloat:minExposureCompensation], [NSNumber numberWithFloat:maxExposureCompensation], nil];
+    return exposureCompensationRange;
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+    return 0;
+  }
+}
+
+- (CGFloat)getExposureCompensation {
+
+  NSString *errMsg;
+
+  // check session is started
+
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    NSLog(@"getExposureCompensation: %zd", videoDevice.exposureTargetBias);
+    return videoDevice.exposureTargetBias;
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+    return 0;
+  }
+}
+
+- (void)setExposureCompensation:(CGFloat)exposureCompensation {
+  NSError *error = nil;
+  NSString *errMsg;
+
+  // check session is started
+
+  if (self.session) {
+    if ([self.device lockForConfiguration:&error]) {
+      CGFloat exposureTargetBias = MAX(self.device.minExposureTargetBias, MIN(exposureCompensation, self.device.maxExposureTargetBias));
+      [self.device setExposureTargetBias:exposureTargetBias completionHandler:nil];
+      [self.device unlockForConfiguration];
+    } else {
+          NSLog(@"%@", error);
+    }  
   } else {
     errMsg = @"Session is not started";
   }

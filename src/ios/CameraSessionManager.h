@@ -5,12 +5,22 @@
 
 - (CameraSessionManager *)init;
 - (NSArray *) getDeviceFormats;
+- (NSArray *) getFlashModes;
 - (void) setupSession:(NSString *)defaultCamera;
 - (void) switchCamera;
 - (void) setFlashMode:(NSInteger)flashMode;
 - (void) setZoom:(CGFloat)desiredZoomFactor;
+- (CGFloat) getZoom;
+- (CGFloat) getMaxZoom;
+- (NSArray *) getExposureModes;
+- (NSString *) getExposureMode;
+- (NSString *) setExposureMode:(NSString *)exposureMode;
+- (NSArray *) getExposureCompensationRange;
+- (CGFloat) getExposureCompensation;
+- (void) setExposureCompensation:(CGFloat)exposureCompensation;
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation;
 - (void) tapToFocus:(CGFloat)xPoint yPoint:(CGFloat)yPoint;
+- (void) setTorchMode;
 - (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation;
 
 @property (atomic) CIFilter *ciFilter;
