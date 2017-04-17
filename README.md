@@ -152,7 +152,7 @@ CameraPreview.takePicture(function(base64PictureData){
   /* code here */
 });
 ```
-### getSupportedPictureSizes(cb, [errorCallback])
+### getSupportedFlashModes(cb, [errorCallback])
 
 <info>Get the flash modes supported by the device. Returns an array containing supported flash modes. See <code>[FLASH_MODE](#camera_Settings.FlashMode)</code> for posible values that can be returned</info><br/>
 
