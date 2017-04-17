@@ -1,7 +1,7 @@
 Cordova Plugin Camera Preview
 ====================
 
-Cordova plugin that allows camera interaction from HTML code for showing camera preview below or above the HTML.<br/>
+Cordova plugin that allows camera interaction from HTML ee for showing camera preview below or above the HTML.<br/>
 
 **March 4, 2017** - We are currently drastically improving the plugin for a v1.0.0 release, in the meantime the API may change slightly. Please use master until a new version is released.
 
@@ -17,16 +17,8 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Set a custom alpha for the preview box.</li>
-  <li>get current zoom and maximum zoom factors</li>
-  <li>get and set exposure mode</li>
-  <li>get and set exposure compensation</li>
+  <li>Set zoom, color effects, exposure mode, exposure mode compensation, </li>
   <li>Maintain HTML interactivity.</li>
-</ul>
-
-### Android only features
-
-<ul>
-  <li>RED_EYE flash mode do not have a corresponding API in IOS.</li>
 </ul>
 
 ### iOS only features
@@ -175,8 +167,7 @@ CameraPreview.getSupportedFlashModes(function(flashModes){
 
 ### setFlashMode(flashMode, [successCallback, errorCallback])
 
-<info>Set the flash mode.</info><br/>
-* `flashMode` - <code>[FLASH_MODE](#camera_Settings.FlashMode)</code>
+<info>Set the flash mode. See <code>[FLASH_MODE](#camera_Settings.FlashMode)</code> for details about the possible values for flashMode.</info><br/>
 
 ```javascript
 CameraPreview.setFlashMode(CameraPreview.FLASH_MODE.ON);
@@ -184,10 +175,7 @@ CameraPreview.setFlashMode(CameraPreview.FLASH_MODE.ON);
 
 ### setColorEffect(colorEffect, [successCallback, errorCallback])
 
-<info>Set the color effect.</info><br/>
-
-* `colorEffect` - <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code>
-
+<info>Set the color effect. See <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code> for details about the possible values for colorEffect.</info><br/>
 
 ```javascript
 CameraPreview.setColorEffect(CameraPreview.COLOR_EFFECT.NEGATIVE);
