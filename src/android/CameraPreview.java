@@ -19,7 +19,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.List;
-import java.io.Console;
 import java.util.Arrays;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
