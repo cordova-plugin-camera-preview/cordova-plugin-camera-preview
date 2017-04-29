@@ -1,7 +1,7 @@
 Cordova Plugin Camera Preview
 ====================
 
-Cordova plugin that allows camera interaction from HTML code for showing camera preview below or above the HTML.<br/>
+Cordova plugin that allows camera interaction from HTML ee for showing camera preview below or above the HTML.<br/>
 
 **March 4, 2017** - We are currently drastically improving the plugin for a v1.0.0 release, in the meantime the API may change slightly. Please use master until a new version is released.
 
@@ -197,8 +197,7 @@ CameraPreview.getSupportedFlashModes(function(flashModes){
 
 ### setFlashMode(flashMode, [successCallback, errorCallback])
 
-<info>Set the flash mode.</info><br/>
-* `flashMode` - <code>[FLASH_MODE](#camera_Settings.FlashMode)</code>
+<info>Set the flash mode. See <code>[FLASH_MODE](#camera_Settings.FlashMode)</code> for details about the possible values for flashMode.</info><br/>
 
 ```javascript
 CameraPreview.setFlashMode(CameraPreview.FLASH_MODE.ON);
@@ -215,10 +214,7 @@ CameraPreview.getFlashMode(function(currentFlashMode){
 ```
 ### setColorEffect(colorEffect, [successCallback, errorCallback])
 
-<info>Set the color effect.</info><br/>
-
-* `colorEffect` - <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code>
-
+<info>Set the color effect. See <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code> for details about the possible values for colorEffect.</info><br/>
 
 ```javascript
 CameraPreview.setColorEffect(CameraPreview.COLOR_EFFECT.NEGATIVE);
