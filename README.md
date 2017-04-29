@@ -17,16 +17,8 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Set a custom alpha for the preview box.</li>
-  <li>get current zoom and maximum zoom factors</li>
-  <li>get and set exposure mode</li>
-  <li>get and set exposure compensation</li>
+  <li>Set the focus mode, zoom, color effects, exposure mode, exposure mode compensation</li>
   <li>Maintain HTML interactivity.</li>
-</ul>
-
-### Android only features
-
-<ul>
-  <li>RED_EYE flash mode do not have a corresponding API in IOS.</li>
 </ul>
 
 ### iOS only features
