@@ -1,7 +1,7 @@
 Cordova Plugin Camera Preview
 ====================
 
-Cordova plugin that allows camera interaction from HTML ee for showing camera preview below or above the HTML.<br/>
+Cordova plugin that allows camera interaction from Javascript and HTML
 
 **We are continually improving the plugin for an eventual v1.0.0 release, in the meantime the API may change. Please use master until a new version is released.**
 
