@@ -189,7 +189,6 @@ CameraPreview.getFocusMode(function(currentFocusMode){
 
 ```javascript
 CameraPreview.getSupportedFlashModes(function(flashModes){
-  // note that the portrait version, width and height swapped, of these dimensions are also supported
   flashModes.forEach(function(flashMode) {
     console.log(flashMode + ', ');
   });
