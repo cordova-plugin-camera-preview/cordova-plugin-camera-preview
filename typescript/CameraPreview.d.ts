@@ -6,6 +6,9 @@ interface CameraPreview {
   show(onSuccess?:any, onError?:any):any;
   takePicture(options?:any, onSuccess?:any, onError?:any):any;
   setColorEffect(effect:string, onSuccess?:any, onError?:any):any;
+  getSupportedFocusMode(onSuccess?:any, onError?:any):any;
+  getFocusMode(onSuccess?:any, onError?:any):any;
+  setFocusMode(onSuccess?:any, onError?:any):any;
   setZoom(zoom?:any, onSuccess?:any, onError?:any):any;
   getMaxZoom(onSuccess?:any, onError?:any):any;
   getZoom(onSuccess?:any, onError?:any):any;
