@@ -134,6 +134,46 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void) getSupportedFocusModes:(CDVInvokedUrlCommand*)command {
+  CDVPluginResult *pluginResult;
+
+  if (self.sessionManager != nil) {
+    NSArray * focusModes = [self.sessionManager getFocusModes];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:focusModes];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Session not started"];
+  }
+
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) getFocusMode:(CDVInvokedUrlCommand*)command {
+  CDVPluginResult *pluginResult;
+
+  if (self.sessionManager != nil) {
+    NSString * focusMode = [self.sessionManager getFocusMode];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:focusMode];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Session not started"];
+  }
+
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) setFocusMode:(CDVInvokedUrlCommand*)command {
+  CDVPluginResult *pluginResult;
+
+  NSString * focusMode = [[command.arguments objectAtIndex:0] stringValue];
+  if (self.sessionManager != nil) {
+    [self.sessionManager setFocusMode:focusMode];
+    NSString * focusMode = [self.sessionManager getFocusMode];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:focusMode ];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Session not started"];
+  }
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void) getSupportedFlashModes:(CDVInvokedUrlCommand*)command {
   CDVPluginResult *pluginResult;
 
@@ -142,6 +182,30 @@
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:flashModes];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Flash not supported"];
+  }
+
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) getFlashMode:(CDVInvokedUrlCommand*)command {
+  
+  CDVPluginResult *pluginResult;
+   
+  if (self.sessionManager != nil) {
+    NSInteger flashMode = [self.sessionManager getFlashMode];
+    NSString * sFlashMode;
+    if (flashMode == 0) {
+      sFlashMode = @"off";
+    } else if (flashMode == 1) {
+      sFlashMode = @"on";
+    } else if (flashMode == 2) {
+      sFlashMode = @"auto";
+    } else {
+      sFlashMode = @"unsupported";
+    }
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:sFlashMode ];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
   }
 
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

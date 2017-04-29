@@ -166,13 +166,115 @@
   });
 }
 
+- (NSArray *)getFocusModes {
+
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+    NSMutableArray * focusModes = [[NSMutableArray alloc] init];
+    if ([self.device isFocusModeSupported:0]) {
+      [focusModes addObject:@"fixed"];
+    };
+    if ([self.device isFocusModeSupported:1]) {
+      [focusModes addObject:@"auto"];
+    };
+    if ([self.device isFocusModeSupported:2]) {
+      [focusModes addObject:@"continuous"];
+    };
+    return (NSArray *) focusModes;
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (NSString *) getFocusMode {
+
+  NSString *errMsg;
+  NSString *focusMode;
+
+  // check session is started 
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    switch (videoDevice.focusMode) {
+      case 0:
+          focusMode = @"fixed";
+        break;
+      case 1:
+        focusMode = @"auto";
+        break;
+      case 2:
+        focusMode = @"continuous";
+        break;  
+      default:
+        focusMode = @"unsupported";
+        errMsg = @"Mode not supported";
+    }
+    return focusMode;
+  } else {
+    errMsg = @"Session is not started";
+  }
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (NSString *) setFocusMode:(NSString *)focusMode {
+
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    [self.device lockForConfiguration:nil];
+    if ([focusMode isEqual:@"fixed"]) {
+      if ([videoDevice isFocusModeSupported:0]) {
+        videoDevice.focusMode = 0;
+        return focusMode;
+      } else {
+        errMsg = @"Focus mode not supported";
+        return @"ERR01";
+      };
+    } else if ([focusMode isEqual:@"auto"]) {
+      if ([videoDevice isFocusModeSupported:1]) {
+        videoDevice.focusMode = 1;
+        return focusMode;
+    } else {
+        errMsg = @"Focus mode not supported";
+        return @"ERR01";
+      };
+    } else if ([focusMode isEqual:@"continuous"]) {
+      if ([videoDevice isFocusModeSupported:2]) {
+        videoDevice.focusMode = 2;
+        return focusMode;
+      } else {
+        errMsg = @"Focus mode not supported";
+        return @"ERR01";
+      };  
+    } else {
+        errMsg = @"Exposure mode not supported";
+        return @"ERR01";
+    } 
+    [self.device unlockForConfiguration];
+  } else {
+    errMsg = @"Session is not started";
+    return @"ERR02";
+  }
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
 - (NSArray *)getFlashModes {
 
   NSString *errMsg;
 
   // check session is started
   if (self.session) {
-  //  AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
     if ([self.device hasFlash]) {
       NSMutableArray * flashModes = [[NSMutableArray alloc] init];
       if ([self.device isFlashModeSupported:0]) {
@@ -197,6 +299,28 @@
 
   if (errMsg) {
     NSLog(@"%@", errMsg);
+  }
+}
+
+- (NSInteger)getFlashMode {
+
+  NSString *errMsg;
+
+  // check session is started
+    
+  if (self.session) {
+    if ([self.device hasFlash] && [self.device isFlashModeSupported:self.defaultFlashMode]) {
+      return self.device.flashMode;
+    } else {
+      errMsg = @"Flash not supported";
+    }
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+    return 0;
   }
 }
 
