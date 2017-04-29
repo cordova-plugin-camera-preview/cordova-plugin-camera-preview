@@ -11,6 +11,9 @@
 - (void) stopCamera:(CDVInvokedUrlCommand*)command;
 - (void) showCamera:(CDVInvokedUrlCommand*)command;
 - (void) hideCamera:(CDVInvokedUrlCommand*)command;
+- (void) getFocusMode:(CDVInvokedUrlCommand*)command;
+- (void) setFocusMode:(CDVInvokedUrlCommand*)command;
+- (void) getFlashMode:(CDVInvokedUrlCommand*)command;
 - (void) setFlashMode:(CDVInvokedUrlCommand*)command;
 - (void) setZoom:(CDVInvokedUrlCommand*)command;
 - (void) getZoom:(CDVInvokedUrlCommand*)command;
@@ -27,6 +30,7 @@
 - (void) setColorEffect:(CDVInvokedUrlCommand*)command;
 - (void) getSupportedPictureSizes:(CDVInvokedUrlCommand*)command;
 - (void) getSupportedFlashModes:(CDVInvokedUrlCommand*)command;
+- (void) getSupportedFocusModes:(CDVInvokedUrlCommand*)command;
 - (void) tapToFocus:(CDVInvokedUrlCommand*)command;
 
 - (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(int) quality;

@@ -17,7 +17,7 @@ Cordova plugin that allows camera interaction from HTML ee for showing camera pr
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Set a custom alpha for the preview box.</li>
-  <li>Set zoom, color effects, exposure mode, exposure mode compensation, </li>
+  <li>Set the focus mode, zoom, color effects, exposure mode, exposure mode compensation</li>
   <li>Maintain HTML interactivity.</li>
 </ul>
 
@@ -152,13 +152,43 @@ CameraPreview.takePicture(function(base64PictureData){
   /* code here */
 });
 ```
+### getSupportedFocusModes(cb, [errorCallback])
+
+<info>Get focus modes supported by the camera device currently started. Returns an array containing supported focus modes. See <code>[FOCUS_MODE](#camera_Settings.FocusMode)</code> for possible values that can be returned.</info><br/>
+
+```javascript
+CameraPreview.getSupportedFocusModes(function(focusModes){
+  focusModes.forEach(function(focusMode) {
+    console.log(focusMode + ', ');
+  });
+});
+```
+
+### setFocusMode(focusMode, [successCallback, errorCallback])
+
+<info>Set the focus mode for the camera device currently started.</info><br/>
+* `focusMode` - <code>[FOCUS_MODE](#camera_Settings.FocusMode)</code>
+
+```javascript
+CameraPreview.setFocusMode(CameraPreview.FOCUS_MODE.CONTINUOUS_PICTURE);
+```
+
+### getFocusMode(cb, [errorCallback])
+
+<info>Get the focus mode for the camera device currently started. Returns a string representing the current focus mode.</info>See <code>[FOCUS_MODE](#camera_Settings.FocusMode)</code> for possible values that can be returned.</info><br/>
+
+```javascript
+CameraPreview.getFocusMode(function(currentFocusMode){
+  console.log(currentFocusMode);
+});
+```
+
 ### getSupportedFlashModes(cb, [errorCallback])
 
-<info>Get the flash modes supported by the device. Returns an array containing supported flash modes. See <code>[FLASH_MODE](#camera_Settings.FlashMode)</code> for posible values that can be returned</info><br/>
+<info>Get the flash modes supported by the camera device currently started. Returns an array containing supported flash modes. See <code>[FLASH_MODE](#camera_Settings.FlashMode)</code> for possible values that can be returned</info><br/>
 
 ```javascript
 CameraPreview.getSupportedFlashModes(function(flashModes){
-  // note that the portrait version, width and height swapped, of these dimensions are also supported
   flashModes.forEach(function(flashMode) {
     console.log(flashMode + ', ');
   });
@@ -173,6 +203,15 @@ CameraPreview.getSupportedFlashModes(function(flashModes){
 CameraPreview.setFlashMode(CameraPreview.FLASH_MODE.ON);
 ```
 
+### getFlashMode(cb, [errorCallback])
+
+<info>Get the flash mode for the camera device currently started. Returns a string representing the current flash mode.</info>See <code>[FLASH_MODE](#camera_Settings.FlashMode)</code> for possible values that can be returned</info><br/>
+
+```javascript
+CameraPreview.getFlashMode(function(currentFlashMode){
+  console.log(currentFlashMode);
+});
+```
 ### setColorEffect(colorEffect, [successCallback, errorCallback])
 
 <info>Set the color effect. See <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code> for details about the possible values for colorEffect.</info><br/>
@@ -183,7 +222,7 @@ CameraPreview.setColorEffect(CameraPreview.COLOR_EFFECT.NEGATIVE);
 
 ### setZoom(zoomMultiplier, [successCallback, errorCallback])
 
-<info>Set the zoom level. zoomMultipler option accepts an integer. Zoom level is initially at 1</info><br/>
+<info>Set the zoom level for the camera device currently started. zoomMultipler option accepts an integer. Zoom level is initially at 1</info><br/>
 
 ```javascript
 CameraPreview.setZoom(2);
@@ -191,7 +230,7 @@ CameraPreview.setZoom(2);
 
 ### getZoom(cb, [errorCallback])
 
-<info>Get the current zoom level. Returns an integer representing the current zoom level. Android only</info><br/>
+<info>Get the current zoom level for the camera device currently started. Returns an integer representing the current zoom level.</info><br/>
 
 ```javascript
 CameraPreview.getZoom(function(currentZoom){
@@ -201,7 +240,7 @@ CameraPreview.getZoom(function(currentZoom){
 
 ### getMaxZoom(cb, [errorCallback])
 
-<info>Get the maximum zoom level. Returns an integer representing the manimum zoom level. Android only</info><br/>
+<info>Get the maximum zoom level for the camera device currently started. Returns an integer representing the manimum zoom level.</info><br/>
 
 ```javascript
 CameraPreview.getMaxZoom(function(maxZoom){
@@ -210,7 +249,7 @@ CameraPreview.getMaxZoom(function(maxZoom){
 ```
 ### getExposureModes(cb, [errorCallback])
 
-<info>Returns an array with supported exposure modes. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values returned.</info><br/>
+<info>Returns an array with supported exposure modes for the camera device currently started. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values returned.</info><br/>
 
 ```javascript
 CameraPreview.getExposureModes(function(exposureModes){
@@ -220,7 +259,7 @@ CameraPreview.getExposureModes(function(exposureModes){
 
 ### getExposureMode(cb, [errorCallback])
 
-<info>Get the curent exposure mode of the device. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values returned.</info><br/>
+<info>Get the curent exposure mode of the camera device currently started. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values returned.</info><br/>
 
 ```javascript
 CameraPreview.getExposureMode(function(exposureMode){
@@ -229,14 +268,14 @@ CameraPreview.getExposureMode(function(exposureMode){
 ```
 ### setExposureMode(exposureMode, [successCallback, errorCallback])
 
-<info>Set the exposure mode. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values for exposureMode.</info><br/>
+<info>Set the exposure modefor the camera device currently started. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values for exposureMode.</info><br/>
 
 ```javascript
 CameraPreview.setExposureMode(CameraPreview.EXPOSURE_MODE.CONTINUOUS);
 ```
 ### getExposureCompensationRange(cb, [errorCallback])
 
-<info>Get the minimum and maximum exposure compensation. Returns an object containing min and max integers. Android only</info><br/>
+<info>Get the minimum and maximum exposure compensation for the camera device currently started. Returns an object containing min and max integers.</info><br/>
 
 ```javascript
 CameraPreview.getExposureCompensationRange(function(expoxureRange){
@@ -246,7 +285,7 @@ CameraPreview.getExposureCompensationRange(function(expoxureRange){
 ```
 ### getExposureCompensation(cb, [errorCallback])
 
-<info>Get the current exposure compensation. Returns an integer representing the current exposure compensation. Android only</info><br/>
+<info>Get the current exposure compensation for the camera device currently started. Returns an integer representing the current exposure compensation.</info><br/>
 
 ```javascript
 CameraPreview.getExposureCompensation(function(expoxureCompensation){
@@ -255,7 +294,7 @@ CameraPreview.getExposureCompensation(function(expoxureCompensation){
 ```
 ### setExposureCompensation(exposureCompensation, [successCallback, errorCallback])
 
-<info>Set the exposure compensation. exposureCompensation accepts an integer. if exposureCompensation is lesser than the minimum exposure compensation, it is set to the minimum. if exposureCompensation is greater than the maximum exposure compensation, it is set to the maximum. (see getExposureCompensationRange() to get the minumum an maximum exposure compensation). Android only</info><br/>
+<info>Set the exposure compensation for the camera device currently started. exposureCompensation accepts an integer. if exposureCompensation is lesser than the minimum exposure compensation, it is set to the minimum. if exposureCompensation is greater than the maximum exposure compensation, it is set to the maximum. (see getExposureCompensationRange() to get the minumum an maximum exposure compensation).</info><br/>
 
 ```javascript
 CameraPreview.setExposureCompensation(-2);
@@ -292,6 +331,23 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 ```
 
 # Settings
+
+<a name="camera_Settings.FocusMode"></a>
+
+### FOCUS_MODE
+
+<info>Focus mode settings:</info><br/>
+
+| Name | Type | Default | Note |
+| --- | --- | --- | --- |
+| FIXED | string | fixed |  |
+| AUTO | string | auto |  |
+| CONTINUOUS | string | continuous | IOS Only |
+| CONTINUOUS_PICTURE | string | continuous-picture | Android Only |
+| CONTINUOUS_VIDEO | string | continuous-video | Android Only |
+| EDOF | string | edof | Android Only |
+| INFINITY | string | infinity | Android Only |
+| MACRO | string | macro | Android Only |
 
 <a name="camera_Settings.FlashMode"></a>
 

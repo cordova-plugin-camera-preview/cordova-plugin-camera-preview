@@ -103,6 +103,22 @@ CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "setFlashMode", [flashMode]);
 };
 
+CameraPreview.getFlashMode = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getFlashMode", []);
+};
+
+CameraPreview.getSupportedFocusModes = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getSupportedFocusModes", []);
+};
+
+CameraPreview.getFocusMode = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getFocusMode", []);
+};
+
+CameraPreview.setFocusMode = function(focusMode, onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "setFocusMode", [focusMode]);
+};
+
 CameraPreview.tapToFocus = function(xPoint, yPoint, onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "tapToFocus", [xPoint, yPoint]);
 };
@@ -130,6 +146,17 @@ CameraPreview.setExposureCompensation = function(exposureCompensation, onSuccess
 
 CameraPreview.getExposureCompensationRange = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getExposureCompensationRange", []);
+};
+
+CameraPreview.FOCUS_MODE = {
+    FIXED: 'fixed',
+    AUTO: 'auto',
+    CONTINUOUS: 'continuous', // IOS Only
+    CONTINUOUS_PICTURE: 'continuous-picture', // Android Only
+    CONTINUOUS_VIDEO: 'continuous-video', // Android Only
+    EDOF: 'edof', // Android Only
+    INFINITY: 'infinity', // Android Only
+    MACRO: 'macro' // Android Only
 };
 
 CameraPreview.EXPOSURE_MODE = {

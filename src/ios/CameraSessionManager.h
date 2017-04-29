@@ -5,7 +5,11 @@
 
 - (CameraSessionManager *)init;
 - (NSArray *) getDeviceFormats;
+- (NSArray *) getFocusModes;
+- (NSString *) getFocusMode;
+- (NSString *) setFocusMode:(NSString *)focusMode;
 - (NSArray *) getFlashModes;
+- (NSInteger) getFlashMode;
 - (void) setupSession:(NSString *)defaultCamera;
 - (void) switchCamera;
 - (void) setFlashMode:(NSInteger)flashMode;
