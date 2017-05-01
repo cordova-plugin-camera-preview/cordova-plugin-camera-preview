@@ -181,14 +181,14 @@ CameraPreview.EXPOSURE_MODE = {
 CameraPreview.WHITE_BALANCE_MODE = {
     LOCK: 'lock',
     AUTO: 'auto',
-    CONTINUOUS: 'continuous', // IOS Only
-    INCANDESCENT: 'incandescent', // Android Only
-    CLOUDY_DAYLIGHT: 'cloudy-daylight', // Android Only
-    DAYLIGHT: 'daylight', // Android Only
-    FLUORESCENT: 'fluorescent', // Android Only
-    SHADE: 'shade', // Android Only
-    TWILIGHT: 'twilight', // Android Only
-    WARM_FLUORESCENT: 'warm-fluorescent' // Android Only
+    CONTINUOUS: 'continuous',
+    INCANDESCENT: 'incandescent',
+    CLOUDY_DAYLIGHT: 'cloudy-daylight',
+    DAYLIGHT: 'daylight',
+    FLUORESCENT: 'fluorescent',
+    SHADE: 'shade',
+    TWILIGHT: 'twilight',
+    WARM_FLUORESCENT: 'warm-fluorescent'
 };
 
 CameraPreview.FLASH_MODE = {
