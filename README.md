@@ -17,7 +17,7 @@ Cordova plugin that allows camera interaction from HTML code for showing camera 
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Set a custom alpha for the preview box.</li>
-  <li>Set the focus mode, zoom, color effects, exposure mode, white balance and exposure compensation</li>
+  <li>Set the focus mode, zoom, color effects, exposure mode, white balance mode and exposure compensation</li>
   <li>Maintain HTML interactivity.</li>
 </ul>
 
@@ -252,7 +252,7 @@ CameraPreview.getMaxZoom(function(maxZoom){
 });
 ```
 
-### getSuppoertedWhiteBalanceModes(cb, [errorCallback])
+### getSupportedWhiteBalanceModes(cb, [errorCallback])
 
 <info>Returns an array with supported white balance modes for the camera device currently started. See <code>[WHITE_BALANCE_MODE](#camera_Settings.WhiteBalanceMode)</code> for details about the possible values returned.</info><br/>
 
