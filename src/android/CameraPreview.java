@@ -41,6 +41,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String HIDE_CAMERA_ACTION = "hideCamera";
   private static final String SUPPORTED_PICTURE_SIZES_ACTION = "getSupportedPictureSizes";
   private static final String SUPPORTED_FOCUS_MODES_ACTION = "getSupportedFocusModes";
+  private static final String SUPPORTED_WHITE_BALANCE_MODES_ACTION = "getSupportedWhiteBalanceModes";
   private static final String GET_FOCUS_MODE_ACTION = "getFocusMode";
   private static final String SET_FOCUS_MODE_ACTION = "setFocusMode";
   private static final String GET_EXPOSURE_MODES_ACTION = "getExposureModes";
@@ -49,6 +50,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String GET_EXPOSURE_COMPENSATION_ACTION = "getExposureCompensation";
   private static final String SET_EXPOSURE_COMPENSATION_ACTION = "setExposureCompensation";
   private static final String GET_EXPOSURE_COMPENSATION_RANGE_ACTION = "getExposureCompensationRange";
+  private static final String GET_WHITE_BALANCE_MODE_ACTION = "getWhiteBalanceMode";
+  private static final String SET_WHITE_BALANCE_MODE_ACTION = "setWhiteBalanceMode";
 
   private static final int CAM_REQ_CODE = 0;
 
@@ -125,6 +128,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return setExposureCompensation(args.getInt(0), callbackContext);
     } else if (GET_EXPOSURE_COMPENSATION_RANGE_ACTION.equals(action)) {
       return getExposureCompensationRange(callbackContext);
+    } else if (SUPPORTED_WHITE_BALANCE_MODES_ACTION.equals(action)) {
+      return getSupportedWhiteBalanceModes(callbackContext);
+    } else if (GET_WHITE_BALANCE_MODE_ACTION.equals(action)) {
+      return getWhiteBalanceMode(callbackContext);
+    } else if (SET_WHITE_BALANCE_MODE_ACTION.equals(action)) {
+      return setWhiteBalanceMode(args.getString(0),callbackContext);
     }
     return false;
   }
@@ -335,8 +344,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     if (camera.getParameters().isAutoExposureLockSupported()) {
       JSONArray jsonExposureModes = new JSONArray();
-      jsonExposureModes.put(new String("continuous"));
-      jsonExposureModes.put(new String("custom"));  
+      jsonExposureModes.put(new String("lock"));
+      jsonExposureModes.put(new String("continuous"));  
       callbackContext.success(jsonExposureModes);
     } else {
       callbackContext.error("Exposure modes not supported");
@@ -356,9 +365,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     if (camera.getParameters().isAutoExposureLockSupported()) {
       if (camera.getParameters().getAutoExposureLock()) {
-        exposureMode = "continuous";   
+        exposureMode = "lock";   
       } else {
-        exposureMode = "custom";    
+        exposureMode = "continuous";    
       }; 
       callbackContext.success(exposureMode);
     } else {
@@ -376,7 +385,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera.Parameters params = camera.getParameters();
 
     if (camera.getParameters().isAutoExposureLockSupported()) {
-      params.setAutoExposureLock("continuous".equals(exposureMode));
+      params.setAutoExposureLock("lock".equals(exposureMode));
       fragment.setCameraParameters(params);
       callbackContext.success();
     } else {
@@ -456,6 +465,90 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
+  private boolean getSupportedWhiteBalanceModes(CallbackContext callbackContext) {
+    if(this.hasCamera(callbackContext) == false){
+      return true;
+    }
+    
+    Camera camera = fragment.getCamera();
+    Camera.Parameters params = camera.getParameters();
+
+    List<String> supportedWhiteBalanceModes;
+    supportedWhiteBalanceModes = params.getSupportedWhiteBalance();
+
+    JSONArray jsonWhiteBalanceModes = new JSONArray();
+    if (camera.getParameters().isAutoWhiteBalanceLockSupported()) {
+      jsonWhiteBalanceModes.put(new String("lock"));
+    }
+    if (supportedWhiteBalanceModes != null) {
+      for (int i=0; i<supportedWhiteBalanceModes.size(); i++) {
+        jsonWhiteBalanceModes.put(new String(supportedWhiteBalanceModes.get(i)));
+      }
+    }
+    callbackContext.success(jsonWhiteBalanceModes);
+    return true;
+  }
+
+  private boolean getWhiteBalanceMode(CallbackContext callbackContext) {
+    if(this.hasCamera(callbackContext) == false){
+      return true;
+    }
+
+    Camera camera = fragment.getCamera();
+    Camera.Parameters params = camera.getParameters();
+
+    String whiteBalanceMode;
+
+    if (camera.getParameters().isAutoWhiteBalanceLockSupported()) {
+      if (camera.getParameters().getAutoWhiteBalanceLock()) {
+        whiteBalanceMode = "lock";   
+      } else {
+        whiteBalanceMode = camera.getParameters().getWhiteBalance();    
+      }; 
+    } else {
+      whiteBalanceMode = camera.getParameters().getWhiteBalance();
+    }
+    if (whiteBalanceMode != null) {
+      callbackContext.success(whiteBalanceMode);
+    } else {
+      callbackContext.error("White balance mode not supported");
+    } 
+    return true;
+  }
+
+  private boolean setWhiteBalanceMode(String whiteBalanceMode, CallbackContext callbackContext) {
+    if(this.hasCamera(callbackContext) == false){
+      return true;
+    }
+
+    Camera camera = fragment.getCamera();
+    Camera.Parameters params = camera.getParameters();
+
+    if (whiteBalanceMode.equals("lock")) {
+      if (camera.getParameters().isAutoWhiteBalanceLockSupported()) {
+        params.setAutoWhiteBalanceLock(true);
+        fragment.setCameraParameters(params);
+        callbackContext.success();
+      } else {
+        callbackContext.error("White balance lock not supported");  
+      }
+    } else if (whiteBalanceMode.equals("auto") ||
+               whiteBalanceMode.equals("incandescent") ||
+               whiteBalanceMode.equals("cloudy-daylight") ||
+               whiteBalanceMode.equals("daylight") ||
+               whiteBalanceMode.equals("fluorescent") ||
+               whiteBalanceMode.equals("shade") ||
+               whiteBalanceMode.equals("twilight") ||
+               whiteBalanceMode.equals("warm-fluorescent")) {
+      params.setWhiteBalance(whiteBalanceMode);
+      fragment.setCameraParameters(params);
+      callbackContext.success();
+    } else {
+      callbackContext.error("White balance parameter not supported");  
+    }
+    return true;
+  }
+
   private boolean getMaxZoom(CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
@@ -472,6 +565,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
     return true;
   }
+
   private boolean getZoom(CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
