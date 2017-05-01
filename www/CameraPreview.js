@@ -132,8 +132,8 @@ CameraPreview.getExposureMode = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getExposureMode", []);
 };
 
-CameraPreview.setExposureMode = function(lock, onSuccess, onError) {
-    exec(onSuccess, onError, PLUGIN_NAME, "setExposureMode", [lock]);
+CameraPreview.setExposureMode = function(exposureMode, onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "setExposureMode", [exposureMode]);
 };
 
 CameraPreview.getExposureCompensation = function(onSuccess, onError) {
@@ -146,6 +146,18 @@ CameraPreview.setExposureCompensation = function(exposureCompensation, onSuccess
 
 CameraPreview.getExposureCompensationRange = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getExposureCompensationRange", []);
+};
+
+CameraPreview.getSupportedWhiteBalanceModes = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getSupportedWhiteBalanceModes", []);
+};
+
+CameraPreview.getWhiteBalanceMode = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getWhiteBalanceMode", []);
+};
+
+CameraPreview.setWhiteBalanceMode = function(whiteBalanceMode, onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "setWhiteBalanceMode", [whiteBalanceMode]);
 };
 
 CameraPreview.FOCUS_MODE = {
@@ -164,6 +176,19 @@ CameraPreview.EXPOSURE_MODE = {
     AUTO: 'auto', // IOS Only
     CONTINUOUS: 'continuous', // IOS Only
     CUSTOM: 'custom' // IOS Only
+};
+
+CameraPreview.WHITE_BALANCE_MODE = {
+    LOCK: 'lock',
+    AUTO: 'auto',
+    CONTINUOUS: 'continuous', // IOS Only
+    INCANDESCENT: 'incandescent', // Android Only
+    CLOUDY_DAYLIGHT: 'cloudy-daylight', // Android Only
+    DAYLIGHT: 'daylight', // Android Only
+    FLUORESCENT: 'fluorescent', // Android Only
+    SHADE: 'shade', // Android Only
+    TWILIGHT: 'twilight', // Android Only
+    WARM_FLUORESCENT: 'warm-fluorescent' // Android Only
 };
 
 CameraPreview.FLASH_MODE = {
