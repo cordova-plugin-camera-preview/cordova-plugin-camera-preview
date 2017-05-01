@@ -1,9 +1,11 @@
 Cordova Plugin Camera Preview
 ====================
 
-**March 4, 2017** - We are currently drastically improving the plugin for a v1.0.0 release, in the meantime the API may change slightly. Please use master until a new version is released.
+Cordova plugin that allows camera interaction from Javascript and HTML
 
-**PR's are greatly appreciated. If your interested in maintainer status please create a couple PR's and then contact westonganger@gmail.com**
+**We are continually improving the plugin for an eventual v1.0.0 release, in the meantime the API may change. Please use master until a new version is released.**
+
+**PR's are greatly appreciated**
 
 # Features
 
