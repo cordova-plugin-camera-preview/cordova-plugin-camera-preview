@@ -1,7 +1,7 @@
 Cordova Plugin Camera Preview
 ====================
 
-Cordova plugin that allows camera interaction from HTML ee for showing camera preview below or above the HTML.<br/>
+Cordova plugin that allows camera interaction from HTML code for showing camera preview below or above the HTML.<br/>
 
 **March 4, 2017** - We are currently drastically improving the plugin for a v1.0.0 release, in the meantime the API may change slightly. Please use master until a new version is released.
 
@@ -17,7 +17,7 @@ Cordova plugin that allows camera interaction from HTML ee for showing camera pr
   <li>Set a custom position for the camera preview box.</li>
   <li>Set a custom size for the preview box.</li>
   <li>Set a custom alpha for the preview box.</li>
-  <li>Set the focus mode, zoom, color effects, exposure mode, exposure mode compensation</li>
+  <li>Set the focus mode, zoom, color effects, exposure mode, white balance and exposure compensation</li>
   <li>Maintain HTML interactivity.</li>
 </ul>
 
@@ -197,7 +197,8 @@ CameraPreview.getSupportedFlashModes(function(flashModes){
 
 ### setFlashMode(flashMode, [successCallback, errorCallback])
 
-<info>Set the flash mode. See <code>[FLASH_MODE](#camera_Settings.FlashMode)</code> for details about the possible values for flashMode.</info><br/>
+<info>Set the flash mode.</info><br/>
+* `flashMode` - <code>[FLASH_MODE](#camera_Settings.FlashMode)</code>
 
 ```javascript
 CameraPreview.setFlashMode(CameraPreview.FLASH_MODE.ON);
@@ -214,7 +215,10 @@ CameraPreview.getFlashMode(function(currentFlashMode){
 ```
 ### setColorEffect(colorEffect, [successCallback, errorCallback])
 
-<info>Set the color effect. See <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code> for details about the possible values for colorEffect.</info><br/>
+<info>Set the color effect.</info><br/>
+
+* `colorEffect` - <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code>
+
 
 ```javascript
 CameraPreview.setColorEffect(CameraPreview.COLOR_EFFECT.NEGATIVE);
@@ -247,6 +251,34 @@ CameraPreview.getMaxZoom(function(maxZoom){
   console.log(maxZoom);
 });
 ```
+
+### getSuppoertedWhiteBalanceModes(cb, [errorCallback])
+
+<info>Returns an array with supported white balance modes for the camera device currently started. See <code>[WHITE_BALANCE_MODE](#camera_Settings.WhiteBalanceMode)</code> for details about the possible values returned.</info><br/>
+
+```javascript
+CameraPreview.getSupportedWhiteBalanceModes(function(whiteBalanceModes){
+  console.log(whiteBalanceModes);
+});
+```
+
+### getWhiteBalanceMode(cb, [errorCallback])
+
+<info>Get the curent white balance mode of the camera device currently started. See <code>[WHITE_BALANCE_MODE](#camera_Settings.WhiteBalanceMode)</code> for details about the possible values returned.</info><br/>
+
+```javascript
+CameraPreview.getWhiteBalanceMode(function(whiteBalanceMode){
+  console.log(whiteBalanceMode);
+});
+```
+### setWhiteBalanceMode(whiteBalanceMode, [successCallback, errorCallback])
+
+<info>Set the white balance mode for the camera device currently started. See <code>[WHITE_BALANCE_MODE](#camera_Settings.WhiteBalanceMode)</code> for details about the possible values for whiteBalanceMode.</info><br/>
+
+```javascript
+CameraPreview.setWhiteBalanceMode(CameraPreview.WHITE_BALANCE_MODE.CLOUDY_DAYLIGHT);
+```
+
 ### getExposureModes(cb, [errorCallback])
 
 <info>Returns an array with supported exposure modes for the camera device currently started. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values returned.</info><br/>
@@ -268,7 +300,7 @@ CameraPreview.getExposureMode(function(exposureMode){
 ```
 ### setExposureMode(exposureMode, [successCallback, errorCallback])
 
-<info>Set the exposure modefor the camera device currently started. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values for exposureMode.</info><br/>
+<info>Set the exposure mode for the camera device currently started. See <code>[EXPOSURE_MODE](#camera_Settings.ExposureMode)</code> for details about the possible values for exposureMode.</info><br/>
 
 ```javascript
 CameraPreview.setExposureMode(CameraPreview.EXPOSURE_MODE.CONTINUOUS);
@@ -406,6 +438,25 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 | LOCK | string | lock | IOS Only |
 
 Note: Use AUTO to allow the device automatically adjusts the exposure once and then changes the exposure mode to LOCK.
+
+<a name="camera_Settings.WhiteBalanceMode"></a>
+
+### WHITE_BALANCE_MODE
+
+<info>White balance mode settings:</info><br/>
+
+| Name | Type | Default | Note |
+| --- | --- | --- | --- |
+| LOCK | string | lock | |
+| AUTO | string | auto | |
+| CONTINUOUS | string | continuous | IOS Only |
+| INCANDESCENT | string | incandescent | |
+| CLOUDY_DAYLIGHT | string | cloudy-daylight | |
+| DAYLIGHT | string | daylight | |
+| FLUORESCENT | string | fluorescent | |
+| SHADE | string | shade | |
+| TWILIGHT | string | twilight | |
+| WARM_FLUORESCENT | string | warm-fluorescent | |
 
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
