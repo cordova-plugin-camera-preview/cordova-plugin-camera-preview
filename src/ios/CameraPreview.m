@@ -315,13 +315,53 @@
 - (void) setExposureMode:(CDVInvokedUrlCommand*)command {
   CDVPluginResult *pluginResult;
 
-  NSString * exposureMode = [[command.arguments objectAtIndex:0] stringValue];
+  NSString * exposureMode = [command.arguments objectAtIndex:0];
   if (self.sessionManager != nil) {
     [self.sessionManager setExposureMode:exposureMode];
     NSString * exposureMode = [self.sessionManager getExposureMode];
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:exposureMode ];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Exposure modes not supported"];
+  }
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) getSupportedWhiteBalanceModes:(CDVInvokedUrlCommand*)command {
+  CDVPluginResult *pluginResult;
+
+  if (self.sessionManager != nil) {
+    NSArray * whiteBalanceModes = [self.sessionManager getSupportedWhiteBalanceModes];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:whiteBalanceModes ];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"White balance modes not supported"];
+  }
+
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) getWhiteBalanceMode:(CDVInvokedUrlCommand*)command {
+  CDVPluginResult *pluginResult;
+
+  if (self.sessionManager != nil) {
+    NSString * whiteBalanceMode = [self.sessionManager getWhiteBalanceMode];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:whiteBalanceMode ];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"White balance modes not supported"];
+  }
+
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) setWhiteBalanceMode:(CDVInvokedUrlCommand*)command {
+  CDVPluginResult *pluginResult;
+
+  NSString * whiteBalanceMode = [command.arguments objectAtIndex:0];
+  if (self.sessionManager != nil) {
+    [self.sessionManager setWhiteBalanceMode:whiteBalanceMode];
+    NSString * wbMode = [self.sessionManager getWhiteBalanceMode];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:wbMode ];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"White balance modes not supported"];
   }
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
