@@ -11,6 +11,51 @@
       [self.session setSessionPreset:AVCaptureSessionPresetPhoto];
     }
     self.filterLock = [[NSLock alloc] init];
+    
+    TemperatureAndTint * wbIncandescent = [[TemperatureAndTint alloc] init];
+    wbIncandescent.mode = @"incandescent";
+    wbIncandescent.minTemperature = 2200;
+    wbIncandescent.maxTemperature = 3200;
+    wbIncandescent.tint = 0;
+
+    TemperatureAndTint * wbCloudyDaylight = [[TemperatureAndTint alloc] init];
+    wbCloudyDaylight.mode = @"cloudy-daylight";
+    wbCloudyDaylight.minTemperature = 6000;
+    wbCloudyDaylight.maxTemperature = 7000;
+    wbCloudyDaylight.tint = 0;
+    
+    TemperatureAndTint * wbDaylight = [[TemperatureAndTint alloc] init];
+    wbDaylight.mode = @"daylight";
+    wbDaylight.minTemperature = 5500;
+    wbDaylight.maxTemperature = 5800;
+    wbDaylight.tint = 0;
+
+    TemperatureAndTint * wbFluorescent = [[TemperatureAndTint alloc] init];
+    wbFluorescent.mode = @"fluorescent";
+    wbFluorescent.minTemperature = 3300;
+    wbFluorescent.maxTemperature = 3800;
+    wbFluorescent.tint = 0;
+
+    TemperatureAndTint * wbShade = [[TemperatureAndTint alloc] init];
+    wbShade.mode = @"shade";
+    wbShade.minTemperature = 7000;
+    wbShade.maxTemperature = 8000;
+    wbShade.tint = 0;
+
+    TemperatureAndTint * wbWarmFluorescent = [[TemperatureAndTint alloc] init];
+    wbWarmFluorescent.mode = @"warm-fluorescent";
+    wbWarmFluorescent.minTemperature = 3000;
+    wbWarmFluorescent.maxTemperature = 3000;
+    wbWarmFluorescent.tint = 0;
+
+    TemperatureAndTint * wbTwilight = [[TemperatureAndTint alloc] init];
+    wbTwilight.mode = @"twilight";
+    wbTwilight.minTemperature = 4000;
+    wbTwilight.maxTemperature = 4400;
+    wbTwilight.tint = 0;
+
+    self.colorTemperatures = [NSDictionary dictionaryWithObjects:@[wbIncandescent,wbCloudyDaylight,wbDaylight,wbFluorescent,wbShade,wbWarmFluorescent,wbTwilight]
+                                           forKeys:@[@"incandescent",@"cloudy-daylight",@"daylight",@"fluorescent",@"shade",@"warm-fluorescent",@"twilight"]];   
   }
   return self;
 }
@@ -631,6 +676,164 @@
     errMsg = @"Session is not started";
   }
 
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (NSArray *)getSupportedWhiteBalanceModes {
+
+  NSString *errMsg;
+
+  // check session is started
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    NSLog(@"maxWhiteBalanceGain: %f", videoDevice.maxWhiteBalanceGain);
+    NSMutableArray * whiteBalanceModes = [[NSMutableArray alloc] init];
+    if ([videoDevice isWhiteBalanceModeSupported:0]) {
+      [whiteBalanceModes addObject:@"lock"];
+    };
+    if ([videoDevice isWhiteBalanceModeSupported:1]) {
+      [whiteBalanceModes addObject:@"auto"];
+    };
+    if ([videoDevice isWhiteBalanceModeSupported:2]) {
+      [whiteBalanceModes addObject:@"continuous"];
+    };
+
+    NSEnumerator *enumerator = [self.colorTemperatures objectEnumerator];
+    TemperatureAndTint * wbTemperature;
+    while (wbTemperature =[ enumerator nextObject]) {
+      AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTintValues;
+      temperatureAndTintValues.temperature = (wbTemperature.minTemperature + wbTemperature.maxTemperature) / 2;
+      temperatureAndTintValues.tint = wbTemperature.tint;
+      AVCaptureWhiteBalanceGains rgbGains = [videoDevice deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTintValues];
+      NSLog(@"mode: %@", wbTemperature.mode);
+      NSLog(@"minTemperature: %f", wbTemperature.minTemperature);
+      NSLog(@"maxTemperature: %f", wbTemperature.maxTemperature);
+      NSLog(@"blueGain: %f", rgbGains.blueGain);
+      NSLog(@"redGain: %f", rgbGains.redGain);
+      NSLog(@"greenGain: %f", rgbGains.greenGain);
+      if ((rgbGains.blueGain >= 1) &&
+          (rgbGains.blueGain <= videoDevice.maxWhiteBalanceGain) &&
+          (rgbGains.redGain >= 1) &&
+          (rgbGains.redGain <= videoDevice.maxWhiteBalanceGain) &&
+          (rgbGains.greenGain >= 1) &&
+          (rgbGains.greenGain <= videoDevice.maxWhiteBalanceGain)) {
+        [whiteBalanceModes addObject:wbTemperature.mode];
+      }
+    }
+    NSLog(@"%@", whiteBalanceModes);
+    return (NSArray *) whiteBalanceModes;
+  } else {
+    errMsg = @"Session is not started";
+  }
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (NSString *) getWhiteBalanceMode {
+
+  NSString *errMsg;
+  NSString *whiteBalanceMode;
+
+  // check session is started 
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    switch (videoDevice.whiteBalanceMode) {
+      case 0:
+          whiteBalanceMode = @"lock";
+          if (self.currentWhiteBalanceMode != nil) {
+            whiteBalanceMode = self.currentWhiteBalanceMode;    
+          }
+        break;
+      case 1:
+        whiteBalanceMode = @"auto";
+        break;
+      case 2:
+        whiteBalanceMode = @"continuous";
+        break;  
+      default:
+        whiteBalanceMode = @"unsupported";
+        errMsg = @"White balance mode not supported";
+    }
+    return whiteBalanceMode;
+  } else {
+    errMsg = @"Session is not started";
+  }
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+  }
+}
+
+- (NSString *) setWhiteBalanceMode:(NSString *)whiteBalanceMode {
+
+  NSString *errMsg;
+
+  // check session is started
+  
+  NSLog(@"plugin White balance mode: %@", whiteBalanceMode);
+  if (self.session) {
+    AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
+    [self.device lockForConfiguration:nil];
+
+    if ([whiteBalanceMode isEqual:@"lock"]) {
+      if ([videoDevice isWhiteBalanceModeSupported:0]) {
+        videoDevice.whiteBalanceMode = 0;
+        return whiteBalanceMode;
+      } else {
+        errMsg = @"White balance mode not supported";
+        return @"ERR01";
+      };
+    } else if ([whiteBalanceMode isEqual:@"auto"]) {
+      if ([videoDevice isWhiteBalanceModeSupported:1]) {
+        videoDevice.whiteBalanceMode = 1;
+        return whiteBalanceMode;
+    } else {
+        errMsg = @"White balance mode not supported";
+        return @"ERR01";
+      };
+    } else if ([whiteBalanceMode isEqual:@"continuous"]) {
+      if ([videoDevice isWhiteBalanceModeSupported:2]) {
+        videoDevice.whiteBalanceMode = 2;
+        return whiteBalanceMode;
+      } else {
+        errMsg = @"White balance mode not supported";
+        return @"ERR01";
+      };
+    } else {
+        NSLog(@"Additional modes for %@", whiteBalanceMode);
+        TemperatureAndTint * temperatureForWhiteBalanceSetting = [self.colorTemperatures objectForKey:whiteBalanceMode];
+        if (temperatureForWhiteBalanceSetting != nil) {
+          AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTintValues;
+          temperatureAndTintValues.temperature = (temperatureForWhiteBalanceSetting.minTemperature + temperatureForWhiteBalanceSetting.maxTemperature) / 2;
+          temperatureAndTintValues.tint = temperatureForWhiteBalanceSetting.tint;
+          AVCaptureWhiteBalanceGains rgbGains = [videoDevice deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTintValues];
+          if ((rgbGains.blueGain >= 1) &&
+             (rgbGains.blueGain <= videoDevice.maxWhiteBalanceGain) &&
+             (rgbGains.redGain >= 1) &&
+             (rgbGains.redGain <= videoDevice.maxWhiteBalanceGain) &&
+             (rgbGains.greenGain >= 1) &&
+             (rgbGains.greenGain <= videoDevice.maxWhiteBalanceGain)) {
+          
+            [videoDevice setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:nil];
+            self.currentWhiteBalanceMode = whiteBalanceMode;
+            return self.currentWhiteBalanceMode;
+          } else {
+            errMsg = @"White balance mode not supported";
+            return @"ERR01";            
+          }
+        } else {
+        errMsg = @"White balance mode not supported";
+        return @"ERR01";
+      }
+    } 
+    [self.device unlockForConfiguration];
+  } else {
+    errMsg = @"Session is not started";
+    return @"ERR02";
+  }
   if (errMsg) {
     NSLog(@"%@", errMsg);
   }

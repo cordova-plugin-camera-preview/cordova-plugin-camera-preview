@@ -1,5 +1,6 @@
 #import <CoreImage/CoreImage.h>
 #import <AVFoundation/AVFoundation.h>
+#import "TemperatureAndTint.h"
 
 @interface CameraSessionManager : NSObject
 
@@ -22,6 +23,9 @@
 - (NSArray *) getExposureCompensationRange;
 - (CGFloat) getExposureCompensation;
 - (void) setExposureCompensation:(CGFloat)exposureCompensation;
+- (NSArray *) getSupportedWhiteBalanceModes;
+- (NSString *) getWhiteBalanceMode;
+- (NSString *) setWhiteBalanceMode:(NSString *)whiteBalanceMode;
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation;
 - (void) tapToFocus:(CGFloat)xPoint yPoint:(CGFloat)yPoint;
 - (void) setTorchMode;
@@ -39,5 +43,7 @@
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 @property (nonatomic) AVCaptureVideoDataOutput *dataOutput;
 @property (nonatomic, assign) id delegate;
+@property (nonatomic) NSString *currentWhiteBalanceMode;
+@property (nonatomic) NSDictionary *colorTemperatures;
 
 @end

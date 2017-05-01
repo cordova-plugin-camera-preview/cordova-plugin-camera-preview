@@ -32,6 +32,10 @@
 - (void) getSupportedFlashModes:(CDVInvokedUrlCommand*)command;
 - (void) getSupportedFocusModes:(CDVInvokedUrlCommand*)command;
 - (void) tapToFocus:(CDVInvokedUrlCommand*)command;
+- (void) getSupportedWhiteBalanceModes:(CDVInvokedUrlCommand*)command;
+- (void) getWhiteBalanceMode:(CDVInvokedUrlCommand*)command;
+- (void) setWhiteBalanceMode:(CDVInvokedUrlCommand*)command;
+
 
 - (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(int) quality;
 - (void) invokeTakePicture;
