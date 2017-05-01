@@ -2,7 +2,7 @@
 
 <plugin id="cordova-plugin-camera-preview" version="0.9.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <name>cordova-plugin-camera-preview</name>
+   <name>cordova-plugin-camera-preview</name>
   <description>Cordova plugin that allows camera interaction from HTML code. Show camera preview popup on top of the HTML.</description>
   <license>Apache 2.0</license>
   <keywords>cordova,phonegap,ecosystem:cordova,cordova-android,cordova-ios,android,ios,ionic,camera,cam,camera-preview,preview</keywords>
@@ -50,6 +50,9 @@
 
     <header-file src="src/ios/CameraPreview.h" />
     <source-file src="src/ios/CameraPreview.m" />
+
+     <header-file src="src/ios/TemperatureAndTint.h" />
+    <source-file src="src/ios/TemperatureAndTint.m" />
 
     <header-file src="src/ios/CameraSessionManager.h" />
     <source-file src="src/ios/CameraSessionManager.m" />
