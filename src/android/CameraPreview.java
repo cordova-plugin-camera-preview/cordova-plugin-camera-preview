@@ -39,6 +39,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String TAKE_PICTURE_ACTION = "takePicture";
   private static final String SHOW_CAMERA_ACTION = "showCamera";
   private static final String HIDE_CAMERA_ACTION = "hideCamera";
+  private static final String TAP_TO_FOCUS = "tapToFocus";
   private static final String SUPPORTED_PICTURE_SIZES_ACTION = "getSupportedPictureSizes";
   private static final String SUPPORTED_FOCUS_MODES_ACTION = "getSupportedFocusModes";
   private static final String SUPPORTED_WHITE_BALANCE_MODES_ACTION = "getSupportedWhiteBalanceModes";
@@ -61,6 +62,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private CameraActivity fragment;
   private CallbackContext takePictureCallbackContext;
+  private CallbackContext setFocusCallbackContext;
 
   private CallbackContext execCallback;
   private JSONArray execArgs;
@@ -102,10 +104,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return setFlashMode(args.getString(0), callbackContext);
     } else if (STOP_CAMERA_ACTION.equals(action)){
       return stopCamera(callbackContext);
-    } else if (HIDE_CAMERA_ACTION.equals(action)) {
-      return hideCamera(callbackContext);
     } else if (SHOW_CAMERA_ACTION.equals(action)) {
       return showCamera(callbackContext);
+    } else if (HIDE_CAMERA_ACTION.equals(action)) {
+      return hideCamera(callbackContext);
+    } else if (TAP_TO_FOCUS.equals(action)) {
+      return tapToFocus(args.getInt(0), args.getInt(1), callbackContext);
     } else if (SWITCH_CAMERA_ACTION.equals(action)) {
       return switchCamera(callbackContext);
     } else if (SUPPORTED_PICTURE_SIZES_ACTION.equals(action)) {
@@ -787,6 +791,38 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
 
     callbackContext.success();
     return true;
+  }
+
+  private boolean tapToFocus(final int pointX, final int pointY, CallbackContext callbackContext) {
+    if(this.hasView(callbackContext) == false){
+      return true;
+    }
+
+    setFocusCallbackContext = callbackContext;
+
+    fragment.setFocusArea(pointX, pointY);
+    return true;
+  }
+
+  public void onFocusSet(final int pointX, final int pointY) {
+    Log.d(TAG, "Focus set, returning coordinates");
+
+    JSONObject data = new JSONObject();
+    try {
+      data.put("x", pointX);
+      data.put("y", pointY);
+    } catch (JSONException e) {
+      Log.d(TAG, "onFocusSet failed to set output payload");
+    }
+
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
+    pluginResult.setKeepCallback(true);
+    setFocusCallbackContext.sendPluginResult(pluginResult);
+  }
+
+  public void onFocusSetError(String message) {
+    Log.d(TAG, "CameraPreview onFocusSetError");
+    setFocusCallbackContext.error(message);
   }
 
   private boolean switchCamera(CallbackContext callbackContext) {
