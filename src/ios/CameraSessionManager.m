@@ -261,33 +261,33 @@
   if ([focusMode isEqual:@"fixed"]) {
     if ([videoDevice isFocusModeSupported:0]) {
       videoDevice.focusMode = 0;
-      return focusMode;
     } else {
       errMsg = @"Focus mode not supported";
-      return @"ERR01";
     };
   } else if ([focusMode isEqual:@"auto"]) {
     if ([videoDevice isFocusModeSupported:1]) {
       videoDevice.focusMode = 1;
-      return focusMode;
-  } else {
+    } else {
       errMsg = @"Focus mode not supported";
-      return @"ERR01";
     };
   } else if ([focusMode isEqual:@"continuous"]) {
     if ([videoDevice isFocusModeSupported:2]) {
       videoDevice.focusMode = 2;
-      return focusMode;
     } else {
       errMsg = @"Focus mode not supported";
-      return @"ERR01";
     };
   } else {
-      errMsg = @"Exposure mode not supported";
-      return @"ERR01";
+    errMsg = @"Exposure mode not supported";
   }
 
   [self.device unlockForConfiguration];
+
+  if (errMsg) {
+    NSLog(@"%@", errMsg);
+    return @"ERR01";
+  }
+
+  return focusMode;
 }
 
 - (NSArray *)getFlashModes {
@@ -443,47 +443,43 @@
 
   AVCaptureDevice * videoDevice = [self cameraWithPosition: self.defaultCamera];
   [self.device lockForConfiguration:nil];
+
   if ([exposureMode isEqual:@"lock"]) {
     if ([videoDevice isExposureModeSupported:0]) {
       videoDevice.exposureMode = 0;
-      return exposureMode;
     } else {
       errMsg = @"Exposure mode not supported";
-      return @"ERR01";
     };
   } else if ([exposureMode isEqual:@"auto"]) {
     if ([videoDevice isExposureModeSupported:1]) {
       videoDevice.exposureMode = 1;
-      return exposureMode;
-  } else {
+    } else {
       errMsg = @"Exposure mode not supported";
-      return @"ERR01";
     };
   } else if ([exposureMode isEqual:@"continuous"]) {
     if ([videoDevice isExposureModeSupported:2]) {
       videoDevice.exposureMode = 2;
-      return exposureMode;
     } else {
       errMsg = @"Exposure mode not supported";
-      return @"ERR01";
     };
   } else if ([exposureMode isEqual:@"custom"]) {
     if ([videoDevice isExposureModeSupported:3]) {
       videoDevice.exposureMode = 3;
-      return exposureMode;
     } else {
       errMsg = @"Exposure mode not supported";
-      return @"ERR01";
     };
   } else {
-      errMsg = @"Exposure mode not supported";
-      return @"ERR01";
+    errMsg = @"Exposure mode not supported";
   }
+
   [self.device unlockForConfiguration];
 
   if (errMsg) {
     NSLog(@"%@", errMsg);
+    return @"ERR01";
   }
+
+  return exposureMode;
 }
 
 - (NSArray *)getExposureCompensationRange {
@@ -593,26 +589,20 @@
   if ([whiteBalanceMode isEqual:@"lock"]) {
     if ([videoDevice isWhiteBalanceModeSupported:0]) {
       videoDevice.whiteBalanceMode = 0;
-      return whiteBalanceMode;
     } else {
       errMsg = @"White balance mode not supported";
-      return @"ERR01";
     };
   } else if ([whiteBalanceMode isEqual:@"auto"]) {
     if ([videoDevice isWhiteBalanceModeSupported:1]) {
       videoDevice.whiteBalanceMode = 1;
-      return whiteBalanceMode;
   } else {
       errMsg = @"White balance mode not supported";
-      return @"ERR01";
     };
   } else if ([whiteBalanceMode isEqual:@"continuous"]) {
     if ([videoDevice isWhiteBalanceModeSupported:2]) {
       videoDevice.whiteBalanceMode = 2;
-      return whiteBalanceMode;
     } else {
       errMsg = @"White balance mode not supported";
-      return @"ERR01";
     };
   } else {
       NSLog(@"Additional modes for %@", whiteBalanceMode);
@@ -631,21 +621,21 @@
 
           [videoDevice setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:nil];
           self.currentWhiteBalanceMode = whiteBalanceMode;
-          return self.currentWhiteBalanceMode;
         } else {
           errMsg = @"White balance mode not supported";
-          return @"ERR01";
         }
       } else {
       errMsg = @"White balance mode not supported";
-      return @"ERR01";
     }
   }
   [self.device unlockForConfiguration];
 
   if (errMsg) {
     NSLog(@"%@", errMsg);
+    return @"ERR01";
   }
+
+  return whiteBalanceMode;
 }
 
 - (void) tapToFocus:(CGFloat)xPoint yPoint:(CGFloat)yPoint {
