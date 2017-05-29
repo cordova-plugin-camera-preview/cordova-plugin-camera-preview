@@ -11,8 +11,8 @@
 - (NSString *) setFocusMode:(NSString *)focusMode;
 - (NSArray *) getFlashModes;
 - (NSInteger) getFlashMode;
-- (void) setupSession:(NSString *)defaultCamera;
-- (void) switchCamera;
+- (void) setupSession:(NSString *)defaultCamera completion:(void(^)(BOOL started))completion;
+- (void) switchCamera:(void(^)(BOOL switched))completion;
 - (void) setFlashMode:(NSInteger)flashMode;
 - (void) setZoom:(CGFloat)desiredZoomFactor;
 - (CGFloat) getZoom;
