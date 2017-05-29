@@ -89,12 +89,13 @@
   return orientation;
 }
 
-- (void) setupSession:(NSString *)defaultCamera {
+- (void) setupSession:(NSString *)defaultCamera completion:(void(^)(BOOL started))completion{
   // If this fails, video input will just stream blank frames and the user will be notified. User only has to accept once.
   [self checkDeviceAuthorizationStatus];
 
   dispatch_async(self.sessionQueue, ^{
       NSError *error = nil;
+      BOOL success = TRUE;
 
       NSLog(@"defaultCamera: %@", defaultCamera);
       if ([defaultCamera isEqual: @"front"]) {
@@ -111,6 +112,7 @@
           [videoDevice unlockForConfiguration];
         } else {
           NSLog(@"%@", error);
+          success = FALSE;
         }
       }
 
@@ -118,6 +120,7 @@
 
       if (error) {
         NSLog(@"%@", error);
+        success = FALSE;
       }
 
       if ([self.session canAddInput:videoDeviceInput]) {
@@ -145,6 +148,8 @@
 
       [self updateOrientation:[self getCurrentOrientation]];
       self.device = videoDevice;
+
+      completion(success);
   });
 }
 
@@ -164,7 +169,7 @@
   }
 }
 
-- (void) switchCamera {
+- (void) switchCamera:(void(^)(BOOL switched))completion {
   if (self.defaultCamera == AVCaptureDevicePositionFront) {
     self.defaultCamera = AVCaptureDevicePositionBack;
   } else {
@@ -173,6 +178,7 @@
 
   dispatch_async([self sessionQueue], ^{
       NSError *error = nil;
+      BOOL success = TRUE;
 
       [self.session beginConfiguration];
 
@@ -191,6 +197,7 @@
           [videoDevice unlockForConfiguration];
         } else {
           NSLog(@"%@", error);
+          success = FALSE;
         }
       }
 
@@ -198,6 +205,7 @@
 
       if (error) {
         NSLog(@"%@", error);
+        success = FALSE;
       }
 
       if ([self.session canAddInput:videoDeviceInput]) {
@@ -208,6 +216,8 @@
       [self updateOrientation:[self getCurrentOrientation]];
       [self.session commitConfiguration];
       self.device = videoDevice;
+
+      completion(success);
   });
 }
 

@@ -61,14 +61,17 @@
 
     // Setup session
     self.sessionManager.delegate = self.cameraRenderController;
-    [self.sessionManager setupSession:defaultCamera];
 
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.sessionManager setupSession:defaultCamera completion:^(BOOL started) {
+
+      [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
+
+    }];
+
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid number of parameters"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }
-
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void) stopCamera:(CDVInvokedUrlCommand*)command {
@@ -125,13 +128,17 @@
   CDVPluginResult *pluginResult;
 
   if (self.sessionManager != nil) {
-    [self.sessionManager switchCamera];
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  } else {
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Session not started"];
-  }
+    [self.sessionManager switchCamera:^(BOOL switched) {
 
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
+
+    }];
+
+  } else {
+
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Session not started"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }
 }
 
 - (void) getSupportedFocusModes:(CDVInvokedUrlCommand*)command {
