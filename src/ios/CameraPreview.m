@@ -81,9 +81,8 @@
   if(self.sessionManager != nil) {
     [self.cameraRenderController.view removeFromSuperview];
     [self.cameraRenderController removeFromParentViewController];
-    self.cameraRenderController = nil;
 
-    [self.sessionManager.session stopRunning];
+    self.cameraRenderController = nil;
     self.sessionManager = nil;
 
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
