@@ -426,7 +426,7 @@
 
     CGFloat width = (CGFloat)[command.arguments[0] floatValue];
     CGFloat height = (CGFloat)[command.arguments[1] floatValue];
-    CGFloat quality = (CGFloat)[command.arguments[2] floatValue] / 100;
+    CGFloat quality = (CGFloat)[command.arguments[2] floatValue] / 100.0f;
 
     [self invokeTakePicture:width withHeight:height withQuality:quality];
   } else {
@@ -534,7 +534,7 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (NSString *)getBase64Image:(CGImageRef)imageRef withQuality:(int) quality {
+- (NSString *)getBase64Image:(CGImageRef)imageRef withQuality:(CGFloat) quality {
   NSString *base64Image = nil;
 
   @try {
@@ -626,10 +626,10 @@
 }
 
 - (void) invokeTakePicture {
-  [self invokeTakePicture:0.0 withHeight:0.0 withQuality:85];
+  [self invokeTakePicture:0.0 withHeight:0.0 withQuality:0.85];
 }
 
-- (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(int) quality{
+- (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(CGFloat) quality{
     AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
 

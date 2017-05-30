@@ -37,7 +37,7 @@
 - (void) setWhiteBalanceMode:(CDVInvokedUrlCommand*)command;
 
 
-- (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(int) quality;
+- (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(CGFloat) quality;
 - (void) invokeTakePicture;
 
 @property (nonatomic) CameraSessionManager *sessionManager;
