@@ -95,7 +95,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else if (PREVIEW_SIZE_ACTION.equals(action)) {
       return setPreviewSize(args.getInt(0), args.getInt(1), callbackContext);
     } else if (SUPPORTED_FLASH_MODES_ACTION.equals(action)) {
-      return getSupportedFlashModes(callbackContext);  
+      return getSupportedFlashModes(callbackContext);
     } else if (GET_FLASH_MODE_ACTION.equals(action)) {
       return getFlashMode(callbackContext);
     } else if (SET_FLASH_MODE_ACTION.equals(action)) {
@@ -111,15 +111,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else if (SUPPORTED_PICTURE_SIZES_ACTION.equals(action)) {
       return getSupportedPictureSizes(callbackContext);
     } else if (GET_EXPOSURE_MODES_ACTION.equals(action)) {
-      return getExposureModes(callbackContext);  
+      return getExposureModes(callbackContext);
     } else if (SUPPORTED_FOCUS_MODES_ACTION.equals(action)) {
       return getSupportedFocusModes(callbackContext);
     } else if (GET_FOCUS_MODE_ACTION.equals(action)) {
-      return getFocusMode(callbackContext);  
+      return getFocusMode(callbackContext);
     } else if (SET_FOCUS_MODE_ACTION.equals(action)) {
       return setFocusMode(args.getString(0), callbackContext);
     } else if (GET_EXPOSURE_MODE_ACTION.equals(action)) {
-      return getExposureMode(callbackContext);  
+      return getExposureMode(callbackContext);
     } else if (SET_EXPOSURE_MODE_ACTION.equals(action)) {
       return setExposureMode(args.getString(0), callbackContext);
     } else if (GET_EXPOSURE_COMPENSATION_ACTION.equals(action)) {
@@ -345,7 +345,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     if (camera.getParameters().isAutoExposureLockSupported()) {
       JSONArray jsonExposureModes = new JSONArray();
       jsonExposureModes.put(new String("lock"));
-      jsonExposureModes.put(new String("continuous"));  
+      jsonExposureModes.put(new String("continuous"));
       callbackContext.success(jsonExposureModes);
     } else {
       callbackContext.error("Exposure modes not supported");
@@ -365,10 +365,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     if (camera.getParameters().isAutoExposureLockSupported()) {
       if (camera.getParameters().getAutoExposureLock()) {
-        exposureMode = "lock";   
+        exposureMode = "lock";
       } else {
-        exposureMode = "continuous";    
-      }; 
+        exposureMode = "continuous";
+      };
       callbackContext.success(exposureMode);
     } else {
       callbackContext.error("Exposure mode not supported");
@@ -469,7 +469,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     if(this.hasCamera(callbackContext) == false){
       return true;
     }
-    
+
     Camera camera = fragment.getCamera();
     Camera.Parameters params = camera.getParameters();
 
@@ -501,10 +501,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     if (camera.getParameters().isAutoWhiteBalanceLockSupported()) {
       if (camera.getParameters().getAutoWhiteBalanceLock()) {
-        whiteBalanceMode = "lock";   
+        whiteBalanceMode = "lock";
       } else {
-        whiteBalanceMode = camera.getParameters().getWhiteBalance();    
-      }; 
+        whiteBalanceMode = camera.getParameters().getWhiteBalance();
+      };
     } else {
       whiteBalanceMode = camera.getParameters().getWhiteBalance();
     }
@@ -512,7 +512,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       callbackContext.success(whiteBalanceMode);
     } else {
       callbackContext.error("White balance mode not supported");
-    } 
+    }
     return true;
   }
 
@@ -530,7 +530,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         fragment.setCameraParameters(params);
         callbackContext.success();
       } else {
-        callbackContext.error("White balance lock not supported");  
+        callbackContext.error("White balance lock not supported");
       }
     } else if (whiteBalanceMode.equals("auto") ||
                whiteBalanceMode.equals("incandescent") ||
@@ -544,7 +544,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       fragment.setCameraParameters(params);
       callbackContext.success();
     } else {
-      callbackContext.error("White balance parameter not supported");  
+      callbackContext.error("White balance parameter not supported");
     }
     return true;
   }
@@ -650,7 +650,7 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     Camera.Parameters params = camera.getParameters();
     List<String> supportedFocusModes;
     supportedFocusModes = params.getSupportedFocusModes();
-    
+
     if (supportedFocusModes != null) {
       JSONArray jsonFocusModes = new JSONArray();
       for (int i=0; i<supportedFocusModes.size(); i++) {
@@ -694,7 +694,7 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     List<String> supportedFocusModes;
     List<String> supportedAutoFocusModes = Arrays.asList("auto", "continuous-picture", "continuous-video","macro");
     supportedFocusModes = params.getSupportedFocusModes();
-    if (supportedFocusModes.indexOf(focusMode) > -1) {        
+    if (supportedFocusModes.indexOf(focusMode) > -1) {
       params.setFocusMode(focusMode);
       fragment.setCameraParameters(params);
       callbackContext.success(focusMode);
