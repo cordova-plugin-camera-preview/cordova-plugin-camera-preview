@@ -26,7 +26,7 @@ Cordova plugin that allows camera interaction from Javascript and HTML
 These are some features that are currently iOS only, however we would love to see PR's for this functionality in Android.
 
 <ul>
-  <li>Tap to focus</li>
+  <li><strike>Tap to focus</strike></li>
 </ul>
 
 # Installation
