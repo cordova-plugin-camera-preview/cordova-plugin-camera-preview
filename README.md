@@ -11,6 +11,7 @@ Cordova plugin that allows camera interaction from Javascript and HTML
 
 <ul>
   <li>Start a camera preview from HTML code.</li>
+  <li>Maintain HTML interactivity.</li>
   <li>Drag the preview box.</li>
   <li>Set camera color effect.</li>
   <li>Send the preview box to back of the HTML content.</li>
@@ -18,15 +19,7 @@ Cordova plugin that allows camera interaction from Javascript and HTML
   <li>Set a custom size for the preview box.</li>
   <li>Set a custom alpha for the preview box.</li>
   <li>Set the focus mode, zoom, color effects, exposure mode, white balance mode and exposure compensation</li>
-  <li>Maintain HTML interactivity.</li>
-</ul>
-
-### iOS only features
-
-These are some features that are currently iOS only, however we would love to see PR's for this functionality in Android.
-
-<ul>
-  <li><strike>Tap to focus</strike></li>
+  <li>Tap to focus</li>
 </ul>
 
 # Installation
