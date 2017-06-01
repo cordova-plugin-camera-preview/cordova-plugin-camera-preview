@@ -628,16 +628,15 @@ private boolean getSupportedFlashModes(CallbackContext callbackContext) {
     Camera.Parameters params = camera.getParameters();
     List<String> supportedFlashModes;
     supportedFlashModes = params.getSupportedFlashModes();
-    
+    JSONArray jsonFlashModes = new JSONArray();
+
     if (supportedFlashModes != null) {
-      JSONArray jsonFlashModes = new JSONArray();
       for (int i=0; i<supportedFlashModes.size(); i++) {
           jsonFlashModes.put(new String(supportedFlashModes.get(i)));
       }
-      callbackContext.success(jsonFlashModes);
-      return true;
     }
-    callbackContext.error("Camera flash modes parameters access error");
+
+    callbackContext.success(jsonFlashModes);
     return true;
   }
 
