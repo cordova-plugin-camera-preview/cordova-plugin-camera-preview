@@ -52,6 +52,7 @@ public class CameraActivity extends Fragment {
     void onPictureTakenError(String message);
     void onFocusSet(int pointX, int pointY);
     void onFocusSetError(String message);
+    void onCameraStarted();
   }
 
   private CameraPreviewListener eventListener;
@@ -224,6 +225,7 @@ public class CameraActivity extends Fragment {
 
     if(mPreview.mPreviewSize == null){
       mPreview.setCamera(mCamera, cameraCurrentlyLocked);
+      eventListener.onCameraStarted();
     } else {
       mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
       mCamera.startPreview();

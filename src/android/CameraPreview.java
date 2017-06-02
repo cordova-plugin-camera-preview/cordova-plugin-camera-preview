@@ -63,6 +63,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private CameraActivity fragment;
   private CallbackContext takePictureCallbackContext;
   private CallbackContext setFocusCallbackContext;
+  private CallbackContext startCameraCallbackContext;
 
   private CallbackContext execCallback;
   private JSONArray execArgs;
@@ -234,7 +235,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     fragment.setRect(computedX, computedY, computedWidth, computedHeight);
 
-    final CallbackContext cb = callbackContext;
+    startCameraCallbackContext = callbackContext;
 
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -265,12 +266,18 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(containerView.getId(), fragment);
         fragmentTransaction.commit();
-
-        cb.success("Camera started");
       }
     });
 
     return true;
+  }
+
+  public void onCameraStarted() {
+    Log.d(TAG, "Camera started");
+
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, "Camera started");
+    pluginResult.setKeepCallback(true);
+    startCameraCallbackContext.sendPluginResult(pluginResult);
   }
 
   private boolean takePicture(int width, int height, int quality, CallbackContext callbackContext) {
