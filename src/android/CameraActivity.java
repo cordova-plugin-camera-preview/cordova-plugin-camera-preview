@@ -73,6 +73,7 @@ public class CameraActivity extends Fragment {
   public String defaultCamera;
   public boolean tapToTakePicture;
   public boolean dragEnabled;
+  public boolean tapToFocus;
 
   public int width;
   public int height;
@@ -139,8 +140,30 @@ public class CameraActivity extends Fragment {
 
               boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
               if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
-                if (tapToTakePicture) {
+                if (tapToTakePicture && tapToFocus) {
+                  setFocusArea((int)event.getX(0), (int)event.getY(0), new Camera.AutoFocusCallback() {
+                    public void onAutoFocus(boolean success, Camera camera) {
+                      if (success) {
+                        takePicture(0, 0, 85);
+                      } else {
+                        Log.d(TAG, "onTouch:" + " setFocusArea() did not suceed");
+                      }
+                    }
+                  });
+
+                } else if(tapToTakePicture){
                   takePicture(0, 0, 85);
+
+                } else if(tapToFocus){
+                  setFocusArea((int)event.getX(0), (int)event.getY(0), new Camera.AutoFocusCallback() {
+                    public void onAutoFocus(boolean success, Camera camera) {
+                      if (success) {
+                        // A callback to JS might make sense here.
+                      } else {
+                        Log.d(TAG, "onTouch:" + " setFocusArea() did not suceed");
+                      }
+                    }
+                  });
                 }
                 return true;
               } else {
@@ -470,7 +493,7 @@ public class CameraActivity extends Fragment {
     }
   }
 
-  public void setFocusArea(final int pointX, final int pointY) {
+  public void setFocusArea(final int pointX, final int pointY, final Camera.AutoFocusCallback callback) {
     if (mCamera != null) {
 
       mCamera.cancelAutoFocus();
@@ -488,19 +511,10 @@ public class CameraActivity extends Fragment {
 
       try {
         setCameraParameters(parameters);
-
-        mCamera.autoFocus(new Camera.AutoFocusCallback() {
-          public void onAutoFocus(boolean success, Camera camera) {
-            if (success) {
-              eventListener.onFocusSet(pointX, pointY);
-            } else {
-              eventListener.onFocusSetError("Focus set failed");
-            }
-          }
-        });
+        mCamera.autoFocus(callback);
       } catch (Exception e) {
         Log.d(TAG, e.getMessage());
-        eventListener.onFocusSetError("Focus set parameters failed");
+        callback.onAutoFocus(false, this.mCamera);
       }
     }
   }
