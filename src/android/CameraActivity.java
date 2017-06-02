@@ -388,6 +388,7 @@ public class CameraActivity extends Fragment {
   private Camera.Size getOptimalPictureSize(final int width, final int height, final Camera.Size previewSize, final List<Camera.Size> supportedSizes){
     /*
       get the supportedPictureSize that:
+      - matches exactly width and height
       - has the closest aspect ratio to the preview aspect ratio
       - has picture.width and picture.height closest to width and height
       - has the highest supported picture width and height up to 2 Megapixel if width == 0 || height == 0
@@ -415,6 +416,13 @@ public class CameraActivity extends Fragment {
 
     for (int i = 0; i < supportedSizes.size(); i++) {
       Camera.Size supportedSize = supportedSizes.get(i);
+
+      // Perfect match
+      if (supportedSize.equals(size)) {
+        Log.d(TAG, "CameraPreview optimalPictureSize " + supportedSize.width + 'x' + supportedSize.height);
+        return supportedSize;
+      }
+
       double difference = Math.abs(previewAspectRatio - ((double)supportedSize.width / (double)supportedSize.height));
 
       if (difference < bestDifference - aspectTolerance) {
