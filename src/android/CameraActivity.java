@@ -68,6 +68,7 @@ public class CameraActivity extends Fragment {
   private Camera mCamera;
   private int numberOfCameras;
   private int cameraCurrentlyLocked;
+  private int currentQuality;
 
   // The first rear facing camera
   private int defaultCameraId;
@@ -334,21 +335,10 @@ public class CameraActivity extends Fragment {
     return getActivity().getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
   }
 
-  public Bitmap cropBitmap(Bitmap bitmap, Rect rect){
-    int w = rect.right - rect.left;
-    int h = rect.bottom - rect.top;
-    Bitmap ret = Bitmap.createBitmap(w, h, bitmap.getConfig());
-    Canvas canvas= new Canvas(ret);
-    canvas.drawBitmap(bitmap, -rect.left, -rect.top, null);
-    return ret;
-  }
-
-  public static Bitmap rotateBitmap(Bitmap source, float angle, boolean mirror) {
+  public static Bitmap flipBitmap(Bitmap source) {
     Matrix matrix = new Matrix();
-    if (mirror) {
-      matrix.preScale(-1.0f, 1.0f);
-    }
-    matrix.postRotate(angle);
+    matrix.preScale(1.0f, -1.0f);
+
     return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
   }
 
@@ -361,14 +351,20 @@ public class CameraActivity extends Fragment {
   PictureCallback jpegPictureCallback = new PictureCallback(){
     public void onPictureTaken(byte[] data, Camera arg1){
       Log.d(TAG, "CameraPreview jpegPictureCallback");
-      Camera.Parameters params = mCamera.getParameters();
+
       try {
-        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,data.length);
-        bitmap = rotateBitmap(bitmap, mPreview.getDisplayOrientation(), cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, params.getJpegQuality(), outputStream);
-        byte[] byteArray = outputStream.toByteArray();
-        String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
+
+        if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+          Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+          bitmap = flipBitmap(bitmap);
+
+          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+          bitmap.compress(Bitmap.CompressFormat.JPEG, currentQuality, outputStream);
+          data = outputStream.toByteArray();
+        }
+
+        String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
+
         eventListener.onPictureTaken(encodedImage);
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
       } catch (OutOfMemoryError e) {
@@ -469,7 +465,16 @@ public class CameraActivity extends Fragment {
 
           Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
           params.setPictureSize(size.width, size.height);
-          params.setJpegQuality(quality);
+          currentQuality = quality;
+
+          if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            // The image will be recompressed in the callback
+            params.setJpegQuality(99);
+          } else {
+            params.setJpegQuality(quality);
+          }
+
+          params.setRotation(mPreview.getDisplayOrientation());
 
           mCamera.setParameters(params);
           mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
