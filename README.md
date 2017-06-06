@@ -79,7 +79,7 @@ let options = {
   camera: CameraPreview.CAMERA_DIRECTION.BACK,
   toBack: false,
   tapPhoto: true,
-  tapFocus: true,
+  tapFocus: false,
   previewDrag: false
 };
 
@@ -93,6 +93,8 @@ html, body, .ion-app, .ion-content {
   background-color: transparent;
 }
 ```
+
+When both tapFocus and tapPhoto are true, the camera will focus, and take a picture as soon as the camera is done focusing.
 
 ### stopCamera([successCallback, errorCallback])
 
