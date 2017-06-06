@@ -110,10 +110,12 @@
 
 - (void) handleFocusAndTakePictureTap:(UITapGestureRecognizer*)recognizer {
   NSLog(@"handleFocusAndTakePictureTap");
+
+  // let the delegate take an image, the next time the image is in focus.
+  [self.delegate invokeTakePictureOnFocus];
+
+  // let the delegate focus on the tapped point.
   [self handleFocusTap:recognizer];
-  [self performSelector:@selector(handleTakePictureTap:)
-        withObject:recognizer
-        afterDelay:1];
 }
 
 - (void) handleTakePictureTap:(UITapGestureRecognizer*)recognizer {
@@ -125,15 +127,19 @@
   NSLog(@"handleTapFocusTap");
 
   if (recognizer.state == UIGestureRecognizerStateEnded)    {
-      CGPoint point = [recognizer locationInView:self.view];
-      [self.delegate invokeTapToFocus:point];
+    CGPoint point = [recognizer locationInView:self.view];
+    [self.delegate invokeTapToFocus:point];
   }
+}
+
+- (void) onFocus{
+  [self.delegate invokeTakePicture];
 }
 
 - (IBAction)handlePan:(UIPanGestureRecognizer *)recognizer {
         CGPoint translation = [recognizer translationInView:self.view];
         recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
-            recognizer.view.center.y + translation.y);
+                                             recognizer.view.center.y + translation.y);
         [recognizer setTranslation:CGPointMake(0, 0) inView:self.view];
 }
 

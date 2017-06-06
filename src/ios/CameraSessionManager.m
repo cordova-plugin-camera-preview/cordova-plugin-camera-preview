@@ -648,6 +648,23 @@
   return whiteBalanceMode;
 }
 
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    // removes the observer, when the camera is done focussing.
+    if( [keyPath isEqualToString:@"adjustingFocus"] ){
+        BOOL adjustingFocus = [[change objectForKey:NSKeyValueChangeNewKey] isEqualToNumber:[NSNumber numberWithInt:1]];
+        if(!adjustingFocus){
+            [self.device removeObserver:self forKeyPath:@"adjustingFocus"];
+            [self.delegate onFocus];
+        }
+    }
+}
+
+- (void) takePictureOnFocus{
+    // add an observer, when takePictureOnFocus is requested.
+    int flag = NSKeyValueObservingOptionNew;
+    [self.device addObserver:self forKeyPath:@"adjustingFocus" options:flag context:nil];
+}
+
 - (void) tapToFocus:(CGFloat)xPoint yPoint:(CGFloat)yPoint {
 
   [self.device lockForConfiguration:nil];

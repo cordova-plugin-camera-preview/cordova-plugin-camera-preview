@@ -635,6 +635,11 @@
   [self invokeTakePicture:0.0 withHeight:0.0 withQuality:0.85];
 }
 
+- (void) invokeTakePictureOnFocus {
+    // the sessionManager will call onFocus, as soon as the camera is done with focussing.
+  [self.sessionManager takePictureOnFocus];
+}
+
 - (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(CGFloat) quality{
     AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {

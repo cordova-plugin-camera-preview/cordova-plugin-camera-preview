@@ -11,13 +11,14 @@
 
 @protocol TakePictureDelegate
 - (void) invokeTakePicture;
+- (void) invokeTakePictureOnFocus;
 @end;
 
 @protocol FocusDelegate
 - (void) invokeTapToFocus:(CGPoint)point;
 @end;
 
-@interface CameraRenderController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate> {
+@interface CameraRenderController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OnFocusDelegate> {
   GLuint _renderBuffer;
   CVOpenGLESTextureCacheRef _videoTextureCache;
   CVOpenGLESTextureRef _lumaTexture;
