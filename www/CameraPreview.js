@@ -22,7 +22,7 @@ CameraPreview.startCamera = function(options, onSuccess, onError) {
     }
 
     if (typeof (options.tapFocus) == 'undefined') {
-      options.tapFocus = true;
+      options.tapFocus = false;
     }
 
     options.previewDrag = options.previewDrag || false;
