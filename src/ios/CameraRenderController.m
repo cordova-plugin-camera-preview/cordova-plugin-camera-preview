@@ -53,13 +53,23 @@
     [self.view addGestureRecognizer:drag];
   }
 
-  if (self.tapToTakePicture) {
+  if (self.tapToFocus && self.tapToTakePicture){
+    //tap to focus and take picture
+    UITapGestureRecognizer *tapToFocusAndTakePicture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector (handleFocusAndTakePictureTap:)];
+    [self.view addGestureRecognizer:tapToFocusAndTakePicture];
+
+  } else if (self.tapToFocus){
+    // tap to focus
+    UITapGestureRecognizer *tapToFocusGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector (handleFocusTap:)];
+    [self.view addGestureRecognizer:tapToFocusGesture];
+
+  } else if (self.tapToTakePicture) {
     //tap to take picture
     UITapGestureRecognizer *takePictureTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTakePictureTap:)];
     [self.view addGestureRecognizer:takePictureTap];
   }
 
-  self.view.userInteractionEnabled = self.dragEnabled || self.tapToTakePicture;
+  self.view.userInteractionEnabled = self.dragEnabled || self.tapToTakePicture || self.tapToFocus;
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -98,9 +108,26 @@
       });
 }
 
+- (void) handleFocusAndTakePictureTap:(UITapGestureRecognizer*)recognizer {
+  NSLog(@"handleFocusAndTakePictureTap");
+  [self handleFocusTap:recognizer];
+  [self performSelector:@selector(handleTakePictureTap:)
+        withObject:recognizer
+        afterDelay:1];
+}
+
 - (void) handleTakePictureTap:(UITapGestureRecognizer*)recognizer {
   NSLog(@"handleTakePictureTap");
   [self.delegate invokeTakePicture];
+}
+
+- (void) handleFocusTap:(UITapGestureRecognizer*)recognizer {
+  NSLog(@"handleTapFocusTap");
+
+  if (recognizer.state == UIGestureRecognizerStateEnded)    {
+      CGPoint point = [recognizer locationInView:self.view];
+      [self.delegate invokeTapToFocus:point];
+  }
 }
 
 - (IBAction)handlePan:(UIPanGestureRecognizer *)recognizer {

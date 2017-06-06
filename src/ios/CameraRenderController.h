@@ -13,6 +13,10 @@
 - (void) invokeTakePicture;
 @end;
 
+@protocol FocusDelegate
+- (void) invokeTapToFocus:(CGPoint)point;
+@end;
+
 @interface CameraRenderController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate> {
   GLuint _renderBuffer;
   CVOpenGLESTextureCacheRef _videoTextureCache;
@@ -26,6 +30,7 @@
 @property (nonatomic) NSLock *renderLock;
 @property BOOL dragEnabled;
 @property BOOL tapToTakePicture;
+@property BOOL tapToFocus;
 @property (nonatomic, assign) id delegate;
 
 @end
