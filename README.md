@@ -67,6 +67,7 @@ All options stated are optional and will default to values here
 * `camera` - See <code>[CAMERA_DIRECTION](#camera_Settings.CameraDirection)</code> - Defaults to front camera/code>
 * `toBack` - Defaults to false - Set to true if you want your html in front of your preview
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
+* `tapFocus` - Defaults to false - Allows the user to tap to focus, when the view is in the foreground
 * `previewDrag` - Defaults to false - Does not work if toBack is set to false
 
 ```javascript
@@ -78,6 +79,7 @@ let options = {
   camera: CameraPreview.CAMERA_DIRECTION.BACK,
   toBack: false,
   tapPhoto: true,
+  tapFocus: false,
   previewDrag: false
 };
 
@@ -91,6 +93,8 @@ html, body, .ion-app, .ion-content {
   background-color: transparent;
 }
 ```
+
+When both tapFocus and tapPhoto are true, the camera will focus, and take a picture as soon as the camera is done focusing.
 
 ### stopCamera([successCallback, errorCallback])
 

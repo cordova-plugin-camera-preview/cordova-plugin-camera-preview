@@ -2,6 +2,10 @@
 #import <AVFoundation/AVFoundation.h>
 #import "TemperatureAndTint.h"
 
+@protocol OnFocusDelegate
+- (void) onFocus;
+@end;
+
 @interface CameraSessionManager : NSObject
 
 - (CameraSessionManager *)init;
@@ -28,6 +32,7 @@
 - (NSString *) setWhiteBalanceMode:(NSString *)whiteBalanceMode;
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation;
 - (void) tapToFocus:(CGFloat)xPoint yPoint:(CGFloat)yPoint;
+- (void) takePictureOnFocus;
 - (void) setTorchMode;
 - (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation;
 

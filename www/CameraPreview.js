@@ -20,13 +20,18 @@ CameraPreview.startCamera = function(options, onSuccess, onError) {
     if (typeof(options.tapPhoto) === 'undefined') {
         options.tapPhoto = true;
     }
+
+    if (typeof (options.tapFocus) == 'undefined') {
+      options.tapFocus = false;
+    }
+
     options.previewDrag = options.previewDrag || false;
     options.toBack = options.toBack || false;
     if (typeof(options.alpha) === 'undefined') {
         options.alpha = 1;
     }
 
-    exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha]);
+    exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha, options.tapFocus]);
 };
 
 CameraPreview.stopCamera = function(onSuccess, onError) {
