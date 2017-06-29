@@ -50,6 +50,21 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 <gap:plugin name="cordova-plugin-camera-preview" />
 ```
 
+#### iOS Quirks
+If you are developing for iOS 10+ you must also add the following to your config.xml
+
+```xml
+<config-file platform="ios" target="*-Info.plist" parent="NSCameraUsageDescription">
+  <string>Allow the app to use your camera</string>
+</config-file>
+
+<!-- or for Phonegap -->
+
+<gap:config-file platform="ios" target="*-Info.plist" parent="NSCameraUsageDescription" overwrite="true">
+  <string>Allow the app to use your camera</string>
+</gap:config-file>
+```
+
 # Methods
 
 ### startCamera(options, [successCallback, errorCallback])
