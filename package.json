@@ -27,6 +27,7 @@
   },
   "license": "Apache 2.0",
   "homepage": "https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview",
+  "typings": "typescript/CameraPreview.d.ts",
   "dependencies": {
     "cordova": "*"
   },
