@@ -93,7 +93,7 @@ CameraPreview.setPreviewSize = function(dimensions, onSuccess, onError) {
     dimensions.width = dimensions.width || window.screen.width;
     dimensions.height = dimensions.height || window.screen.height;
 
-    return exec(onSuccess, onError, PLUGIN_NAME, "setPreviewSize", [dimensions.width, dimensions.height]);
+    exec(onSuccess, onError, PLUGIN_NAME, "setPreviewSize", [dimensions.width, dimensions.height]);
 };
 
 CameraPreview.getSupportedPictureSizes = function(onSuccess, onError) {
