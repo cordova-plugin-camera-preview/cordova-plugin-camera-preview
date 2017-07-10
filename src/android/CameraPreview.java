@@ -255,6 +255,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         //display camera bellow the webview
         if(toBack){
           webView.getView().setBackgroundColor(0x00000000);
+          ((ViewGroup)webView.getView().getParent()).removeView(webView.getView());
+          ((ViewGroup)containerView.getParent()).addView(webView.getView(), 0);
           ((ViewGroup)webView.getView()).bringToFront();
         }else{
           //set camera back to front
