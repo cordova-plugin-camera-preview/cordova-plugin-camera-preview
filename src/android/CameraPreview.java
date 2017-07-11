@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 
 import org.apache.cordova.CallbackContext;
@@ -67,6 +68,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private CallbackContext execCallback;
   private JSONArray execArgs;
+
+  private ViewParent webViewParent;
 
   private int containerViewId = 1;
   public CameraPreview(){
@@ -255,7 +258,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         //display camera bellow the webview
         if(toBack){
           webView.getView().setBackgroundColor(0x00000000);
-          ((ViewGroup)webView.getView().getParent()).removeView(webView.getView());
+          webViewParent = webView.getView().getParent();
+          ((ViewGroup)webViewParent).removeView(webView.getView());
           ((ViewGroup)containerView.getParent()).addView(webView.getView(), 0);
           ((ViewGroup)webView.getView()).bringToFront();
         }else{
@@ -760,6 +764,19 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
   }
 
   private boolean stopCamera(CallbackContext callbackContext) {
+
+    if(webViewParent != null) {
+      cordova.getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          ((ViewGroup)webView.getView().getParent()).removeView(webView.getView());
+          ((ViewGroup)webViewParent).addView(webView.getView(), 0);
+          ((ViewGroup)webView.getView()).bringToFront();
+          webViewParent = null;
+        }
+      });
+    }
+
     if(this.hasView(callbackContext) == false){
       return true;
     }
