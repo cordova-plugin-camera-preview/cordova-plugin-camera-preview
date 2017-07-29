@@ -54,7 +54,7 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 If you are developing for iOS 10+ you must also add the following to your config.xml
 
 ```xml
-<config-file platform="ios" target="*-Info.plist" parent="NSCameraUsageDescription">
+<config-file platform="ios" target="*-Info.plist" parent="NSCameraUsageDescription" overwrite="true">
   <string>Allow the app to use your camera</string>
 </config-file>
 
