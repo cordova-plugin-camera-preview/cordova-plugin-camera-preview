@@ -172,7 +172,7 @@
 - (void) setFocusMode:(CDVInvokedUrlCommand*)command {
   CDVPluginResult *pluginResult;
 
-  NSString * focusMode = [[command.arguments objectAtIndex:0] stringValue];
+  NSString * focusMode = [command.arguments objectAtIndex:0];
   if (self.sessionManager != nil) {
     [self.sessionManager setFocusMode:focusMode];
     NSString * focusMode = [self.sessionManager getFocusMode];
