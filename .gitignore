@@ -23,3 +23,4 @@ build
 platforms/
 plugins/
 hooks/
+node_modules/

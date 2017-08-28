@@ -1,32 +1,111 @@
-body, html{
-  height:100%;
-}
-body{
-  color:#333;
-  text-align: center;
-  font-family: sans-serif;
-  background-color: transparent;
-  background-image: url('../img/background.png');
-  background-repeat:repeat;
-  background-size: cover;
-}
-.block{
-  padding:.25rem 0;
-  margin:.25rem 0;
-  background: #00ccff;
-  border:1px solid #111;
-  border-radius: 3px;
-}
-button{
-  background: gray:
-  color:#333;
-  border-radius: 3px;
-  border:1px solid #ccc;
-  margin:.25rem;
-}
-.pictures{
 
+@import url('style.css');
+@import url('leaflet.css');
+
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
-.controls{
-  margin-top:100%;
+
+body{
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  overflow: hidden;
+  background-color: transparent;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-user-drag: none;
+  -ms-content-zooming: none;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  word-wrap: break-word;
+  -webkit-text-size-adjust: none;
+  -ms-text-size-adjust: none;
+  text-size-adjust: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
+
+
+
+html{
+  background-color: transparent;
+  font:normal 16px/1.5 sans-serif;
+  color: #333;
+}
+.ricent-camera{
+  left: 0;
+  top: 0;
+  position: absolute;
+  z-index: 0;
+  display: block;
+  /* opacity: 0; */
+  width: 100%;
+  height: 100%;
+  background: transparent!important;
+}
+
+
+.ricent-camera .controls{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 500;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 30px;
+}
+
+.ricent-camera .controls a{
+    border-radius: 50%;
+    color: #fff;
+    background-color: #111;
+    text-decoration: none;
+    padding: 10px;
+    line-height: 0;
+    opacity: 0.7;
+    outline: none;
+    font-size: 24px;
+    -webkit-tap-highlight-color: transparent;
+}
+.ricent-camera .controls a.tackPhoto{
+  font-size: 36px;
+}
+
+.ricent-camera canvas{
+    /* display: none; */
+    width: 100%;
+    height: 100%;
+}
+
+.ricent-camera .ricent-draw-toolbar a{
+  font-size: 30px;
+}
+
+.ricent-camera .ricent-draw-toolbar a.pan_red{
+  color: red;
+}
+.ricent-camera .ricent-draw-toolbar a.pan_blue{
+  color: blue;
+}
+.ricent-camera .ricent-draw-toolbar a.pan_green{
+  color: green;
+}
+
+.ricent-camera .controls.visible{
+    display: flex;
+}
+
+
