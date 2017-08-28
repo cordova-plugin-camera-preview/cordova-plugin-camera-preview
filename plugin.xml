@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin id="cordova-plugin-camera-preview" version="0.9.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+
+   <name>cordova-plugin-camera-preview</name>
+  <description>Cordova plugin that allows camera interaction from HTML code. Show camera preview popup on top of the HTML.</description>
+  <license>Apache 2.0</license>
+  <keywords>cordova,phonegap,ecosystem:cordova,cordova-android,cordova-ios,android,ios,ionic,camera,cam,camera-preview,preview</keywords>
+  <repo>https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git</repo>
+  <issue>https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/issues</issue>
+
+  <js-module src="www/CameraPreview.js" name="CameraPreview">
+    <clobbers target="CameraPreview" />
+  </js-module>
+
+  <platform name="android">
+    <source-file src="src/android/CameraPreview.java" target-dir="src/com/cordovaplugincamerapreview" />
+    <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordovaplugincamerapreview" />
+    <source-file src="src/android/CustomSurfaceView.java" target-dir="src/com/cordovaplugincamerapreview" />
+    <source-file src="src/android/Preview.java" target-dir="src/com/cordovaplugincamerapreview" />
+    <source-file src="src/android/TapGestureDetector.java" target-dir="src/com/cordovaplugincamerapreview" />
+    <source-file src="src/android/camera_activity.xml" target-dir="res/layout" />
+    <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
+    <source-file src="src/android/camera_ids.xml" target-dir="res/values" />
+
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="CameraPreview">
+        <param name="android-package" value="com.cordovaplugincamerapreview.CameraPreview" />
+        <param name="onload" value="true" />
+      </feature>
+    </config-file>
+
+    <config-file target="AndroidManifest.xml" parent="/manifest">
+      <uses-feature android:name="android.hardware.camera" android:required="true"/>
+      <uses-feature android:name="android.hardware.camera.autofocus" />
+      <uses-permission android:name="android.permission.CAMERA" />
+    </config-file>
+
+    <config-file target="AndroidManifest.xml" parent="/manifest/application">
+      <activity android:name="com.cordovaplugincamerapreview.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
+    </config-file>
+  </platform>
+
+  <platform name="ios">
+    <config-file target="config.xml" parent="/*">
+      <feature name="CameraPreview">
+        <param name="ios-package" value="CameraPreview" onload="true" />
+      </feature>
+    </config-file>
+
+    <header-file src="src/ios/CameraPreview.h" />
+    <source-file src="src/ios/CameraPreview.m" />
+
+     <header-file src="src/ios/TemperatureAndTint.h" />
+    <source-file src="src/ios/TemperatureAndTint.m" />
+
+    <header-file src="src/ios/CameraSessionManager.h" />
+    <source-file src="src/ios/CameraSessionManager.m" />
+
+    <header-file src="src/ios/CameraRenderController.h" />
+    <source-file src="src/ios/CameraRenderController.m" />
+
+    <framework src="ImageIO.framework" weak="true" />
+    <framework src="MobileCoreServices.framework" />
+    <framework src="CoreLocation.framework" />
+    <framework src="CoreGraphics.framework" />
+    <framework src="AssetsLibrary.framework" />
+    <framework src="CoreGraphics.framework" />
+    <framework src="CoreImage.framework" />
+    <framework src="OpenGLES.framework" />
+    <framework src="GLKit.framework" />
+    <framework src="CoreVideo.framework" />
+    <framework src="QuartzCore.framework"/>
+  </platform>
+
+</plugin>

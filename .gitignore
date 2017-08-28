@@ -24,3 +24,10 @@ platforms/
 plugins/
 hooks/
 node_modules/
+.idea/
+.*sw*
+idea
+*~
+npm-debug.log
+bower_components/
+*.iml
