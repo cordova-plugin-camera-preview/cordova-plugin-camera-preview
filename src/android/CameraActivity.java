@@ -54,6 +54,7 @@ public class CameraActivity extends Fragment {
     void onPictureTakenError(String message);
     void onFocusSet(int pointX, int pointY);
     void onFocusSetError(String message);
+    void onBackButtonTapped();
     void onCameraStarted();
   }
 
@@ -213,6 +214,20 @@ public class CameraActivity extends Fragment {
                 }
               }
               return true;
+            }
+          });
+          frameContainerLayout.setFocusableInTouchMode(true);
+          frameContainerLayout.requestFocus();
+          frameContainerLayout.setOnKeyListener( new android.view.View.OnKeyListener() {
+            @Override
+            public boolean onKey( android.view.View v, int keyCode, android.view.KeyEvent event ) {
+
+              if( keyCode == android.view.KeyEvent.KEYCODE_BACK )
+              {
+                eventListener.onBackButtonTapped();
+                return true;
+              }
+              return false;
             }
           });
         }
