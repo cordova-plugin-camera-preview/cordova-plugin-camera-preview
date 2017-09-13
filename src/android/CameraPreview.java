@@ -54,7 +54,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String GET_EXPOSURE_COMPENSATION_RANGE_ACTION = "getExposureCompensationRange";
   private static final String GET_WHITE_BALANCE_MODE_ACTION = "getWhiteBalanceMode";
   private static final String SET_WHITE_BALANCE_MODE_ACTION = "setWhiteBalanceMode";
-  private static final String SET_BACK_BUTTON_CALLBACK = "onBackButtonTapped";
+  private static final String SET_BACK_BUTTON_CALLBACK = "onBackButton";
 
   private static final int CAM_REQ_CODE = 0;
 
@@ -879,7 +879,7 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     return true;
   }
 
-  public void onBackButtonTapped() {
+  public void onBackButton() {
     Log.d(TAG, "Back button tapped, notifying");
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, "Back button pressed");
     tapBackButtonContext.sendPluginResult(pluginResult);

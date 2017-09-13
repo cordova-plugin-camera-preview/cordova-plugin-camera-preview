@@ -54,7 +54,7 @@ public class CameraActivity extends Fragment {
     void onPictureTakenError(String message);
     void onFocusSet(int pointX, int pointY);
     void onFocusSetError(String message);
-    void onBackButtonTapped();
+    void onBackButton();
     void onCameraStarted();
   }
 
@@ -224,7 +224,7 @@ public class CameraActivity extends Fragment {
 
               if( keyCode == android.view.KeyEvent.KEYCODE_BACK )
               {
-                eventListener.onBackButtonTapped();
+                eventListener.onBackButton();
                 return true;
               }
               return false;
