@@ -33,7 +33,7 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.media.ExifInterface;
+import android.support.media.ExifInterface;
 
 import org.apache.cordova.LOG;
 
@@ -54,6 +54,7 @@ public class CameraActivity extends Fragment {
     void onPictureTakenError(String message);
     void onFocusSet(int pointX, int pointY);
     void onFocusSetError(String message);
+    void onBackButton();
     void onCameraStarted();
   }
 
@@ -213,6 +214,20 @@ public class CameraActivity extends Fragment {
                 }
               }
               return true;
+            }
+          });
+          frameContainerLayout.setFocusableInTouchMode(true);
+          frameContainerLayout.requestFocus();
+          frameContainerLayout.setOnKeyListener( new android.view.View.OnKeyListener() {
+            @Override
+            public boolean onKey( android.view.View v, int keyCode, android.view.KeyEvent event ) {
+
+              if( keyCode == android.view.KeyEvent.KEYCODE_BACK )
+              {
+                eventListener.onBackButton();
+                return true;
+              }
+              return false;
             }
           });
         }
