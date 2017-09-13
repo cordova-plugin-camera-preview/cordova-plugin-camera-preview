@@ -69,7 +69,7 @@ If you are developing for iOS 10+ you must also add the following to your config
 When using the plugin for older devices, the camera preview will take the focus inside the app once initialized.
 In order to prevent the app from closing when a user presses the back button, the event for the camera view is disabled.
 If you still want the user to navigate, you can add a listener for the back event for the preview 
-(see <code>[onBackButtonTapped](#onBackButtonTapped)</code>) 
+(see <code>[onBackButton](#onBackButton)</code>) 
 
 
 
@@ -379,12 +379,12 @@ let yPoint = event.y
 CameraPreview.tapToFocus(xPoint, yPoint);
 ```
 
-### onBackButtonTapped(successCallback, [errorCallback])
+### onBackButton(successCallback, [errorCallback])
 
 <info>Callback event for the back button tap</info><br/>
 
 ```javascript
-CameraPreview.onBackButtonTapped(function() {
+CameraPreview.onBackButton(function() {
   console.log('Back button pushed');
 });
 ```
