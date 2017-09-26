@@ -165,6 +165,10 @@ CameraPreview.setWhiteBalanceMode = function(whiteBalanceMode, onSuccess, onErro
     exec(onSuccess, onError, PLUGIN_NAME, "setWhiteBalanceMode", [whiteBalanceMode]);
 };
 
+CameraPreview.onBackButton = function(onSuccess, onError) {
+  exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
+};
+
 CameraPreview.FOCUS_MODE = {
     FIXED: 'fixed',
     AUTO: 'auto',
