@@ -534,6 +534,8 @@ public class CameraActivity extends Fragment {
             params.setJpegQuality(quality);
           }
 
+          Log.d(TAG, "CameraPreview displayOrientation " + mPreview.getDisplayOrientation());
+
           params.setRotation(mPreview.getDisplayOrientation());
 
           mCamera.setParameters(params);
