@@ -1,4 +1,4 @@
-Cordova Plugin Camera Preview
+Cordova Plugin Camera Preview PPW
 ====================
 
 Cordova plugin that allows camera interaction from Javascript and HTML
