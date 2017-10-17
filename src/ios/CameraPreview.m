@@ -10,12 +10,14 @@
   // start as transparent
   self.webView.opaque = NO;
   self.webView.backgroundColor = [UIColor clearColor];
+  self.overlayImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"overlay.png"]];
 }
 
 - (void) startCamera:(CDVInvokedUrlCommand*)command {
 
   CDVPluginResult *pluginResult;
 
+    
   if (self.sessionManager != nil) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera already started!"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -55,17 +57,23 @@
       self.webView.opaque = NO;
       self.webView.backgroundColor = [UIColor clearColor];
 
+      
       [self.webView.superview addSubview:self.cameraRenderController.view];
+      
       [self.webView.superview bringSubviewToFront:self.webView];
     } else {
       self.cameraRenderController.view.alpha = alpha;
       [self.webView.superview insertSubview:self.cameraRenderController.view aboveSubview:self.webView];
     }
+      
+      [self.overlayImageView setFrame:CGRectMake(((self.cameraRenderController.view.frame.size.height * .25)) / 2 + x, ((self.cameraRenderController.view.frame.size.width * .25) / 2) + y, self.cameraRenderController.view.frame.size.height * .75, self.cameraRenderController.view.frame.size.width * .75)];
+      
+      [self.webView.superview insertSubview: self.overlayImageView aboveSubview:self.cameraRenderController.view];
+      [self.webView.superview bringSubviewToFront: self.overlayImageView];
+      // Setup session
+      self.sessionManager.delegate = self.cameraRenderController;
 
-    // Setup session
-    self.sessionManager.delegate = self.cameraRenderController;
-
-    [self.sessionManager setupSession:defaultCamera completion:^(BOOL started) {
+      [self.sessionManager setupSession:defaultCamera completion:^(BOOL started) {
 
       [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
 
@@ -85,6 +93,7 @@
     [self.cameraRenderController.view removeFromSuperview];
     [self.cameraRenderController removeFromParentViewController];
 
+      [self.overlayImageView removeFromSuperview];
     self.cameraRenderController = nil;
     self.sessionManager = nil;
 
@@ -103,6 +112,7 @@
 
   if (self.cameraRenderController != nil) {
     [self.cameraRenderController.view setHidden:YES];
+      [self.overlayImageView setHidden:YES];
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
@@ -117,6 +127,7 @@
 
   if (self.cameraRenderController != nil) {
     [self.cameraRenderController.view setHidden:NO];
+      [self.overlayImageView setHidden:NO];
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
