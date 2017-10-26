@@ -284,11 +284,14 @@ public class CameraActivity extends Fragment {
         public void onGlobalLayout() {
           frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
           frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-          final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
+          Activity activity = getActivity();
+          if (isAdded() && activity != null) {
+            final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
 
-          FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
-          camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-          frameCamContainerLayout.setLayoutParams(camViewLayout);
+            FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
+            camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+            frameCamContainerLayout.setLayoutParams(camViewLayout);
+          }
         }
       });
     }
