@@ -1,4 +1,4 @@
-Cordova Plugin Camera Preview
+Cordova Plugin Camera Preview 2.0
 ====================
 
 Cordova plugin that allows camera interaction from Javascript and HTML

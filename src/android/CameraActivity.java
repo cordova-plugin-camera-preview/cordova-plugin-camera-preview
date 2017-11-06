@@ -537,7 +537,11 @@ public class CameraActivity extends Fragment {
             params.setJpegQuality(quality);
           }
 
+          Log.d(TAG, "CameraPreview displayOrientation " + mPreview.getDisplayOrientation());
+
           params.setRotation(mPreview.getDisplayOrientation());
+          //params.setRotation(0); // When holding the device vertically, the picture takes in portrait but is then turned 90 CCW
+
 
           mCamera.setParameters(params);
           mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
