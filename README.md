@@ -234,7 +234,7 @@ CameraPreview.getFlashMode(function(currentFlashMode){
 });
 ```
 
-### getSupportedColorEffects(cb, [errorCallback])
+### getSupportedColorEffects(cb, [errorCallback])  **(ANDROID ONLY)**
 
 <info>Get color modes supported by the camera device currently started. Returns an array containing supported color effects (strings). See <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code> for possible values that can be returned.</info><br/>
 
