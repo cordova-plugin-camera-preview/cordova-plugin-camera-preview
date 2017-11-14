@@ -330,35 +330,19 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
     Camera.Parameters params = camera.getParameters();
 
-    if (effect.equals(Camera.Parameters.EFFECT_AQUA)) {
-      params.setColorEffect(Camera.Parameters.EFFECT_AQUA);
-    } else if (effect.equals(Camera.Parameters.EFFECT_BLACKBOARD)) {
-      params.setColorEffect(Camera.Parameters.EFFECT_BLACKBOARD);
-    } else if (effect.equals(Camera.Parameters.EFFECT_MONO)) {
-      params.setColorEffect(Camera.Parameters.EFFECT_MONO);
-    } else if (effect.equals(Camera.Parameters.EFFECT_NEGATIVE)) {
-      params.setColorEffect(Camera.Parameters.EFFECT_NEGATIVE);
-    } else if (effect.equals(Camera.Parameters.EFFECT_NONE)) {
-      params.setColorEffect(Camera.Parameters.EFFECT_NONE);
-    } else if (effect.equals(Camera.Parameters.EFFECT_POSTERIZE)) {
-      params.setColorEffect(Camera.Parameters.EFFECT_POSTERIZE);
-    } else if (effect.equals(Camera.Parameters.EFFECT_SEPIA)) {
-      params.setColorEffect(Camera.Parameters.EFFECT_SEPIA);
-    } else if (effect.equals(Camera.Parameters.EFFECT_SOLARIZE)) {
-      params.setColorEffect(Camera.Parameters.EFFECT_SOLARIZE);
-    } else if (effect.equals(Camera.Parameters.EFFECT_WHITEBOARD)) {
-      params.setColorEffect(Camera.Parameters.EFFECT_WHITEBOARD);
-    } else {
+    List<String> supportedColors;
+    supportedColors = params.getSupportedColorEffects();
+
+    if(supportedColors.contains(effect)){
+      params.setColorEffect(effect);      
+      fragment.setCameraParameters(params);
+      callbackContext.success(effect);
+    }else{
       callbackContext.error("Color effect not supported" + effect);
-      return true;
+      return true; 
     }
-
-    fragment.setCameraParameters(params);
-
-    callbackContext.success(effect);
     return true;
   }
-
 
   private boolean getSupportedColorEffects(CallbackContext callbackContext) {
       if(this.hasCamera(callbackContext) == false){
