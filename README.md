@@ -233,6 +233,20 @@ CameraPreview.getFlashMode(function(currentFlashMode){
   console.log(currentFlashMode);
 });
 ```
+
+### getSupportedColorEffects(cb, [errorCallback])
+
+<info>Get color modes supported by the camera device currently started. Returns an array containing supported color effects (strings). See <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code> for possible values that can be returned.</info><br/>
+
+```javascript
+CameraPreview.getSupportedColorEffects(function(colorEffects){
+  colorEffects.forEach(function(color) {
+    console.log(color + ', ');
+  });
+});
+```
+
+
 ### setColorEffect(colorEffect, [successCallback, errorCallback])
 
 <info>Set the color effect. See <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code> for details about the possible values for colorEffect.</info><br/>
