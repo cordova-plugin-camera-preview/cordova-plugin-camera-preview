@@ -87,7 +87,7 @@ All options stated are optional and will default to values here
 * `y` - Defaults to 0
 * `width` - Defaults to window.screen.width
 * `height` - Defaults to window.screen.height
-* `camera` - See <code>[CAMERA_DIRECTION](#camera_Settings.CameraDirection)</code> - Defaults to front camera/code>
+* `camera` - See <code>[CAMERA_DIRECTION](#camera_Settings.CameraDirection)</code> - Defaults to front camera
 * `toBack` - Defaults to false - Set to true if you want your html in front of your preview
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
 * `tapFocus` - Defaults to false - Allows the user to tap to focus, when the view is in the foreground
@@ -233,6 +233,22 @@ CameraPreview.getFlashMode(function(currentFlashMode){
   console.log(currentFlashMode);
 });
 ```
+
+### getSupportedColorEffects(cb, [errorCallback])
+
+*Currently this feature is for Android only. A PR for iOS support would be happily accepted*
+
+<info>Get color modes supported by the camera device currently started. Returns an array containing supported color effects (strings). See <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code> for possible values that can be returned.</info><br/>
+
+```javascript
+CameraPreview.getSupportedColorEffects(function(colorEffects){
+  colorEffects.forEach(function(color) {
+    console.log(color + ', ');
+  });
+});
+```
+
+
 ### setColorEffect(colorEffect, [successCallback, errorCallback])
 
 <info>Set the color effect. See <code>[COLOR_EFFECT](#camera_Settings.ColorEffect)</code> for details about the possible values for colorEffect.</info><br/>

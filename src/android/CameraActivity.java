@@ -239,14 +239,14 @@ public class CameraActivity extends Fragment {
     // Find the total number of cameras available
     numberOfCameras = Camera.getNumberOfCameras();
 
-    int camId = defaultCamera.equals("front") ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
+    int facing = defaultCamera.equals("front") ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
 
     // Find the ID of the default camera
     Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
     for (int i = 0; i < numberOfCameras; i++) {
       Camera.getCameraInfo(i, cameraInfo);
-      if (cameraInfo.facing == camId) {
-        defaultCameraId = camId;
+      if (cameraInfo.facing == facing) {
+        defaultCameraId = i;
         break;
       }
     }
@@ -284,11 +284,14 @@ public class CameraActivity extends Fragment {
         public void onGlobalLayout() {
           frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
           frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-          final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
+          Activity activity = getActivity();
+          if (isAdded() && activity != null) {
+            final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
 
-          FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
-          camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-          frameCamContainerLayout.setLayoutParams(camViewLayout);
+            FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
+            camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+            frameCamContainerLayout.setLayoutParams(camViewLayout);
+          }
         }
       });
     }
