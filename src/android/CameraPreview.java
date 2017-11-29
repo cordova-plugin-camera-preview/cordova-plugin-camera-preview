@@ -67,7 +67,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private CallbackContext takePictureCallbackContext;
   private CallbackContext setFocusCallbackContext;
   private CallbackContext startCameraCallbackContext;
-  private CallbackContext tapBackButtonContext;
+  private CallbackContext tapBackButtonContext  = null;
 
   private CallbackContext execCallback;
   private JSONArray execArgs;
@@ -334,12 +334,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     supportedColors = params.getSupportedColorEffects();
 
     if(supportedColors.contains(effect)){
-      params.setColorEffect(effect);      
+      params.setColorEffect(effect);
       fragment.setCameraParameters(params);
       callbackContext.success(effect);
     }else{
       callbackContext.error("Color effect not supported" + effect);
-      return true; 
+      return true;
     }
     return true;
   }
@@ -889,6 +889,9 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
   }
 
   public void onBackButton() {
+    if(tapBackButtonContext == null) {
+      return;
+    }
     Log.d(TAG, "Back button tapped, notifying");
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, "Back button pressed");
     tapBackButtonContext.sendPluginResult(pluginResult);
