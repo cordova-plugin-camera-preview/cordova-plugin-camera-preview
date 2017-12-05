@@ -405,6 +405,22 @@ CameraPreview.onBackButton(function() {
 });
 ```
 
+### getCameraCharacteristics(cb, [errorCallback])
+
+<info>Get the characteristics of all available cameras. Returns a JSON object representing the characteristics of all available cameras.</info>
+<code>
+{"CAMERA_CHARACTERISTICS": [
+  {"INFO_SUPPORTED_HARDWARE_LEVEL":1,"LENS_FACING":1,"SENSOR_INFO_PHYSICAL_SIZE_WIDTH":5.644999980926514,"SENSOR_INFO_PHYSICAL_SIZE_HEIGHT":4.434999942779541,"SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH":4032,"SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT":3024,"LENS_INFO_AVAILABLE_FOCAL_LENGTHS":[{"FOCAL_LENGTH":4.199999809265137}]},
+  {"INFO_SUPPORTED_HARDWARE_LEVEL":0,"LENS_FACING":0,"SENSOR_INFO_PHYSICAL_SIZE_WIDTH":3.494999885559082,"SENSOR_INFO_PHYSICAL_SIZE_HEIGHT":2.625999927520752,"SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH":2608,"SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT":1960,"LENS_INFO_AVAILABLE_FOCAL_LENGTHS":[{"FOCAL_LENGTH":2.0999999046325684}]}
+]}
+</code><br/>
+
+```javascript
+CameraPreview.getCameraCharacteristics(function(characteristics){
+  console.log(characteristics);
+});
+```
+
 # Settings
 
 <a name="camera_Settings.FocusMode"></a>

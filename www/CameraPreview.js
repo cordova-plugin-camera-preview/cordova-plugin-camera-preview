@@ -173,6 +173,10 @@ CameraPreview.onBackButton = function(onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
 };
 
+CameraPreview.getCameraCharacteristics = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getCameraCharacteristics", []);
+};
+
 CameraPreview.FOCUS_MODE = {
     FIXED: 'fixed',
     AUTO: 'auto',
