@@ -74,7 +74,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private ViewParent webViewParent;
 
-  private int containerViewId = 1;
+  private int containerViewId = 20; //<- set to random number to prevent conflict with other plugins
   public CameraPreview(){
     super();
     Log.d(TAG, "Constructing");
