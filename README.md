@@ -31,7 +31,7 @@ To install the master version with latest fixes and features
 ```
 cordova plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
 
-ionic plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
+ionic cordova plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
 
 meteor add cordova:cordova-plugin-camera-preview@https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git#[latest_commit_id]
 
