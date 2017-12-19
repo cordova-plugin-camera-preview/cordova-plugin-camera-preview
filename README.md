@@ -43,7 +43,7 @@ or if you want to use the last released version on npm
 ```
 cordova plugin add cordova-plugin-camera-preview
 
-ionic plugin add cordova-plugin-camera-preview
+ionic cordova plugin add cordova-plugin-camera-preview
 
 meteor add cordova:cordova-plugin-camera-preview@X.X.X
 
