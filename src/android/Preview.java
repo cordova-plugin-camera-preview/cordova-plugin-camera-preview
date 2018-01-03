@@ -221,8 +221,8 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         mSurfaceView.setWillNotDraw(false);
         mCamera.setPreviewDisplay(holder);
       }
-    } catch (IOException exception) {
-      Log.e(TAG, "IOException caused by setPreviewDisplay()", exception);
+    } catch (Exception exception) {
+      Log.e(TAG, "Exception caused by setPreviewDisplay()", exception);
     }
   }
 
