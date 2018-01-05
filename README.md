@@ -236,7 +236,9 @@ CameraPreview.getFlashMode(function(currentFlashMode){
 
 ### getHorizontalFOV(cb, [errorCallback])
 
-<info>Get the Horizontal FOV for the camera device currently started. Returns a string of a float that is the FOV of the camera in Degrees.</info><br/>
+*Currently this feature is for Android only. A PR for iOS support would be happily accepted*
+
+<info>Get the Horizontal FOV for the camera device currently started. Returns a string of a float that is the FOV of the camera in Degrees. </info><br/>
 
 ```javascript
 CameraPreview.getHorizontalFOV(function(getHorizontalFOV){
