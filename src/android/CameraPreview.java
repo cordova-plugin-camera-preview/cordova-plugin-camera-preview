@@ -30,6 +30,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String SUPPORTED_COLOR_EFFECTS_ACTION = "getSupportedColorEffects";
   private static final String ZOOM_ACTION = "setZoom";
   private static final String GET_ZOOM_ACTION = "getZoom";
+  private static final String GET_HFOV_ACTION = "getHorizontalFOV";
   private static final String GET_MAX_ZOOM_ACTION = "getMaxZoom";
   private static final String SUPPORTED_FLASH_MODES_ACTION = "getSupportedFlashModes";
   private static final String GET_FLASH_MODE_ACTION = "getFlashMode";
@@ -99,6 +100,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return setZoom(args.getInt(0), callbackContext);
     } else if (GET_ZOOM_ACTION.equals(action)) {
       return getZoom(callbackContext);
+    } else if (GET_HFOV_ACTION.equals(action)) {
+      return getHorizontalFOV(callbackContext);
     } else if (GET_MAX_ZOOM_ACTION.equals(action)) {
       return getMaxZoom(callbackContext);
     } else if (PREVIEW_SIZE_ACTION.equals(action)) {
@@ -596,6 +599,22 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
     return true;
   }
+
+ private boolean getHorizontalFOV(CallbackContext callbackContext) {
+    if(this.hasCamera(callbackContext) == false){
+      return true;
+    }
+
+	Camera camera = fragment.getCamera();
+	Camera.Parameters params = camera.getParameters();
+
+	float horizontalViewAngle = params.getHorizontalViewAngle();
+
+	callbackContext.success(String.valueOf(horizontalViewAngle));
+
+	return true;
+  }
+
 
   private boolean getZoom(CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
