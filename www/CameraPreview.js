@@ -88,6 +88,10 @@ CameraPreview.getZoom = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getZoom", []);
 };
 
+CameraPreview.getHorizontalFOV = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getHorizontalFOV", []);
+};
+
 CameraPreview.setPreviewSize = function(dimensions, onSuccess, onError) {
     dimensions = dimensions || {};
     dimensions.width = dimensions.width || window.screen.width;
