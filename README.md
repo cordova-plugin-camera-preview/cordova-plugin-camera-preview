@@ -68,8 +68,8 @@ If you are developing for iOS 10+ you must also add the following to your config
 ### Android Quirks (older devices)
 When using the plugin for older devices, the camera preview will take the focus inside the app once initialized.
 In order to prevent the app from closing when a user presses the back button, the event for the camera view is disabled.
-If you still want the user to navigate, you can add a listener for the back event for the preview 
-(see <code>[onBackButton](#onBackButton)</code>) 
+If you still want the user to navigate, you can add a listener for the back event for the preview
+(see <code>[onBackButton](#onBackButton)</code>)
 
 
 
@@ -231,6 +231,16 @@ CameraPreview.setFlashMode(CameraPreview.FLASH_MODE.ON);
 ```javascript
 CameraPreview.getFlashMode(function(currentFlashMode){
   console.log(currentFlashMode);
+});
+```
+
+### getHorizontalFOV(cb, [errorCallback])
+
+<info>Get the Horizontal FOV for the camera device currently started. Returns a string of a float that is the FOV of the camera in Degrees.</info><br/>
+
+```javascript
+CameraPreview.getHorizontalFOV(function(getHorizontalFOV){
+  console.log(getHorizontalFOV);
 });
 ```
 
