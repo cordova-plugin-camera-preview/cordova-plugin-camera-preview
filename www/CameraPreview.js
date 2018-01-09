@@ -88,6 +88,10 @@ CameraPreview.getZoom = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getZoom", []);
 };
 
+CameraPreview.getHorizontalFOV = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getHorizontalFOV", []);
+};
+
 CameraPreview.setPreviewSize = function(dimensions, onSuccess, onError) {
     dimensions = dimensions || {};
     dimensions.width = dimensions.width || window.screen.width;
@@ -102,6 +106,10 @@ CameraPreview.getSupportedPictureSizes = function(onSuccess, onError) {
 
 CameraPreview.getSupportedFlashModes = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getSupportedFlashModes", []);
+};
+
+CameraPreview.getSupportedColorEffects = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getSupportedColorEffects", []);
 };
 
 CameraPreview.setFlashMode = function(flashMode, onSuccess, onError) {
