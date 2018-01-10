@@ -1,3 +1,4 @@
+
 #import <Cordova/CDV.h>
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
@@ -172,7 +173,7 @@
 - (void) setFocusMode:(CDVInvokedUrlCommand*)command {
   CDVPluginResult *pluginResult;
 
-  NSString * focusMode = [command.arguments objectAtIndex:0];
+  NSString * focusMode = [[command.arguments objectAtIndex:0] stringValue];
   if (self.sessionManager != nil) {
     [self.sessionManager setFocusMode:focusMode];
     NSString * focusMode = [self.sessionManager getFocusMode];
@@ -570,21 +571,30 @@
 
 - (double)radiansFromUIImageOrientation:(UIImageOrientation)orientation {
   double radians;
-
-  switch ([[UIApplication sharedApplication] statusBarOrientation]) {
-    case UIDeviceOrientationPortrait:
-      radians = M_PI_2;
-      break;
-    case UIDeviceOrientationLandscapeLeft:
-      radians = 0.f;
-      break;
-    case UIDeviceOrientationLandscapeRight:
-      radians = M_PI;
-      break;
-    case UIDeviceOrientationPortraitUpsideDown:
-      radians = -M_PI_2;
-      break;
-  }
+    
+    switch (UIDevice.currentDevice.orientation) {
+        case UIDeviceOrientationPortrait:
+            radians = M_PI_2;
+            break;
+        case UIDeviceOrientationFaceUp:
+            radians = M_PI_2;
+            break;
+        case UIDeviceOrientationFaceDown:
+            radians = M_PI_2;
+            break;
+        case UIDeviceOrientationLandscapeLeft:
+            radians = 0.f;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            radians = M_PI;
+            break;
+        case UIDeviceOrientationPortraitUpsideDown:
+            radians = -M_PI_2;
+            break;
+        default:
+            radians = M_PI;
+            break;
+    }
 
   return radians;
 }
@@ -690,8 +700,6 @@
           finalCImage = imageToFilter;
         }
 
-        NSMutableArray *params = [[NSMutableArray alloc] init];
-
         CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
         UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
 
@@ -699,17 +707,71 @@
         CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
 
         CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
+        //write image to disk
+        UIImage *image = [UIImage imageWithCGImage:resultFinalImage];
+        NSData *pictureData = UIImageJPEGRepresentation(image, quality);
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+        NSString *libraryDirectory = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"NoCloud"];
+        NSString* uniqueFileName = [NSString stringWithFormat:@"%@.jpg",[[NSUUID UUID] UUIDString]];
+        NSString *dataPath = [libraryDirectory stringByAppendingPathComponent:uniqueFileName];
+        [pictureData writeToFile:dataPath atomically:YES];
 
-        NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
-
+        UIImage* scaledImage = [self imageByScalingNotCroppingForSize:[UIImage imageNamed:dataPath] toSize:CGSizeMake(370, 370)];
+        NSString*thumbName= [NSString stringWithFormat:@"thumb_%@", [dataPath lastPathComponent]];
+        NSString*thumb=[dataPath stringByReplacingOccurrencesOfString:[dataPath lastPathComponent] withString:thumbName];
+        [UIImageJPEGRepresentation(scaledImage, 0.9) writeToFile:thumb options:NSAtomicWrite error:nil];
+        
         CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
-
-        [params addObject:base64Image];
-
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
+          
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:uniqueFileName];
         [pluginResult setKeepCallbackAsBool:true];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
       }
     }];
 }
+
+
+- (UIImage*)imageByScalingNotCroppingForSize:(UIImage*)anImage toSize:(CGSize)frameSize
+{
+    UIImage* sourceImage = anImage;
+    UIImage* newImage = nil;
+    CGSize imageSize = sourceImage.size;
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetWidth = frameSize.width;
+    CGFloat targetHeight = frameSize.height;
+    CGFloat scaleFactor = 0.0;
+    CGSize scaledSize = frameSize;
+    
+    if (CGSizeEqualToSize(imageSize, frameSize) == NO) {
+        CGFloat widthFactor = targetWidth / width;
+        CGFloat heightFactor = targetHeight / height;
+        
+        // opposite comparison to imageByScalingAndCroppingForSize in order to contain the image within the given bounds
+        if (widthFactor == 0.0) {
+            scaleFactor = heightFactor;
+        } else if (heightFactor == 0.0) {
+            scaleFactor = widthFactor;
+        } else if (widthFactor > heightFactor) {
+            scaleFactor = heightFactor; // scale to fit height
+        } else {
+            scaleFactor = widthFactor; // scale to fit width
+        }
+        scaledSize = CGSizeMake(floor(width * scaleFactor), floor(height * scaleFactor));
+    }
+    
+    UIGraphicsBeginImageContextWithOptions(scaledSize, YES, 1.0); // this will resize
+    
+    [sourceImage drawInRect:CGRectMake(0, 0, scaledSize.width, scaledSize.height)];
+    
+    newImage = UIGraphicsGetImageFromCurrentImageContext();
+    if (newImage == nil) {
+        NSLog(@"could not scale image");
+    }
+    
+    // pop the context to get back to the default
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
 @end
