@@ -8,12 +8,20 @@
             "ios"
         ],
         "plugins": {
-            "cordova-plugin-camera-preview": {}
+            "cordova-plugin-camera-preview": {
+                "CAMERA_USAGE_DESCRIPTION": "是否允许访问相机",
+                "PHOTOLIBRARY_USAGE_DESCRIPTION": "是否允许访问相册"
+            },
+            "cordova-plugin-screen-orientation": {},
+            "cordova-plugin-statusbar": {}
         }
     },
     "dependencies": {
-        "cordova-android": "~6.2.3",
+        "cordova-android": "^6.2.3",
         "cordova-ios": "^4.4.0",
-        "cordova-plugin-camera-preview": "https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git"
+        "cordova-plugin-camera-preview": "git+https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git",
+        "cordova-plugin-screen-orientation": "git+https://github.com/SXTSOFT/cordova-plugin-screen-orientation.git",
+        "cordova-plugin-statusbar": "^2.2.3",
+        "es6-promise-plugin": "^4.1.0"
     }
 }
