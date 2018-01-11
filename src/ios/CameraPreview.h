@@ -40,6 +40,11 @@
 - (void) invokeTakePicture;
 
 - (void) invokeTapToFocus:(CGPoint) point;
+- (UIImage *)fixOrientation:(UIImage*) img;
+- (void)save:(UIImage*) img;
+- (void)saveImageIntoAlbum:(UIImage*) img;
+- (PHAssetCollection *)createdCollection;
+- (PHFetchResult<PHAsset *> *)createdAssets:(UIImage*) img;
 
 @property (nonatomic) CameraSessionManager *sessionManager;
 @property (nonatomic) CameraRenderController *cameraRenderController;

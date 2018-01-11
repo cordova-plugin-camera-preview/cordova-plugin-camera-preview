@@ -1,12 +1,16 @@
 package com.cordovaplugincamerapreview;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Base64;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -37,6 +41,8 @@ import android.widget.RelativeLayout;
 import org.apache.cordova.LOG;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.Exception;
 import java.lang.Integer;
@@ -372,20 +378,28 @@ public class CameraActivity extends Fragment {
   };
 
   PictureCallback jpegPictureCallback = new PictureCallback(){
+
     public void onPictureTaken(byte[] data, Camera arg1){
       Log.d(TAG, "CameraPreview jpegPictureCallback");
 
       try {
 
+        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
         if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-          Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+
           bitmap = flipBitmap(bitmap);
+
+          saveImageToGallery(bitmap);
 
           ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
           bitmap.compress(Bitmap.CompressFormat.JPEG, currentQuality, outputStream);
           data = outputStream.toByteArray();
         }
+        else{
+          saveImageToGallery(bitmap);
+        }
 
+        //saveImageToGallery(getActivity().)
         String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
 
         eventListener.onPictureTaken(encodedImage);
@@ -403,6 +417,52 @@ public class CameraActivity extends Fragment {
       }
     }
   };
+
+  public String getAppLable(Context context) {
+    PackageManager packageManager = context.getPackageManager();
+    ApplicationInfo applicationInfo = null;
+    try {
+      applicationInfo = packageManager.getApplicationInfo(context.getApplicationInfo().packageName, 0);
+    } catch (final PackageManager.NameNotFoundException e) {
+    }
+    return (String) (applicationInfo != null ? packageManager.getApplicationLabel(applicationInfo) : "工程");
+  }
+
+  //保存文件到指定路径
+  public  boolean saveImageToGallery(Bitmap bmp) {
+    Context context = this.getActivity().getApplicationContext();
+
+    String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + getAppLable(context);
+    File appDir = new File(storePath);
+    if (!appDir.exists()) {
+      appDir.mkdir();
+    }
+    String fileName = System.currentTimeMillis() + ".jpg";
+    File file = new File(appDir, fileName);
+    try {
+      FileOutputStream fos = new FileOutputStream(file);
+      //通过io流的方式来压缩保存图片
+      boolean isSuccess = bmp.compress(Bitmap.CompressFormat.JPEG, 60, fos);
+      fos.flush();
+      fos.close();
+
+      //把文件插入到系统图库
+      //MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), fileName, null);
+
+      //保存图片后发送广播通知更新数据库
+      Uri uri = Uri.fromFile(file);
+      context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+      if (isSuccess) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return false;
+  }
+
 
   private Camera.Size getOptimalPictureSize(final int width, final int height, final Camera.Size previewSize, final List<Camera.Size> supportedSizes){
     /*
