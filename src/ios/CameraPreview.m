@@ -1,7 +1,6 @@
 #import <Cordova/CDV.h>
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
-#import <AssetsLibrary/AssetsLibrary.h>
 #import <Photos/Photos.h>
 #import "CameraPreview.h"
 
