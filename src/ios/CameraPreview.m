@@ -287,7 +287,7 @@
   CDVPluginResult *pluginResult;
 
   if (self.sessionManager != nil) {
-    CGFloat fov = [self.sessionManager getHorizontalFOV];
+    float fov = [self.sessionManager getHorizontalFOV];
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:fov ];
   } else {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Session not started"];

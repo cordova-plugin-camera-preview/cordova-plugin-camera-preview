@@ -20,7 +20,7 @@
 - (void) setFlashMode:(NSInteger)flashMode;
 - (void) setZoom:(CGFloat)desiredZoomFactor;
 - (CGFloat) getZoom;
-- (CGFLoat) getHorizontalFOV;
+- (float) getHorizontalFOV;
 - (CGFloat) getMaxZoom;
 - (NSArray *) getExposureModes;
 - (NSString *) getExposureMode;
