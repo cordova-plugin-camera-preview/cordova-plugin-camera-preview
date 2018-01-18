@@ -44,6 +44,7 @@ interface CameraPreview {
   getMaxZoom(onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
   getSupportedFocusMode(onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
   getZoom(onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
+  getHorizontalFOV(onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
   setPreviewSize(dimensions?:CameraPreviewPreviewSizeDimension|string, onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
   getSupportedPictureSizes(onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
   getSupportedFlashModes(onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;

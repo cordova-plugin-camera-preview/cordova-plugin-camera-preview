@@ -282,6 +282,20 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void) getHorizontalFOV:(CDVInvokedUrlCommand*)command {
+
+  CDVPluginResult *pluginResult;
+
+  if (self.sessionManager != nil) {
+    float fov = [self.sessionManager getHorizontalFOV];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:fov ];
+  } else {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Session not started"];
+  }
+
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void) getMaxZoom:(CDVInvokedUrlCommand*)command {
   CDVPluginResult *pluginResult;
 
