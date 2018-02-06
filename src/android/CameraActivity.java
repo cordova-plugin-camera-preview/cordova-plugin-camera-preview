@@ -275,7 +275,7 @@ public class CameraActivity extends Fragment {
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
             layoutParams.setMargins(x, y, 0, 0);
             frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
-            frameContainerLayout.setLayoutParams(layoutParams);
+            //frameContainerLayout.setLayoutParams(layoutParams);
 
             //video view
             mPreview = new Preview(getActivity());
