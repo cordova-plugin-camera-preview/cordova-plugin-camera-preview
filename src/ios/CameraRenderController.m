@@ -18,6 +18,7 @@
 - (void)loadView {
   GLKView *glkView = [[GLKView alloc] init];
   [glkView setBackgroundColor:[UIColor blackColor]];
+  [glkView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
   [self setView:glkView];
 }
 
