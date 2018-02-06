@@ -1,5 +1,5 @@
 package com.cordovaplugincamerapreview;
-
+import android.content.res.Resources;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.ImageFormat;
