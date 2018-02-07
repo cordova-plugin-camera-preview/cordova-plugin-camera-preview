@@ -89,6 +89,7 @@
   dispatch_async(self.sessionManager.sessionQueue, ^{
       NSLog(@"Starting session");
       [self.sessionManager.session startRunning];
+    [self.sessionManager updateOrientation:[self.sessionManager getCurrentOrientation: [UIApplication sharedApplication].statusBarOrientation]];
       });
 }
 
