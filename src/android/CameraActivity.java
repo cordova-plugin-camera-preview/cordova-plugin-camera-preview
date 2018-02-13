@@ -575,6 +575,18 @@ public class CameraActivity extends Fragment {
   }
 
   private Rect calculateTapArea(float x, float y, float coefficient) {
+    if (x < 100) {
+      x = 100;
+    }
+    if (x > width - 100) {
+      x = width - 100;
+    }
+    if (y < 100) {
+      y = 100;
+    }
+    if (y > height - 100) {
+      y = height - 100;
+    }
     return new Rect(
       Math.round((x - 100) * 2000 / width  - 1000),
       Math.round((y - 100) * 2000 / height - 1000),
