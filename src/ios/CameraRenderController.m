@@ -87,9 +87,13 @@
                                              object:nil];
 
   dispatch_async(self.sessionManager.sessionQueue, ^{
-      NSLog(@"Starting session");
-      [self.sessionManager.session startRunning];
-    [self.sessionManager updateOrientation:[self.sessionManager getCurrentOrientation: [UIApplication sharedApplication].statusBarOrientation]];
+      
+      if (!self.sessionManager.session.running){
+          NSLog(@"Starting session from viewWillAppear");
+          [self.sessionManager.session startRunning];
+      }
+      
+      [self.sessionManager updateOrientation:[self.sessionManager getCurrentOrientation: [UIApplication sharedApplication].statusBarOrientation]];
       });
 }
 
@@ -147,8 +151,12 @@
 
 - (void) appplicationIsActive:(NSNotification *)notification {
   dispatch_async(self.sessionManager.sessionQueue, ^{
-      NSLog(@"Starting session");
-      [self.sessionManager.session startRunning];
+      
+      if (!self.sessionManager.session.running){
+          NSLog(@"Starting session");
+          [self.sessionManager.session startRunning];
+      }
+      
       });
 }
 
