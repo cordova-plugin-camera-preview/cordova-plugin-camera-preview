@@ -147,8 +147,11 @@
                     
                     [self.session addOutput:dataOutput];
                 }
-                
-                [self updateOrientation:[self getCurrentOrientation]];
+                __block AVCaptureVideoOrientation orientation;
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    orientation=[self getCurrentOrientation];
+                });
+                [self updateOrientation:orientation];
                 self.device = videoDevice;
                 
                 completion(success);
