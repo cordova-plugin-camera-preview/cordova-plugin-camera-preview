@@ -31,7 +31,8 @@ CameraPreview.startCamera = function(options, onSuccess, onError) {
         options.alpha = 1;
     }
     options.disableExifHeaderStripping = options.disableExifHeaderStripping || false;
-    exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha, options.tapFocus, options.disableExifHeaderStripping]);
+    options.storeToFile = options.storeToFile || false;
+    exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha, options.tapFocus, options.disableExifHeaderStripping, options.storeToFile]);
 };
 
 CameraPreview.stopCamera = function(onSuccess, onError) {
@@ -175,6 +176,30 @@ CameraPreview.setWhiteBalanceMode = function(whiteBalanceMode, onSuccess, onErro
 
 CameraPreview.onBackButton = function(onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
+};
+
+CameraPreview.fetchLocal = function(url, onSuccess, onError) {
+    var xhr = new XMLHttpRequest
+    xhr.onload = function() {
+        if (xhr.status != 0 && (xhr.status < 200 || xhr.status >= 300)) {
+            if (isFunction(onError)) {
+                onError('Local request failed');
+            }
+            return;
+        }
+        var blob = new Blob([xhr.response], {type: "image/jpeg"});
+        if (isFunction(onSuccess)) {
+            onSuccess(blob);
+        }
+    };
+    xhr.onerror = function() {
+        if (isFunction(onError)) {
+            onError('Local request failed');
+        }
+    };
+    xhr.open('GET', url);
+    xhr.responseType = 'arraybuffer';
+    xhr.send(null);
 };
 
 CameraPreview.FOCUS_MODE = {
