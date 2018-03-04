@@ -33,6 +33,7 @@
     BOOL toBack = (BOOL)[command.arguments[7] boolValue];
     CGFloat alpha = (CGFloat)[command.arguments[8] floatValue];
     BOOL tapToFocus = (BOOL) [command.arguments[9] boolValue];
+    BOOL disableExifHeaderStripping = (BOOL) [command.arguments[10] boolValue]; // ignore Android only
 
     // Create the session manager
     self.sessionManager = [[CameraSessionManager alloc] init];

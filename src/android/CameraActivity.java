@@ -79,6 +79,7 @@ public class CameraActivity extends Fragment {
   public boolean tapToTakePicture;
   public boolean dragEnabled;
   public boolean tapToFocus;
+  public boolean disableExifHeaderStripping;
 
   public int width;
   public int height;
@@ -400,27 +401,29 @@ public class CameraActivity extends Fragment {
       Log.d(TAG, "CameraPreview jpegPictureCallback");
 
       try {
-        Matrix matrix = new Matrix();
-        if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-          matrix.preScale(1.0f, -1.0f);
-        }
+        if (!disableExifHeaderStripping) {
+          Matrix matrix = new Matrix();
+          if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            matrix.preScale(1.0f, -1.0f);
+          }
 
-        ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
-        int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        int rotationInDegrees = exifToDegrees(rotation);
+          ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
+          int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+          int rotationInDegrees = exifToDegrees(rotation);
 
-        if (rotation != 0f) {
-          matrix.preRotate(rotationInDegrees);
-        }
+          if (rotation != 0f) {
+            matrix.preRotate(rotationInDegrees);
+          }
 
-        // Check if matrix has changed. In that case, apply matrix and override data
-        if (!matrix.isIdentity()) {
-          Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-          bitmap = applyMatrix(bitmap, matrix);
+          // Check if matrix has changed. In that case, apply matrix and override data
+          if (!matrix.isIdentity()) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            bitmap = applyMatrix(bitmap, matrix);
 
-          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-          bitmap.compress(Bitmap.CompressFormat.JPEG, currentQuality, outputStream);
-          data = outputStream.toByteArray();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, currentQuality, outputStream);
+            data = outputStream.toByteArray();
+          }
         }
 
         String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
