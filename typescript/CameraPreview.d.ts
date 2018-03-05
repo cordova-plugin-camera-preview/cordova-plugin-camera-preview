@@ -19,6 +19,7 @@ interface CameraPreviewStartCameraOptions {
   width?: number;
   x?: number;
   y?: number;
+  disableExifHeaderStripping?: boolean;
 }
 
 interface CameraPreviewTakePictureOptions {
