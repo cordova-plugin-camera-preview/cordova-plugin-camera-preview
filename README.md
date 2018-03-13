@@ -93,6 +93,7 @@ All options stated are optional and will default to values here
 * `tapFocus` - Defaults to false - Allows the user to tap to focus, when the view is in the foreground
 * `previewDrag` - Defaults to false - Does not work if toBack is set to false
 * `disableExifHeaderStripping` - Defaults to false - On Android disable automatic rotation of the image, and let the browser deal with it (keep reading on how to achieve it)
+* `storeToFile` - Defaults to false - On Android it allows to capture an image to a file and returning back the file path instead of returning base64 encoded data.
 
 ```javascript
 let options = {
@@ -191,6 +192,82 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
   });
 });
 ```
+
+#### Using storeToFile
+
+When capturing large images you rather want those to be stored into a file instead of having those
+base64 enconded, as enconding at least on Android is very expensive. With the feature storeToFile enabled
+the plugin will capture the image into a temporary file inside the application temporary cache (the same
+place where Cordova will extract your assets). *NOTE:* this method will overwrite any previous captured
+image for sake of simplicity, so if you want to capture multiple images and keep those, you will need
+assistance from some other plugin to rename the file or store somewhere else, this is made by design to
+keep the plugin simple. This method is better used with *disableExifHeaderStripping* to get the best
+possible performance.
+
+
+Example:
+
+```html
+<script src="https://raw.githubusercontent.com/blueimp/JavaScript-Load-Image/master/js/load-image.all.min.js"></script>
+
+<p><div id="originalPicture" style="width: 100%"></div></p>
+```
+
+```javascript
+let options = {
+  x: 0,
+  y: 0,
+  width: window.screen.width,
+  height: window.screen.height,
+  camera: CameraPreview.CAMERA_DIRECTION.BACK,
+  toBack: false,
+  tapPhoto: true,
+  tapFocus: false,
+  previewDrag: false,
+  disableExifHeaderStripping: true,
+  storeToFile: true
+};
+....
+
+function gotRotatedCanvas(canvasimg) {
+  var displayCanvas = $('canvas#display-canvas');
+  loadImage.scale(canvasimg, function(img){
+    displayCanvas.drawImage(img)
+  }, {
+    maxWidth: displayCanvas.width,
+    maxHeight: displayCanvas.height
+  });
+}
+
+CameraPreview.getSupportedPictureSizes(function(dimensions){
+  dimensions.sort(function(a, b){
+    return (b.width * b.height - a.width * a.height);
+  });
+  var dimension = dimensions[0];
+  CameraPreview.takePicture({width:dimension.width, height:dimension.height, quality: 85}, function(path){
+    var image = 'file://' + path;
+    let holder = document.getElementById('originalPicture');
+    let width = holder.offsetWidth;
+    loadImage(
+      image,
+      function(canvas) {
+        holder.innerHTML = "";
+        if (app.camera === 'front') {
+          // front camera requires we flip horizontally
+          canvas.style.transform = 'scale(1, -1)';
+        }
+        holder.appendChild(canvas);
+      },
+      {
+        maxWidth: width,
+        orientation: true,
+        canvas: true
+      }
+    );
+  });
+});
+```
+
 
 ### stopCamera([successCallback, errorCallback])
 
