@@ -80,6 +80,7 @@ public class CameraActivity extends Fragment {
   public boolean dragEnabled;
   public boolean tapToFocus;
   public boolean disableExifHeaderStripping;
+  public boolean toBack;
 
   public int width;
   public int height;
@@ -126,6 +127,14 @@ public class CameraActivity extends Fragment {
       mainLayout.addView(mPreview);
       mainLayout.setEnabled(false);
 
+        if(toBack == false) {
+            this.setupTouchAndBackButton();
+        }
+
+    }
+  }
+  private void setupTouchAndBackButton() {
+
       final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
 
       getActivity().runOnUiThread(new Runnable() {
@@ -147,7 +156,7 @@ public class CameraActivity extends Fragment {
               boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
               if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
                 if (tapToTakePicture && tapToFocus) {
-                  setFocusArea((int)event.getX(0), (int)event.getY(0), new Camera.AutoFocusCallback() {
+                  setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
                     public void onAutoFocus(boolean success, Camera camera) {
                       if (success) {
                         takePicture(0, 0, 85);
@@ -157,11 +166,11 @@ public class CameraActivity extends Fragment {
                     }
                   });
 
-                } else if(tapToTakePicture){
+                } else if (tapToTakePicture) {
                   takePicture(0, 0, 85);
 
-                } else if(tapToFocus){
-                  setFocusArea((int)event.getX(0), (int)event.getY(0), new Camera.AutoFocusCallback() {
+                } else if (tapToFocus) {
+                  setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
                     public void onAutoFocus(boolean success, Camera camera) {
                       if (success) {
                         // A callback to JS might make sense here.
@@ -179,13 +188,12 @@ public class CameraActivity extends Fragment {
 
                   switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                      if(mLastTouchX == 0 || mLastTouchY == 0) {
-                        mLastTouchX = (int)event.getRawX() - layoutParams.leftMargin;
-                        mLastTouchY = (int)event.getRawY() - layoutParams.topMargin;
-                      }
-                      else{
-                        mLastTouchX = (int)event.getRawX();
-                        mLastTouchY = (int)event.getRawY();
+                      if (mLastTouchX == 0 || mLastTouchY == 0) {
+                        mLastTouchX = (int) event.getRawX() - layoutParams.leftMargin;
+                        mLastTouchY = (int) event.getRawY() - layoutParams.topMargin;
+                      } else {
+                        mLastTouchX = (int) event.getRawX();
+                        mLastTouchY = (int) event.getRawY();
                       }
                       break;
                     case MotionEvent.ACTION_MOVE:
@@ -219,12 +227,11 @@ public class CameraActivity extends Fragment {
           });
           frameContainerLayout.setFocusableInTouchMode(true);
           frameContainerLayout.requestFocus();
-          frameContainerLayout.setOnKeyListener( new android.view.View.OnKeyListener() {
+          frameContainerLayout.setOnKeyListener(new android.view.View.OnKeyListener() {
             @Override
-            public boolean onKey( android.view.View v, int keyCode, android.view.KeyEvent event ) {
+            public boolean onKey(android.view.View v, int keyCode, android.view.KeyEvent event) {
 
-              if( keyCode == android.view.KeyEvent.KEYCODE_BACK )
-              {
+              if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
                 eventListener.onBackButton();
                 return true;
               }
@@ -233,7 +240,7 @@ public class CameraActivity extends Fragment {
           });
         }
       });
-    }
+
   }
 
   private void setDefaultCameraId(){
@@ -463,7 +470,7 @@ public class CameraActivity extends Fragment {
       size.width = size.height;
       size.height = temp;
     }
-    
+
     Camera.Size requestedSize = mCamera.new Size(size.width, size.height);
 
     double previewAspectRatio  = (double)previewSize.width / (double)previewSize.height;
