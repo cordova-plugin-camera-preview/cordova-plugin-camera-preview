@@ -677,6 +677,12 @@ public class CameraActivity extends Fragment {
 
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 Log.d(TAG, "angle: " + rotationDegrees);
+                if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                    if (rotationDegrees==0)
+                        rotationDegrees = 180;
+                    else if (rotationDegrees==180)
+                        rotationDegrees = 0;
+                }
                 matrix.preRotate(rotationDegrees);
                 bitmap = applyMatrix(bitmap, matrix);
 
