@@ -266,14 +266,19 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
           containerView.setId(containerViewId);
 
           FrameLayout.LayoutParams containerLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-          cordova.getActivity().addContentView(containerView, containerLayoutParams);
+
+          // Get the parent view of the webview
+          ViewGroup webViewParentGroup = (ViewGroup)webView.getView().getParent();
+
+          // Add the containerView to the parent of the webview
+          webViewParentGroup.addView(containerView, containerLayoutParams);
+
         }
         //display camera bellow the webview
         if(toBack){
-
           webView.getView().setBackgroundColor(0x00000000);
           webViewParent = webView.getView().getParent();
-           ((ViewGroup)webView.getView()).bringToFront();
+          webView.getView().bringToFront();
 
         }else{
 
