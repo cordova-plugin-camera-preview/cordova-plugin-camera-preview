@@ -1,3 +1,8 @@
-//  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
-class TemperatureAndTint {
+import AVFoundation
+
+class TemperatureAndTint: NSObject {
+    var mode = ""
+    var minTemperature: Float = 0.0
+    var maxTemperature: Float = 0.0
+    var tint: Float = 0.0
 }

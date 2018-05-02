@@ -1,39 +1,53 @@
-//  The converted code is limited to 4 KB.
-//  Upgrade your plan to remove this limitation.
-//
-//  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
-import Cordova
+//import Cordova
+import AVFoundation
 
-class CameraPreview {
-    func pluginInitialize() {
+class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
+    var sessionManager: CameraSessionManager!
+    var cameraRenderController: CameraRenderController!
+    
+    override func pluginInitialize() {
         // start as transparent
-        webView.opaque = false
+        webView.isOpaque = false
         webView.backgroundColor = UIColor.clear
     }
 
-    func startCamera(_ command: CDVInvokedUrlCommand?) {
+    // 0 [options.x,
+    // 1 options.y,
+    // 2 options.width,
+    // 3 options.height,
+    // 4 options.camera,
+    // 5 options.tapPhoto,
+    // 6 options.previewDrag,
+    // 7 options.toBack,
+    // 8 options.alpha,
+    // 9 options.tapFocus,
+    // 10 options.disableExifHeaderStripping]
+    func startCamera(_ command: CDVInvokedUrlCommand) {
         var pluginResult: CDVPluginResult?
         if sessionManager != nil {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Camera already started!")
-            commandDelegate.send(pluginResult, callbackId: command?.callbackId)
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera already started!")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
-        if command?.arguments.count ?? 0 > 3 {
-            let x = CGFloat(command?.arguments[0]) + webView.frame.origin.x
-            let y = CGFloat(command?.arguments[1]) + webView.frame.origin.y
-            let width = CGFloat(command?.arguments[2])
-            let height = CGFloat(command?.arguments[3])
-            let defaultCamera = command?.arguments[4]
-            let tapToTakePicture: Bool = command?.arguments[5] != 0
-            let dragEnabled: Bool = command?.arguments[6] != 0
-            let toBack: Bool = command?.arguments[7] != 0
-            let alpha = CGFloat(command?.arguments[8])
-            let tapToFocus: Bool = command?.arguments[9] != 0
-            let disableExifHeaderStripping: Bool = command?.arguments[10] != 0
-            // ignore Android only
+        if command.arguments.count ?? 0 > 3 {
+        
+            let x = CGFloat((command.arguments[0] as? Int)!) + webView.frame.origin.x
+            let y = CGFloat((command.arguments[1] as? Int)!) + webView.frame.origin.y
+            let width = CGFloat((command.arguments[2] as? Int)!)
+            let height = CGFloat((command.arguments[3] as? Int)!)
+            let defaultCamera = command.arguments[4]
+            let tapToTakePicture: Bool = (command.arguments[5] as? Int)! != 0
+            let dragEnabled: Bool = (command.arguments[6] as? Int)! != 0
+            let toBack: Bool = (command.arguments[7] as? Int)! != 0
+            let alpha = CGFloat((command.arguments[8] as? Int)!)
+            let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
+            let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0
+            
+            // Ignore Android only
             // Create the session manager
             sessionManager = CameraSessionManager()
-            // render controller setup
+            
+            // Render controller setup
             cameraRenderController = CameraRenderController()
             cameraRenderController.isDragEnabled = dragEnabled
             cameraRenderController.isTapToTakePicture = tapToTakePicture
@@ -45,22 +59,22 @@ class CameraPreview {
             if toBack {
                 // display the camera below the webview
                 // make transparent
-                webView.opaque = false
+                webView.isOpaque = false
                 webView.backgroundColor = UIColor.clear
-                webView.superview.addSubview(cameraRenderController.view)
-                webView.superview.bringSubview(toFront: webView)
+                webView.superview?.addSubview(cameraRenderController.view)
+                webView.superview?.bringSubview(toFront: webView)
             } else {
                 cameraRenderController.view.alpha = alpha
-                webView.superview.insertSubview(cameraRenderController.view, aboveSubview: webView)
+                webView.superview?.insertSubview(cameraRenderController.view, aboveSubview: webView)
             }
             // Setup session
             sessionManager.delegate = cameraRenderController
-            sessionManager.setupSession(defaultCamera, completion: {(_ started: Bool) -> Void in
+            sessionManager.setupSession(defaultCamera as! String, completion: {(_ started: Bool) -> Void in
                 self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command?.callbackId)
             })
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Invalid number of parameters")
-            commandDelegate.send(pluginResult, callbackId: command?.callbackId)
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
         }
     }
 
@@ -72,21 +86,21 @@ class CameraPreview {
         commandDelegate.run(inBackground: {() -> Void in
             var pluginResult: CDVPluginResult?
             if self.sessionManager != nil {
-                for input: AVCaptureInput? in self.sessionManager.session.inputs {
+                for input: AVCaptureInput? in self.sessionManager.session?.inputs {
                     if let anInput = input {
                         self.sessionManager.session.removeInput(anInput)
                     }
                 }
-                for output: AVCaptureOutput? in self.sessionManager.session.outputs {
+                for output: AVCaptureOutput? in self.sessionManager.session!.outputs {
                     if let anOutput = output {
                         self.sessionManager.session.removeOutput(anOutput)
                     }
                 }
-                self.sessionManager.session.stopRunning()
+                self.sessionManager.session?.stopRunning()
                 self.sessionManager = nil
                 pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
             } else {
-                pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Camera not started")
+                pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
             }
             self.commandDelegate.send(pluginResult, callbackId: command?.callbackId)
         })
@@ -99,7 +113,7 @@ class CameraPreview {
             cameraRenderController.view.isHidden = true
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Camera not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -111,7 +125,7 @@ class CameraPreview {
             cameraRenderController.view.isHidden = false
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Camera not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -124,7 +138,7 @@ class CameraPreview {
                 self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command?.callbackId)
             })
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command?.callbackId)
         }
     }
@@ -133,9 +147,9 @@ class CameraPreview {
         var pluginResult: CDVPluginResult?
         if sessionManager != nil {
             let focusModes = sessionManager.getFocusModes()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsArray: focusModes)
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusModes)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -146,14 +160,11 @@ class CameraPreview {
             let focusMode = sessionManager.getFocusMode()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusMode)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
-    //  The converted code is limited to 4 KB.
-    //  Upgrade your plan to remove this limitation.
-    //
-    //  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
+    
     func setFocusMode(_ command: CDVInvokedUrlCommand?) {
         var pluginResult: CDVPluginResult?
         let focusMode = command?.arguments[0] as? String
@@ -162,7 +173,7 @@ class CameraPreview {
             let focusMode = sessionManager.getFocusMode()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusMode)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -171,9 +182,9 @@ class CameraPreview {
         var pluginResult: CDVPluginResult?
         if sessionManager != nil {
             let flashModes = sessionManager.getFlashModes()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsArray: flashModes)
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: flashModes)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -194,7 +205,7 @@ class CameraPreview {
             }
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: sFlashMode)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -235,7 +246,7 @@ class CameraPreview {
             sessionManager.setZoom(desiredZoomFactor)
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -246,21 +257,18 @@ class CameraPreview {
             let zoom: CGFloat = sessionManager.getZoom()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsDouble: zoom)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
-    //  The converted code is limited to 4 KB.
-    //  Upgrade your plan to remove this limitation.
-    //
-    //  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
+    
     func getHorizontalFOV(_ command: CDVInvokedUrlCommand?) {
         var pluginResult: CDVPluginResult?
         if sessionManager != nil {
             let fov: Float = sessionManager.getHorizontalFOV()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsDouble: fov)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -271,7 +279,7 @@ class CameraPreview {
             let maxZoom: CGFloat = sessionManager.getMaxZoom()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsDouble: maxZoom)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -282,7 +290,7 @@ class CameraPreview {
             let exposureModes = sessionManager.getExposureModes()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsArray: exposureModes)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -293,7 +301,7 @@ class CameraPreview {
             let exposureMode = sessionManager.getExposureMode()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: exposureMode)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -306,7 +314,7 @@ class CameraPreview {
             let exposureMode = sessionManager.getExposureMode()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: exposureMode)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -317,7 +325,7 @@ class CameraPreview {
             let whiteBalanceModes = sessionManager.getSupportedWhiteBalanceModes()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsArray: whiteBalanceModes)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -328,14 +336,11 @@ class CameraPreview {
             let whiteBalanceMode = sessionManager.getWhiteBalanceMode()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: whiteBalanceMode)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
-    //  The converted code is limited to 4 KB.
-    //  Upgrade your plan to remove this limitation.
-    //
-    //  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
+
     func setWhiteBalanceMode(_ command: CDVInvokedUrlCommand?) {
         var pluginResult: CDVPluginResult?
         let whiteBalanceMode = command?.arguments[0] as? String
@@ -344,7 +349,7 @@ class CameraPreview {
             let wbMode = sessionManager.getWhiteBalanceMode()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: wbMode)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -354,11 +359,11 @@ class CameraPreview {
         if sessionManager != nil {
             let exposureRange = sessionManager.getExposureCompensationRange()
             var dimensions = [AnyHashable: Any]()
-            dimensions["min"] = exposureRange[0]
+            dimensions["min"] = exposureRange?[0]
             dimensions["max"] = exposureRange[1]
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsDictionary: dimensions)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -369,7 +374,7 @@ class CameraPreview {
             let exposureCompensation: CGFloat = sessionManager.getExposureCompensation()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsDouble: exposureCompensation)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -382,7 +387,7 @@ class CameraPreview {
             sessionManager.setExposureCompensation(exposureCompensation)
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsDouble: exposureCompensation)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -397,14 +402,11 @@ class CameraPreview {
             let quality = CGFloat(command?.arguments[2]) / 100.0
             invokeTakePicture(width, withHeight: height, withQuality: quality)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Camera not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
             commandDelegate.send(pluginResult, callbackId: command?.callbackId)
         }
     }
-    //  The converted code is limited to 4 KB.
-    //  Upgrade your plan to remove this limitation.
-    //
-    //  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
+    
     func setColorEffect(_ command: CDVInvokedUrlCommand?) {
         print("setColorEffect")
         var pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
@@ -439,31 +441,32 @@ class CameraPreview {
                     self.sessionManager.ciFilter = filter
                 })
             } else {
-                pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Filter not found")
+                pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Filter not found")
             }
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
-    //  The converted code is limited to 4 KB.
-    //  Upgrade your plan to remove this limitation.
-    //
-    //  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
+    
+    //    0 [dimensions.width,
+    //    1 dimensions.height]
     func setPreviewSize(_ command: CDVInvokedUrlCommand?) {
         var pluginResult: CDVPluginResult?
         if sessionManager == nil {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command?.callbackId)
             return
         }
         if command?.arguments.count ?? 0 > 1 {
-            let width = CGFloat(command?.arguments[0])
-            let height = CGFloat(command?.arguments[1])
+            let width = CGFloat(command?.arguments[0] as! Int)
+            let height = CGFloat(command?.arguments[1] as! Int)
             cameraRenderController.view.frame = CGRect(x: 0, y: 0, width: width, height: height)
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsString: "Invalid number of parameters")
+        CDVPluginResult(
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAmessageAssString: "Invalid number of parameters")
+            pluginResult = CDVPluginResult
         }
         commandDelegate.send(pluginResult, callbackId: command?.callbackId)
     }
@@ -542,8 +545,7 @@ class CameraPreview {
         return radians
     }
 
-    //  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
-    func cgImageRotated(_ originalCGImage: CGImageRef?, withRadians radians: Double) -> CGImageRef? {
+    func cgImageRotated(_ originalCGImage: CGImage?, withRadians radians: Double) -> CGImageRef? {
         let imageSize = CGSize(width: CGImageGetWidth(originalCGImage), height: CGImageGetHeight(originalCGImage))
         var rotatedSize: CGSize
         if radians == M_PI_2 || radians == -M_PI_2 {
@@ -557,19 +559,19 @@ class CameraPreview {
         let rotatedContext = UIGraphicsGetCurrentContext()
         if radians == 0.0 || radians == .pi {
             // 0 or 180 degrees
-            rotatedContext.translateBy(x: rotatedCenterX, y: rotatedCenterY)
+            rotatedContext?.translateBy(x: CGFloat(rotatedCenterX), y: rotatedCenterY)
             if radians == 0.0 {
-                rotatedContext.scaleBy(x: 1.0, y: -1.0)
+                rotatedContext?.scaleBy(x: 1.0, y: -1.0)
             } else {
-                rotatedContext.scaleBy(x: -1.0, y: 1.0)
+                rotatedContext?.scaleBy(x: -1.0, y: 1.0)
             }
-            rotatedContext.translateBy(x: -rotatedCenterX, y: -rotatedCenterY)
+            rotatedContext?.translateBy(x: -rotatedCenterX, y: -rotatedCenterY)
         } else if radians == M_PI_2 || radians == -M_PI_2 {
             // +/- 90 degrees
-            rotatedContext.translateBy(x: rotatedCenterX, y: rotatedCenterY)
-            rotatedContext.rotate(by: radians)
-            rotatedContext.scaleBy(x: 1.0, y: -1.0)
-            rotatedContext.translateBy(x: -rotatedCenterY, y: -rotatedCenterX)
+            rotatedContext?.translateBy(x: CGFloat(rotatedCenterX), y: rotatedCenterY)
+            rotatedContext?.rotate(by: radians)
+            rotatedContext?.scaleBy(x: 1.0, y: -1.0)
+            rotatedContext?.translateBy(x: -rotatedCenterY, y: -rotatedCenterX)
         }
         let drawingRect = CGRect(x: 0.0, y: 0.0, width: imageSize.width, height: imageSize.height)
         rotatedContext.draw(in: originalCGImage, image: drawingRect)
@@ -579,7 +581,7 @@ class CameraPreview {
     }
 
     func invokeTap(toFocus point: CGPoint) {
-        sessionManager.tap(toFocus: point.x, yPoint: point.y)
+        sessionManager.tapToFocus(toFocus: point.x, yPoint: point.y)
     }
 
     func invokeTakePicture() {
@@ -587,11 +589,10 @@ class CameraPreview {
     }
 
     func invokeTakePictureOnFocus() {
-        // the sessionManager will call onFocus, as soon as the camera is done with focussing.
+        // The sessionManager will call onFocus, as soon as the camera is done with focussing.
         sessionManager.takePictureOnFocus()
     }
 
-    //  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
     func invokeTakePicture(_ width: CGFloat, withHeight height: CGFloat, withQuality quality: CGFloat) {
         let connection: AVCaptureConnection? = sessionManager.stillImageOutput.connection(with: .video)
         if let aConnection = connection {

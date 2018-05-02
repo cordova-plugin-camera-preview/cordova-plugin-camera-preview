@@ -1,12 +1,38 @@
-//  The converted code is limited to 4 KB.
-//  Upgrade your plan to remove this limitation.
-//
-//  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
+import AVFoundation
+import CoreImage
+import CoreMedia
 import CoreVideo
 import GLKit
-import OpenGLES
+import ImageIO
+import QuartzCore
+import UIKit
 
-class CameraRenderController {
+protocol TakePictureDelegate: class {
+    func invokeTakePicture()
+
+    func invokeTakePictureOnFocus()
+}
+
+protocol FocusDelegate: class {
+    func invokeTap(toFocus point: CGPoint)
+}
+
+class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate, OnFocusDelegate {
+    var sessionManager: CameraSessionManager?
+    var ciContext: CIContext?
+    var latestFrame: CIImage?
+    var context: EAGLContext?
+    var renderLock: NSLock?
+    var isDragEnabled = false
+    var isTapToTakePicture = false
+    var isTapToFocus = false
+    var delegate: Any?
+
+    var renderBuffer = GLuint()
+    var videoTextureCache: CVOpenGLESTextureCacheRef?
+    var lumaTexture: CVOpenGLESTexture?
+
+
     init() {
         super.init()
 
@@ -80,7 +106,6 @@ class CameraRenderController {
         })
     }
 
-       //  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
     func handleFocusAndTakePictureTap(_ recognizer: UITapGestureRecognizer?) {
         print("handleFocusAndTakePictureTap")
         // let the delegate take an image, the next time the image is in focus.
@@ -181,7 +206,6 @@ class CameraRenderController {
         }
     }
 
-    //  Converted to Swift 4 by Swiftify v4.1.6691 - https://objectivec2swift.com/
     func viewDidUnload() {
         super.viewDidUnload()
         if EAGLContext.current() == context {
