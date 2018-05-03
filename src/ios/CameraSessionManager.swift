@@ -12,15 +12,15 @@ class CameraSessionManager: NSObject {
     var session: AVCaptureSession?
     var sessionQueue: DispatchQueue?
     var defaultCamera: AVCaptureDevice.Position?
-    var defaultFlashMode: Int = 0
+    var defaultFlashMode: AVCaptureDevice.FlashMode = .off
     var videoZoomFactor: CGFloat = 0.0
     var device: AVCaptureDevice?
     var videoDeviceInput: AVCaptureDeviceInput?
     var stillImageOutput: AVCaptureStillImageOutput?
     var dataOutput: AVCaptureVideoDataOutput?
-    var delegate: Any?
+    var delegate: CameraRenderController?
     var currentWhiteBalanceMode = ""
-    var colorTemperatures = [AnyHashable: Any]()
+    var colorTemperatures = [String: TemperatureAndTint]()
 
     override init() {
         super.init()
@@ -68,13 +68,18 @@ class CameraSessionManager: NSObject {
         wbTwilight.maxTemperature = 4400
         wbTwilight.tint = 0
         
-//        colorTemperatures = [AnyHashable: Any](objects: [wbIncandescent, wbCloudyDaylight, wbDaylight, wbFluorescent, wbShade, wbWarmFluorescent, wbTwilight], forKeys: ["incandescent", "cloudy-daylight", "daylight", "fluorescent", "shade", "warm-fluorescent", "twilight"])
-
+        colorTemperatures["incandescent"] = wbIncandescent
+        colorTemperatures["cloudy-daylight"] = wbCloudyDaylight
+        colorTemperatures["daylight"] = wbDaylight
+        colorTemperatures["fluorescent"] = wbFluorescent
+        colorTemperatures["shade"] = wbShade
+        colorTemperatures["warm-fluorescent"] = wbWarmFluorescent
+        colorTemperatures["twilight"] = wbTwilight
     }
 
     func getDeviceFormats() -> [Any] {
         let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
-        return videoDevice?.formats
+        return (videoDevice?.formats)!
     }
 
     func getCurrentOrientation() -> AVCaptureVideoOrientation {
@@ -104,7 +109,7 @@ class CameraSessionManager: NSObject {
         // If this fails, video input will just stream blank frames and the user will be notified. User only has to accept once.
         checkDeviceAuthorizationStatus()
         sessionQueue?.async(execute: {() -> Void in
-            var error: Error? = nil
+            let error: Error? = nil
             var success = true
             print("defaultCamera: \(defaultCamera ?? "")")
             if defaultCamera == "front" {
@@ -192,9 +197,9 @@ class CameraSessionManager: NSObject {
             }
             var videoDevice: AVCaptureDevice? = nil
             videoDevice = self.cameraWithPosition(position: self.defaultCamera!)
-            if videoDevice?.hasFlash ?? false && videoDevice?.isFlashModeSupported(AVCaptureFlashMode(rawValue: self.defaultFlashMode)!) ?? false {
+            if videoDevice?.hasFlash ?? false && videoDevice?.isFlashModeSupported(AVCaptureFlashMode(rawValue: self.defaultFlashMode.rawValue)!) ?? false {
                 if try! videoDevice?.lockForConfiguration() != nil {
-                    videoDevice?.flashMode = AVCaptureFlashMode(rawValue: self.defaultFlashMode)!
+                    videoDevice?.flashMode = AVCaptureFlashMode(rawValue: self.defaultFlashMode.rawValue)!
                     videoDevice?.unlockForConfiguration()
                 } else {
                     if let anError = error {
@@ -213,9 +218,9 @@ class CameraSessionManager: NSObject {
                 }
                 success = false
             }
-
-            if session?.canAdd(videoDeviceInput) {
-                session?.add(videoDeviceInput)
+            
+            if (self.session?.canAddInput(videoDeviceInput))! {
+                self.session?.addInput(videoDeviceInput)
                 self.videoDeviceInput = videoDeviceInput
             }
 
@@ -242,13 +247,13 @@ class CameraSessionManager: NSObject {
 
     func getFocusMode() -> String? {
         var focusMode: String
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
-        switch videoDevice?.focusMode {
-            case 0:
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
+        switch videoDevice!.focusMode {
+            case .locked:
                 focusMode = "fixed"
-            case 1:
+            case .autoFocus:
                 focusMode = "auto"
-            case 2:
+            case .continuousAutoFocus:
                 focusMode = "continuous"
             default:
                 focusMode = "unsupported"
@@ -257,25 +262,25 @@ class CameraSessionManager: NSObject {
         return focusMode
     }
 
-    var focusMode: AVCaptureDevice.FocusMode {
-        var errMsg: String
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+    func setFocusmode(_ focusMode: String?) -> String? {
+        var errMsg = ""
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         try? device?.lockForConfiguration()
         if focusMode == "fixed" {
-            if videoDevice?.isFocusModeSupported([]) ?? false {
-                videoDevice?.focusMode = []
+            if videoDevice?.isFocusModeSupported(.locked) ?? false {
+                videoDevice?.focusMode = .locked
             } else {
                 errMsg = "Focus mode not supported"
             }
         } else if focusMode == "auto" {
-            if videoDevice?.isFocusModeSupported(AVCaptureDevice.FocusMode(rawValue: 1)!) ?? false {
-                videoDevice?.focusMode = AVCaptureDevice.FocusMode(rawValue: 1)!
+            if videoDevice?.isFocusModeSupported(.autoFocus) ?? false {
+                videoDevice?.focusMode = .autoFocus
             } else {
                 errMsg = "Focus mode not supported"
             }
         } else if focusMode == "continuous" {
-            if videoDevice?.isFocusModeSupported(AVCaptureDevice.FocusMode(rawValue: 2)!) ?? false {
-                videoDevice?.focusMode = AVCaptureDevice.FocusMode(rawValue: 2)!
+            if videoDevice?.isFocusModeSupported(.continuousAutoFocus) ?? false {
+                videoDevice?.focusMode = .continuousAutoFocus
             } else {
                 errMsg = "Focus mode not supported"
             }
@@ -287,19 +292,20 @@ class CameraSessionManager: NSObject {
             print("\(errMsg)")
             return "ERR01"
         }
-        return self.focusMode
+        return focusMode
     }
+
 
     func getFlashModes() -> [Any]? {
         var flashModes = [AnyHashable]()
         if (device?.hasFlash)! {
-            if device?.isFlashModeSupported([]) {
+            if (device?.isFlashModeSupported(.off))! {
                 flashModes.append("off")
             }
-            if (device?.isFlashModeSupported(AVCaptureDevice.FlashMode(rawValue: 1)!))! {
+            if (device?.isFlashModeSupported(.on))! {
                 flashModes.append("on")
             }
-            if (device?.isFlashModeSupported(AVCaptureDevice.FlashMode(rawValue: 2)!))! {
+            if (device?.isFlashModeSupported(.off))! {
                 flashModes.append("auto")
             }
             if (device?.hasTorch)! {
@@ -310,22 +316,22 @@ class CameraSessionManager: NSObject {
     }
 
     func getFlashMode() -> Int {
-        if device!.hasFlash && device!.isFlashModeSupported(AVCaptureFlashMode(rawValue: defaultFlashMode)!) {
+        if device!.hasFlash && device!.isFlashModeSupported(AVCaptureFlashMode(rawValue: defaultFlashMode.rawValue)!) {
             return device!.flashMode.rawValue
         }
         return -1
     }
 
-    func setFlashMode(_ flashMode: Int) {
+    func setFlashMode(_ flashMode: AVCaptureDevice.FlashMode) {
         var error: Error? = nil
         // Let's save the setting even if we can't set it up on this camera.
         defaultFlashMode = flashMode
-        if device!.hasFlash && device!.isFlashModeSupported(AVCaptureFlashMode(rawValue: defaultFlashMode)!) {
+        if device!.hasFlash && device!.isFlashModeSupported(AVCaptureFlashMode(rawValue: defaultFlashMode.rawValue)!) {
             if try! device?.lockForConfiguration() != nil {
                 if device!.hasTorch && device!.isTorchAvailable {
-                    device?.torchMode = []
+                    device?.torchMode = .off
                 }
-                device?.flashMode = AVCaptureFlashMode(rawValue: defaultFlashMode)!
+                device?.flashMode = AVCaptureFlashMode(rawValue: defaultFlashMode.rawValue)!
                 device?.unlockForConfiguration()
             } else {
                 if let anError = error {
@@ -343,12 +349,12 @@ class CameraSessionManager: NSObject {
         //self.defaultFlashMode = flashMode;
         if device!.hasTorch && device!.isTorchAvailable {
             if try! device?.lockForConfiguration() != nil {
-                if (device?.isTorchModeSupported(AVCaptureDevice.TorchMode(rawValue: 1)!))! {
-                    device?.torchMode = AVCaptureDevice.TorchMode(rawValue: 1)!
-                } else if (device?.isTorchModeSupported(AVCaptureDevice.TorchMode(rawValue: 2)!))! {
-                    device?.torchMode = AVCaptureDevice.TorchMode(rawValue: 2)!
+                if (device?.isTorchModeSupported(.on))! {
+                    device?.torchMode = .on
+                } else if (device?.isTorchModeSupported(.auto))! {
+                    device?.torchMode = .auto
                 } else {
-                    device?.torchMode = []
+                    device?.torchMode = .off
                 }
                 device?.unlockForConfiguration()
             } else {
@@ -370,24 +376,24 @@ class CameraSessionManager: NSObject {
     }
 
     func getZoom() -> CGFloat {
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         return videoDevice?.videoZoomFactor ?? 0.0
     }
 
     func getHorizontalFOV() -> Float {
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         return videoDevice?.activeFormat.videoFieldOfView ?? 0.0
     }
 
     func getMaxZoom() -> CGFloat {
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         return videoDevice?.activeFormat.videoMaxZoomFactor ?? 0.0
     }
 
     func getExposureModes() -> [Any]? {
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         var exposureModes = [AnyHashable]()
-        if videoDevice?.isExposureModeSupported([]) ?? false {
+        if videoDevice?.isExposureModeSupported(AVCaptureDevice.ExposureMode(rawValue: 0)!) ?? false {
             exposureModes.append("lock")
         }
         if videoDevice?.isExposureModeSupported(AVCaptureDevice.ExposureMode(rawValue: 1)!) ?? false {
@@ -400,20 +406,20 @@ class CameraSessionManager: NSObject {
             exposureModes.append("custom")
         }
         print("\(exposureModes)")
-        return exposureModes as? [Any]
+        return exposureModes as [Any]
     }
 
     func getExposureMode() -> String? {
         var exposureMode: String
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         switch videoDevice?.exposureMode {
-            case 0:x
+            case AVCaptureDevice.ExposureMode(rawValue: 0):
                 exposureMode = "lock"
-            case 1:
+            case AVCaptureDevice.ExposureMode(rawValue: 1):
                 exposureMode = "auto"
-            case 2:
+            case AVCaptureDevice.ExposureMode(rawValue: 2):
                 exposureMode = "continuous"
-            case 3:
+            case AVCaptureDevice.ExposureMode(rawValue: 3):
                 exposureMode = "custom"
             default:
                 exposureMode = "unsupported"
@@ -423,12 +429,12 @@ class CameraSessionManager: NSObject {
     }
 
     func setExposureMode(_ exposureMode: String?) -> String? {
-        var errMsg: String
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        var errMsg = ""
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         try? device?.lockForConfiguration()
         if exposureMode == "lock" {
-            if videoDevice?.isExposureModeSupported([]) ?? false {
-                videoDevice?.exposureMode = []
+            if videoDevice?.isExposureModeSupported(AVCaptureDevice.ExposureMode(rawValue: 0)!) ?? false {
+                videoDevice?.exposureMode = AVCaptureDevice.ExposureMode(rawValue: 0)!
             } else {
                 errMsg = "Exposure mode not supported"
             }
@@ -462,7 +468,7 @@ class CameraSessionManager: NSObject {
     }
 
     func getExposureCompensationRange() -> [Any]? {
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         let maxExposureCompensation = CGFloat(videoDevice?.maxExposureTargetBias ?? 0.0)
         let minExposureCompensation = CGFloat(videoDevice?.minExposureTargetBias ?? 0.0)
         let exposureCompensationRange = [minExposureCompensation, maxExposureCompensation]
@@ -470,15 +476,15 @@ class CameraSessionManager: NSObject {
     }
 
     func getExposureCompensation() -> CGFloat {
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         print("getExposureCompensation: \(videoDevice?.exposureTargetBias ?? 0.0)")
         return CGFloat(videoDevice?.exposureTargetBias ?? 0.0)
     }
 
-    func setExposureCompensation(_ exposureCompensation: CGFloat) {
+    func setExposureCompensation(_ exposureCompensation: Float) {
         var error: Error? = nil
         if try! device?.lockForConfiguration() != nil {
-            let exposureTargetBias: CGFloat = max(device!.minExposureTargetBias, min(exposureCompensation, device?.maxExposureTargetBias))
+            let exposureTargetBias: Float = max(device!.minExposureTargetBias, min(exposureCompensation, (device?.maxExposureTargetBias)!))
             device?.setExposureTargetBias(Float(exposureTargetBias), completionHandler: nil)
             device?.unlockForConfiguration()
         } else {
@@ -489,10 +495,10 @@ class CameraSessionManager: NSObject {
     }
 
     func getSupportedWhiteBalanceModes() -> [Any]? {
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         print("maxWhiteBalanceGain: \(videoDevice?.maxWhiteBalanceGain ?? 0.0)")
         var whiteBalanceModes = [AnyHashable]()
-        if videoDevice?.isWhiteBalanceModeSupported([]) ?? false {
+        if videoDevice?.isWhiteBalanceModeSupported(AVCaptureDevice.WhiteBalanceMode(rawValue: 0)!) ?? false {
             whiteBalanceModes.append("lock")
         }
         if videoDevice?.isWhiteBalanceModeSupported(AVCaptureDevice.WhiteBalanceMode(rawValue: 1)!) ?? false {
@@ -501,12 +507,15 @@ class CameraSessionManager: NSObject {
         if videoDevice?.isWhiteBalanceModeSupported(AVCaptureDevice.WhiteBalanceMode(rawValue: 2)!) ?? false {
             whiteBalanceModes.append("continuous")
         }
-        let enumerator: NSEnumerator? = colorTemperatures.objectEnumerator()
-        var wbTemperature: TemperatureAndTint?
-        while wbTemperature == enumerator?.nextObject() as? TemperatureAndTint {
-            let temperatureAndTintValues: AVCaptureWhiteBalanceTemperatureAndTintValues
+        
+        var enumerator = colorTemperatures.values.makeIterator()
+        let wbTemperature: TemperatureAndTint! = TemperatureAndTint()
+        
+        while wbTemperature == enumerator.next() {
+            var temperatureAndTintValues: AVCaptureWhiteBalanceTemperatureAndTintValues! = AVCaptureWhiteBalanceTemperatureAndTintValues()
             temperatureAndTintValues.temperature = ((wbTemperature?.minTemperature)! + (wbTemperature?.maxTemperature)!) / 2
             temperatureAndTintValues.tint = wbTemperature?.tint ?? 0.0
+            
             let rgbGains: AVCaptureWhiteBalanceGains? = videoDevice?.deviceWhiteBalanceGains(for: temperatureAndTintValues)
             if let aMode = wbTemperature?.mode {
                 print("mode: \(aMode)")
@@ -527,21 +536,21 @@ class CameraSessionManager: NSObject {
             }
         }
         print("\(whiteBalanceModes)")
-        return whiteBalanceModes as? [Any]
+        return whiteBalanceModes
     }
 
     func getWhiteBalanceMode() -> String? {
         var whiteBalanceMode: String
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         switch videoDevice?.whiteBalanceMode {
-            case 0:
+            case AVCaptureDevice.WhiteBalanceMode (rawValue: 0):
                 whiteBalanceMode = "lock"
                 if currentWhiteBalanceMode != nil {
                     whiteBalanceMode = currentWhiteBalanceMode
                 }
-            case 1:
+            case AVCaptureDevice.WhiteBalanceMode (rawValue: 1):
                 whiteBalanceMode = "auto"
-            case 2:
+            case AVCaptureDevice.WhiteBalanceMode (rawValue: 2):
                 whiteBalanceMode = "continuous"
             default:
                 whiteBalanceMode = "unsupported"
@@ -551,13 +560,13 @@ class CameraSessionManager: NSObject {
     }
     
     func setWhiteBalanceMode(_ whiteBalanceMode: String?) -> String? {
-        var errMsg: String
+        var errMsg = "";
         print("plugin White balance mode: \(whiteBalanceMode ?? "")")
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera)
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         try? device?.lockForConfiguration()
         if whiteBalanceMode == "lock" {
-            if videoDevice?.isWhiteBalanceModeSupported([]) ?? false {
-                videoDevice?.whiteBalanceMode = []
+            if videoDevice?.isWhiteBalanceModeSupported(AVCaptureDevice.WhiteBalanceMode(rawValue: 0)!) ?? false {
+                videoDevice?.whiteBalanceMode = AVCaptureDevice.WhiteBalanceMode(rawValue: 0)!
             } else {
                 errMsg = "White balance mode not supported"
             }
@@ -575,9 +584,9 @@ class CameraSessionManager: NSObject {
             }
         } else {
             print("Additional modes for \(whiteBalanceMode ?? "")")
-            let temperatureForWhiteBalanceSetting = colorTemperatures[whiteBalanceMode!] as? TemperatureAndTint
+            let temperatureForWhiteBalanceSetting = colorTemperatures[whiteBalanceMode!]
             if temperatureForWhiteBalanceSetting != nil {
-                let temperatureAndTintValues: AVCaptureWhiteBalanceTemperatureAndTintValues
+                var temperatureAndTintValues: AVCaptureWhiteBalanceTemperatureAndTintValues! = AVCaptureWhiteBalanceTemperatureAndTintValues()
                 temperatureAndTintValues.temperature = ((temperatureForWhiteBalanceSetting?.minTemperature)! + (temperatureForWhiteBalanceSetting?.maxTemperature)!) / 2
                 temperatureAndTintValues.tint = temperatureForWhiteBalanceSetting?.tint ?? 0.0
                 let rgbGains: AVCaptureWhiteBalanceGains? = videoDevice?.deviceWhiteBalanceGains(for: temperatureAndTintValues)
@@ -594,26 +603,28 @@ class CameraSessionManager: NSObject {
             }
         }
         device?.unlockForConfiguration()
+        
         if errMsg != "" {
             print("\(errMsg)")
             return "ERR01"
         }
+        
         return whiteBalanceMode
     }
-
-    func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [String : Any]?, context: UnsafeMutableRawPointer?) {
-        // removes the observer, when the camera is done focussing.
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        // removes the observer, when the camera is done focusing.
         if (keyPath == "adjustingFocus") {
-            let adjustingFocus: Bool = change?[.newKey] == 1
+            let adjustingFocus: Bool = change?[.newKey] as? Int == 1
             if !adjustingFocus {
                 device?.removeObserver(self, forKeyPath: "adjustingFocus")
-                delegate.onFocus()
+                delegate?.onFocus()
             }
         }
     }
 
     func takePictureOnFocus() {
-            // add an observer, when takePictureOnFocus is requested.
+        // add an observer, when takePictureOnFocus is requested
         let flag: NSKeyValueObservingOptions = .new
         device?.addObserver(self, forKeyPath: "adjustingFocus", options: flag, context: nil)
     }
@@ -637,12 +648,13 @@ class CameraSessionManager: NSObject {
     }
 
     func checkDeviceAuthorizationStatus() {
-        let mediaType = AVMediaTypeVideo
-        AVCaptureDevice.requestAccess(forMediaType: AVMediaType(mediaType), completionHandler: {(_ granted: Bool) -> Void in
+        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo, completionHandler: {(_ granted: Bool) -> Void in
             if !granted {
-                //Not granted access to mediaType
+                // Not granted access to mediaType
                 DispatchQueue.main.async(execute: {() -> Void in
-                    UIAlertView(title: "Error", message: "Camera permission not found. Please, check your privacy settings.", delegate: self, cancelButtonTitle: "OK", otherButtonTitles: "").show()
+                    let alert = UIAlertController(title: "Error", message: "Camera permission not found. Please, check your privacy settings.", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .`default`))
+                    self.delegate?.present(alert, animated: true, completion: nil)
                 })
             }
         })
@@ -650,7 +662,7 @@ class CameraSessionManager: NSObject {
 
     // Find a camera with the specified AVCaptureDevicePosition, returning nil if one is not found
     func cameraWithPosition(position: AVCaptureDevice.Position) -> AVCaptureDevice? {
-        let devices = AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo)
+        let devices = AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo) as! [AVCaptureDevice]
         
         for device: AVCaptureDevice in devices {
             if device.position == position {
