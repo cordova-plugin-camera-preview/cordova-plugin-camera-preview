@@ -188,7 +188,7 @@ class CameraSessionManager: NSObject {
             defaultCamera = .front
         }
         sessionQueue?.async(execute: {() -> Void in
-            var error: Error? = nil
+            let error: Error? = nil
             var success = true
             self.session?.beginConfiguration()
             if self.videoDeviceInput != nil {
@@ -242,7 +242,7 @@ class CameraSessionManager: NSObject {
         if (device?.isFocusModeSupported(AVCaptureDevice.FocusMode(rawValue: 2)!))! {
             focusModes.append("continuous")
         }
-        return focusModes as? [Any]
+        return focusModes as [Any]
     }
 
     func getFocusMode() -> String? {
@@ -255,9 +255,6 @@ class CameraSessionManager: NSObject {
                 focusMode = "auto"
             case .continuousAutoFocus:
                 focusMode = "continuous"
-            default:
-                focusMode = "unsupported"
-                print("Mode not supported")
         }
         return focusMode
     }
@@ -312,7 +309,7 @@ class CameraSessionManager: NSObject {
                 flashModes.append("torch")
             }
         }
-        return flashModes as? [Any]
+        return flashModes as [Any]
     }
 
     func getFlashMode() -> Int {
@@ -323,7 +320,7 @@ class CameraSessionManager: NSObject {
     }
 
     func setFlashMode(_ flashMode: AVCaptureDevice.FlashMode) {
-        var error: Error? = nil
+        let error: Error? = nil
         // Let's save the setting even if we can't set it up on this camera.
         defaultFlashMode = flashMode
         if device!.hasFlash && device!.isFlashModeSupported(AVCaptureFlashMode(rawValue: defaultFlashMode.rawValue)!) {
@@ -344,7 +341,7 @@ class CameraSessionManager: NSObject {
     }
 
     func setTorchMode() {
-        var error: Error? = nil
+        let error: Error? = nil
         // Let's save the setting even if we can't set it up on this camera.
         //self.defaultFlashMode = flashMode;
         if device!.hasTorch && device!.isTorchAvailable {
@@ -482,7 +479,7 @@ class CameraSessionManager: NSObject {
     }
 
     func setExposureCompensation(_ exposureCompensation: Float) {
-        var error: Error? = nil
+        let error: Error? = nil
         if try! device?.lockForConfiguration() != nil {
             let exposureTargetBias: Float = max(device!.minExposureTargetBias, min(exposureCompensation, (device?.maxExposureTargetBias)!))
             device?.setExposureTargetBias(Float(exposureTargetBias), completionHandler: nil)
@@ -545,9 +542,7 @@ class CameraSessionManager: NSObject {
         switch videoDevice?.whiteBalanceMode {
             case AVCaptureDevice.WhiteBalanceMode (rawValue: 0):
                 whiteBalanceMode = "lock"
-                if currentWhiteBalanceMode != nil {
-                    whiteBalanceMode = currentWhiteBalanceMode
-                }
+                whiteBalanceMode = currentWhiteBalanceMode
             case AVCaptureDevice.WhiteBalanceMode (rawValue: 1):
                 whiteBalanceMode = "auto"
             case AVCaptureDevice.WhiteBalanceMode (rawValue: 2):

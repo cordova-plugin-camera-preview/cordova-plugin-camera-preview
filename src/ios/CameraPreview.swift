@@ -30,8 +30,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
-        if command.arguments.count ?? 0 > 3 {
-        
+        if command.arguments.count > 3 {
             let x = (command.arguments[0] as? CGFloat ?? 0.0) + webView.frame.origin.x
             let y = (command.arguments[1] as? CGFloat ?? 0.0) + webView.frame.origin.y
             let width = CGFloat((command.arguments[2] as? Int)!)
@@ -42,7 +41,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             let toBack: Bool = (command.arguments[7] as? Int)! != 0
             let alpha = CGFloat((command.arguments[8] as? Int)!)
             let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
-            let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0
+            // let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0 // ignore, Android only
             
             // Create the session manager
             sessionManager = CameraSessionManager()
@@ -71,7 +70,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             
             // Setup session
             sessionManager.delegate = cameraRenderController
-            sessionManager.setupSession(defaultCamera as! String, completion: {(_ started: Bool) -> Void in
+            sessionManager.setupSession(defaultCamera as? String, completion: {(_ started: Bool) -> Void in
                 self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
             })
         } else {
