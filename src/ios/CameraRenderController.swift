@@ -71,10 +71,10 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
             return
         }
         
-        let view = self.view as? GLKView
-        view?.context = context!
-        view?.drawableDepthFormat = .format24
-        view?.contentMode = .scaleToFill
+        let view = self.view as! GLKView
+        view.context = context!
+        view.drawableDepthFormat = .format24
+        view.contentMode = .scaleToFill
         
         glGenRenderbuffers(1, &renderBuffer)
         glBindRenderbuffer(GLenum(GL_RENDERBUFFER), renderBuffer)

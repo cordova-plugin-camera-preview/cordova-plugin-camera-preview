@@ -25,59 +25,60 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     // 9 options.tapFocus,
     // 10 options.disableExifHeaderStripping]
     func startCamera(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
         if sessionManager != nil {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera already started!")
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera already started!")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
-        if command.arguments.count > 3 {
-            let x = (command.arguments[0] as? CGFloat ?? 0.0) + webView.frame.origin.x
-            let y = (command.arguments[1] as? CGFloat ?? 0.0) + webView.frame.origin.y
-            let width = CGFloat((command.arguments[2] as? Int)!)
-            let height = CGFloat((command.arguments[3] as? Int)!)
-            let defaultCamera = command.arguments[4]
-            let tapToTakePicture: Bool = (command.arguments[5] as? Int)! != 0
-            let dragEnabled: Bool = (command.arguments[6] as? Int)! != 0
-            let toBack: Bool = (command.arguments[7] as? Int)! != 0
-            let alpha = CGFloat((command.arguments[8] as? Int)!)
-            let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
-            // let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0 // ignore, Android only
-            
-            // Create the session manager
-            sessionManager = CameraSessionManager()
-            
-            // Render controller setup
-            cameraRenderController = CameraRenderController()
-            cameraRenderController.dragEnabled = dragEnabled
-            cameraRenderController.tapToTakePicture = tapToTakePicture
-            cameraRenderController.tapToFocus = tapToFocus
-            cameraRenderController.sessionManager = sessionManager
-            cameraRenderController.view.frame = CGRect(x: x, y: y, width: width, height: height)
-            cameraRenderController.delegate = self
-            viewController.addChildViewController(cameraRenderController)
-            
-            if toBack {
-                // display the camera below the webview
-                // make transparent
-                webView.isOpaque = false
-                webView.backgroundColor = UIColor.clear
-                webView.superview?.addSubview(cameraRenderController.view)
-                webView.superview?.bringSubview(toFront: webView)
-            } else {
-                cameraRenderController.view.alpha = alpha
-                webView.superview?.insertSubview(cameraRenderController.view, aboveSubview: webView)
-            }
-            
-            // Setup session
-            sessionManager.delegate = cameraRenderController
-            sessionManager.setupSession(defaultCamera as? String, completion: {(_ started: Bool) -> Void in
-                self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
-            })
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
+        
+        guard command.arguments.count > 3 else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let x = (command.arguments[0] as? CGFloat ?? 0.0) + webView.frame.origin.x
+        let y = (command.arguments[1] as? CGFloat ?? 0.0) + webView.frame.origin.y
+        let width = CGFloat((command.arguments[2] as? Int)!)
+        let height = CGFloat((command.arguments[3] as? Int)!)
+        let defaultCamera = command.arguments[4]
+        let tapToTakePicture: Bool = (command.arguments[5] as? Int)! != 0
+        let dragEnabled: Bool = (command.arguments[6] as? Int)! != 0
+        let toBack: Bool = (command.arguments[7] as? Int)! != 0
+        let alpha = CGFloat((command.arguments[8] as? Int)!)
+        let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
+        // let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0 // ignore, Android only
+        
+        // Create the session manager
+        sessionManager = CameraSessionManager()
+        
+        // Render controller setup
+        cameraRenderController = CameraRenderController()
+        cameraRenderController.dragEnabled = dragEnabled
+        cameraRenderController.tapToTakePicture = tapToTakePicture
+        cameraRenderController.tapToFocus = tapToFocus
+        cameraRenderController.sessionManager = sessionManager
+        cameraRenderController.view.frame = CGRect(x: x, y: y, width: width, height: height)
+        cameraRenderController.delegate = self
+        viewController.addChildViewController(cameraRenderController)
+        
+        if toBack {
+            // display the camera below the webview
+            // make transparent
+            webView.isOpaque = false
+            webView.backgroundColor = UIColor.clear
+            webView.superview?.addSubview(cameraRenderController.view)
+            webView.superview?.bringSubview(toFront: webView)
+        } else {
+            cameraRenderController.view.alpha = alpha
+            webView.superview?.insertSubview(cameraRenderController.view, aboveSubview: webView)
+        }
+        
+        // Setup session
+        sessionManager.delegate = cameraRenderController
+        sessionManager.setupSession(defaultCamera as? String, completion: {(_ started: Bool) -> Void in
+            self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
+        })
     }
 
     func stopCamera(_ command: CDVInvokedUrlCommand) {
@@ -87,368 +88,408 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         cameraRenderController = nil
         
         commandDelegate.run(inBackground: {() -> Void in
-        
-            var pluginResult: CDVPluginResult?
-            if self.sessionManager != nil {
-            
-                for input: AVCaptureInput? in (self.sessionManager.session?.inputs as? [AVCaptureInput])! {
-                    if let anInput = input {
-                        self.sessionManager?.session?.removeInput(anInput)
-                    }
-                }
-                
-                for output: AVCaptureOutput? in (self.sessionManager.session?.outputs as? [AVCaptureOutput])! {
-                    if let anOutput = output {
-                        self.sessionManager?.session?.removeOutput(anOutput)
-                    }
-                }
-                
-                self.sessionManager.session?.stopRunning()
-                self.sessionManager = nil
-                pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-            } else {
-                pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
+            guard self.sessionManager != nil else {
+                let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
+                self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+                return
             }
+            
+            for input: AVCaptureInput? in (self.sessionManager.session?.inputs as? [AVCaptureInput])! {
+                if let anInput = input {
+                    self.sessionManager?.session?.removeInput(anInput)
+                }
+            }
+            
+            for output: AVCaptureOutput? in (self.sessionManager.session?.outputs as? [AVCaptureOutput])! {
+                if let anOutput = output {
+                    self.sessionManager?.session?.removeOutput(anOutput)
+                }
+            }
+            
+            self.sessionManager.session?.stopRunning()
+            self.sessionManager = nil
+            
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
             self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
         })
     }
 
     func hideCamera(_ command: CDVInvokedUrlCommand) {
         print("hideCamera")
-        var pluginResult: CDVPluginResult?
-        if cameraRenderController != nil {
-            cameraRenderController.view.isHidden = true
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
+        guard cameraRenderController != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        cameraRenderController.view.isHidden = true
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+    
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func showCamera(_ command: CDVInvokedUrlCommand) {
         print("showCamera")
-        var pluginResult: CDVPluginResult?
-        if cameraRenderController != nil {
-            cameraRenderController.view.isHidden = false
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
+        guard cameraRenderController != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        cameraRenderController.view.isHidden = false
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func switchCamera(_ command: CDVInvokedUrlCommand) {
         print("switchCamera")
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            sessionManager.switchCamera({(_ switched: Bool) -> Void in
-                self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
-            })
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        sessionManager.switchCamera({(_ switched: Bool) -> Void in
+            self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
+        })
     }
 
     func getSupportedFocusModes(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let focusModes = sessionManager.getFocusModes()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusModes)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let focusModes = sessionManager.getFocusModes()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusModes)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getFocusMode(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let focusMode = sessionManager.getFocusMode()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusMode)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+    
+        let focusMode = sessionManager.getFocusMode()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusMode)
+    
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
     
     func setFocusMode(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        let focusMode = command.arguments[0] as? String
-        if sessionManager != nil {
-            let focusMode = sessionManager.setFocusmode(focusMode)
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusMode)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        var focusMode = command.arguments[0] as? String
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        focusMode = sessionManager.setFocusmode(focusMode)
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusMode)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getSupportedFlashModes(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let flashModes = sessionManager.getFlashModes()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: flashModes)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+    
+        let flashModes = sessionManager.getFlashModes()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: flashModes)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getFlashMode(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let flashMode: Int = sessionManager.getFlashMode()
-            var sFlashMode: String
-            if flashMode == 0 {
-                sFlashMode = "off"
-            } else if flashMode == 1 {
-                sFlashMode = "on"
-            } else if flashMode == 2 {
-                sFlashMode = "auto"
-            } else {
-                sFlashMode = "unsupported"
-            }
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: sFlashMode)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let flashMode: Int = sessionManager.getFlashMode()
+        var sFlashMode: String
+        if flashMode == 0 {
+            sFlashMode = "off"
+        } else if flashMode == 1 {
+            sFlashMode = "on"
+        } else if flashMode == 2 {
+            sFlashMode = "auto"
+        } else {
+            sFlashMode = "unsupported"
+        }
+        
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: sFlashMode)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func setFlashMode(_ command: CDVInvokedUrlCommand) {
         print("Flash Mode")
         var errMsg = ""
-        var pluginResult: CDVPluginResult?
         let flashMode = command.arguments[0] as? String
+        
         if sessionManager != nil {
-            if flashMode == "off" {
-                sessionManager.setFlashMode(.off)
-            } else if flashMode == "on" {
-                sessionManager.setFlashMode(.on)
-            } else if flashMode == "auto" {
-                sessionManager.setFlashMode(.auto)
-            } else if flashMode == "torch" {
-                sessionManager.setTorchMode()
-            } else {
-                errMsg = "Flash Mode not supported"
-            }
-        } else {
             errMsg = "Session not started"
+            return
         }
-        if errMsg != "" {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: errMsg)
+        
+        if flashMode == "off" {
+            sessionManager.setFlashMode(.off)
+        } else if flashMode == "on" {
+            sessionManager.setFlashMode(.on)
+        } else if flashMode == "auto" {
+            sessionManager.setFlashMode(.auto)
+        } else if flashMode == "torch" {
+            sessionManager.setTorchMode()
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+            errMsg = "Flash Mode not supported"
         }
+        
+        guard errMsg != "" else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+        
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: errMsg)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func setZoom(_ command: CDVInvokedUrlCommand) {
         print("Zoom")
-        var pluginResult: CDVPluginResult?
         let desiredZoomFactor = command.arguments[0] as? CGFloat ?? 0.0
-        if sessionManager != nil {
-            sessionManager.setZoom(desiredZoomFactor)
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        sessionManager.setZoom(desiredZoomFactor)
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getZoom(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let zoom: CGFloat = sessionManager.getZoom()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(zoom))
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let zoom: CGFloat = sessionManager.getZoom()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(zoom))
+    
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
     
     func getHorizontalFOV(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let fov: Float = sessionManager.getHorizontalFOV()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(fov))
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let fov: Float = sessionManager.getHorizontalFOV()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(fov))
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getMaxZoom(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let maxZoom: CGFloat = sessionManager.getMaxZoom()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(maxZoom))
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let maxZoom: CGFloat = sessionManager.getMaxZoom()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(maxZoom))
+    
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getExposureModes(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let exposureModes = sessionManager.getExposureModes()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: exposureModes)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let exposureModes = sessionManager.getExposureModes()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: exposureModes)
+   
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getExposureMode(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let exposureMode = sessionManager.getExposureMode()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: exposureMode)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let exposureMode = sessionManager.getExposureMode()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: exposureMode)
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func setExposureMode(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        let exposureMode = command.arguments[0] as? String
-        if sessionManager != nil {
-            let exposureMode = sessionManager.setExposureMode(exposureMode)
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: exposureMode)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        var exposureMode = command.arguments[0] as? String
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        exposureMode = sessionManager.setExposureMode(exposureMode)
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: exposureMode)
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getSupportedWhiteBalanceModes(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let whiteBalanceModes = sessionManager.getSupportedWhiteBalanceModes()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: whiteBalanceModes)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        let whiteBalanceModes = sessionManager.getSupportedWhiteBalanceModes()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: whiteBalanceModes)
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getWhiteBalanceMode(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let whiteBalanceMode = sessionManager.getWhiteBalanceMode()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: whiteBalanceMode)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let whiteBalanceMode = sessionManager.getWhiteBalanceMode()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: whiteBalanceMode)
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func setWhiteBalanceMode(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
         let whiteBalanceMode = command.arguments[0] as? String
-        if sessionManager != nil {
-            let wbMode = sessionManager.setWhiteBalanceMode(whiteBalanceMode)
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: wbMode)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let wbMode = sessionManager.setWhiteBalanceMode(whiteBalanceMode)
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: wbMode)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getExposureCompensationRange(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let exposureRange = sessionManager.getExposureCompensationRange()
-            var dimensions = [AnyHashable: Any]()
-            dimensions["min"] = exposureRange?[0]
-            dimensions["max"] = exposureRange?[1]
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: dimensions)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let exposureRange = sessionManager.getExposureCompensationRange()
+        var dimensions = [AnyHashable: Any]()
+        dimensions["min"] = exposureRange?[0]
+        dimensions["max"] = exposureRange?[1]
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: dimensions)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getExposureCompensation(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let exposureCompensation: CGFloat = sessionManager.getExposureCompensation()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(exposureCompensation))
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let exposureCompensation: CGFloat = sessionManager.getExposureCompensation()
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(exposureCompensation))
+
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func setExposureCompensation(_ command: CDVInvokedUrlCommand) {
         print("Zoom")
-        var pluginResult: CDVPluginResult?
         let exposureCompensation = command.arguments[0] as? Float ?? 0.0
-        if sessionManager != nil {
-            sessionManager.setExposureCompensation(exposureCompensation)
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(exposureCompensation))
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        sessionManager.setExposureCompensation(exposureCompensation)
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(exposureCompensation))
+
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func takePicture(_ command: CDVInvokedUrlCommand) {
         print("takePicture")
-        var pluginResult: CDVPluginResult?
-        if cameraRenderController != nil {
-            onPictureTakenHandlerId = command.callbackId
-            let width = command.arguments[0] as? CGFloat ?? 0.0
-            let height = command.arguments[1]  as? CGFloat ?? 0.0
-            let quality = (command.arguments[2]  as? CGFloat  ?? 0.0) / 100.0
-            invokeTakePicture(width, withHeight: height, withQuality: quality)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
+        guard cameraRenderController != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        onPictureTakenHandlerId = command.callbackId
+        let width = command.arguments[0] as? CGFloat ?? 0.0
+        let height = command.arguments[1]  as? CGFloat ?? 0.0
+        let quality = (command.arguments[2]  as? CGFloat  ?? 0.0) / 100.0
+        invokeTakePicture(width, withHeight: height, withQuality: quality)
     }
     
     func setColorEffect(_ command: CDVInvokedUrlCommand) {
         print("setColorEffect")
         var pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         let filterName = command.arguments[0] as? String
-        if sessionManager != nil {
-            if filterName == "none" {
-                sessionManager.sessionQueue?.async(execute: {() -> Void in
-                    self.sessionManager.ciFilter = nil
-                })
-            } else if filterName == "mono" {
-                sessionManager.sessionQueue?.async(execute: {() -> Void in
-                    let filter = CIFilter(name: "CIColorMonochrome")
-                    filter?.setDefaults()
-                    self.sessionManager.ciFilter = filter
-                })
-            } else if filterName == "negative" {
-                sessionManager.sessionQueue?.async(execute: {() -> Void in
-                    let filter = CIFilter(name: "CIColorInvert")
-                    filter?.setDefaults()
-                    self.sessionManager.ciFilter = filter
-                })
-            } else if filterName == "posterize" {
-                sessionManager.sessionQueue?.async(execute: {() -> Void in
-                    let filter = CIFilter(name: "CIColorPosterize")
-                    filter?.setDefaults()
-                    self.sessionManager.ciFilter = filter
-                })
-            } else if filterName == "sepia" {
-                sessionManager.sessionQueue?.async(execute: {() -> Void in
-                    let filter = CIFilter(name: "CISepiaTone")
-                    filter?.setDefaults()
-                    self.sessionManager.ciFilter = filter
-                })
-            } else {
-                pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Filter not found")
-            }
+        
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+        
+        if filterName == "none" {
+            sessionManager.sessionQueue?.async(execute: {() -> Void in
+                self.sessionManager.ciFilter = nil
+            })
+        } else if filterName == "mono" {
+            sessionManager.sessionQueue?.async(execute: {() -> Void in
+                let filter = CIFilter(name: "CIColorMonochrome")
+                filter?.setDefaults()
+                self.sessionManager.ciFilter = filter
+            })
+        } else if filterName == "negative" {
+            sessionManager.sessionQueue?.async(execute: {() -> Void in
+                let filter = CIFilter(name: "CIColorInvert")
+                filter?.setDefaults()
+                self.sessionManager.ciFilter = filter
+            })
+        } else if filterName == "posterize" {
+            sessionManager.sessionQueue?.async(execute: {() -> Void in
+                let filter = CIFilter(name: "CIColorPosterize")
+                filter?.setDefaults()
+                self.sessionManager.ciFilter = filter
+            })
+        } else if filterName == "sepia" {
+            sessionManager.sessionQueue?.async(execute: {() -> Void in
+                let filter = CIFilter(name: "CISepiaTone")
+                filter?.setDefaults()
+                self.sessionManager.ciFilter = filter
+            })
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Filter not found")
         }
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
@@ -456,53 +497,56 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     //    0 [dimensions.width,
     //    1 dimensions.height]
     func setPreviewSize(_ command: CDVInvokedUrlCommand) {
-        var pluginResult: CDVPluginResult?
-        if sessionManager == nil {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
-        if command.arguments.count ?? 0 > 1 {
-            let width = command.arguments[0] as? CGFloat ?? 0.0
-            let height = command.arguments[1] as? CGFloat ?? 0.0
-            
-            cameraRenderController.view.frame = CGRect(x: 0, y: 0, width: width, height: height)
-            
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
+        
+        guard command.arguments.count > 1  else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let width = command.arguments[0] as? CGFloat ?? 0.0
+        let height = command.arguments[1] as? CGFloat ?? 0.0
+        
+        cameraRenderController.view.frame = CGRect(x: 0, y: 0, width: width, height: height)
+        
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
     func getSupportedPictureSizes(_ command: CDVInvokedUrlCommand) {
         print("getSupportedPictureSizes")
-        var pluginResult: CDVPluginResult?
-        if sessionManager != nil {
-            let formats  = sessionManager.getDeviceFormats() as? [AVCaptureDevice.Format];
-            var jsonFormats = [Any]()
-            var lastWidth: Int = 0
-            var lastHeight: Int = 0
-            
-            for format: AVCaptureDevice.Format in formats! {
-                let dim: CMVideoDimensions = format.highResolutionStillImageDimensions
-                if Int(dim.width) != lastWidth && Int(dim.height) != lastHeight {
-                    var dimensions = [String: Int32]()
-                    let width = dim.width
-                    let height = dim.height
-                    dimensions["width"] = width
-                    dimensions["height"] = height
-                    jsonFormats.append(dimensions)
-                    
-                    lastWidth = Int(dim.width)
-                    lastHeight = Int(dim.height)
-                }
-            }
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: jsonFormats)
-            
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+        
+        let formats  = sessionManager.getDeviceFormats() as? [AVCaptureDevice.Format];
+        var jsonFormats = [Any]()
+        var lastWidth: Int = 0
+        var lastHeight: Int = 0
+        
+        for format: AVCaptureDevice.Format in formats! {
+            let dim: CMVideoDimensions = format.highResolutionStillImageDimensions
+            if Int(dim.width) != lastWidth && Int(dim.height) != lastHeight {
+                var dimensions = [String: Int32]()
+                let width = dim.width
+                let height = dim.height
+                dimensions["width"] = width
+                dimensions["height"] = height
+                jsonFormats.append(dimensions)
+                
+                lastWidth = Int(dim.width)
+                lastHeight = Int(dim.height)
+            }
+        }
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: jsonFormats)
+
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
@@ -521,15 +565,16 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
 
     func tapToFocus(_ command: CDVInvokedUrlCommand) {
         print("tapToFocus")
-        var pluginResult: CDVPluginResult?
         let xPoint = command.arguments[0] as? CGFloat ?? 0.0
         let yPoint = command.arguments[1] as? CGFloat ?? 0.0
-        if sessionManager != nil {
-            sessionManager.tapToFocus(toFocus: xPoint, yPoint: yPoint)
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
         }
+    
+        sessionManager.tapToFocus(toFocus: xPoint, yPoint: yPoint)
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
@@ -604,11 +649,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let connection: AVCaptureConnection? = sessionManager.stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
         if let aConnection = connection {
             sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer?, _ error: Error?) -> Void in
+                
                 print("Done creating still image")
+                
                 if error != nil {
-                    if let anError = error {
-                        print("\(anError)")
-                    }
+                    print("\(error)")
                 } else {
                     var imageData: Data? = nil
                     if let aBuffer = sampleBuffer {
@@ -619,6 +664,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                         capturedImage = UIImage(data: aData)
                     }
                     var capturedCImage: CIImage?
+                    
                     //image resize
                     if width > 0 && height > 0 {
                         let scaleHeight: CGFloat = width / (capturedImage?.size.height ?? 0.0)
@@ -670,14 +716,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                     }
                     
                     let radians: Double = self.radiansFromUIImageOrientation((resultImage?.imageOrientation)!)
-                    
                     let resultFinalImage = self.cgImageRotated(finalImage!, withRadians: radians)
-                    
-                    // CGImageRelease(finalImage)  // release CGImage to remove memory leaks
-                    
                     let base64Image = self.getBase64Image(resultFinalImage!, withQuality: quality)
-                    
-                    // CGImageRelease(resultFinalImage) // release CGImage to remove memory leaks
                     
                     params.append(base64Image!)
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: params)
