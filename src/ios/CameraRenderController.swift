@@ -44,6 +44,13 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        if EAGLContext.current() === self.context {
+            EAGLContext.setCurrent(nil)
+        }
+        context = nil
+    }
+    
     override func loadView() {
         let glkView = GLKView()
         glkView.backgroundColor = UIColor.black
@@ -231,14 +238,6 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
             }
         }
     }
-
-    //    override func viewDidUnload() {
-    //        super.viewDidUnload()
-    //        if EAGLContext.current() == context {
-    //            EAGLContext.setCurrent(nil)
-    //        }
-    //        context = nil
-    //    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
