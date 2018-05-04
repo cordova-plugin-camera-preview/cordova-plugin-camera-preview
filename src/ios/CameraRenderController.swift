@@ -164,68 +164,71 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
     }
 
     func captureOutput(_ output: AVCaptureOutput, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        if renderLock.try() {
-            let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) as? CVPixelBuffer?
-            var image: CIImage? = nil
-            
-            if let aBuffer = pixelBuffer {
-                image = CIImage(cvPixelBuffer: aBuffer!)
-            }
-            let scaleHeight: CGFloat = view.frame.size.height / (image?.extent.size.height ?? 0.0)
-            let scaleWidth: CGFloat = view.frame.size.width / (image?.extent.size.width ?? 0.0)
-            
-            var scale, x, y: CGFloat
-            if scaleHeight < scaleWidth {
-                scale = scaleWidth
-                x = 0
-                y = ((scale * (image?.extent.size.height ?? 0.0)) - view.frame.size.height) / 2
-            } else {
-                scale = scaleHeight
-                x = ((scale * (image?.extent.size.width ?? 0.0)) - view.frame.size.width) / 2
-                y = 0
-            }
-            
-            // scale - translate
-            let xscale = CGAffineTransform(scaleX: scale, y: scale)
-            let xlate = CGAffineTransform(translationX: -x, y: -y)
-            let xform: CGAffineTransform = xscale.concatenating(xlate)
+        
+        DispatchQueue.main.async {
+            if self.renderLock.try() {
+                let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) as? CVPixelBuffer?
+                var image: CIImage? = nil
+                
+                if let aBuffer = pixelBuffer {
+                    image = CIImage(cvPixelBuffer: aBuffer!)
+                }
+                let scaleHeight: CGFloat = self.view.frame.size.height / (image?.extent.size.height ?? 0.0)
+                let scaleWidth: CGFloat = self.view.frame.size.width / (image?.extent.size.width ?? 0.0)
+                
+                var scale, x, y: CGFloat
+                if scaleHeight < scaleWidth {
+                    scale = scaleWidth
+                    x = 0
+                    y = ((scale * (image?.extent.size.height ?? 0.0)) - self.view.frame.size.height) / 2
+                } else {
+                    scale = scaleHeight
+                    x = ((scale * (image?.extent.size.width ?? 0.0)) - self.view.frame.size.width) / 2
+                    y = 0
+                }
+                
+                // scale - translate
+                let xscale = CGAffineTransform(scaleX: scale, y: scale)
+                let xlate = CGAffineTransform(translationX: -x, y: -y)
+                let xform: CGAffineTransform = xscale.concatenating(xlate)
 
-            let centerFilter = CIFilter(name: "CIAffineTransform")!
-            centerFilter.setValue(image, forKey: kCIInputImageKey)
-            centerFilter.setValue(NSValue(cgAffineTransform: xform), forKey: kCIInputTransformKey)
-            
-            let transformedImage: CIImage? = centerFilter.outputImage
-            
-            // crop
-            let cropFilter = CIFilter(name: "CICrop")
-            let cropRect = CIVector(x: 0, y: 0, z: view.frame.size.width, w: view.frame.size.height)
-            cropFilter?.setValue(transformedImage, forKey: kCIInputImageKey)
-            cropFilter?.setValue(cropRect, forKey: "inputRectangle")
-            var croppedImage: CIImage? = cropFilter?.outputImage
-            
-            //fix front mirroring
-            if sessionManager?.defaultCamera == .front {
-                let matrix = CGAffineTransform(scaleX: -1, y: 1).translatedBy(x: 0, y: (croppedImage?.extent.size.height)!)
-                croppedImage = croppedImage?.applying(matrix)
-            }
-            
-            latestFrame = croppedImage
-            
-            var pointScale: CGFloat
+                let centerFilter = CIFilter(name: "CIAffineTransform")!
+                centerFilter.setValue(image, forKey: kCIInputImageKey)
+                centerFilter.setValue(NSValue(cgAffineTransform: xform), forKey: kCIInputTransformKey)
+                
+                let transformedImage: CIImage? = centerFilter.outputImage
+                
+                // crop
+                let cropFilter = CIFilter(name: "CICrop")
+                let cropRect = CIVector(x: 0, y: 0, z: self.view.frame.size.width, w: self.view.frame.size.height)
+                cropFilter?.setValue(transformedImage, forKey: kCIInputImageKey)
+                cropFilter?.setValue(cropRect, forKey: "inputRectangle")
+                var croppedImage: CIImage? = cropFilter?.outputImage
+                
+                //fix front mirroring
+                if self.sessionManager?.defaultCamera == .front {
+                    let matrix = CGAffineTransform(scaleX: -1, y: 1).translatedBy(x: 0, y: (croppedImage?.extent.size.height)!)
+                    croppedImage = croppedImage?.applying(matrix)
+                }
+                
+                self.latestFrame = croppedImage
+                
+                var pointScale: CGFloat
 
-            if UIScreen.main.responds(to: #selector(getter: UIScreen.main.nativeScale)) {
-                pointScale = UIScreen.main.nativeScale
-            } else {
-                pointScale = UIScreen.main.scale
-            }
+                if UIScreen.main.responds(to: #selector(getter: UIScreen.main.nativeScale)) {
+                    pointScale = UIScreen.main.nativeScale
+                } else {
+                    pointScale = UIScreen.main.scale
+                }
 
-            let dest = CGRect(x: 0, y: 0, width: view.frame.size.width * pointScale, height: view.frame.size.height * pointScale)
-            if let anImage = croppedImage {
-                ciContext?.draw(anImage, in: dest, from: croppedImage?.extent ?? CGRect.zero)
+                let dest = CGRect(x: 0, y: 0, width: self.view.frame.size.width * pointScale, height: self.view.frame.size.height * pointScale)
+                if let anImage = croppedImage {
+                    self.ciContext?.draw(anImage, in: dest, from: croppedImage?.extent ?? CGRect.zero)
+                }
+                self.context?.presentRenderbuffer(Int(GL_RENDERBUFFER))
+                (self.view as? GLKView)?.display()
+                self.renderLock.unlock()
             }
-            context?.presentRenderbuffer(Int(GL_RENDERBUFFER))
-            (view as? GLKView)?.display()
-            renderLock.unlock()
         }
     }
 
