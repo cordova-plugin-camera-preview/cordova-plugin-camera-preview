@@ -82,13 +82,15 @@ class CameraSessionManager: NSObject {
         return (videoDevice?.formats)!
     }
 
-    func getCurrentOrientation() -> AVCaptureVideoOrientation {
-        return getCurrentOrientation(UIApplication.shared.statusBarOrientation)
+    func getCurrentOrientation(completion: @escaping (AVCaptureVideoOrientation) -> Void) {
+        DispatchQueue.main.async(execute: {
+            let orientation = self.getCurrentOrientation(UIApplication.shared.statusBarOrientation)
+            completion(orientation)
+        })
     }
 
     func getCurrentOrientation(_ toInterfaceOrientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation {
         var orientation: AVCaptureVideoOrientation
-        
         
         switch toInterfaceOrientation {
             case .portraitUpsideDown:
@@ -159,7 +161,7 @@ class CameraSessionManager: NSObject {
                 dataOutput.setSampleBufferDelegate(self.delegate as! AVCaptureVideoDataOutputSampleBufferDelegate, queue: self.sessionQueue)
                 self.session?.addOutput(dataOutput)
             }
-            self.updateOrientation(self.getCurrentOrientation())
+            self.getCurrentOrientation(completion: self.updateOrientation)
             self.device = videoDevice
             completion(success)
         })
@@ -224,7 +226,7 @@ class CameraSessionManager: NSObject {
                 self.videoDeviceInput = videoDeviceInput
             }
 
-            self.updateOrientation(self.getCurrentOrientation())
+            self.getCurrentOrientation(completion: self.updateOrientation)
             self.session?.commitConfiguration()
             self.device = videoDevice
             completion(success)
