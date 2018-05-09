@@ -628,11 +628,14 @@ class CameraSessionManager: NSObject {
 
     func tapToFocus(toFocus xPoint: CGFloat, yPoint: CGFloat) {
         try! device?.lockForConfiguration()
+        
         let screenRect: CGRect = UIScreen.main.bounds
         let screenWidth: CGFloat = screenRect.size.width
         let screenHeight: CGFloat = screenRect.size.height
-        let focus_x: CGFloat = xPoint / screenWidth
-        let focus_y: CGFloat = yPoint / screenHeight
+        
+        // This coordinates are always relative to a landscape device orientation with the home button on the right, regardless of the actual device orientation.
+        let focus_x: CGFloat = yPoint / screenHeight
+        let focus_y: CGFloat = (screenWidth - xPoint) / screenWidth
         if (device?.isFocusModeSupported(.autoFocus))! {
             device?.focusPointOfInterest = CGPoint(x: focus_x, y: focus_y)
             device?.focusMode = .autoFocus
