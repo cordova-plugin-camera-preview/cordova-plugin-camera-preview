@@ -91,6 +91,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         this.execCallback = callbackContext;
         this.execArgs = args;
         cordova.requestPermissions(this, CAM_REQ_CODE, permissions);
+        return true;
       }
     } else if (TAKE_PICTURE_ACTION.equals(action)) {
       return takePicture(args.getInt(0), args.getInt(1), args.getInt(2), callbackContext);
