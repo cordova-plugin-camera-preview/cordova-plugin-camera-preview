@@ -94,23 +94,23 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 return
             }
             
-            for input: AVCaptureInput? in (self.sessionManager.session?.inputs as? [AVCaptureInput])! {
-                if let anInput = input {
-                    self.sessionManager?.session?.removeInput(anInput)
+            if let inputs = self.sessionManager.session?.inputs as? [AVCaptureInput] {
+                for input in inputs {
+                    self.sessionManager.session?.removeInput(input)
                 }
             }
             
-            for output: AVCaptureOutput? in (self.sessionManager.session?.outputs as? [AVCaptureOutput])! {
-                if let anOutput = output {
-                    self.sessionManager?.session?.removeOutput(anOutput)
+
+            if let outputs = self.sessionManager.session?.outputs as? [AVCaptureOutput] {
+                for output in outputs {
+                    self.sessionManager.session?.removeOutput(output)
                 }
             }
-            
+
             self.sessionManager.session?.stopRunning()
             self.sessionManager = nil
-            
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+
+            self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
         })
     }
 
