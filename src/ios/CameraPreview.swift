@@ -557,7 +557,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             return
         }
         
-        let formats  = sessionManager.getDeviceFormats() as? [AVCaptureDevice.Format];
+        let formats = sessionManager.getDeviceFormats() as? [AVCaptureDevice.Format];
         var jsonFormats = [Any]()
         var lastWidth: Int = 0
         var lastHeight: Int = 0
@@ -676,7 +676,41 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         sessionManager.takePictureOnFocus()
     }
 
+    func setDeviceFormat(_ width: CGFloat, height: CGFloat) {
+        let error: Error? = nil
+        var foundFormat: AVCaptureDevice.Format? = nil
+        
+        let formats = sessionManager.getDeviceFormats() as? [AVCaptureDevice.Format];
+        for format: AVCaptureDevice.Format in formats! {
+            let dim: CMVideoDimensions = format.highResolutionStillImageDimensions
+            if dim.width == Int32(width) && dim.height == Int32(height) {
+                foundFormat = format
+            }
+        }
+        
+        if foundFormat != nil {
+            if try! sessionManager.device?.lockForConfiguration() != nil {
+                sessionManager.device?.activeFormat = foundFormat
+                sessionManager.device?.unlockForConfiguration()
+            } else {
+                if let anError = error {
+                    print("\(anError)")
+                }
+            }
+        } else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Format not supported for this device, call getSupportedPictureSizes() to get all supported formats.")
+            commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
+        }
+        
+    }
+    
     func invokeTakePicture(_ width: CGFloat, withHeight height: CGFloat, withQuality quality: CGFloat) {
+    
+        // Set device format matching given width and height
+        if width > 0 && height > 0 {
+            setDeviceFormat(width, height: height)
+        }
+        
         let connection: AVCaptureConnection? = sessionManager.stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
         if let aConnection = connection {
 
@@ -704,23 +738,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                     }
                     var capturedCImage: CIImage?
                     
-                    //image resize
-                    if width > 0 && height > 0 {
-                        let scaleHeight: CGFloat = width / (capturedImage?.size.height ?? 0.0)
-                        let scaleWidth: CGFloat = height / (capturedImage?.size.width ?? 0.0)
-                        let scale: CGFloat = scaleHeight > scaleWidth ? scaleWidth : scaleHeight
-                        let resizeFilter = CIFilter(name: "CILanczosScaleTransform")
-                        if let anImage = capturedImage?.cgImage {
-                            resizeFilter?.setValue(CIImage(cgImage: anImage), forKey: kCIInputImageKey)
-                        }
-                        resizeFilter?.setValue(1.0, forKey: "inputAspectRatio")
-                        resizeFilter?.setValue(scale, forKey: "inputScale")
-                        capturedCImage = resizeFilter?.outputImage
-                    } else {
-                        if let anImage = capturedImage?.cgImage {
-                            capturedCImage = CIImage(cgImage: anImage)
-                        }
-                    }
                     var imageToFilter: CIImage?
                     var finalCImage: CIImage?
                     
