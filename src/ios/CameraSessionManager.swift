@@ -81,31 +81,6 @@ class CameraSessionManager: NSObject {
         let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         return (videoDevice?.formats)!
     }
-
-    func getCurrentOrientation(completion: @escaping (AVCaptureVideoOrientation) -> Void) {
-        DispatchQueue.main.async(execute: {
-            let orientation = self.getCurrentOrientation(UIApplication.shared.statusBarOrientation)
-            completion(orientation)
-        })
-    }
-
-    func getCurrentOrientation(_ toInterfaceOrientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation {
-        var orientation: AVCaptureVideoOrientation
-        
-        switch toInterfaceOrientation {
-            case .portraitUpsideDown:
-                orientation = .portraitUpsideDown
-            case .landscapeRight:
-                orientation = .landscapeRight
-            case .landscapeLeft:
-                orientation = .landscapeLeft
-            case .portrait:
-                orientation = .portrait
-            default:
-                orientation = .portrait
-        }
-        return orientation
-    }
     
     func setupSession(_ defaultCamera: String?, completion: @escaping (_ started: Bool) -> Void) {
         // If this fails, video input will just stream blank frames and the user will be notified. User only has to accept once.
@@ -161,7 +136,7 @@ class CameraSessionManager: NSObject {
                 dataOutput.setSampleBufferDelegate(self.delegate as! AVCaptureVideoDataOutputSampleBufferDelegate, queue: self.sessionQueue)
                 self.session?.addOutput(dataOutput)
             }
-            self.getCurrentOrientation(completion: self.updateOrientation)
+            
             self.device = videoDevice
             completion(success)
         })
@@ -226,7 +201,6 @@ class CameraSessionManager: NSObject {
                 self.videoDeviceInput = videoDeviceInput
             }
 
-            self.getCurrentOrientation(completion: self.updateOrientation)
             self.session?.commitConfiguration()
             self.device = videoDevice
             completion(success)

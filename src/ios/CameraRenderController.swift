@@ -247,10 +247,6 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
     override var shouldAutorotate: Bool {
         return true
     }
-
-    override func willRotate(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
-        sessionManager?.updateOrientation((sessionManager?.getCurrentOrientation(toInterfaceOrientation))!)
-    }
 }
 
 
