@@ -581,11 +581,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
-    func getBase64Image(_ imageRef: CGImage, withQuality quality: CGFloat) -> String? {
+    func getBase64Image(_ image: UIImage, withQuality quality: CGFloat) -> String? {
         var base64Image: String? = nil
-        
         do {
-            let image = UIImage(cgImage: imageRef)
             let imageData = UIImageJPEGRepresentation(image, quality)
             base64Image = imageData?.base64EncodedString(options: [])
         } catch let exception {
@@ -603,64 +601,10 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
-    
+
         sessionManager.tapToFocus(toFocus: xPoint, yPoint: yPoint)
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
-    }
-
-    func radiansFromUIImageOrientation(_ orientation: UIImageOrientation) -> Double {
-        var radians: Double
-        switch UIApplication.shared.statusBarOrientation {
-            case .portrait:
-                radians = .pi / 2
-            case .landscapeLeft:
-                radians = 0.0
-            case .landscapeRight:
-                radians = .pi
-            case .portraitUpsideDown:
-                radians = -.pi / 2
-            case .unknown:
-                radians = .pi / 2
-        }
-        return radians
-    }
-
-    func cgImageRotated(_ originalCGImage: CGImage, withRadians radians: Double) -> CGImage? {
-        let imageSize = CGSize(width: originalCGImage.width, height: originalCGImage.height)
-        var rotatedSize: CGSize
-        if radians == .pi / 2 || radians == -.pi / 2 {
-            rotatedSize = CGSize(width: imageSize.height, height: imageSize.width)
-        } else {
-            rotatedSize = imageSize
-        }
-        let rotatedCenterX = CGFloat(rotatedSize.width / 2.0)
-        let rotatedCenterY = CGFloat(rotatedSize.height / 2.0)
-        UIGraphicsBeginImageContextWithOptions(rotatedSize, false, 1.0)
-        let rotatedContext = UIGraphicsGetCurrentContext()
-        if radians == 0.0 || radians == .pi {
-            // 0 or 180 degrees
-            rotatedContext?.translateBy(x: CGFloat(rotatedCenterX), y: rotatedCenterY)
-            if radians == 0.0 {
-                rotatedContext?.scaleBy(x: 1.0, y: -1.0)
-            } else {
-                rotatedContext?.scaleBy(x: -1.0, y: 1.0)
-            }
-            rotatedContext?.translateBy(x: -rotatedCenterX, y: -rotatedCenterY)
-        } else if radians == .pi / 2 || radians == -.pi / 2 {
-            // +/- 90 degrees
-            rotatedContext?.translateBy(x: CGFloat(rotatedCenterX), y: rotatedCenterY)
-            rotatedContext?.rotate(by: CGFloat(radians))
-            rotatedContext?.scaleBy(x: 1.0, y: -1.0)
-            rotatedContext?.translateBy(x: -rotatedCenterY, y: -rotatedCenterX)
-        }
-        let drawingRect = CGRect(x: 0.0, y: 0.0, width: imageSize.width, height: imageSize.height)
-        rotatedContext?.draw(originalCGImage, in: drawingRect)
-        let rotatedCGImage = rotatedContext?.makeImage()
-        
-        UIGraphicsEndImageContext()
-        
-        return rotatedCGImage
     }
 
     func invokeTap(toFocus point: CGPoint) {
@@ -752,20 +696,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                     }
                     
                     var params = [AnyHashable]()
-                    
-                    var finalImage: CGImage? = nil
-                    if let anImage = finalCImage {
-                        finalImage = self.cameraRenderController.ciContext?.createCGImage(anImage, from: finalCImage?.extent ?? CGRect.zero)
-                    }
-                    
-                    var resultImage: UIImage? = nil
-                    if let anImage = finalImage {
-                        resultImage = UIImage(cgImage: anImage)
-                    }
-                    
-                    let radians: Double = self.radiansFromUIImageOrientation((resultImage?.imageOrientation)!)
-                    let resultFinalImage = self.cgImageRotated(finalImage!, withRadians: radians)
-                    let base64Image = self.getBase64Image(resultFinalImage!, withQuality: quality)
+                    let base64Image = self.getBase64Image(capturedImage!, withQuality: quality)
                     
                     params.append(base64Image!)
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: params)
