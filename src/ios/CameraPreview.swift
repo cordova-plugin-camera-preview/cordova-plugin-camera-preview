@@ -1,11 +1,13 @@
-//import Cordova
 import AVFoundation
+import CoreMotion
 
 @objc(CameraPreview)
 class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     var sessionManager: CameraSessionManager!
     var cameraRenderController: CameraRenderController!
     var onPictureTakenHandlerId = ""
+    var motionManager: CMMotionManager!
+    var accelerometerOrientation: AVCaptureVideoOrientation?
     
     override func pluginInitialize() {
         // start as transparent
@@ -30,6 +32,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
+        
+        self.startAccelerometerOrientation()
         
         guard command.arguments.count > 3 else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
@@ -80,15 +84,42 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
         })
     }
+    
+    func startAccelerometerOrientation() {
+        print("--> startAccelerometerOrientation")
+        motionManager = CMMotionManager()
+        motionManager.accelerometerUpdateInterval = 0.2
+        motionManager.startAccelerometerUpdates(to: OperationQueue() ) { p, _ in
+            if p != nil {
+                if abs(p!.acceleration.y) < abs(p!.acceleration.x) {
+                    if p!.acceleration.x > 0 {
+                        self.accelerometerOrientation = .landscapeLeft
+                    } else {
+                        self.accelerometerOrientation = .landscapeRight
+                    }
+                } else {
+                    if p!.acceleration.y > 0 {
+                        self.accelerometerOrientation = .portraitUpsideDown
+                    } else {
+                        self.accelerometerOrientation = .portrait
+                    }
+                }
+            }
+        }
+    }
 
     func stopCamera(_ command: CDVInvokedUrlCommand) {
-        print("stopCamera")
+        print("--> stopCamera")
         cameraRenderController.view.removeFromSuperview()
         cameraRenderController.removeFromParentViewController()
         cameraRenderController = nil
         
+        motionManager.stopAccelerometerUpdates()
+        motionManager = nil
+
         commandDelegate.run(inBackground: {() -> Void in
             guard self.sessionManager != nil else {
+                print("--> Camera not started")
                 let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
                 self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
                 return
@@ -648,7 +679,12 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     func invokeTakePicture(_ width: CGFloat, withHeight height: CGFloat, withQuality quality: CGFloat) {
         let connection: AVCaptureConnection? = sessionManager.stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
         if let aConnection = connection {
-            sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer?, _ error: Error?) -> Void in
+
+            // Set orientation
+            connection?.videoOrientation = self.accelerometerOrientation!
+            
+            // Capture image
+            sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer!, _ error: Error?) -> Void in
                 
                 print("Done creating still image")
                 
