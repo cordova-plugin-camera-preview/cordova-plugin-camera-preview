@@ -683,6 +683,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             // Set orientation
             connection?.videoOrientation = self.accelerometerOrientation!
             
+            // Fix front mirroring
+            connection?.isVideoMirrored = sessionManager.device?.position == AVCaptureDevicePosition.front
+            
             // Capture image
             sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer!, _ error: Error?) -> Void in
                 
@@ -720,14 +723,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                     }
                     var imageToFilter: CIImage?
                     var finalCImage: CIImage?
-                    
-                    //fix front mirroring
-                    if self.sessionManager.defaultCamera == .front {
-                        let matrix = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: (capturedCImage?.extent.size.height)!)
-                        imageToFilter = capturedCImage?.applying(matrix)
-                    } else {
-                        imageToFilter = capturedCImage
-                    }
                     
                     let filter: CIFilter? = self.sessionManager.ciFilter
                     if filter != nil {
