@@ -10,6 +10,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.util.Base64;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.os.AsyncTask;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -404,55 +405,70 @@ public class CameraActivity extends Fragment {
   }
 
   PictureCallback jpegPictureCallback = new PictureCallback(){
-    public void onPictureTaken(byte[] data, Camera arg1){
-      Log.d(TAG, "CameraPreview jpegPictureCallback");
 
-      try {
-        if (!disableExifHeaderStripping) {
-          Matrix matrix = new Matrix();
-          if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            matrix.preScale(1.0f, -1.0f);
-          }
-
-          ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
-          int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-          int rotationInDegrees = exifToDegrees(rotation);
-
-          if (rotation != 0f) {
-            matrix.preRotate(rotationInDegrees);
-          }
-
-          // Check if matrix has changed. In that case, apply matrix and override data
-          if (!matrix.isIdentity()) {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            bitmap = applyMatrix(bitmap, matrix);
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, currentQuality, outputStream);
-            data = outputStream.toByteArray();
-          }
-        }
-
-        String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
-
-        eventListener.onPictureTaken(encodedImage);
-        Log.d(TAG, "CameraPreview pictureTakenHandler called back");
-      } catch (OutOfMemoryError e) {
-        // most likely failed to allocate memory for rotateBitmap
-        Log.d(TAG, "CameraPreview OutOfMemoryError");
-        // failed to allocate memory
-        eventListener.onPictureTakenError("Picture too large (memory)");
-      } catch (IOException e) {
-        Log.d(TAG, "CameraPreview IOException");
-        eventListener.onPictureTakenError("IO Error when extracting exif");
-      } catch (Exception e) {
-        Log.d(TAG, "CameraPreview onPictureTaken general exception");
-      } finally {
-        canTakePicture = true;
-        mCamera.startPreview();
+      public void onPictureTaken( byte[] data, Camera arg1) {
+          new RotateImageIfNecessary().execute(data);
+          mCamera.startPreview();
       }
-    }
   };
+
+    class RotateImageIfNecessary extends AsyncTask<byte[], String, String> {
+        @Override
+        protected String doInBackground(byte[][] params) {
+
+            byte[] data = params[0];
+
+            try {
+
+                if (!disableExifHeaderStripping) {
+                    Matrix matrix = new Matrix();
+                    if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                        Log.d(TAG, "CameraPreview cameraCurrentlyLocked");
+                        matrix.preScale(1.0f, -1.0f);
+                    }
+
+                    ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
+                    int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                    int rotationInDegrees = exifToDegrees(rotation);
+
+                    if (rotation != 0f) {
+                        Log.d(TAG, "CameraPreview rotation");
+                        matrix.preRotate(rotationInDegrees);
+                    }
+
+                    // Check if matrix has changed. In that case, apply matrix and override data
+                    if (!matrix.isIdentity()) {
+                        Log.d(TAG, "CameraPreview MatrixIsIdentity");
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        bitmap = applyMatrix(bitmap, matrix);
+
+                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, currentQuality, outputStream);
+                        data = outputStream.toByteArray();
+                    }
+                }
+
+                String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
+
+                eventListener.onPictureTaken(encodedImage);
+                Log.d(TAG, "CameraPreview pictureTakenHandler called back");
+
+            } catch (OutOfMemoryError e) {
+                // most likely failed to allocate memory for rotateBitmap
+                Log.d(TAG, "CameraPreview OutOfMemoryError");
+                // failed to allocate memory
+                eventListener.onPictureTakenError("Picture too large (memory)");
+            } catch (IOException e) {
+                Log.d(TAG, "CameraPreview IOException");
+                eventListener.onPictureTakenError("IO Error when extracting exif");
+            } catch (Exception e) {
+                Log.d(TAG, "CameraPreview onPictureTaken general exception");
+            } finally {
+                canTakePicture = true;
+                return null;
+            }
+        }
+    }
 
   private Camera.Size getOptimalPictureSize(final int width, final int height, final Camera.Size previewSize, final List<Camera.Size> supportedSizes){
     /*
