@@ -17,7 +17,6 @@ class CameraSessionManager: NSObject {
     var device: AVCaptureDevice?
     var videoDeviceInput: AVCaptureDeviceInput?
     var stillImageOutput: AVCaptureStillImageOutput?
-    var dataOutput: AVCaptureVideoDataOutput?
     var delegate: CameraRenderController?
     var currentWhiteBalanceMode = ""
     var colorTemperatures = [String: TemperatureAndTint]()
@@ -128,14 +127,6 @@ class CameraSessionManager: NSObject {
                 stillImageOutput.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
                 self.stillImageOutput = stillImageOutput
             }
-            let dataOutput = AVCaptureVideoDataOutput()
-            if (self.session?.canAddOutput(dataOutput))! {
-                self.dataOutput = dataOutput
-                dataOutput.alwaysDiscardsLateVideoFrames = true
-                dataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey : kCVPixelFormatType_32BGRA]
-                dataOutput.setSampleBufferDelegate(self.delegate as! AVCaptureVideoDataOutputSampleBufferDelegate, queue: self.sessionQueue)
-                self.session?.addOutput(dataOutput)
-            }
             
             self.device = videoDevice
             completion(success)
@@ -146,12 +137,6 @@ class CameraSessionManager: NSObject {
         var captureConnection: AVCaptureConnection?
         if stillImageOutput != nil {
             captureConnection = stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
-            if captureConnection?.isVideoOrientationSupported != nil {
-                captureConnection?.videoOrientation = orientation
-            }
-        }
-        if dataOutput != nil {
-            captureConnection = dataOutput?.connection(withMediaType: AVMediaTypeVideo)
             if captureConnection?.isVideoOrientationSupported != nil {
                 captureConnection?.videoOrientation = orientation
             }

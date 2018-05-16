@@ -170,6 +170,7 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
         })
     }
 
+    // MARK: <AVCaptureVideoDataOutputSampleBufferDelegate
     func captureOutput(_ output: AVCaptureOutput, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         
         DispatchQueue.main.async {
@@ -194,7 +195,7 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
                     y = 0
                 }
                 
-                // scale - translate
+                // Scale - translate
                 let xscale = CGAffineTransform(scaleX: scale, y: scale)
                 let xlate = CGAffineTransform(translationX: -x, y: -y)
                 let xform: CGAffineTransform = xscale.concatenating(xlate)
@@ -205,14 +206,14 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
                 
                 let transformedImage: CIImage? = centerFilter.outputImage
                 
-                // crop
+                // Crop
                 let cropFilter = CIFilter(name: "CICrop")
                 let cropRect = CIVector(x: 0, y: 0, z: self.view.frame.size.width, w: self.view.frame.size.height)
                 cropFilter?.setValue(transformedImage, forKey: kCIInputImageKey)
                 cropFilter?.setValue(cropRect, forKey: "inputRectangle")
                 var croppedImage: CIImage? = cropFilter?.outputImage
                 
-                //fix front mirroring
+                // Fix front mirroring
                 if self.sessionManager?.defaultCamera == .front {
                     let matrix = CGAffineTransform(scaleX: -1, y: 1).translatedBy(x: 0, y: (croppedImage?.extent.size.height)!)
                     croppedImage = croppedImage?.applying(matrix)

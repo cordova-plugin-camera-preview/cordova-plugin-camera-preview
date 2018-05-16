@@ -66,6 +66,12 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         cameraRenderController.delegate = self
         viewController.addChildViewController(cameraRenderController)
         
+        // Add video preview layer
+        let previewLayer = AVCaptureVideoPreviewLayer(session: sessionManager?.session!)
+        previewLayer?.frame = cameraRenderController.view.frame
+        print(cameraRenderController.view.bounds)
+        cameraRenderController.view.layer.addSublayer(previewLayer!)
+        
         if toBack {
             // display the camera below the webview
             // make transparent
