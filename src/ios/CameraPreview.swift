@@ -612,9 +612,12 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             return
         }
 
-        sessionManager.tapToFocus(toFocus: xPoint, yPoint: yPoint)
-        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        commandDelegate.send(pluginResult, callbackId: command.callbackId)
+        var completion = {() -> Void in
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+        }
+        sessionManager.tapToFocus(toFocus: xPoint, yPoint: yPoint, completion: &completion)
+        
     }
     
     func radiansFromUIImageOrientation(_ orientation: UIImageOrientation) -> Double {
@@ -670,7 +673,10 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
     
     func invokeTap(toFocus point: CGPoint) {
-        sessionManager.tapToFocus(toFocus: point.x, yPoint: point.y)
+        var completion = {() -> Void in
+            print("Focus ended")
+        }
+        sessionManager.tapToFocus(toFocus: point.x, yPoint: point.y, completion: &completion)
     }
 
     func invokeTakePicture() {

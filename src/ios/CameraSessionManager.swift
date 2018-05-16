@@ -20,7 +20,8 @@ class CameraSessionManager: NSObject {
     var delegate: CameraRenderController?
     var currentWhiteBalanceMode = ""
     var colorTemperatures = [String: TemperatureAndTint]()
-
+    var onTapToFocusDoneCompletion: (() -> Void)?
+    
     override init() {
         super.init()
 
@@ -569,12 +570,13 @@ class CameraSessionManager: NSObject {
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        // removes the observer, when the camera is done focusing.
-        if (keyPath == "adjustingFocus") {
+        if keyPath == "adjustingFocus" {
             let adjustingFocus: Bool = change?[.newKey] as? Int == 1
+            print(adjustingFocus)
             if !adjustingFocus {
+                self.onTapToFocusDone()
+                // Remove the observer when the camera is done focusing
                 device?.removeObserver(self, forKeyPath: "adjustingFocus")
-                delegate?.onFocus()
             }
         }
     }
@@ -585,7 +587,7 @@ class CameraSessionManager: NSObject {
         device?.addObserver(self, forKeyPath: "adjustingFocus", options: flag, context: nil)
     }
 
-    func tapToFocus(toFocus xPoint: CGFloat, yPoint: CGFloat) {
+    func tapToFocus(toFocus xPoint: CGFloat, yPoint: CGFloat,  completion: inout () -> Void) {
         try! device?.lockForConfiguration()
         
         let screenRect: CGRect = UIScreen.main.bounds
@@ -595,15 +597,23 @@ class CameraSessionManager: NSObject {
         // This coordinates are always relative to a landscape device orientation with the home button on the right, regardless of the actual device orientation.
         let focus_x: CGFloat = yPoint / screenHeight
         let focus_y: CGFloat = (screenWidth - xPoint) / screenWidth
+        
         if (device?.isFocusModeSupported(.autoFocus))! {
             device?.focusPointOfInterest = CGPoint(x: focus_x, y: focus_y)
             device?.focusMode = .autoFocus
+            
+            self.onTapToFocusDoneCompletion = completion
+            device?.addObserver(self, forKeyPath: "adjustingFocus", options: [.new], context: nil)
         }
         if (device?.isExposureModeSupported(.autoExpose))! {
             device?.exposurePointOfInterest = CGPoint(x: focus_x, y: focus_y)
             device?.exposureMode = .autoExpose
         }
         device?.unlockForConfiguration()
+    }
+    
+    func onTapToFocusDone() {
+        self.onTapToFocusDoneCompletion?()
     }
 
     func checkDeviceAuthorizationStatus() {
