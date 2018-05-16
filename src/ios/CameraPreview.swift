@@ -616,7 +616,59 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
+    
+    func radiansFromUIImageOrientation(_ orientation: UIImageOrientation) -> Double {
+        var radians: Double
+        switch self.accelerometerOrientation! {
+            case .portrait:
+                radians = .pi / 2
+            case .landscapeLeft:
+                radians = .pi
+            case .landscapeRight:
+                radians = 0.0
+            case .portraitUpsideDown:
+                radians = -.pi / 2
+        }
+        return radians
+    }
 
+    func cgImageRotated(_ originalCGImage: CGImage, withRadians radians: Double) -> CGImage? {
+        let imageSize = CGSize(width: originalCGImage.width, height: originalCGImage.height)
+        var rotatedSize: CGSize
+        if radians == .pi / 2 || radians == -.pi / 2 {
+            rotatedSize = CGSize(width: imageSize.height, height: imageSize.width)
+        } else {
+            rotatedSize = imageSize
+        }
+        let rotatedCenterX = CGFloat(rotatedSize.width / 2.0)
+        let rotatedCenterY = CGFloat(rotatedSize.height / 2.0)
+        UIGraphicsBeginImageContextWithOptions(rotatedSize, false, 1.0)
+        let rotatedContext = UIGraphicsGetCurrentContext()
+        if radians == 0.0 || radians == .pi {
+            // 0 or 180 degrees
+            rotatedContext?.translateBy(x: CGFloat(rotatedCenterX), y: rotatedCenterY)
+            if radians == 0.0 {
+                rotatedContext?.scaleBy(x: 1.0, y: -1.0)
+            } else {
+                rotatedContext?.scaleBy(x: -1.0, y: 1.0)
+            }
+            rotatedContext?.translateBy(x: -rotatedCenterX, y: -rotatedCenterY)
+        } else if radians == .pi / 2 || radians == -.pi / 2 {
+            // +/- 90 degrees
+            rotatedContext?.translateBy(x: CGFloat(rotatedCenterX), y: rotatedCenterY)
+            rotatedContext?.rotate(by: CGFloat(radians))
+            rotatedContext?.scaleBy(x: 1.0, y: -1.0)
+            rotatedContext?.translateBy(x: -rotatedCenterY, y: -rotatedCenterX)
+        }
+        let drawingRect = CGRect(x: 0.0, y: 0.0, width: imageSize.width, height: imageSize.height)
+        rotatedContext?.draw(originalCGImage, in: drawingRect)
+        let rotatedCGImage = rotatedContext?.makeImage()
+    
+        UIGraphicsEndImageContext()
+    
+        return rotatedCGImage
+    }
+    
     func invokeTap(toFocus point: CGPoint) {
         sessionManager.tapToFocus(toFocus: point.x, yPoint: point.y)
     }
@@ -680,35 +732,29 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer!, _ error: Error?) -> Void in
                 
                 print("Done creating still image")
-                
                 if error != nil {
                     print("\(error)")
                 } else {
-                    var imageData: Data? = nil
-                    if let aBuffer = sampleBuffer {
-                        imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(aBuffer)
-                    }
-                    var capturedImage: UIImage? = nil
-                    if let aData = imageData {
-                        capturedImage = UIImage(data: aData)
-                    }
-                    var capturedCImage: CIImage?
+                    let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
+
+                    let capturedImage = UIImage(data: imageData!)
+                    var finalImage: UIImage? = nil
                     
-                    var imageToFilter: CIImage?
-                    var finalCImage: CIImage?
-                    
+                    // Apply filters if needed
                     let filter: CIFilter? = self.sessionManager.ciFilter
+                    var finalCGImage: CGImage? = nil
                     if filter != nil {
+                        let imageToFilter = CIImage(cgImage: (capturedImage?.cgImage)!)
                         self.sessionManager.filterLock?.lock()
                         filter?.setValue(imageToFilter, forKey: kCIInputImageKey)
-                        finalCImage = filter?.outputImage
+                        let filteredCImage = filter?.outputImage
                         self.sessionManager.filterLock?.unlock()
+                        finalCGImage = self.cameraRenderController.ciContext?.createCGImage(filteredCImage!, from: filteredCImage?.extent ?? CGRect.zero)
+                        finalImage = UIImage(cgImage: finalCGImage!)
                     } else {
-                        finalCImage = imageToFilter
+                        finalImage = capturedImage
                     }
                     
-                    var params = [AnyHashable]()
-                    let base64Image = self.getBase64Image(capturedImage!, withQuality: quality)
                     // Rotate image if EXIF stripping not disabled
                     if !self.cameraRenderController.disableExifHeaderStripping {
                         let ciImage = CIImage(image: finalImage!)
@@ -718,7 +764,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                         finalImage = UIImage(cgImage: imageRotated!)
                     }
                     
+                    // Export to Base64
+                    var params = [AnyHashable]()
+                    let base64Image = self.getBase64Image(finalImage!, withQuality: quality)
                     params.append(base64Image!)
+                    
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: params)
                     pluginResult?.setKeepCallbackAs(true)
                     self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
