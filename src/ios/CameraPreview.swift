@@ -260,33 +260,36 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
 
     func setFlashMode(_ command: CDVInvokedUrlCommand) {
         print("Flash Mode")
-        var errMsg = ""
-        let flashMode = command.arguments[0] as? String
-        
-        if sessionManager != nil {
-            errMsg = "Session not started"
-            return
-        }
-        
-        if flashMode == "off" {
-            sessionManager.setFlashMode(.off)
-        } else if flashMode == "on" {
-            sessionManager.setFlashMode(.on)
-        } else if flashMode == "auto" {
-            sessionManager.setFlashMode(.auto)
-        } else if flashMode == "torch" {
-            sessionManager.setTorchMode()
-        } else {
-            errMsg = "Flash Mode not supported"
-        }
-        
-        guard errMsg != "" else {
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
         
-        let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: errMsg)
+        var errMsg = ""
+        let flashMode = command.arguments[0] as? String
+        
+        if let flashMode = flashMode {
+            if flashMode == "off" {
+                sessionManager.setFlashMode(.off)
+            } else if flashMode == "on" {
+                sessionManager.setFlashMode(.on)
+            } else if flashMode == "auto" {
+                sessionManager.setFlashMode(.auto)
+            } else if flashMode == "torch" {
+                sessionManager.setTorchMode()
+            } else {
+                errMsg = "Flash Mode not supported"
+            }
+        }
+        
+        if errMsg != "" {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: errMsg)
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+        
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
