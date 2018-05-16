@@ -51,7 +51,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let toBack: Bool = (command.arguments[7] as? Int)! != 0
         let alpha = CGFloat((command.arguments[8] as? Int)!)
         let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
-        // let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0 // ignore, Android only
+        let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0
         
         // Create the session manager
         sessionManager = CameraSessionManager()
@@ -61,6 +61,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         cameraRenderController.dragEnabled = dragEnabled
         cameraRenderController.tapToTakePicture = tapToTakePicture
         cameraRenderController.tapToFocus = tapToFocus
+        cameraRenderController.disableExifHeaderStripping = disableExifHeaderStripping
         cameraRenderController.sessionManager = sessionManager
         cameraRenderController.view.frame = CGRect(x: x, y: y, width: width, height: height)
         cameraRenderController.delegate = self
@@ -668,8 +669,10 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         if let aConnection = connection {
 
             // Set orientation
-            connection?.videoOrientation = self.accelerometerOrientation!
-            
+            if self.cameraRenderController.disableExifHeaderStripping {
+                sessionManager.updateOrientation(self.accelerometerOrientation!)
+            }
+        
             // Fix front mirroring
             connection?.isVideoMirrored = sessionManager.device?.position == AVCaptureDevicePosition.front
             
@@ -706,6 +709,14 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                     
                     var params = [AnyHashable]()
                     let base64Image = self.getBase64Image(capturedImage!, withQuality: quality)
+                    // Rotate image if EXIF stripping not disabled
+                    if !self.cameraRenderController.disableExifHeaderStripping {
+                        let ciImage = CIImage(image: finalImage!)
+                        finalCGImage = self.cameraRenderController.ciContext?.createCGImage(ciImage!, from: ciImage?.extent ?? CGRect.zero)
+                        let radians = self.radiansFromUIImageOrientation((finalImage?.imageOrientation)!)
+                        let imageRotated = self.cgImageRotated(finalCGImage!, withRadians: radians)
+                        finalImage = UIImage(cgImage: imageRotated!)
+                    }
                     
                     params.append(base64Image!)
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: params)
