@@ -67,6 +67,7 @@ public class CameraActivity extends Fragment {
   private Preview mPreview;
   private boolean canTakePicture = true;
 
+  public DeviceOrientation deviceOrientation;
   private View view;
   private Camera.Parameters cameraParameters;
   private Camera mCamera;
@@ -304,6 +305,9 @@ public class CameraActivity extends Fragment {
         }
       });
     }
+
+    deviceOrientation.startListening();
+
   }
 
   @Override
@@ -315,8 +319,13 @@ public class CameraActivity extends Fragment {
       setDefaultCameraId();
       mPreview.setCamera(null, -1);
       mCamera.setPreviewCallback(null);
+      Log.d(TAG, "release camera");
+
       mCamera.release();
+      mPreview.mCamera = null;
       mCamera = null;
+      deviceOrientation.pauseListening();
+
     }
   }
 
@@ -565,8 +574,6 @@ public class CameraActivity extends Fragment {
             params.setJpegQuality(quality);
           }
 
-          params.setRotation(mPreview.getDisplayOrientation());
-
           mCamera.setParameters(params);
           mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
         }
@@ -574,6 +581,13 @@ public class CameraActivity extends Fragment {
     } else {
       canTakePicture = true;
     }
+  }
+
+  public void setOrientation(int orientation){
+    Log.d(TAG, "CameraPreview set orientation: " +exifToDegrees(deviceOrientation.getOrientation()));
+    Camera.Parameters params = mCamera.getParameters();
+    params.setRotation(exifToDegrees(orientation));
+    mCamera.setParameters(params);
   }
 
   public void setFocusArea(final int pointX, final int pointY, final Camera.AutoFocusCallback callback) {
