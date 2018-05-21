@@ -26,6 +26,7 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
     var dragEnabled = false
     var tapToTakePicture = false
     var tapToFocus = false
+    var disableExifHeaderStripping = false
     
     var delegate: CameraPreview?
 
