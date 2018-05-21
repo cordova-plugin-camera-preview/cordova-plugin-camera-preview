@@ -537,7 +537,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     
     //    0 [dimensions.width,
     //    1 dimensions.height]
-    func setPreviewSize(_ command: CDVInvokedUrlCommand) {
+    func setPreviewSizeOld(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -558,9 +558,35 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
+    
+    func setPreviewSize(_ command: CDVInvokedUrlCommand) {
+        print("--> setPreviewSize")
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+        
+        guard command.arguments.count > 1  else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+        
+        let width = command.arguments[0] as? CGFloat ?? 0.0
+        let height = command.arguments[1] as? CGFloat ?? 0.0
+        
+        setPreviewSizeOld(command)
+        
+        // Set device format matching given width and height
+        setDeviceFormat(width, height: height)
+        
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+        commandDelegate.send(pluginResult, callbackId: command.callbackId)
+    }
 
     func getSupportedPictureSizes(_ command: CDVInvokedUrlCommand) {
-        print("getSupportedPictureSizes")
+        print("-->getSupportedPictureSizes")
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -689,41 +715,33 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func setDeviceFormat(_ width: CGFloat, height: CGFloat) {
-        let error: Error? = nil
         var foundFormat: AVCaptureDevice.Format? = nil
+        let formats = sessionManager.getDeviceFormats();
         
-        let formats = sessionManager.getDeviceFormats() as? [AVCaptureDevice.Format];
-        for format: AVCaptureDevice.Format in formats! {
+        for format: AVCaptureDevice.Format in formats {
+
             let dim: CMVideoDimensions = format.highResolutionStillImageDimensions
             if dim.width == Int32(width) && dim.height == Int32(height) {
                 foundFormat = format
+                break
             }
         }
+
         
-        if foundFormat != nil {
-            if try! sessionManager.device?.lockForConfiguration() != nil {
-                sessionManager.device?.activeFormat = foundFormat
-                sessionManager.device?.unlockForConfiguration()
-            } else {
-                if let anError = error {
-                    print("\(anError)")
-                }
-            }
+        if let format = foundFormat {
+            sessionManager.setPictureSize(format)
         } else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Format not supported for this device, call getSupportedPictureSizes() to get all supported formats.")
             commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
         }
         
     }
+
     
     func invokeTakePicture(_ width: CGFloat, withHeight height: CGFloat, withQuality quality: CGFloat) {
     
-        // Set device format matching given width and height
-        if width > 0 && height > 0 {
-            setDeviceFormat(width, height: height)
-        }
-        
-        let connection: AVCaptureConnection? = sessionManager.stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
+        let connection = sessionManager.stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
+
         if let aConnection = connection {
 
             // Set orientation

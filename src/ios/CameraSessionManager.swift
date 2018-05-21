@@ -77,9 +77,9 @@ class CameraSessionManager: NSObject {
         colorTemperatures["twilight"] = wbTwilight
     }
 
-    func getDeviceFormats() -> [Any] {
+    func getDeviceFormats() -> [AVCaptureDevice.Format] {
         let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
-        return (videoDevice?.formats)!
+        return videoDevice?.formats as! [AVCaptureDevice.Format]
     }
     
     func setupSession(_ defaultCamera: String?, completion: @escaping (_ started: Bool) -> Void) {
@@ -569,6 +569,23 @@ class CameraSessionManager: NSObject {
         
         return whiteBalanceMode
     }
+    
+    func setPictureSize(_ format: AVCaptureDevice.Format?) {
+        let error: Error? = nil
+        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
+        
+        if try! device?.lockForConfiguration() != nil {
+            device?.activeFormat = format
+            
+            device?.unlockForConfiguration()
+            session?.commitConfiguration()
+        } else {
+            if let anError = error {
+                print("\(anError)")
+            }
+        }
+    }
+    
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "adjustingFocus" {
