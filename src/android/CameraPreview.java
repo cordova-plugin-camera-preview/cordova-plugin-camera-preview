@@ -8,6 +8,7 @@ import android.hardware.Camera;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
@@ -21,6 +22,14 @@ import org.json.JSONException;
 
 import java.util.List;
 import java.util.Arrays;
+
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.media.ExifInterface;
+
+import static android.content.Context.SENSOR_SERVICE;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
@@ -65,6 +74,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   };
 
   private CameraActivity fragment;
+
+  private DeviceOrientation deviceOrientation;
+
   private CallbackContext takePictureCallbackContext;
   private CallbackContext setFocusCallbackContext;
   private CallbackContext startCameraCallbackContext;
@@ -232,7 +244,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     final float opacity = Float.parseFloat(alpha);
 
+
+
     fragment = new CameraActivity();
+    deviceOrientation = new DeviceOrientation(cordova.getActivity(), fragment);
+    fragment.deviceOrientation = deviceOrientation;
     fragment.setEventListener(this);
     fragment.defaultCamera = defaultCamera;
     fragment.tapToTakePicture = tapToTakePicture;
@@ -241,7 +257,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.disableExifHeaderStripping = disableExifHeaderStripping;
     fragment.toBack = toBack;
 
-
+    deviceOrientation.startListening();
     DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
     // offset
     int computedX = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, x, metrics);
@@ -259,9 +275,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       @Override
       public void run() {
 
-
         //create or update the layout params for the container view
-        FrameLayout containerView = (FrameLayout)cordova.getActivity().findViewById(containerViewId);
+        FrameLayout containerView = cordova.getActivity().findViewById(containerViewId);
         if(containerView == null){
           containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
           containerView.setId(containerViewId);
@@ -302,7 +317,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   public void onCameraStarted() {
     Log.d(TAG, "Camera started");
-
+    fragment.setOrientation(deviceOrientation.getOrientation());
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, "Camera started");
     pluginResult.setKeepCallback(true);
     startCameraCallbackContext.sendPluginResult(pluginResult);
@@ -678,6 +693,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     callbackContext.success();
     return true;
+
   }
 
 private boolean getSupportedFlashModes(CallbackContext callbackContext) {
@@ -827,6 +843,8 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     fragmentTransaction.remove(fragment);
     fragmentTransaction.commit();
     fragment = null;
+    deviceOrientation.pauseListening();
+    deviceOrientation = null;
 
     callbackContext.success();
     return true;
@@ -924,4 +942,5 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, "Back button pressed");
     tapBackButtonContext.sendPluginResult(pluginResult);
   }
+
 }
