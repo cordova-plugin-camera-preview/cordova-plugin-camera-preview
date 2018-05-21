@@ -151,47 +151,46 @@ class CameraSessionManager: NSObject {
         } else {
             defaultCamera = .front
         }
-        sessionQueue?.async(execute: {() -> Void in
-            let error: Error? = nil
-            var success = true
-            self.session?.beginConfiguration()
-            if self.videoDeviceInput != nil {
-                self.session?.removeInput(self.videoDeviceInput)
-                self.videoDeviceInput = nil
-            }
-            var videoDevice: AVCaptureDevice? = nil
-            videoDevice = self.cameraWithPosition(position: self.defaultCamera!)
-            if videoDevice?.hasFlash ?? false && videoDevice?.isFlashModeSupported(AVCaptureFlashMode(rawValue: self.defaultFlashMode.rawValue)!) ?? false {
-                if try! videoDevice?.lockForConfiguration() != nil {
-                    videoDevice?.flashMode = AVCaptureFlashMode(rawValue: self.defaultFlashMode.rawValue)!
-                    videoDevice?.unlockForConfiguration()
-                } else {
-                    if let anError = error {
-                        print("\(anError)")
-                    }
-                    success = false
-                }
-            }
-            var videoDeviceInput: AVCaptureDeviceInput? = nil
-            if let aDevice = videoDevice {
-                videoDeviceInput = try? AVCaptureDeviceInput(device: aDevice)
-            }
-            if error != nil {
+    
+        let error: Error? = nil
+        var success = true
+        self.session?.beginConfiguration()
+        if self.videoDeviceInput != nil {
+            self.session?.removeInput(self.videoDeviceInput)
+            self.videoDeviceInput = nil
+        }
+        var videoDevice: AVCaptureDevice? = nil
+        videoDevice = self.cameraWithPosition(position: self.defaultCamera!)
+        if videoDevice?.hasFlash ?? false && videoDevice?.isFlashModeSupported(AVCaptureFlashMode(rawValue: self.defaultFlashMode.rawValue)!) ?? false {
+            if try! videoDevice?.lockForConfiguration() != nil {
+                videoDevice?.flashMode = AVCaptureFlashMode(rawValue: self.defaultFlashMode.rawValue)!
+                videoDevice?.unlockForConfiguration()
+            } else {
                 if let anError = error {
                     print("\(anError)")
                 }
                 success = false
             }
-            
-            if (self.session?.canAddInput(videoDeviceInput))! {
-                self.session?.addInput(videoDeviceInput)
-                self.videoDeviceInput = videoDeviceInput
+        }
+        var videoDeviceInput: AVCaptureDeviceInput? = nil
+        if let aDevice = videoDevice {
+            videoDeviceInput = try? AVCaptureDeviceInput(device: aDevice)
+        }
+        if error != nil {
+            if let anError = error {
+                print("\(anError)")
             }
+            success = false
+        }
+        
+        if (self.session?.canAddInput(videoDeviceInput))! {
+            self.session?.addInput(videoDeviceInput)
+            self.videoDeviceInput = videoDeviceInput
+        }
 
-            self.session?.commitConfiguration()
-            self.device = videoDevice
-            completion(success)
-        })
+        self.session?.commitConfiguration()
+        self.device = videoDevice
+        completion(success)
     }
 
     func getFocusModes() -> [Any]? {
