@@ -282,19 +282,21 @@ class CameraSessionManager: NSObject {
     }
 
     func setFlashMode(_ flashMode: AVCaptureDevice.FlashMode) {
-        let error: Error? = nil
         // Let's save the setting even if we can't set it up on this camera.
-        defaultFlashMode = flashMode
-        if device!.hasFlash && device!.isFlashModeSupported(AVCaptureFlashMode(rawValue: defaultFlashMode.rawValue)!) {
-            if try! device?.lockForConfiguration() != nil {
+        self.defaultFlashMode = flashMode
+        
+        if device!.hasFlash && device!.isFlashModeSupported(self.defaultFlashMode) {
+            do {
+                try device?.lockForConfiguration()
+                
                 if device!.hasTorch && device!.isTorchAvailable {
                     device?.torchMode = .off
                 }
-                device?.flashMode = AVCaptureFlashMode(rawValue: defaultFlashMode.rawValue)!
+                device?.flashMode = self.defaultFlashMode
                 device?.unlockForConfiguration()
-            } else {
-                if let anError = error {
-                    print("\(anError)")
+            } catch let error {
+                if error != nil {
+                    print("\(error)")
                 }
             }
         } else {
