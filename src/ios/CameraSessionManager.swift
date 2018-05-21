@@ -304,8 +304,7 @@ class CameraSessionManager: NSObject {
 
     func setTorchMode() {
         let error: Error? = nil
-        // Let's save the setting even if we can't set it up on this camera.
-        //self.defaultFlashMode = flashMode;
+        
         if device!.hasTorch && device!.isTorchAvailable {
             if try! device?.lockForConfiguration() != nil {
                 if (device?.isTorchModeSupported(.on))! {
