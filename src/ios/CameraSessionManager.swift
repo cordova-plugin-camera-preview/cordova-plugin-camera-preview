@@ -126,6 +126,7 @@ class CameraSessionManager: NSObject {
             if (self.session?.canAddOutput(stillImageOutput))! {
                 self.session?.addOutput(stillImageOutput)
                 stillImageOutput.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+                stillImageOutput.isHighResolutionStillImageOutputEnabled = true
                 self.stillImageOutput = stillImageOutput
             }
             
