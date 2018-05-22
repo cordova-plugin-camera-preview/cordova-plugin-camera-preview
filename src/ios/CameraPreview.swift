@@ -117,12 +117,16 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
 
     func stopCamera(_ command: CDVInvokedUrlCommand) {
         print("--> stopCamera")
-        cameraRenderController.view.removeFromSuperview()
-        cameraRenderController.removeFromParentViewController()
-        cameraRenderController = nil
+        if cameraRenderController != nil {
+            cameraRenderController.view.removeFromSuperview()
+            cameraRenderController.removeFromParentViewController()
+            cameraRenderController = nil
+        }
         
-        motionManager.stopAccelerometerUpdates()
-        motionManager = nil
+        if motionManager != nil {
+            motionManager.stopAccelerometerUpdates()
+            motionManager = nil
+        }
 
         commandDelegate.run(inBackground: {() -> Void in
             guard self.sessionManager != nil else {
