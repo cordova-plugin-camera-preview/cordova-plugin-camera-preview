@@ -719,20 +719,21 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func setDeviceFormat(_ width: CGFloat, height: CGFloat) {
-        var foundFormat: AVCaptureDevice.Format? = nil
-        let formats = sessionManager.getDeviceFormats();
-        
-        for format: AVCaptureDevice.Format in formats {
+        print("--> setDeviceFormat")
 
-            let dim: CMVideoDimensions = format.highResolutionStillImageDimensions
-            if dim.width == Int32(width) && dim.height == Int32(height) {
-                foundFormat = format
-                break
+        let allFormats = sessionManager.getDeviceFormats();
+        
+        // Keep only formats with given dimensions
+        var dimensionsFormats = [AVCaptureDevice.Format]()
+        for format: AVCaptureDevice.Format in allFormats {
+            let dimensions: CMVideoDimensions = format.highResolutionStillImageDimensions
+            if dimensions.width == Int32(width) && dimensions.height == Int32(height) {
+                dimensionsFormats.append(format)
             }
         }
 
-        
-        if let format = foundFormat {
+        // Take the last format with given dimensions, the one with biggest video dimensions
+        if let format = dimensionsFormats.last {
             sessionManager.setPictureSize(format)
         } else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Format not supported for this device, call getSupportedPictureSizes() to get all supported formats.")
