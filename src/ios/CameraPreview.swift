@@ -556,8 +556,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         cameraRenderController.view.frame = CGRect(x: 0, y: 0, width: width, height: height)
         
-        setDeviceFormat(width, height: height)
         // Set capture device format matching given width and height
+        setCaptureDeviceFormat(width, height: height)
         
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -684,7 +684,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func invokeTakePicture() {
-        invokeTakePicture(0.0, withHeight: 0.0, withQuality: 0.85)
+        invokeTakePicture(withQuality: 0.85)
     }
 
     func invokeTakePictureOnFocus() {
@@ -692,8 +692,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         sessionManager.takePictureOnFocus()
     }
 
-    func setDeviceFormat(_ width: CGFloat, height: CGFloat) {
-        print("--> setDeviceFormat")
+    func setCaptureDeviceFormat(_ width: CGFloat, height: CGFloat) {
+        print("--> setCaptureDeviceFormat")
 
         let allFormats = sessionManager.getDeviceFormats();
         
