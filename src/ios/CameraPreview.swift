@@ -488,10 +488,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         }
         
         onPictureTakenHandlerId = command.callbackId
-        let width = command.arguments[0] as? CGFloat ?? 0.0
-        let height = command.arguments[1]  as? CGFloat ?? 0.0
-        let quality = (command.arguments[2]  as? CGFloat  ?? 0.0) / 100.0
-        invokeTakePicture(width, withHeight: height, withQuality: quality)
+        let quality = (command.arguments[0]  as? CGFloat  ?? 0.0) / 100.0
+        invokeTakePicture(withQuality: quality)
     }
     
     func setColorEffect(_ command: CDVInvokedUrlCommand) {
@@ -743,7 +741,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     
-    func invokeTakePicture(_ width: CGFloat, withHeight height: CGFloat, withQuality quality: CGFloat) {
+    func invokeTakePicture(withQuality quality: CGFloat) {
     
         let connection = sessionManager.stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
 
