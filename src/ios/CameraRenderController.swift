@@ -14,7 +14,7 @@ protocol TakePictureDelegate: class {
 }
 
 protocol FocusDelegate: class {
-    func invokeTap(toFocus point: CGPoint)
+    func invokeTapToFocus(point: CGPoint)
 }
 
 class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate, OnFocusDelegate {
@@ -143,7 +143,7 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
         print("handleTapFocusTap")
         if recognizer?.state == .ended {
             let point: CGPoint? = recognizer?.location(in: view)
-            delegate?.invokeTap(toFocus: point!)
+            delegate?.invokeTapToFocus(point: point!)
         }
     }
 

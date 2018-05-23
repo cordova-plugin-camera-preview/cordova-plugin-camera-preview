@@ -702,7 +702,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         return rotatedCGImage
     }
     
-    func invokeTap(toFocus point: CGPoint) {
+    func invokeTapToFocus(point: CGPoint) {
         var completion = {() -> Void in
             print("Focus ended")
         }
