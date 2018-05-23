@@ -537,9 +537,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
     
-    //    0 [dimensions.width,
-    //    1 dimensions.height]
-    func setPreviewSizeOld(_ command: CDVInvokedUrlCommand) {
+    func setPictureSize(_ command: CDVInvokedUrlCommand) {
+        print("--> setPictureSize")
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -557,31 +556,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         cameraRenderController.view.frame = CGRect(x: 0, y: 0, width: width, height: height)
         
-        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        commandDelegate.send(pluginResult, callbackId: command.callbackId)
-    }
-    
-    func setPreviewSize(_ command: CDVInvokedUrlCommand) {
-        print("--> setPreviewSize")
-        guard sessionManager != nil else {
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
-            commandDelegate.send(pluginResult, callbackId: command.callbackId)
-            return
-        }
-        
-        guard command.arguments.count > 1  else {
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
-            commandDelegate.send(pluginResult, callbackId: command.callbackId)
-            return
-        }
-        
-        let width = command.arguments[0] as? CGFloat ?? 0.0
-        let height = command.arguments[1] as? CGFloat ?? 0.0
-        
-        setPreviewSizeOld(command)
-        
-        // Set device format matching given width and height
         setDeviceFormat(width, height: height)
+        // Set capture device format matching given width and height
         
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
