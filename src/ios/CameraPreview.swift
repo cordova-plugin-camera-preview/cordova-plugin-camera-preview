@@ -27,7 +27,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     // 9 options.tapFocus,
     // 10 options.disableExifHeaderStripping]
     func startCamera(_ command: CDVInvokedUrlCommand) {
+        print("--> startCamera")
         if sessionManager != nil {
+            print("--> Camera already started!")
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera already started!")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
@@ -70,7 +72,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         // Add video preview layer
         let previewLayer = AVCaptureVideoPreviewLayer(session: sessionManager?.session!)
         previewLayer?.frame = cameraRenderController.view.frame
-        print(cameraRenderController.view.bounds)
         cameraRenderController.view.layer.addSublayer(previewLayer!)
         
         if toBack {
@@ -157,7 +158,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func hideCamera(_ command: CDVInvokedUrlCommand) {
-        print("hideCamera")
+        print("--> hideCamera")
         guard cameraRenderController != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -171,7 +172,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func showCamera(_ command: CDVInvokedUrlCommand) {
-        print("showCamera")
+        print("--> showCamera")
         guard cameraRenderController != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -184,7 +185,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func switchCamera(_ command: CDVInvokedUrlCommand) {
-        print("switchCamera")
+        print("--> switchCamera")
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -222,6 +223,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
     
     func setFocusMode(_ command: CDVInvokedUrlCommand) {
+        print("--> setFocusMode");
         var focusMode = command.arguments[0] as? String
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
@@ -270,7 +272,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func setFlashMode(_ command: CDVInvokedUrlCommand) {
-        print("Flash Mode")
+        print("--> Flash Mode")
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -281,6 +283,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let flashMode = command.arguments[0] as? String
         
         if let flashMode = flashMode {
+            print(flashMode)
+            
             if flashMode == "off" {
                 sessionManager.setFlashMode(.off)
             } else if flashMode == "on" {
@@ -305,8 +309,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func setZoom(_ command: CDVInvokedUrlCommand) {
-        print("Zoom")
+        print("--> setZoom")
         let desiredZoomFactor = command.arguments[0] as? CGFloat ?? 0.0
+        
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -564,7 +569,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func getSupportedPictureSizes(_ command: CDVInvokedUrlCommand) {
-        print("-->getSupportedPictureSizes")
+        print("--> getSupportedPictureSizes")
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -607,7 +612,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
 
     func tapToFocus(_ command: CDVInvokedUrlCommand) {
-        print("tapToFocus")
+        print("--> tapToFocus")
         let xPoint = command.arguments[0] as? CGFloat ?? 0.0
         let yPoint = command.arguments[1] as? CGFloat ?? 0.0
         guard sessionManager != nil else {
@@ -713,7 +718,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Format not supported for this device, call getSupportedPictureSizes() to get all supported formats.")
             commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
         }
-        
     }
 
     
@@ -727,13 +731,15 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             if self.cameraRenderController.disableExifHeaderStripping {
                 sessionManager.updateOrientation(self.accelerometerOrientation!)
             }
-        
+
             // Fix front mirroring
-            connection?.isVideoMirrored = sessionManager.device?.position == AVCaptureDevicePosition.front
+            aConnection.isVideoMirrored = sessionManager.device?.position == AVCaptureDevicePosition.front
+
+            
             
             // Capture image
             sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer!, _ error: Error?) -> Void in
-                
+
                 print("Done creating still image")
                 if error != nil {
                     print("\(error)")
@@ -741,8 +747,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                     let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
 
                     let capturedImage = UIImage(data: imageData!)
+
                     var finalImage: UIImage? = nil
-                    
+
                     // Apply filters if needed
                     let filter: CIFilter? = self.sessionManager.ciFilter
                     var finalCGImage: CGImage? = nil
