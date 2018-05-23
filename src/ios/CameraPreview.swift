@@ -577,21 +577,21 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         var lastHeight: Int = 0
         
         for format: AVCaptureDevice.Format in formats! {
-            let dim: CMVideoDimensions = format.highResolutionStillImageDimensions
-            if Int(dim.width) != lastWidth && Int(dim.height) != lastHeight {
-                var dimensions = [String: Int32]()
-                let width = dim.width
-                let height = dim.height
-                dimensions["width"] = width
-                dimensions["height"] = height
+            let imageDimensions: CMVideoDimensions = format.highResolutionStillImageDimensions
+            
+            if Int(imageDimensions.width) != lastWidth && Int(imageDimensions.height) != lastHeight {
+                var dimensions = [String: Any]()
+                dimensions["width"] = imageDimensions.width
+                dimensions["height"] = imageDimensions.height
+                dimensions["videoZoomFactorUpscaleThreshold"] = format.videoZoomFactorUpscaleThreshold
                 jsonFormats.append(dimensions)
                 
-                lastWidth = Int(dim.width)
-                lastHeight = Int(dim.height)
+                lastWidth = Int(imageDimensions.width)
+                lastHeight = Int(imageDimensions.height)
             }
         }
+        
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: jsonFormats)
-
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
 
