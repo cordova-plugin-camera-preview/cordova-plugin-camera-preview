@@ -742,7 +742,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
 
                 print("Done creating still image")
                 if error != nil {
-                    print("\(error)")
+                    print("Error taking picture : \(error)")
+                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "\(error)")
+                    self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
                 } else {
                     let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
 
