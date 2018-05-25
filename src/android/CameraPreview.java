@@ -4,10 +4,12 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -28,12 +30,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.ExifInterface;
+import android.widget.RelativeLayout;
 
 import static android.content.Context.SENSOR_SERVICE;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
-  private static final String TAG = "CameraPreview";
+  private static final String TAG = "PP/CameraPreview";
 
   private static final String COLOR_EFFECT_ACTION = "setColorEffect";
   private static final String SUPPORTED_COLOR_EFFECTS_ACTION = "getSupportedColorEffects";
@@ -46,7 +49,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String SET_FLASH_MODE_ACTION = "setFlashMode";
   private static final String START_CAMERA_ACTION = "startCamera";
   private static final String STOP_CAMERA_ACTION = "stopCamera";
-  private static final String PREVIEW_SIZE_ACTION = "setPreviewSize";
+  private static final String PICTURE_SIZE_ACTION = "setPictureSize";
   private static final String SWITCH_CAMERA_ACTION = "switchCamera";
   private static final String TAKE_PICTURE_ACTION = "takePicture";
   private static final String SHOW_CAMERA_ACTION = "showCamera";
@@ -103,7 +106,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         this.execCallback = callbackContext;
         this.execArgs = args;
         cordova.requestPermissions(this, CAM_REQ_CODE, permissions);
-        return true;
       }
     } else if (TAKE_PICTURE_ACTION.equals(action)) {
       return takePicture(args.getInt(0), args.getInt(1), args.getInt(2), callbackContext);
@@ -117,8 +119,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return getHorizontalFOV(callbackContext);
     } else if (GET_MAX_ZOOM_ACTION.equals(action)) {
       return getMaxZoom(callbackContext);
-    } else if (PREVIEW_SIZE_ACTION.equals(action)) {
-      return setPreviewSize(args.getInt(0), args.getInt(1), callbackContext);
+    } else if (PICTURE_SIZE_ACTION.equals(action)) {
+      return setPictureSize(args.getInt(0), args.getInt(1), callbackContext);
     } else if (SUPPORTED_FLASH_MODES_ACTION.equals(action)) {
       return getSupportedFlashModes(callbackContext);
     } else if (GET_FLASH_MODE_ACTION.equals(action)) {
@@ -257,7 +259,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.disableExifHeaderStripping = disableExifHeaderStripping;
     fragment.toBack = toBack;
 
-    deviceOrientation.startListening();
+
+
     DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
     // offset
     int computedX = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, x, metrics);
@@ -267,8 +270,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     int computedWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, width, metrics);
     int computedHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, metrics);
 
-    fragment.setRect(computedX, computedY, computedWidth, computedHeight);
-
     startCameraCallbackContext = callbackContext;
 
     cordova.getActivity().runOnUiThread(new Runnable() {
@@ -276,13 +277,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       public void run() {
 
         //create or update the layout params for the container view
-        FrameLayout containerView = cordova.getActivity().findViewById(containerViewId);
+        RelativeLayout containerView = cordova.getActivity().findViewById(containerViewId);
         if(containerView == null){
-          containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
+          containerView = new RelativeLayout(cordova.getActivity().getApplicationContext());
           containerView.setId(containerViewId);
+          containerView.setBackgroundColor(Color.BLACK);
 
-          FrameLayout.LayoutParams containerLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-
+          containerView.setGravity(Gravity.CENTER);
+          RelativeLayout.LayoutParams containerLayoutParams = new RelativeLayout.LayoutParams(computedWidth, computedHeight);
+          containerLayoutParams.setMargins(computedX, computedY,0 ,0);
           // Get the parent view of the webview
           ViewGroup webViewParentGroup = (ViewGroup)webView.getView().getParent();
 
@@ -317,7 +320,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   public void onCameraStarted() {
     Log.d(TAG, "Camera started");
-    fragment.setOrientation(deviceOrientation.getOrientation());
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, "Camera started");
     pluginResult.setKeepCallback(true);
     startCameraCallbackContext.sendPluginResult(pluginResult);
@@ -679,17 +681,19 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  private boolean setPreviewSize(int width, int height, CallbackContext callbackContext) {
+  private boolean setPictureSize(int width, int height, CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
     }
+    Log.d(TAG, "setPictureSize: "+width+" "+height);
 
-    Camera camera = fragment.getCamera();
+    fragment.setPictureSize(width, height);
+    /*Camera camera = fragment.getCamera();
     Camera.Parameters params = camera.getParameters();
 
     params.setPreviewSize(width, height);
     fragment.setCameraParameters(params);
-    camera.startPreview();
+    camera.startPreview();*/
 
     callbackContext.success();
     return true;

@@ -60,20 +60,19 @@ public class CameraActivity extends Fragment {
   }
 
   private CameraPreviewListener eventListener;
-  private static final String TAG = "CameraActivity";
-  public FrameLayout mainLayout;
-  public FrameLayout frameContainerLayout;
+  private static final String TAG = "PP/CameraActivity";
 
   private Preview mPreview;
   private boolean canTakePicture = true;
 
   public DeviceOrientation deviceOrientation;
-  private View view;
-  private Camera.Parameters cameraParameters;
+  public ViewGroup containerView;
+  private Camera.Parameters currentCameraParameters;
   private Camera mCamera;
   private int numberOfCameras;
   private int cameraCurrentlyLocked;
   private int currentQuality;
+  private Camera.Size currentPictureSize;
 
   // The first rear facing camera
   private int defaultCameraId;
@@ -84,57 +83,75 @@ public class CameraActivity extends Fragment {
   public boolean disableExifHeaderStripping;
   public boolean toBack;
 
-  public int width;
-  public int height;
-  public int x;
-  public int y;
-
   public void setEventListener(CameraPreviewListener listener){
     eventListener = listener;
   }
 
-  private String appResourcesPackage;
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+
+    super.onCreate(savedInstanceState);
+    setDefaultCameraId();
+
+  }
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    appResourcesPackage = getActivity().getPackageName();
-
-    // Inflate the layout for this fragment
-    view = inflater.inflate(getResources().getIdentifier("camera_activity", "layout", appResourcesPackage), container, false);
-    createCameraPreview();
-    return view;
-  }
-
-  public void setRect(int x, int y, int width, int height){
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-  }
-
-  private void createCameraPreview(){
-    if(mPreview == null) {
-      setDefaultCameraId();
-
-      //set box position and size
-      FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
-      layoutParams.setMargins(x, y, 0, 0);
-      frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
-      frameContainerLayout.setLayoutParams(layoutParams);
-
+      containerView = container;
       //video view
       mPreview = new Preview(getActivity());
-      mainLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("video_view", "id", appResourcesPackage));
-      mainLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
-      mainLayout.addView(mPreview);
-      mainLayout.setEnabled(false);
+      Log.d(TAG, "add PreviewView to containerView");
+      containerView.setEnabled(false);
 
-        if(toBack == false) {
-            this.setupTouchAndBackButton();
-        }
+      if(toBack == false) {
+          this.setupTouchAndBackButton();
+      }
 
-    }
+      return mPreview;
   }
+
+  private void initCamera(int cameraId, Camera.Parameters cameraParameters){
+
+      if(mCamera != null){
+          if(cameraId == cameraCurrentlyLocked){
+              Log.d(TAG, "initCamera: requested camera is already init");
+              return;
+          }
+          Log.d(TAG, "initCamera: a Camera is already init stop it before continue");
+          stopCurrentCamera();
+      }
+
+
+      Log.d(TAG, "initCamera: Open camera "+cameraId);
+
+      mCamera = Camera.open(cameraId);
+      if (cameraParameters != null) {
+          setCameraParameters(cameraParameters);
+      }
+
+      cameraCurrentlyLocked = cameraId;
+      setPreviewSizeFromCameraPictureSize();
+      mPreview.setCamera(mCamera);
+      getActivity().runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+              mPreview.requestLayout();
+          }
+      });
+
+  }
+
+  private void stopCurrentCamera(){
+      if(mCamera == null){
+          return;
+      }
+
+      mCamera.stopPreview();
+      mPreview.setCamera(null);
+      mCamera.release();
+      mCamera = null;
+  }
+
   private void setupTouchAndBackButton() {
 
       final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
@@ -142,8 +159,9 @@ public class CameraActivity extends Fragment {
       getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          frameContainerLayout.setClickable(true);
-          frameContainerLayout.setOnTouchListener(new View.OnTouchListener() {
+          containerView.setClickable(true);
+          containerView.setOnTouchListener(new View.OnTouchListener() {
+
 
             private int mLastTouchX;
             private int mLastTouchY;
@@ -152,7 +170,8 @@ public class CameraActivity extends Fragment {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-              FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) frameContainerLayout.getLayoutParams();
+              Log.d(TAG, "onTouch"+event);
+              FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) containerView.getLayoutParams();
 
 
               boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
@@ -212,7 +231,7 @@ public class CameraActivity extends Fragment {
                       layoutParams.leftMargin = mPosX;
                       layoutParams.topMargin = mPosY;
 
-                      frameContainerLayout.setLayoutParams(layoutParams);
+                      containerView.setLayoutParams(layoutParams);
 
                       // Remember this touch position for the next move event
                       mLastTouchX = x;
@@ -227,9 +246,9 @@ public class CameraActivity extends Fragment {
               return true;
             }
           });
-          frameContainerLayout.setFocusableInTouchMode(true);
-          frameContainerLayout.requestFocus();
-          frameContainerLayout.setOnKeyListener(new android.view.View.OnKeyListener() {
+          containerView.setFocusableInTouchMode(true);
+          containerView.requestFocus();
+          containerView.setOnKeyListener(new android.view.View.OnKeyListener() {
             @Override
             public boolean onKey(android.view.View v, int keyCode, android.view.KeyEvent event) {
 
@@ -266,45 +285,17 @@ public class CameraActivity extends Fragment {
   public void onResume() {
     super.onResume();
 
-    mCamera = Camera.open(defaultCameraId);
+    Log.d(TAG, "on Resume");
 
-    if (cameraParameters != null) {
-      mCamera.setParameters(cameraParameters);
-    }
+    if(mCamera == null){
+        initCamera(defaultCameraId, null);
+        setOrientation(deviceOrientation.getOrientation());
+        currentPictureSize = mCamera.getParameters().getPictureSize();
+        eventListener.onCameraStarted();
 
-    cameraCurrentlyLocked = defaultCameraId;
-
-    if(mPreview.mPreviewSize == null){
-      mPreview.setCamera(mCamera, cameraCurrentlyLocked);
-      eventListener.onCameraStarted();
-    } else {
-      mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
-      mCamera.startPreview();
     }
 
     Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
-
-    final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
-
-    ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
-
-    if (viewTreeObserver.isAlive()) {
-      viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-        @Override
-        public void onGlobalLayout() {
-          frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-          frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-          Activity activity = getActivity();
-          if (isAdded() && activity != null) {
-            final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
-
-            FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
-            camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-            frameCamContainerLayout.setLayoutParams(camViewLayout);
-          }
-        }
-      });
-    }
 
     deviceOrientation.startListening();
 
@@ -316,17 +307,10 @@ public class CameraActivity extends Fragment {
 
     // Because the Camera object is a shared resource, it's very important to release it when the activity is paused.
     if (mCamera != null) {
-      setDefaultCameraId();
-      mPreview.setCamera(null, -1);
-      mCamera.setPreviewCallback(null);
-      Log.d(TAG, "release camera");
-
-      mCamera.release();
-      mPreview.mCamera = null;
-      mCamera = null;
-      deviceOrientation.pauseListening();
-
+      stopCurrentCamera();
     }
+
+    deviceOrientation.pauseListening();
   }
 
   public Camera getCamera() {
@@ -338,63 +322,33 @@ public class CameraActivity extends Fragment {
     if (numberOfCameras == 1) {
       //There is only one camera available
     }else{
+        int newCamera = cameraCurrentlyLocked;
       Log.d(TAG, "numberOfCameras: " + numberOfCameras);
-
-      // OK, we have multiple cameras. Release this camera -> cameraCurrentlyLocked
-      if (mCamera != null) {
-        mCamera.stopPreview();
-        mPreview.setCamera(null, -1);
-        mCamera.release();
-        mCamera = null;
-      }
 
       Log.d(TAG, "cameraCurrentlyLocked := " + Integer.toString(cameraCurrentlyLocked));
       try {
-        cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
+          newCamera = (cameraCurrentlyLocked + 1) % numberOfCameras;
         Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
       } catch (Exception exception) {
         Log.d(TAG, exception.getMessage());
       }
 
-      // Acquire the next camera and request Preview to reconfigure parameters.
-      mCamera = Camera.open(cameraCurrentlyLocked);
-
-      if (cameraParameters != null) {
-        Log.d(TAG, "camera parameter not null");
-
-        // Check for flashMode as well to prevent error on frontward facing camera.
-        List<String> supportedFlashModesNewCamera = mCamera.getParameters().getSupportedFlashModes();
-        String currentFlashModePreviousCamera = cameraParameters.getFlashMode();
-        if (supportedFlashModesNewCamera != null && supportedFlashModesNewCamera.contains(currentFlashModePreviousCamera)) {
-          Log.d(TAG, "current flash mode supported on new camera. setting params");
-         /* mCamera.setParameters(cameraParameters);
-            The line above is disabled because parameters that can actually be changed are different from one device to another. Makes less sense trying to reconfigure them when changing camera device while those settings gan be changed using plugin methods.
-         */
-        } else {
-          Log.d(TAG, "current flash mode NOT supported on new camera");
-        }
-
-      } else {
-        Log.d(TAG, "camera parameter NULL");
+      if(newCamera != cameraCurrentlyLocked){
+          currentCameraParameters = null;
+          initCamera(newCamera, null);
       }
 
-      mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
-
-      mCamera.startPreview();
     }
   }
 
   public void setCameraParameters(Camera.Parameters params) {
-    cameraParameters = params;
+      currentCameraParameters = params;
 
-    if (mCamera != null && cameraParameters != null) {
-      mCamera.setParameters(cameraParameters);
+    if (mCamera != null && currentCameraParameters != null) {
+      mCamera.setParameters(currentCameraParameters);
     }
   }
 
-  public boolean hasFrontCamera(){
-    return getActivity().getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
-  }
 
   public static Bitmap applyMatrix(Bitmap source, Matrix matrix) {
     return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
@@ -462,92 +416,47 @@ public class CameraActivity extends Fragment {
                 eventListener.onPictureTaken(encodedImage);
                 Log.d(TAG, "CameraPreview pictureTakenHandler called back");
 
-            } catch (OutOfMemoryError e) {
+            } catch (OutOfMemoryError e)
+
+            {
                 // most likely failed to allocate memory for rotateBitmap
                 Log.d(TAG, "CameraPreview OutOfMemoryError");
                 // failed to allocate memory
                 eventListener.onPictureTakenError("Picture too large (memory)");
-            } catch (IOException e) {
+            } catch (
+                    IOException e)
+
+            {
                 Log.d(TAG, "CameraPreview IOException");
                 eventListener.onPictureTakenError("IO Error when extracting exif");
-            } catch (Exception e) {
+            } catch (
+                    Exception e)
+
+            {
                 Log.d(TAG, "CameraPreview onPictureTaken general exception");
-            } finally {
+            } finally
+
+            {
                 canTakePicture = true;
                 return null;
             }
         }
     }
 
-  private Camera.Size getOptimalPictureSize(final int width, final int height, final Camera.Size previewSize, final List<Camera.Size> supportedSizes){
-    /*
-      get the supportedPictureSize that:
-      - matches exactly width and height
-      - has the closest aspect ratio to the preview aspect ratio
-      - has picture.width and picture.height closest to width and height
-      - has the highest supported picture width and height up to 2 Megapixel if width == 0 || height == 0
-    */
-    Camera.Size size = mCamera.new Size(width, height);
+    public void setPictureSize(final int width, final int height){
 
-    // convert to landscape if necessary
-    if (size.width < size.height) {
-      int temp = size.width;
-      size.width = size.height;
-      size.height = temp;
+        Camera.Parameters params = mCamera.getParameters();
+        params.setPictureSize(width, height);
+        setCameraParameters(params);
+        setPreviewSizeFromCameraPictureSize();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mPreview.requestLayout();
+            }
+        });
+
     }
-
-    Camera.Size requestedSize = mCamera.new Size(size.width, size.height);
-
-    double previewAspectRatio  = (double)previewSize.width / (double)previewSize.height;
-
-    if (previewAspectRatio < 1.0) {
-      // reset ratio to landscape
-      previewAspectRatio = 1.0 / previewAspectRatio;
-    }
-
-    Log.d(TAG, "CameraPreview previewAspectRatio " + previewAspectRatio);
-
-    double aspectTolerance = 0.1;
-    double bestDifference = Double.MAX_VALUE;
-
-    for (int i = 0; i < supportedSizes.size(); i++) {
-      Camera.Size supportedSize = supportedSizes.get(i);
-
-      // Perfect match
-      if (supportedSize.equals(requestedSize)) {
-        Log.d(TAG, "CameraPreview optimalPictureSize " + supportedSize.width + 'x' + supportedSize.height);
-        return supportedSize;
-      }
-
-      double difference = Math.abs(previewAspectRatio - ((double)supportedSize.width / (double)supportedSize.height));
-
-      if (difference < bestDifference - aspectTolerance) {
-        // better aspectRatio found
-        if ((width != 0 && height != 0) || (supportedSize.width * supportedSize.height < 2048 * 1024)) {
-          size.width = supportedSize.width;
-          size.height = supportedSize.height;
-          bestDifference = difference;
-        }
-      } else if (difference < bestDifference + aspectTolerance) {
-        // same aspectRatio found (within tolerance)
-        if (width == 0 || height == 0) {
-          // set highest supported resolution below 2 Megapixel
-          if ((size.width < supportedSize.width) && (supportedSize.width * supportedSize.height < 2048 * 1024)) {
-            size.width = supportedSize.width;
-            size.height = supportedSize.height;
-          }
-        } else {
-          // check if this pictureSize closer to requested width and height
-          if (Math.abs(width * height - supportedSize.width * supportedSize.height) < Math.abs(width * height - size.width * size.height)) {
-            size.width = supportedSize.width;
-            size.height = supportedSize.height;
-          }
-        }
-      }
-    }
-    Log.d(TAG, "CameraPreview optimalPictureSize " + size.width + 'x' + size.height);
-    return size;
-  }
 
   public void takePicture(final int width, final int height, final int quality){
     Log.d(TAG, "CameraPreview takePicture width: " + width + ", height: " + height + ", quality: " + quality);
@@ -563,8 +472,8 @@ public class CameraActivity extends Fragment {
         public void run() {
           Camera.Parameters params = mCamera.getParameters();
 
-          Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
-          params.setPictureSize(size.width, size.height);
+          /*Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
+          params.setPictureSize(size.width, size.height);*/
           currentQuality = quality;
 
           if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
@@ -574,7 +483,7 @@ public class CameraActivity extends Fragment {
             params.setJpegQuality(quality);
           }
 
-          mCamera.setParameters(params);
+          setCameraParameters(params);
           mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
         }
       }.start();
@@ -585,9 +494,13 @@ public class CameraActivity extends Fragment {
 
   public void setOrientation(int orientation){
     Log.d(TAG, "CameraPreview set orientation: " +exifToDegrees(deviceOrientation.getOrientation()));
-    Camera.Parameters params = mCamera.getParameters();
-    params.setRotation(exifToDegrees(orientation));
-    mCamera.setParameters(params);
+    if(mCamera != null){
+      mCamera.stopPreview();
+      Camera.Parameters params = mCamera.getParameters();
+      params.setRotation(exifToDegrees(orientation));
+      setCameraParameters(params);
+      mCamera.startPreview();
+    }
   }
 
   public void setFocusArea(final int pointX, final int pointY, final Camera.AutoFocusCallback callback) {
@@ -620,20 +533,53 @@ public class CameraActivity extends Fragment {
     if (x < 100) {
       x = 100;
     }
-    if (x > width - 100) {
-      x = width - 100;
+    if (x > mPreview.viewWidth - 100) {
+      x = mPreview.viewWidth - 100;
     }
     if (y < 100) {
       y = 100;
     }
-    if (y > height - 100) {
-      y = height - 100;
+    if (y > mPreview.viewHeight - 100) {
+      y = mPreview.viewHeight - 100;
     }
     return new Rect(
-      Math.round((x - 100) * 2000 / width  - 1000),
-      Math.round((y - 100) * 2000 / height - 1000),
-      Math.round((x + 100) * 2000 / width  - 1000),
-      Math.round((y + 100) * 2000 / height - 1000)
+      Math.round((x - 100) * 2000 / mPreview.viewWidth  - 1000),
+      Math.round((y - 100) * 2000 / mPreview.viewHeight - 1000),
+      Math.round((x + 100) * 2000 / mPreview.viewWidth  - 1000),
+      Math.round((y + 100) * 2000 / mPreview.viewHeight - 1000)
     );
   }
+
+    public void setPreviewSizeFromCameraPictureSize(){
+
+        Camera.Parameters cameraParams = mCamera.getParameters();
+
+        Camera.Size pictureSize = cameraParams.getPictureSize();
+
+        // Get pictureSize Ratio
+        mPreview.previewRatio = (double) pictureSize.width / pictureSize.height;
+    /*if (displayOrientation == 90 || displayOrientation == 270) {
+        targetRatio = (double) pictureSize.height / pictureSize.width;
+    }*/
+
+        // Get best preview size of the same ratio
+        List<Camera.Size> supportedPreviewSize = cameraParams.getSupportedPreviewSizes();
+
+        Camera.Size optimalPreviewSize = null;
+
+        for (Camera.Size size : supportedPreviewSize) {
+            double ratio = (double) size.width / size.height;
+            if(ratio == mPreview.previewRatio){
+                if(optimalPreviewSize == null){
+                    optimalPreviewSize = size;
+                }else if( (double)size.height * size.width > (double)optimalPreviewSize.height * optimalPreviewSize.width){
+                    optimalPreviewSize = size;
+                }
+            }
+        }
+
+        cameraParams.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
+        mCamera.setParameters(cameraParams);
+    }
+
 }
