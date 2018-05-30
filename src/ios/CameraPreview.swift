@@ -722,7 +722,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             
         }
         
-        // Take the last format with given dimensions, the one with biggest video dimensions
         if let format = foundFormat {
             sessionManager.setPictureSize(format)
         } else {
