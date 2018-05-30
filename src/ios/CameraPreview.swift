@@ -588,7 +588,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 var dimensions = [String: Any]()
                 dimensions["width"] = imageDimensions.width
                 dimensions["height"] = imageDimensions.height
-                dimensions["videoZoomFactorUpscaleThreshold"] = format.videoZoomFactorUpscaleThreshold
                 jsonFormats.append(dimensions)
                 
                 lastWidth = Int(imageDimensions.width)
@@ -711,8 +710,20 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             }
         }
 
+        var foundFormat: AVCaptureDevice.Format?
+        
+        // Find ideal format for this screen, = format with preview width just superior to screen width
+        for format: AVCaptureDevice.Format in dimensionsFormats {
+            let previewWidth = CGFloat(CMVideoFormatDescriptionGetDimensions(format.formatDescription).width)
+            if previewWidth >= UIScreen.main.scale * UIScreen.main.bounds.width {
+                foundFormat = format
+                break
+            }
+            
+        }
+        
         // Take the last format with given dimensions, the one with biggest video dimensions
-        if let format = dimensionsFormats.last {
+        if let format = foundFormat {
             sessionManager.setPictureSize(format)
         } else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Format not supported for this device, call getSupportedPictureSizes() to get all supported formats.")
