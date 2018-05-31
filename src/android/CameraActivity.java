@@ -180,7 +180,7 @@ public class CameraActivity extends Fragment {
                   setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
                     public void onAutoFocus(boolean success, Camera camera) {
                       if (success) {
-                        takePicture(0, 0, 85);
+                        takePicture(85);
                       } else {
                         Log.d(TAG, "onTouch:" + " setFocusArea() did not suceed");
                       }
@@ -188,7 +188,7 @@ public class CameraActivity extends Fragment {
                   });
 
                 } else if (tapToTakePicture) {
-                  takePicture(0, 0, 85);
+                  takePicture(85);
 
                 } else if (tapToFocus) {
                   setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
