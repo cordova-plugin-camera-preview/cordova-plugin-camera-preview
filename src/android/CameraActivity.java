@@ -458,8 +458,8 @@ public class CameraActivity extends Fragment {
 
     }
 
-  public void takePicture(final int width, final int height, final int quality){
-    Log.d(TAG, "CameraPreview takePicture width: " + width + ", height: " + height + ", quality: " + quality);
+  public void takePicture(final int quality){
+    Log.d(TAG, "CameraPreview takePicture quality: " + quality);
 
     if(mPreview != null) {
       if(!canTakePicture){

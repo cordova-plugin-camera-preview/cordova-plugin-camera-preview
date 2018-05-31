@@ -108,7 +108,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         cordova.requestPermissions(this, CAM_REQ_CODE, permissions);
       }
     } else if (TAKE_PICTURE_ACTION.equals(action)) {
-      return takePicture(args.getInt(0), args.getInt(1), args.getInt(2), callbackContext);
+      return takePicture(args.getInt(0), callbackContext);
     } else if (COLOR_EFFECT_ACTION.equals(action)) {
       return setColorEffect(args.getString(0), callbackContext);
     } else if (ZOOM_ACTION.equals(action)) {
@@ -325,14 +325,14 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     startCameraCallbackContext.sendPluginResult(pluginResult);
   }
 
-  private boolean takePicture(int width, int height, int quality, CallbackContext callbackContext) {
+  private boolean takePicture(int quality, CallbackContext callbackContext) {
     if(this.hasView(callbackContext) == false){
       return true;
     }
 
     takePictureCallbackContext = callbackContext;
 
-    fragment.takePicture(width, height, quality);
+    fragment.takePicture(quality);
 
     return true;
   }
