@@ -17,6 +17,7 @@
 - (void) setFlashMode:(CDVInvokedUrlCommand*)command;
 - (void) setZoom:(CDVInvokedUrlCommand*)command;
 - (void) getZoom:(CDVInvokedUrlCommand*)command;
+- (void) getHorizontalFOV:(CDVInvokedUrlCommand*)command;
 - (void) getMaxZoom:(CDVInvokedUrlCommand*)command;
 - (void) getExposureModes:(CDVInvokedUrlCommand*)command;
 - (void) getExposureMode:(CDVInvokedUrlCommand*)command;

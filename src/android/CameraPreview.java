@@ -30,6 +30,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String SUPPORTED_COLOR_EFFECTS_ACTION = "getSupportedColorEffects";
   private static final String ZOOM_ACTION = "setZoom";
   private static final String GET_ZOOM_ACTION = "getZoom";
+  private static final String GET_HFOV_ACTION = "getHorizontalFOV";
   private static final String GET_MAX_ZOOM_ACTION = "getMaxZoom";
   private static final String SUPPORTED_FLASH_MODES_ACTION = "getSupportedFlashModes";
   private static final String GET_FLASH_MODE_ACTION = "getFlashMode";
@@ -67,14 +68,14 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private CallbackContext takePictureCallbackContext;
   private CallbackContext setFocusCallbackContext;
   private CallbackContext startCameraCallbackContext;
-  private CallbackContext tapBackButtonContext;
+  private CallbackContext tapBackButtonContext  = null;
 
   private CallbackContext execCallback;
   private JSONArray execArgs;
 
   private ViewParent webViewParent;
 
-  private int containerViewId = 1;
+  private int containerViewId = 20; //<- set to random number to prevent conflict with other plugins
   public CameraPreview(){
     super();
     Log.d(TAG, "Constructing");
@@ -85,11 +86,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     if (START_CAMERA_ACTION.equals(action)) {
       if (cordova.hasPermission(permissions[0])) {
-        return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4), args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), args.getBoolean(9), callbackContext);
+        return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4), args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), args.getBoolean(9), args.getBoolean(10), callbackContext);
       } else {
         this.execCallback = callbackContext;
         this.execArgs = args;
         cordova.requestPermissions(this, CAM_REQ_CODE, permissions);
+        return true;
       }
     } else if (TAKE_PICTURE_ACTION.equals(action)) {
       return takePicture(args.getInt(0), args.getInt(1), args.getInt(2), callbackContext);
@@ -99,6 +101,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return setZoom(args.getInt(0), callbackContext);
     } else if (GET_ZOOM_ACTION.equals(action)) {
       return getZoom(callbackContext);
+    } else if (GET_HFOV_ACTION.equals(action)) {
+      return getHorizontalFOV(callbackContext);
     } else if (GET_MAX_ZOOM_ACTION.equals(action)) {
       return getMaxZoom(callbackContext);
     } else if (PREVIEW_SIZE_ACTION.equals(action)) {
@@ -162,7 +166,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       }
     }
     if (requestCode == CAM_REQ_CODE) {
-      startCamera(this.execArgs.getInt(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getString(4), this.execArgs.getBoolean(5), this.execArgs.getBoolean(6), this.execArgs.getBoolean(7), this.execArgs.getString(8), this.execArgs.getBoolean(9), this.execCallback);
+      startCamera(this.execArgs.getInt(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getString(4), this.execArgs.getBoolean(5), this.execArgs.getBoolean(6), this.execArgs.getBoolean(7), this.execArgs.getString(8), this.execArgs.getBoolean(9), this.execArgs.getBoolean(10), this.execCallback);
     }
   }
 
@@ -219,7 +223,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-    private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, boolean tapFocus, CallbackContext callbackContext) {
+    private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, boolean tapFocus, boolean disableExifHeaderStripping, CallbackContext callbackContext) {
     Log.d(TAG, "start camera action");
     if (fragment != null) {
       callbackContext.error("Camera already started");
@@ -234,6 +238,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.tapToTakePicture = tapToTakePicture;
     fragment.dragEnabled = dragEnabled;
     fragment.tapToFocus = tapFocus;
+    fragment.disableExifHeaderStripping = disableExifHeaderStripping;
+    fragment.toBack = toBack;
+
 
     DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
     // offset
@@ -264,15 +271,17 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         }
         //display camera bellow the webview
         if(toBack){
+
           webView.getView().setBackgroundColor(0x00000000);
           webViewParent = webView.getView().getParent();
-          ((ViewGroup)webViewParent).removeView(webView.getView());
-          ((ViewGroup)containerView.getParent()).addView(webView.getView(), 0);
-          ((ViewGroup)webView.getView()).bringToFront();
+           ((ViewGroup)webView.getView()).bringToFront();
+
         }else{
+
           //set camera back to front
           containerView.setAlpha(opacity);
           containerView.bringToFront();
+
         }
 
         //add the fragment to the container
@@ -334,12 +343,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     supportedColors = params.getSupportedColorEffects();
 
     if(supportedColors.contains(effect)){
-      params.setColorEffect(effect);      
+      params.setColorEffect(effect);
       fragment.setCameraParameters(params);
       callbackContext.success(effect);
     }else{
       callbackContext.error("Color effect not supported" + effect);
-      return true; 
+      return true;
     }
     return true;
   }
@@ -597,6 +606,22 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
+ private boolean getHorizontalFOV(CallbackContext callbackContext) {
+    if(this.hasCamera(callbackContext) == false){
+      return true;
+    }
+
+	Camera camera = fragment.getCamera();
+	Camera.Parameters params = camera.getParameters();
+
+	float horizontalViewAngle = params.getHorizontalViewAngle();
+
+	callbackContext.success(String.valueOf(horizontalViewAngle));
+
+	return true;
+  }
+
+
   private boolean getZoom(CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
@@ -782,8 +807,6 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
       cordova.getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          ((ViewGroup)webView.getView().getParent()).removeView(webView.getView());
-          ((ViewGroup)webViewParent).addView(webView.getView(), 0);
           ((ViewGroup)webView.getView()).bringToFront();
           webViewParent = null;
         }
@@ -889,6 +912,9 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
   }
 
   public void onBackButton() {
+    if(tapBackButtonContext == null) {
+      return;
+    }
     Log.d(TAG, "Back button tapped, notifying");
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, "Back button pressed");
     tapBackButtonContext.sendPluginResult(pluginResult);

@@ -221,8 +221,8 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         mSurfaceView.setWillNotDraw(false);
         mCamera.setPreviewDisplay(holder);
       }
-    } catch (IOException exception) {
-      Log.e(TAG, "IOException caused by setPreviewDisplay()", exception);
+    } catch (Exception exception) {
+      Log.e(TAG, "Exception caused by setPreviewDisplay()", exception);
     }
   }
 
@@ -279,18 +279,22 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
 
   public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
     if(mCamera != null) {
-      // Now that the size is known, set up the camera parameters and begin
-      // the preview.
-      mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
-      if (mSupportedPreviewSizes != null) {
-        mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, w, h);
+      try {
+        // Now that the size is known, set up the camera parameters and begin
+        // the preview.
+        mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
+        if (mSupportedPreviewSizes != null) {
+          mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, w, h);
+        }
+        Camera.Parameters parameters = mCamera.getParameters();
+        parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+        requestLayout();
+        //mCamera.setDisplayOrientation(90);
+        mCamera.setParameters(parameters);
+        mCamera.startPreview();
+      } catch (Exception exception) {
+        Log.e(TAG, "Exception caused by surfaceChanged()", exception);
       }
-      Camera.Parameters parameters = mCamera.getParameters();
-      parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-      requestLayout();
-      //mCamera.setDisplayOrientation(90);
-      mCamera.setParameters(parameters);
-      mCamera.startPreview();
     }
   }
 

@@ -79,6 +79,8 @@ public class CameraActivity extends Fragment {
   public boolean tapToTakePicture;
   public boolean dragEnabled;
   public boolean tapToFocus;
+  public boolean disableExifHeaderStripping;
+  public boolean toBack;
 
   public int width;
   public int height;
@@ -125,6 +127,14 @@ public class CameraActivity extends Fragment {
       mainLayout.addView(mPreview);
       mainLayout.setEnabled(false);
 
+        if(toBack == false) {
+            this.setupTouchAndBackButton();
+        }
+
+    }
+  }
+  private void setupTouchAndBackButton() {
+
       final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
 
       getActivity().runOnUiThread(new Runnable() {
@@ -146,7 +156,7 @@ public class CameraActivity extends Fragment {
               boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
               if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
                 if (tapToTakePicture && tapToFocus) {
-                  setFocusArea((int)event.getX(0), (int)event.getY(0), new Camera.AutoFocusCallback() {
+                  setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
                     public void onAutoFocus(boolean success, Camera camera) {
                       if (success) {
                         takePicture(0, 0, 85);
@@ -156,11 +166,11 @@ public class CameraActivity extends Fragment {
                     }
                   });
 
-                } else if(tapToTakePicture){
+                } else if (tapToTakePicture) {
                   takePicture(0, 0, 85);
 
-                } else if(tapToFocus){
-                  setFocusArea((int)event.getX(0), (int)event.getY(0), new Camera.AutoFocusCallback() {
+                } else if (tapToFocus) {
+                  setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
                     public void onAutoFocus(boolean success, Camera camera) {
                       if (success) {
                         // A callback to JS might make sense here.
@@ -178,13 +188,12 @@ public class CameraActivity extends Fragment {
 
                   switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                      if(mLastTouchX == 0 || mLastTouchY == 0) {
-                        mLastTouchX = (int)event.getRawX() - layoutParams.leftMargin;
-                        mLastTouchY = (int)event.getRawY() - layoutParams.topMargin;
-                      }
-                      else{
-                        mLastTouchX = (int)event.getRawX();
-                        mLastTouchY = (int)event.getRawY();
+                      if (mLastTouchX == 0 || mLastTouchY == 0) {
+                        mLastTouchX = (int) event.getRawX() - layoutParams.leftMargin;
+                        mLastTouchY = (int) event.getRawY() - layoutParams.topMargin;
+                      } else {
+                        mLastTouchX = (int) event.getRawX();
+                        mLastTouchY = (int) event.getRawY();
                       }
                       break;
                     case MotionEvent.ACTION_MOVE:
@@ -218,12 +227,11 @@ public class CameraActivity extends Fragment {
           });
           frameContainerLayout.setFocusableInTouchMode(true);
           frameContainerLayout.requestFocus();
-          frameContainerLayout.setOnKeyListener( new android.view.View.OnKeyListener() {
+          frameContainerLayout.setOnKeyListener(new android.view.View.OnKeyListener() {
             @Override
-            public boolean onKey( android.view.View v, int keyCode, android.view.KeyEvent event ) {
+            public boolean onKey(android.view.View v, int keyCode, android.view.KeyEvent event) {
 
-              if( keyCode == android.view.KeyEvent.KEYCODE_BACK )
-              {
+              if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
                 eventListener.onBackButton();
                 return true;
               }
@@ -232,7 +240,7 @@ public class CameraActivity extends Fragment {
           });
         }
       });
-    }
+
   }
 
   private void setDefaultCameraId(){
@@ -400,27 +408,29 @@ public class CameraActivity extends Fragment {
       Log.d(TAG, "CameraPreview jpegPictureCallback");
 
       try {
-        Matrix matrix = new Matrix();
-        if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-          matrix.preScale(1.0f, -1.0f);
-        }
+        if (!disableExifHeaderStripping) {
+          Matrix matrix = new Matrix();
+          if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            matrix.preScale(1.0f, -1.0f);
+          }
 
-        ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
-        int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        int rotationInDegrees = exifToDegrees(rotation);
+          ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
+          int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+          int rotationInDegrees = exifToDegrees(rotation);
 
-        if (rotation != 0f) {
-          matrix.preRotate(rotationInDegrees);
-        }
+          if (rotation != 0f) {
+            matrix.preRotate(rotationInDegrees);
+          }
 
-        // Check if matrix has changed. In that case, apply matrix and override data
-        if (!matrix.isIdentity()) {
-          Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-          bitmap = applyMatrix(bitmap, matrix);
+          // Check if matrix has changed. In that case, apply matrix and override data
+          if (!matrix.isIdentity()) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            bitmap = applyMatrix(bitmap, matrix);
 
-          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-          bitmap.compress(Bitmap.CompressFormat.JPEG, currentQuality, outputStream);
-          data = outputStream.toByteArray();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, currentQuality, outputStream);
+            data = outputStream.toByteArray();
+          }
         }
 
         String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
@@ -461,6 +471,8 @@ public class CameraActivity extends Fragment {
       size.height = temp;
     }
 
+    Camera.Size requestedSize = mCamera.new Size(size.width, size.height);
+
     double previewAspectRatio  = (double)previewSize.width / (double)previewSize.height;
 
     if (previewAspectRatio < 1.0) {
@@ -477,7 +489,7 @@ public class CameraActivity extends Fragment {
       Camera.Size supportedSize = supportedSizes.get(i);
 
       // Perfect match
-      if (supportedSize.equals(size)) {
+      if (supportedSize.equals(requestedSize)) {
         Log.d(TAG, "CameraPreview optimalPictureSize " + supportedSize.width + 'x' + supportedSize.height);
         return supportedSize;
       }
@@ -575,6 +587,18 @@ public class CameraActivity extends Fragment {
   }
 
   private Rect calculateTapArea(float x, float y, float coefficient) {
+    if (x < 100) {
+      x = 100;
+    }
+    if (x > width - 100) {
+      x = width - 100;
+    }
+    if (y < 100) {
+      y = 100;
+    }
+    if (y > height - 100) {
+      y = height - 100;
+    }
     return new Rect(
       Math.round((x - 100) * 2000 / width  - 1000),
       Math.round((y - 100) * 2000 / height - 1000),
