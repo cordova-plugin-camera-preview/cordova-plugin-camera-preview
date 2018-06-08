@@ -51,17 +51,11 @@
       </feature>
     </config-file>
 
-    <header-file src="src/ios/CameraPreview.h" />
-    <source-file src="src/ios/CameraPreview.m" />
-
-     <header-file src="src/ios/TemperatureAndTint.h" />
-    <source-file src="src/ios/TemperatureAndTint.m" />
-
-    <header-file src="src/ios/CameraSessionManager.h" />
-    <source-file src="src/ios/CameraSessionManager.m" />
-
-    <header-file src="src/ios/CameraRenderController.h" />
-    <source-file src="src/ios/CameraRenderController.m" />
+    <dependency id="cordova-plugin-add-swift-support" version="1.7.0"/>
+    <source-file src="src/ios/CameraPreview.swift" />
+    <source-file src="src/ios/TemperatureAndTint.swift" />
+    <source-file src="src/ios/CameraSessionManager.swift" />
+    <source-file src="src/ios/CameraRenderController.swift" />
 
     <framework src="ImageIO.framework" weak="true" />
     <framework src="MobileCoreServices.framework" />
