@@ -101,7 +101,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     switch (action) {
     case START_CAMERA_ACTION:
       if (cordova.hasPermission(permissions[0])) {
-        return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4),
+        startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4),
             args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), args.getBoolean(9),
             args.getBoolean(10), callbackContext);
       } else {
@@ -245,21 +245,21 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   private Camera getCameraInstance(int id) {
 
-		Camera camera = null;
+    Camera camera = null;
 
     try {
       camera = Camera.open(id);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       Log.e("BeMyEyeCamera", "Err: Camera unavailable : " + e.toString());
     }
-		return camera;
-	}
+    return camera;
+  }
 
   private void getSupportedPictureSizes(CallbackContext callbackContext) {
     List<Camera.Size> supportedSizes;
 
-    // TODO: change whole logic so that every method can be called even when camera is closed
+    // TODO: change whole logic so that every method can be called even when camera
+    // is closed
     if (fragment != null && fragment.getCamera() != null) {
       Camera camera = fragment.getCamera();
       supportedSizes = camera.getParameters().getSupportedPictureSizes();
