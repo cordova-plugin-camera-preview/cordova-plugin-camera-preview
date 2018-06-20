@@ -170,6 +170,10 @@ CameraPreview.setWhiteBalanceMode = function (whiteBalanceMode, onSuccess, onErr
   exec(onSuccess, onError, PLUGIN_NAME, "setWhiteBalanceMode", [whiteBalanceMode]);
 };
 
+CameraPreview.setScreenRotation = function (screenRotation, onSuccess, onError) {
+  exec(onSuccess, onError, PLUGIN_NAME, "setScreenRotation", [screenRotation]);
+};
+
 CameraPreview.onBackButton = function (onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
 };

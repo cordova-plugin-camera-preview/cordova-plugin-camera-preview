@@ -6,6 +6,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.hardware.Camera;
+import android.hardware.Camera.CameraInfo;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -68,6 +69,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String GET_EXPOSURE_COMPENSATION_RANGE_ACTION = "getExposureCompensationRange";
   private static final String GET_WHITE_BALANCE_MODE_ACTION = "getWhiteBalanceMode";
   private static final String SET_WHITE_BALANCE_MODE_ACTION = "setWhiteBalanceMode";
+  private static final String SET_SCREEN_ROTATION_ACTION = "setScreenRotation";
   private static final String SET_BACK_BUTTON_CALLBACK = "onBackButton";
 
   private static final int CAM_REQ_CODE = 0;
@@ -75,8 +77,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String[] permissions = { Manifest.permission.CAMERA };
 
   private CameraActivity fragment;
-
-  private DeviceOrientation deviceOrientation;
 
   private CallbackContext takePictureCallbackContext;
   private CallbackContext setFocusCallbackContext;
@@ -89,6 +89,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private ViewParent webViewParent;
 
   private int containerViewId = 20; // <- set to random number to prevent conflict with other plugins
+
+  private int screenRotation = 0;
 
   public CameraPreview() {
     super();
@@ -193,6 +195,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     case SET_WHITE_BALANCE_MODE_ACTION:
       setWhiteBalanceMode(args.getString(0), callbackContext);
       break;
+    case SET_SCREEN_ROTATION_ACTION:
+      setScreenRotation(args.getInt(0), callbackContext);
+      break;
     case SET_BACK_BUTTON_CALLBACK:
       setBackButtonListener(callbackContext);
       break;
@@ -256,7 +261,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   }
 
   private void getSupportedPictureSizes(CallbackContext callbackContext) {
-    List<Camera.Size> supportedSizes;
+    List<Camera.Size> supportedSizes = null;
 
     // TODO: change whole logic so that every method can be called even when camera
     // is closed
@@ -265,8 +270,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       supportedSizes = camera.getParameters().getSupportedPictureSizes();
     } else {
       Camera camera = this.getCameraInstance(Camera.CameraInfo.CAMERA_FACING_BACK);
-      supportedSizes = camera.getParameters().getSupportedPictureSizes();
-      camera.release();
+      if (camera != null) {
+        supportedSizes = camera.getParameters().getSupportedPictureSizes();
+        camera.release();
+      }
     }
 
     if (supportedSizes == null) {
@@ -303,8 +310,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     final float opacity = Float.parseFloat(alpha);
 
     fragment = new CameraActivity();
-    deviceOrientation = new DeviceOrientation(cordova.getActivity(), fragment);
-    fragment.deviceOrientation = deviceOrientation;
     fragment.setEventListener(this);
     fragment.defaultCamera = defaultCamera;
     fragment.tapToTakePicture = tapToTakePicture;
@@ -710,6 +715,37 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
   }
 
+  private void setScreenRotation(int screenRotation, CallbackContext callbackContext) {
+
+    this.screenRotation = screenRotation;
+
+    if (!this.hasCamera(callbackContext)) {
+      return;
+    }
+
+    setCameraRotation();
+
+    callbackContext.success();
+  }
+
+  private void setCameraRotation() {
+    Camera camera = fragment.getCamera();
+    Camera.Parameters params = camera.getParameters();
+
+    CameraInfo info = new CameraInfo();
+    Camera.getCameraInfo(fragment.cameraCurrentlyLocked, info);
+
+    int result;
+    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) { // front-facing
+      result = (540 + screenRotation - info.orientation) % 360;
+    } else { // back-facing
+      result = (360 - screenRotation + info.orientation) % 360;
+    }
+    params.setRotation(result);
+    fragment.setCameraParameters(params);
+    camera.startPreview();
+  }
+
   private void setPictureSize(int width, int height, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
       return;
@@ -720,7 +756,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     /*
      * Camera camera = fragment.getCamera(); Camera.Parameters params =
      * camera.getParameters();
-     * 
+     *
      * params.setPreviewSize(width, height); fragment.setCameraParameters(params);
      * camera.startPreview();
      */
@@ -867,8 +903,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragmentTransaction.remove(fragment);
     fragmentTransaction.commit();
     fragment = null;
-    deviceOrientation.pauseListening();
-    deviceOrientation = null;
 
     callbackContext.success();
   }
@@ -944,6 +978,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     fragment.switchCamera();
+    setCameraRotation();
     callbackContext.success();
   }
 
