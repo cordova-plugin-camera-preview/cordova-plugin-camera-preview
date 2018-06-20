@@ -82,46 +82,46 @@ class CameraSessionManager: NSObject {
         return videoDevice?.formats as! [AVCaptureDevice.Format]
     }
     
-    func setupSession(_ defaultCamera: String?, completion: @escaping (_ started: Bool) -> Void) {
-        // If this fails, video input will just stream blank frames and the user will be notified. User only has to accept once.
-        checkDeviceAuthorizationStatus()
-        sessionQueue?.async(execute: {() -> Void in
-            let error: Error? = nil
+    func setupSession(_ defaultCamera: String?, completion: @escaping (_ started: Bool, _ error: String?) -> Void) {
+        self.sessionQueue?.async(execute: {() -> Void in
             var success = true
+            var setupError : Error? = nil
+            
             print("defaultCamera: \(defaultCamera ?? "")")
             if defaultCamera == "front" {
                 self.defaultCamera = .front
             } else {
                 self.defaultCamera = .back
             }
+            
             let videoDevice: AVCaptureDevice? = self.cameraWithPosition(position: self.defaultCamera!)
+            
             if videoDevice?.hasFlash ?? false && videoDevice?.isFlashModeSupported(.auto) ?? false {
-                if try! videoDevice?.lockForConfiguration() != nil {
+                do {
+                    try videoDevice?.lockForConfiguration()
                     videoDevice?.flashMode = .auto
                     videoDevice?.unlockForConfiguration()
-                } else {
-                    if let anError = error {
-                        print("\(anError)")
-                    }
-                    success = false
+                } catch {
+                    setupError = error
                 }
             }
+            
+            if setupError != nil {
+                print("\(setupError)")
+                success = false
+            }
+            
             var videoDeviceInput: AVCaptureDeviceInput? = nil
             
             if let aDevice = videoDevice {
                 videoDeviceInput = try? AVCaptureDeviceInput(device: aDevice)
             }
             
-            if error != nil {
-                print("\(error)")
-                success = false
-            }
-            
             if (self.session?.canAddInput(videoDeviceInput))! {
                 self.session?.addInput(videoDeviceInput)
                 self.videoDeviceInput = videoDeviceInput
             }
-
+            
             let stillImageOutput = AVCaptureStillImageOutput()
             if (self.session?.canAddOutput(stillImageOutput))! {
                 self.session?.addOutput(stillImageOutput)
@@ -131,8 +131,9 @@ class CameraSessionManager: NSObject {
             }
             
             self.device = videoDevice
-            completion(success)
+            completion(success, setupError?.localizedDescription)
         })
+
     }
 
     func updateOrientation(_ orientation: AVCaptureVideoOrientation) {
@@ -632,19 +633,6 @@ class CameraSessionManager: NSObject {
     
     func onTapToFocusDone() {
         self.onTapToFocusDoneCompletion?()
-    }
-
-    func checkDeviceAuthorizationStatus() {
-        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo, completionHandler: {(_ granted: Bool) -> Void in
-            if !granted {
-                // Not granted access to mediaType
-                DispatchQueue.main.async(execute: {() -> Void in
-                    let alert = UIAlertController(title: "Error", message: "Camera permission not found. Please, check your privacy settings.", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .`default`))
-                    self.delegate?.present(alert, animated: true, completion: nil)
-                })
-            }
-        })
     }
 
     // Find a camera with the specified AVCaptureDevicePosition, returning nil if one is not found
