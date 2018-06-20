@@ -303,7 +303,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       CallbackContext callbackContext) {
     Log.d(TAG, "start camera action");
     if (fragment != null) {
-      callbackContext.error("Camera already started");
+      callbackContext.error("CameraAlreadyStarted");
       return;
     }
 

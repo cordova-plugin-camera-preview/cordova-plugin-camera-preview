@@ -40,7 +40,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             
             if self.sessionManager != nil {
                 print("--> Camera already started!")
-                let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera already started!")
+                let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "CameraAlreadyStarted")
                 self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
                 return
             }
