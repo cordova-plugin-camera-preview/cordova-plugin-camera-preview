@@ -28,68 +28,89 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     // 10 options.disableExifHeaderStripping]
     func startCamera(_ command: CDVInvokedUrlCommand) {
         print("--> startCamera")
-        if sessionManager != nil {
-            print("--> Camera already started!")
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera already started!")
-            commandDelegate.send(pluginResult, callbackId: command.callbackId)
-            return
-        }
         
-        self.startAccelerometerOrientation()
+        // Check if camera usage permission is granted in privacy settings. User only has to accept once.
+        checkDeviceAuthorizationStatus({(_ granted: Bool) -> Void in
+            // If not, return an error code
+            if !granted {
+                let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs:  "CameraUsageNotGranted")
+                self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+                return
+            }
+            
+            if self.sessionManager != nil {
+                print("--> Camera already started!")
+                let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera already started!")
+                self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+                return
+            }
+            
+            self.startAccelerometerOrientation()
+            
+            guard command.arguments.count > 3 else {
+                let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
+                self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+                return
+            }
+            
+            let x = (command.arguments[0] as? CGFloat ?? 0.0) + self.webView.frame.origin.x
+            let y = (command.arguments[1] as? CGFloat ?? 0.0) + self.webView.frame.origin.y
+            let width = CGFloat((command.arguments[2] as? Int)!)
+            let height = CGFloat((command.arguments[3] as? Int)!)
+            let defaultCamera = command.arguments[4]
+            let tapToTakePicture: Bool = (command.arguments[5] as? Int)! != 0
+            let dragEnabled: Bool = (command.arguments[6] as? Int)! != 0
+            let toBack: Bool = (command.arguments[7] as? Int)! != 0
+            let alpha = CGFloat((command.arguments[8] as? Int)!)
+            let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
+            let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0
+            
+            // Create the session manager
+            self.sessionManager = CameraSessionManager()
+            
+            // Render controller setup
+            self.cameraRenderController = CameraRenderController()
+            self.cameraRenderController.dragEnabled = dragEnabled
+            self.cameraRenderController.tapToTakePicture = tapToTakePicture
+            self.cameraRenderController.tapToFocus = tapToFocus
+            self.cameraRenderController.disableExifHeaderStripping = disableExifHeaderStripping
+            self.cameraRenderController.sessionManager = self.sessionManager
+            self.cameraRenderController.view.frame = CGRect(x: x, y: y, width: width, height: height)
+            self.cameraRenderController.delegate = self
+            self.viewController.addChildViewController(self.cameraRenderController)
+            
+            // Add video preview layer
+            let previewLayer = AVCaptureVideoPreviewLayer(session: self.sessionManager?.session!)
+            previewLayer?.frame = self.cameraRenderController.view.frame
+            self.cameraRenderController.view.layer.addSublayer(previewLayer!)
+            
+            if toBack {
+                // display the camera below the webview
+                // make transparent
+                self.webView.isOpaque = false
+                self.webView.backgroundColor = UIColor.clear
+                self.webView.superview?.addSubview(self.cameraRenderController.view)
+                self.webView.superview?.bringSubview(toFront: self.webView)
+            } else {
+                self.cameraRenderController.view.alpha = alpha
+                self.webView.superview?.insertSubview(self.cameraRenderController.view, aboveSubview: self.webView)
+            }
+            
+            // Setup session
+            self.sessionManager.delegate = self.cameraRenderController
+            self.sessionManager.setupSession(defaultCamera as? String, completion: {(_ started: Bool, _ error: String?) -> Void in
+                if started {
+                    self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
+                }
+            })
+        })
         
-        guard command.arguments.count > 3 else {
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
-            commandDelegate.send(pluginResult, callbackId: command.callbackId)
-            return
-        }
         
-        let x = (command.arguments[0] as? CGFloat ?? 0.0) + webView.frame.origin.x
-        let y = (command.arguments[1] as? CGFloat ?? 0.0) + webView.frame.origin.y
-        let width = CGFloat((command.arguments[2] as? Int)!)
-        let height = CGFloat((command.arguments[3] as? Int)!)
-        let defaultCamera = command.arguments[4]
-        let tapToTakePicture: Bool = (command.arguments[5] as? Int)! != 0
-        let dragEnabled: Bool = (command.arguments[6] as? Int)! != 0
-        let toBack: Bool = (command.arguments[7] as? Int)! != 0
-        let alpha = CGFloat((command.arguments[8] as? Int)!)
-        let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
-        let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0
-        
-        // Create the session manager
-        sessionManager = CameraSessionManager()
-        
-        // Render controller setup
-        cameraRenderController = CameraRenderController()
-        cameraRenderController.dragEnabled = dragEnabled
-        cameraRenderController.tapToTakePicture = tapToTakePicture
-        cameraRenderController.tapToFocus = tapToFocus
-        cameraRenderController.disableExifHeaderStripping = disableExifHeaderStripping
-        cameraRenderController.sessionManager = sessionManager
-        cameraRenderController.view.frame = CGRect(x: x, y: y, width: width, height: height)
-        cameraRenderController.delegate = self
-        viewController.addChildViewController(cameraRenderController)
-        
-        // Add video preview layer
-        let previewLayer = AVCaptureVideoPreviewLayer(session: sessionManager?.session!)
-        previewLayer?.frame = cameraRenderController.view.frame
-        cameraRenderController.view.layer.addSublayer(previewLayer!)
-        
-        if toBack {
-            // display the camera below the webview
-            // make transparent
-            webView.isOpaque = false
-            webView.backgroundColor = UIColor.clear
-            webView.superview?.addSubview(cameraRenderController.view)
-            webView.superview?.bringSubview(toFront: webView)
-        } else {
-            cameraRenderController.view.alpha = alpha
-            webView.superview?.insertSubview(cameraRenderController.view, aboveSubview: webView)
-        }
-        
-        // Setup session
-        sessionManager.delegate = cameraRenderController
-        sessionManager.setupSession(defaultCamera as? String, completion: {(_ started: Bool) -> Void in
-            self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
+    }
+    
+    func checkDeviceAuthorizationStatus(_ completion: @escaping (_ granted: Bool) -> Void) {
+        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo, completionHandler: {(_ granted: Bool) -> Void in
+            completion(granted)
         })
     }
     
