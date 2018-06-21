@@ -45,8 +45,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 return
             }
             
-            self.startAccelerometerOrientation()
-            
             guard command.arguments.count > 3 else {
                 let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
                 self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -104,37 +102,12 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 }
             })
         })
-        
-        
     }
     
     func checkDeviceAuthorizationStatus(_ completion: @escaping (_ granted: Bool) -> Void) {
         AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo, completionHandler: {(_ granted: Bool) -> Void in
             completion(granted)
         })
-    }
-    
-    func startAccelerometerOrientation() {
-        print("--> startAccelerometerOrientation")
-        motionManager = CMMotionManager()
-        motionManager.accelerometerUpdateInterval = 0.2
-        motionManager.startAccelerometerUpdates(to: OperationQueue() ) { p, _ in
-            if p != nil {
-                if abs(p!.acceleration.y) < abs(p!.acceleration.x) {
-                    if p!.acceleration.x > 0 {
-                        self.accelerometerOrientation = .landscapeLeft
-                    } else {
-                        self.accelerometerOrientation = .landscapeRight
-                    }
-                } else {
-                    if p!.acceleration.y > 0 {
-                        self.accelerometerOrientation = .portraitUpsideDown
-                    } else {
-                        self.accelerometerOrientation = .portrait
-                    }
-                }
-            }
-        }
     }
 
     func stopCamera(_ command: CDVInvokedUrlCommand) {
@@ -619,7 +592,36 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: jsonFormats)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
+    
+    func setScreenRotation(_ command: CDVInvokedUrlCommand) {
+        guard sessionManager != nil else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+        
+        guard command.arguments.count > 1  else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
+            commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+        
+        let rotationAngle = command.arguments[0] as? CGFloat ?? 0.0
+        
+        switch rotationAngle {
+            case 0:
+                self.accelerometerOrientation = .portrait
+            case 90:
+                self.accelerometerOrientation = .landscapeRight
+            case 180:
+                self.accelerometerOrientation = .portraitUpsideDown
+            case 270:
+                self.accelerometerOrientation = .landscapeLeft
+            default:
+                self.accelerometerOrientation = .portrait
+        }
+    }
+    
     func getBase64Image(_ image: UIImage, withQuality quality: CGFloat) -> String? {
         var base64Image: String? = nil
         do {
@@ -766,8 +768,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             // Fix front mirroring
             aConnection.isVideoMirrored = sessionManager.device?.position == AVCaptureDevicePosition.front
 
-            
-            
             // Capture image
             sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer!, _ error: Error?) -> Void in
 
