@@ -76,7 +76,6 @@ public class CameraActivity extends Fragment {
   private int numberOfCameras;
   public int cameraCurrentlyLocked;
   private int currentQuality;
-  private Camera.Size currentPictureSize;
 
   // The first rear facing camera
   private int defaultCameraId;
@@ -140,12 +139,6 @@ public class CameraActivity extends Fragment {
     cameraCurrentlyLocked = cameraId;
     setPreviewSizeFromCameraPictureSize();
     mPreview.setCamera(mCamera);
-    getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        mPreview.requestLayout();
-      }
-    });
 
   }
 
@@ -296,8 +289,7 @@ public class CameraActivity extends Fragment {
     Log.d(TAG, "on Resume");
 
     if (mCamera == null) {
-      initCamera(defaultCameraId, null);
-      currentPictureSize = mCamera.getParameters().getPictureSize();
+      initCamera(defaultCameraId, currentCameraParameters);
       eventListener.onCameraStarted();
 
     }
@@ -455,13 +447,8 @@ public class CameraActivity extends Fragment {
     Camera.Parameters params = mCamera.getParameters();
     params.setPictureSize(width, height);
     setCameraParameters(params);
+    Log.d(TAG, "setPictureSize " + width + ", " + height);
     setPreviewSizeFromCameraPictureSize();
-    getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        mPreview.requestLayout();
-      }
-    });
 
   }
 
@@ -555,17 +542,20 @@ public class CameraActivity extends Fragment {
 
     // Get pictureSize Ratio
     mPreview.previewRatio = (double) pictureSize.width / pictureSize.height;
-    /*
-     * if (displayOrientation == 90 || displayOrientation == 270) { targetRatio =
-     * (double) pictureSize.height / pictureSize.width; }
-     */
+    Log.d(TAG, "previewRatio " + mPreview.previewRatio);
+    getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mPreview.requestLayout();
+      }
+    });
 
     // Get best preview size of the same ratio
-    List<Camera.Size> supportedPreviewSize = cameraParams.getSupportedPreviewSizes();
+    List<Camera.Size> supportedPreviewSizes = cameraParams.getSupportedPreviewSizes();
 
     Camera.Size optimalPreviewSize = null;
 
-    for (Camera.Size size : supportedPreviewSize) {
+    for (Camera.Size size : supportedPreviewSizes) {
       double ratio = (double) size.width / size.height;
       if (ratio == mPreview.previewRatio) {
         if (optimalPreviewSize == null) {
