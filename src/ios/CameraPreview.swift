@@ -62,51 +62,52 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
             let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0
             
-            // Create the session manager
-            self.sessionManager = CameraSessionManager()
-            
-            // Render controller setup
-            self.cameraRenderController = CameraRenderController()
-            self.cameraRenderController.dragEnabled = dragEnabled
-            self.cameraRenderController.tapToTakePicture = tapToTakePicture
-            self.cameraRenderController.tapToFocus = tapToFocus
-            self.cameraRenderController.disableExifHeaderStripping = disableExifHeaderStripping
-            self.cameraRenderController.sessionManager = self.sessionManager
-            self.cameraRenderController.view.frame = CGRect(x: x, y: y, width: width, height: height)
-            self.cameraRenderController.delegate = self
-            self.viewController.addChildViewController(self.cameraRenderController)
-            
-            // Add video preview layer
-            let previewLayer = AVCaptureVideoPreviewLayer(session: self.sessionManager?.session!)
-            previewLayer?.frame = self.cameraRenderController.view.frame
-            self.cameraRenderController.view.layer.addSublayer(previewLayer!)
-            
-            if toBack {
-                // display the camera below the webview
-                // make transparent
-                self.webView.isOpaque = false
-                self.webView.backgroundColor = UIColor.clear
-                self.webView.superview?.addSubview(self.cameraRenderController.view)
-                self.webView.superview?.bringSubview(toFront: self.webView)
-            } else {
-                self.cameraRenderController.view.alpha = alpha
-                self.webView.superview?.insertSubview(self.cameraRenderController.view, aboveSubview: self.webView)
+            DispatchQueue.main.async {
+                // Create the session manager
+                self.sessionManager = CameraSessionManager()
+                
+                // Render controller setup
+                self.cameraRenderController = CameraRenderController()
+                self.cameraRenderController.dragEnabled = dragEnabled
+                self.cameraRenderController.tapToTakePicture = tapToTakePicture
+                self.cameraRenderController.tapToFocus = tapToFocus
+                self.cameraRenderController.disableExifHeaderStripping = disableExifHeaderStripping
+                self.cameraRenderController.sessionManager = self.sessionManager
+                self.cameraRenderController.view.frame = CGRect(x: x, y: y, width: width, height: height)
+                self.cameraRenderController.delegate = self
+                self.viewController.addChildViewController(self.cameraRenderController)
+                
+                // Add video preview layer
+                let previewLayer = AVCaptureVideoPreviewLayer(session: self.sessionManager?.session!)
+                previewLayer?.frame = self.cameraRenderController.view.frame
+                self.cameraRenderController.view.layer.addSublayer(previewLayer!)
+                
+                if toBack {
+                    // display the camera below the webview
+                    // make transparent
+                    self.webView.isOpaque = false
+                    self.webView.backgroundColor = UIColor.clear
+                    self.webView.superview?.addSubview(self.cameraRenderController.view)
+                    self.webView.superview?.bringSubview(toFront: self.webView)
+                } else {
+                    self.cameraRenderController.view.alpha = alpha
+                    self.webView.superview?.insertSubview(self.cameraRenderController.view, aboveSubview: self.webView)
+                }
+                
+                // Setup session
+                self.sessionManager.delegate = self.cameraRenderController
+                self.sessionManager.setupSession(defaultCamera as? String, completion: {(_ started: Bool, _ error: String?) -> Void in
+                    if started {
+                        self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
+                    }
+                })
             }
             
-            // Setup session
-            self.sessionManager.delegate = self.cameraRenderController
-            self.sessionManager.setupSession(defaultCamera as? String, completion: {(_ started: Bool, _ error: String?) -> Void in
-                if started {
-                    self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
-                }
-            })
         })
     }
     
     func checkDeviceAuthorizationStatus(_ completion: @escaping (_ granted: Bool) -> Void) {
-        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo, completionHandler: {(_ granted: Bool) -> Void in
-            completion(granted)
-        })
+        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo, completionHandler: completion)
     }
 
     func stopCamera(_ command: CDVInvokedUrlCommand) {
