@@ -600,14 +600,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             return
         }
         
-        guard command.arguments.count > 1  else {
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid number of parameters")
-            commandDelegate.send(pluginResult, callbackId: command.callbackId)
-            return
-        }
-        
-        let rotationAngle = command.arguments[0] as? CGFloat ?? 0.0
-        
+        let rotationAngle = command.arguments[0] as? Int ?? 0
+
         switch rotationAngle {
             case 0:
                 self.accelerometerOrientation = .portrait
