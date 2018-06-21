@@ -536,9 +536,9 @@ public class CameraActivity extends Fragment {
 
   public void setPreviewSizeFromCameraPictureSize() {
 
-    Camera.Parameters cameraParams = mCamera.getParameters();
+    Camera.Parameters params = mCamera.getParameters();
 
-    Camera.Size pictureSize = cameraParams.getPictureSize();
+    Camera.Size pictureSize = params.getPictureSize();
 
     // Get pictureSize Ratio
     mPreview.previewRatio = (double) pictureSize.width / pictureSize.height;
@@ -551,7 +551,7 @@ public class CameraActivity extends Fragment {
     });
 
     // Get best preview size of the same ratio
-    List<Camera.Size> supportedPreviewSizes = cameraParams.getSupportedPreviewSizes();
+    List<Camera.Size> supportedPreviewSizes = params.getSupportedPreviewSizes();
 
     Camera.Size optimalPreviewSize = null;
 
@@ -566,8 +566,11 @@ public class CameraActivity extends Fragment {
       }
     }
 
-    cameraParams.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
-    mCamera.setParameters(cameraParams);
+    params.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
+    setCameraParameters(params);
+    // Restart camera, otherwise it seems that new previewSize is not applied
+    mCamera.stopPreview();
+    mCamera.startPreview();
   }
 
 }
