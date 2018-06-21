@@ -114,6 +114,11 @@ public class CameraActivity extends Fragment {
     return mPreview;
   }
 
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    // No call for super(). Bug on API Level > 11.
+  }
+
   private void initCamera(int cameraId, Camera.Parameters cameraParameters) {
 
     if (mCamera != null) {
