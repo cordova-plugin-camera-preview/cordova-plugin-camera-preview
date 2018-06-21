@@ -6,8 +6,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     var sessionManager: CameraSessionManager!
     var cameraRenderController: CameraRenderController!
     var onPictureTakenHandlerId = ""
-    var motionManager: CMMotionManager!
-    var accelerometerOrientation: AVCaptureVideoOrientation?
+    var captureVideoOrientation: AVCaptureVideoOrientation?
     
     override func pluginInitialize() {
         // start as transparent
@@ -116,11 +115,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             cameraRenderController.view.removeFromSuperview()
             cameraRenderController.removeFromParentViewController()
             cameraRenderController = nil
-        }
-        
-        if motionManager != nil {
-            motionManager.stopAccelerometerUpdates()
-            motionManager = nil
         }
 
         commandDelegate.run(inBackground: {() -> Void in
@@ -604,15 +598,15 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
 
         switch rotationAngle {
             case 0:
-                self.accelerometerOrientation = .portrait
+                self.captureVideoOrientation = .portrait
             case 90:
-                self.accelerometerOrientation = .landscapeRight
+                self.captureVideoOrientation = .landscapeRight
             case 180:
-                self.accelerometerOrientation = .portraitUpsideDown
+                self.captureVideoOrientation = .portraitUpsideDown
             case 270:
-                self.accelerometerOrientation = .landscapeLeft
+                self.captureVideoOrientation = .landscapeLeft
             default:
-                self.accelerometerOrientation = .portrait
+                self.captureVideoOrientation = .portrait
         }
     }
     
@@ -647,7 +641,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     
     func radiansFromUIImageOrientation(_ orientation: UIImageOrientation) -> Double {
         var radians: Double
-        switch self.accelerometerOrientation! {
+        switch self.captureVideoOrientation! {
             case .portrait:
                 radians = .pi / 2
             case .landscapeLeft:
@@ -756,7 +750,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
 
             // Set orientation
             if self.cameraRenderController.disableExifHeaderStripping {
-                sessionManager.updateOrientation(self.accelerometerOrientation!)
+                sessionManager.updateOrientation(self.captureVideoOrientation!)
             }
 
             // Fix front mirroring
