@@ -719,11 +719,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     this.screenRotation = screenRotation;
 
-    if (!this.hasCamera(callbackContext)) {
-      return;
+    if (fragment != null && fragment.getCamera() != null) {
+      setCameraRotation();
     }
-
-    setCameraRotation();
 
     callbackContext.success();
   }
@@ -743,7 +741,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
     params.setRotation(result);
     fragment.setCameraParameters(params);
-    camera.startPreview();
   }
 
   private void setPictureSize(int width, int height, CallbackContext callbackContext) {
