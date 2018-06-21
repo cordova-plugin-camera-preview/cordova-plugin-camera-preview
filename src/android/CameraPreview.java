@@ -119,7 +119,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       setColorEffect(args.getString(0), callbackContext);
       break;
     case ZOOM_ACTION:
-      setZoom(args.getInt(0), callbackContext);
+      setZoom(args.getDouble(0), callbackContext);
       break;
     case GET_ZOOM_ACTION:
       getZoom(callbackContext);
@@ -697,7 +697,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
   }
 
-  private void setZoom(int zoom, CallbackContext callbackContext) {
+  private void setZoom(double zoom, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
       return;
     }
@@ -705,14 +705,32 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
     Camera.Parameters params = camera.getParameters();
 
-    if (camera.getParameters().isZoomSupported()) {
-      params.setZoom(zoom);
+    if (params.isZoomSupported()) {
+      List<Integer> zoomRatios = params.getZoomRatios();
+
+      params.setZoom(calculateZoomIndex(zoom, zoomRatios));
       fragment.setCameraParameters(params);
 
-      callbackContext.success(zoom);
+      callbackContext.success();
     } else {
       callbackContext.error("Zoom not supported");
     }
+  }
+
+  private int calculateZoomIndex(double zoom, List<Integer> zoomRatios) {
+    int zoomInBase100 = (int) (zoom * 100);
+    int zoomIndex = 0;
+    int size = zoomRatios.size();
+    for (int i = 0; i < size; i++) {
+      Integer zoomRatio = zoomRatios.get(i);
+      if (zoomRatio < zoomInBase100) {
+        zoomIndex = i;
+      } else {
+        break;
+      }
+    }
+
+    return zoomIndex;
   }
 
   private void setScreenRotation(int screenRotation, CallbackContext callbackContext) {
