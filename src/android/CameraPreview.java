@@ -6,15 +6,14 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.CameraInfo;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.FrameLayout;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -26,14 +25,7 @@ import org.json.JSONException;
 import java.util.List;
 import java.util.Arrays;
 
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.media.ExifInterface;
 import android.widget.RelativeLayout;
-
-import static android.content.Context.SENSOR_SERVICE;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
@@ -947,9 +939,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     setFocusCallbackContext = callbackContext;
 
-    fragment.setFocusArea(pointX, pointY, new Camera.AutoFocusCallback() {
+    fragment.setFocusArea(pointX, pointY, new AutoFocusCallback() {
       public void onAutoFocus(boolean success, Camera camera) {
         if (success) {
+          camera.cancelAutoFocus();
           onFocusSet(pointX, pointY);
         } else {
           onFocusSetError("fragment.setFocusArea() failed");

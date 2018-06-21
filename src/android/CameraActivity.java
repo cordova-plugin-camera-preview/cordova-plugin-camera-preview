@@ -1,52 +1,43 @@
 package com.cordovaplugincamerapreview;
 
-import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.app.Fragment;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.util.Base64;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.os.AsyncTask;
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.hardware.Camera.Area;
+import android.hardware.Camera.AutoFocusCallback;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
+import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.DisplayMetrics;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.support.media.ExifInterface;
-
-import org.apache.cordova.LOG;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.Exception;
 import java.lang.Integer;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Arrays;
+
+import static android.hardware.Camera.Parameters.FOCUS_MODE_AUTO;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_EDOF;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_FIXED;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_MACRO;
 
 public class CameraActivity extends Fragment {
 
@@ -71,7 +62,7 @@ public class CameraActivity extends Fragment {
   private boolean canTakePicture = true;
 
   public ViewGroup containerView;
-  private Camera.Parameters currentCameraParameters;
+  private Parameters currentCameraParameters;
   private Camera mCamera;
   private int numberOfCameras;
   public int cameraCurrentlyLocked;
@@ -118,7 +109,7 @@ public class CameraActivity extends Fragment {
     // No call for super(). Bug on API Level > 11.
   }
 
-  private void initCamera(int cameraId, Camera.Parameters cameraParameters) {
+  private void initCamera(int cameraId, Parameters cameraParameters) {
 
     if (mCamera != null) {
       if (cameraId == cameraCurrentlyLocked) {
@@ -137,6 +128,7 @@ public class CameraActivity extends Fragment {
     }
 
     cameraCurrentlyLocked = cameraId;
+    setBestFocusMode();
     setPreviewSizeFromCameraPictureSize();
     mPreview.setCamera(mCamera);
 
@@ -177,7 +169,7 @@ public class CameraActivity extends Fragment {
             boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
             if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
               if (tapToTakePicture && tapToFocus) {
-                setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
+                setFocusArea((int) event.getX(0), (int) event.getY(0), new AutoFocusCallback() {
                   public void onAutoFocus(boolean success, Camera camera) {
                     if (success) {
                       takePicture(85);
@@ -191,7 +183,7 @@ public class CameraActivity extends Fragment {
                 takePicture(85);
 
               } else if (tapToFocus) {
-                setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
+                setFocusArea((int) event.getX(0), (int) event.getY(0), new AutoFocusCallback() {
                   public void onAutoFocus(boolean success, Camera camera) {
                     if (success) {
                       // A callback to JS might make sense here.
@@ -338,7 +330,7 @@ public class CameraActivity extends Fragment {
     }
   }
 
-  public void setCameraParameters(Camera.Parameters params) {
+  public void setCameraParameters(Parameters params) {
     currentCameraParameters = params;
 
     if (mCamera != null && currentCameraParameters != null) {
@@ -444,7 +436,7 @@ public class CameraActivity extends Fragment {
 
   public void setPictureSize(final int width, final int height) {
 
-    Camera.Parameters params = mCamera.getParameters();
+    Parameters params = mCamera.getParameters();
     params.setPictureSize(width, height);
     setCameraParameters(params);
     Log.d(TAG, "setPictureSize " + width + ", " + height);
@@ -464,7 +456,7 @@ public class CameraActivity extends Fragment {
 
       new Thread() {
         public void run() {
-          Camera.Parameters params = mCamera.getParameters();
+          Parameters params = mCamera.getParameters();
 
           /*
            * Camera.Size size = getOptimalPictureSize(width, height,
@@ -489,20 +481,17 @@ public class CameraActivity extends Fragment {
     }
   }
 
-  public void setFocusArea(final int pointX, final int pointY, final Camera.AutoFocusCallback callback) {
+  public void setFocusArea(final int pointX, final int pointY, final AutoFocusCallback callback) {
     if (mCamera != null) {
 
-      mCamera.cancelAutoFocus();
-
-      Camera.Parameters parameters = mCamera.getParameters();
+      Parameters parameters = mCamera.getParameters();
 
       Rect focusRect = calculateTapArea(pointX, pointY, 1f);
-      parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-      parameters.setFocusAreas(Arrays.asList(new Camera.Area(focusRect, 1000)));
+      parameters.setFocusAreas(Arrays.asList(new Area(focusRect, 1000)));
 
       if (parameters.getMaxNumMeteringAreas() > 0) {
         Rect meteringRect = calculateTapArea(pointX, pointY, 1.5f);
-        parameters.setMeteringAreas(Arrays.asList(new Camera.Area(meteringRect, 1000)));
+        parameters.setMeteringAreas(Arrays.asList(new Area(meteringRect, 1000)));
       }
 
       try {
@@ -536,9 +525,9 @@ public class CameraActivity extends Fragment {
 
   public void setPreviewSizeFromCameraPictureSize() {
 
-    Camera.Parameters params = mCamera.getParameters();
+    Parameters params = mCamera.getParameters();
 
-    Camera.Size pictureSize = params.getPictureSize();
+    Size pictureSize = params.getPictureSize();
 
     // Get pictureSize Ratio
     mPreview.previewRatio = (double) pictureSize.width / pictureSize.height;
@@ -551,11 +540,11 @@ public class CameraActivity extends Fragment {
     });
 
     // Get best preview size of the same ratio
-    List<Camera.Size> supportedPreviewSizes = params.getSupportedPreviewSizes();
+    List<Size> supportedPreviewSizes = params.getSupportedPreviewSizes();
 
-    Camera.Size optimalPreviewSize = null;
+    Size optimalPreviewSize = null;
 
-    for (Camera.Size size : supportedPreviewSizes) {
+    for (Size size : supportedPreviewSizes) {
       double ratio = (double) size.width / size.height;
       if (ratio == mPreview.previewRatio) {
         if (optimalPreviewSize == null) {
@@ -571,6 +560,26 @@ public class CameraActivity extends Fragment {
     // Restart camera, otherwise it seems that new previewSize is not applied
     mCamera.stopPreview();
     mCamera.startPreview();
+  }
+
+  private void setBestFocusMode() {
+    Parameters params = mCamera.getParameters();
+    List<String> focusModes = params.getSupportedFocusModes();
+    if (focusModes.contains(FOCUS_MODE_CONTINUOUS_PICTURE)) {
+      params.setFocusMode(FOCUS_MODE_CONTINUOUS_PICTURE);
+    } else if (focusModes.contains(FOCUS_MODE_CONTINUOUS_VIDEO)) {
+      params.setFocusMode(FOCUS_MODE_CONTINUOUS_VIDEO);
+    } else if (focusModes.contains(FOCUS_MODE_EDOF)) {
+      params.setFocusMode(FOCUS_MODE_EDOF);
+    } else if (focusModes.contains(FOCUS_MODE_MACRO)) {
+      params.setFocusMode(FOCUS_MODE_MACRO);
+    } else if (focusModes.contains(FOCUS_MODE_AUTO)) {
+      params.setFocusMode(FOCUS_MODE_AUTO);
+    } else if (focusModes.contains(FOCUS_MODE_FIXED)) {
+      params.setFocusMode(FOCUS_MODE_FIXED);
+    }
+
+    setCameraParameters(params);
   }
 
 }
