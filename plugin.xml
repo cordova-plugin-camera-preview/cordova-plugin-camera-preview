@@ -19,7 +19,8 @@
     <source-file src="src/android/CustomSurfaceView.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/Preview.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/TapGestureDetector.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
+
+    <resource-file src="src/android/camera_theme.xml" target="res/values/camera_theme.xml" />
 
     <framework src="com.android.support:exifinterface:25+" />
 
