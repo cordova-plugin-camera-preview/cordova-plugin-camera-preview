@@ -2,7 +2,6 @@ package com.cordovaplugincamerapreview;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
-import android.graphics.RectF;
 import android.util.Base64;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -58,10 +57,6 @@ public class CameraActivity extends Fragment {
 
   private CameraPreviewListener eventListener;
   private static final String TAG = "PP/CameraActivity";
-  private static final float FOCUS_AREA_SIZE = 75f;
-  private static final float FOCUS_AREA_FULL_SIZE = 2000f;
-  private float focusKoefW;
-  private float focusKoefH;
 
   private Preview mPreview;
   private boolean canTakePicture = true;
@@ -552,7 +547,6 @@ public class CameraActivity extends Fragment {
         mPreview.requestLayout();
       }
     });
-    initFocusKoefs(mPreview.viewWidth, mPreview.viewHeight);
 
     // Get best preview size of the same ratio
     List<Size> supportedPreviewSizes = params.getSupportedPreviewSizes();
