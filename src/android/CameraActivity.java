@@ -488,13 +488,13 @@ public class CameraActivity extends Fragment {
 
       if (params.getMaxNumFocusAreas() > 0) {
         Rect tapArea = calculateTapArea(pointX, pointY, 1f);
-        Area area = new Area(convert(tapArea), 100);
+        Area area = new Area(tapArea, 1000);
         params.setFocusAreas(Arrays.asList(area));
       }
 
       if (params.getMaxNumMeteringAreas() > 0) {
         Rect meteringRect = calculateTapArea(pointX, pointY, 1.5f);
-        Area area = new Area(convert(meteringRect), 100);
+        Area area = new Area(meteringRect, 1000);
         params.setMeteringAreas(Arrays.asList(area));
       }
 
