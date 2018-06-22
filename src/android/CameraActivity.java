@@ -2,6 +2,7 @@ package com.cordovaplugincamerapreview;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.util.Base64;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -57,6 +58,10 @@ public class CameraActivity extends Fragment {
 
   private CameraPreviewListener eventListener;
   private static final String TAG = "PP/CameraActivity";
+  private static final float FOCUS_AREA_SIZE = 75f;
+  private static final float FOCUS_AREA_FULL_SIZE = 2000f;
+  private float focusKoefW;
+  private float focusKoefH;
 
   private Preview mPreview;
   private boolean canTakePicture = true;
@@ -484,18 +489,27 @@ public class CameraActivity extends Fragment {
   public void setFocusArea(final int pointX, final int pointY, final AutoFocusCallback callback) {
     if (mCamera != null) {
 
-      Parameters parameters = mCamera.getParameters();
+      Parameters params = mCamera.getParameters();
 
-      Rect focusRect = calculateTapArea(pointX, pointY, 1f);
-      parameters.setFocusAreas(Arrays.asList(new Area(focusRect, 1000)));
+      if (params.getMaxNumFocusAreas() > 0) {
+        Rect tapArea = calculateTapArea(pointX, pointY, 1f);
+        Area area = new Area(convert(tapArea), 100);
+        params.setFocusAreas(Arrays.asList(area));
+      }
 
-      if (parameters.getMaxNumMeteringAreas() > 0) {
+      if (params.getMaxNumMeteringAreas() > 0) {
         Rect meteringRect = calculateTapArea(pointX, pointY, 1.5f);
-        parameters.setMeteringAreas(Arrays.asList(new Area(meteringRect, 1000)));
+        Area area = new Area(convert(meteringRect), 100);
+        params.setMeteringAreas(Arrays.asList(area));
+      }
+
+      String focusMode = getBestFocusModeForTouchFocus();
+      if (focusMode != null) {
+        params.setFocusMode(focusMode);
       }
 
       try {
-        setCameraParameters(parameters);
+        setCameraParameters(params);
         mCamera.autoFocus(callback);
       } catch (Exception e) {
         Log.d(TAG, e.getMessage());
@@ -538,10 +552,23 @@ public class CameraActivity extends Fragment {
         mPreview.requestLayout();
       }
     });
+    initFocusKoefs(mPreview.viewWidth, mPreview.viewHeight);
 
     // Get best preview size of the same ratio
     List<Size> supportedPreviewSizes = params.getSupportedPreviewSizes();
 
+    Size optimalPreviewSize = findBestPreviewSize(pictureSize, supportedPreviewSizes);
+
+    if (optimalPreviewSize != null) {
+      params.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
+      setCameraParameters(params);
+      // Restart camera, otherwise it seems that new previewSize is not applied
+      mCamera.stopPreview();
+      mCamera.startPreview();
+    }
+  }
+
+  private Size findBestPreviewSize(Size pictureSize, List<Size> supportedPreviewSizes) {
     Size optimalPreviewSize = null;
 
     for (Size size : supportedPreviewSizes) {
@@ -554,12 +581,7 @@ public class CameraActivity extends Fragment {
         }
       }
     }
-
-    params.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
-    setCameraParameters(params);
-    // Restart camera, otherwise it seems that new previewSize is not applied
-    mCamera.stopPreview();
-    mCamera.startPreview();
+    return optimalPreviewSize;
   }
 
   private void setBestFocusMode() {
@@ -580,6 +602,19 @@ public class CameraActivity extends Fragment {
     }
 
     setCameraParameters(params);
+  }
+
+  private String getBestFocusModeForTouchFocus() {
+    Parameters params = mCamera.getParameters();
+    List<String> focusModes = params.getSupportedFocusModes();
+    if (focusModes.contains(FOCUS_MODE_AUTO)) {
+      return FOCUS_MODE_AUTO;
+    } else if (focusModes.contains(FOCUS_MODE_MACRO)) {
+      return FOCUS_MODE_MACRO;
+    } else if (focusModes.contains(FOCUS_MODE_FIXED)) {
+      return FOCUS_MODE_FIXED;
+    }
+    return null;
   }
 
 }
