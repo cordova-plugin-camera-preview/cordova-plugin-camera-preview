@@ -50,8 +50,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 return
             }
             
-            let x = (command.arguments[0] as? CGFloat ?? 0.0) + self.webView.frame.origin.x
-            let y = (command.arguments[1] as? CGFloat ?? 0.0) + self.webView.frame.origin.y
+
             let width = CGFloat((command.arguments[2] as? Int)!)
             let height = CGFloat((command.arguments[3] as? Int)!)
             let defaultCamera = command.arguments[4]
@@ -63,6 +62,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0
             
             DispatchQueue.main.async {
+                let x = (command.arguments[0] as? CGFloat ?? 0.0) + self.webView.frame.origin.x
+                let y = (command.arguments[1] as? CGFloat ?? 0.0) + self.webView.frame.origin.y
+                
                 // Create the session manager
                 self.sessionManager = CameraSessionManager()
                 
