@@ -29,8 +29,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.Exception;
 import java.lang.Integer;
+import java.util.Collections;
 import java.util.List;
-import java.util.Arrays;
 
 import static android.hardware.Camera.Parameters.FOCUS_MODE_AUTO;
 import static android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE;
@@ -484,23 +484,25 @@ public class CameraActivity extends Fragment {
   public void setFocusArea(final int pointX, final int pointY, final AutoFocusCallback callback) {
     if (mCamera != null) {
 
+      mCamera.cancelAutoFocus();
+
       Parameters params = mCamera.getParameters();
+
+      String focusMode = getBestFocusModeForTouchFocus();
+      if (focusMode != null) {
+        params.setFocusMode(focusMode);
+      }
 
       if (params.getMaxNumFocusAreas() > 0) {
         Rect tapArea = calculateTapArea(pointX, pointY, 1f);
         Area area = new Area(tapArea, 1000);
-        params.setFocusAreas(Arrays.asList(area));
+        params.setFocusAreas(Collections.singletonList(area));
       }
 
       if (params.getMaxNumMeteringAreas() > 0) {
         Rect meteringRect = calculateTapArea(pointX, pointY, 1.5f);
         Area area = new Area(meteringRect, 1000);
-        params.setMeteringAreas(Arrays.asList(area));
-      }
-
-      String focusMode = getBestFocusModeForTouchFocus();
-      if (focusMode != null) {
-        params.setFocusMode(focusMode);
+        params.setMeteringAreas(Collections.singletonList(area));
       }
 
       try {
@@ -514,6 +516,7 @@ public class CameraActivity extends Fragment {
   }
 
   private Rect calculateTapArea(float x, float y, float coefficient) {
+
     if (x < 100) {
       x = 100;
     }
