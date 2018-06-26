@@ -128,7 +128,6 @@ public class CameraActivity extends Fragment {
     }
 
     cameraCurrentlyLocked = cameraId;
-    setBestFocusMode();
     setPreviewSizeFromCameraPictureSize();
     mPreview.setCamera(mCamera);
 
@@ -579,26 +578,6 @@ public class CameraActivity extends Fragment {
       }
     }
     return optimalPreviewSize;
-  }
-
-  private void setBestFocusMode() {
-    Parameters params = mCamera.getParameters();
-    List<String> focusModes = params.getSupportedFocusModes();
-    if (focusModes.contains(FOCUS_MODE_CONTINUOUS_PICTURE)) {
-      params.setFocusMode(FOCUS_MODE_CONTINUOUS_PICTURE);
-    } else if (focusModes.contains(FOCUS_MODE_CONTINUOUS_VIDEO)) {
-      params.setFocusMode(FOCUS_MODE_CONTINUOUS_VIDEO);
-    } else if (focusModes.contains(FOCUS_MODE_EDOF)) {
-      params.setFocusMode(FOCUS_MODE_EDOF);
-    } else if (focusModes.contains(FOCUS_MODE_MACRO)) {
-      params.setFocusMode(FOCUS_MODE_MACRO);
-    } else if (focusModes.contains(FOCUS_MODE_AUTO)) {
-      params.setFocusMode(FOCUS_MODE_AUTO);
-    } else if (focusModes.contains(FOCUS_MODE_FIXED)) {
-      params.setFocusMode(FOCUS_MODE_FIXED);
-    }
-
-    setCameraParameters(params);
   }
 
   private String getBestFocusModeForTouchFocus() {
