@@ -3,9 +3,9 @@ Cordova Plugin Camera Preview
 
 Cordova plugin that allows camera interaction from Javascript and HTML
 
-**This plugin is under constant development. It is recommended to use master to always have the latest fixes and features.**
+**Releases are being kept up to date when appropriate. However, this plugin is under constant development. As such it is recommended to use master to always have the latest fixes & features.**
 
-**PR's are greatly appreciated**
+**PR's are greatly appreciated. Maintainer(s) wanted.**
 
 # Features
 
@@ -31,7 +31,7 @@ To install the master version with latest fixes and features
 ```
 cordova plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
 
-ionic plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
+ionic cordova plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git
 
 meteor add cordova:cordova-plugin-camera-preview@https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git#[latest_commit_id]
 
@@ -43,7 +43,7 @@ or if you want to use the last released version on npm
 ```
 cordova plugin add cordova-plugin-camera-preview
 
-ionic plugin add cordova-plugin-camera-preview
+ionic cordova plugin add cordova-plugin-camera-preview
 
 meteor add cordova:cordova-plugin-camera-preview@X.X.X
 
@@ -92,6 +92,7 @@ All options stated are optional and will default to values here
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
 * `tapFocus` - Defaults to false - Allows the user to tap to focus, when the view is in the foreground
 * `previewDrag` - Defaults to false - Does not work if toBack is set to false
+* `disableExifHeaderStripping` - Defaults to false - On Android disable automatic rotation of the image, and let the browser deal with it (keep reading on how to achieve it)
 
 ```javascript
 let options = {
@@ -118,6 +119,78 @@ html, body, .ion-app, .ion-content {
 ```
 
 When both tapFocus and tapPhoto are true, the camera will focus, and take a picture as soon as the camera is done focusing.
+
+#### Using disableExifHeaderStripping
+
+If you want to capture large images you will notice in Android that performace is very bad, in those cases you can set
+this flag, and add some extra Javascript/HTML to get a proper display of your captured images without risking your application speed.
+
+Example:
+
+```html
+<script src="https://raw.githubusercontent.com/blueimp/JavaScript-Load-Image/master/js/load-image.all.min.js"></script>
+
+<p><div id="originalPicture" style="width: 100%"></div></p>
+```
+
+```javascript
+let options = {
+  x: 0,
+  y: 0,
+  width: window.screen.width,
+  height: window.screen.height,
+  camera: CameraPreview.CAMERA_DIRECTION.BACK,
+  toBack: false,
+  tapPhoto: true,
+  tapFocus: false,
+  previewDrag: false,
+  disableExifHeaderStripping: true
+};
+....
+
+function gotRotatedCanvas(canvasimg) {
+  var displayCanvas = $('canvas#display-canvas');
+  loadImage.scale(canvasimg, function(img){
+    displayCanvas.drawImage(img)
+  }, {
+    maxWidth: displayCanvas.width,
+    maxHeight: displayCanvas.height
+  });
+}
+
+CameraPreview.getSupportedPictureSizes(function(dimensions){
+  dimensions.sort(function(a, b){
+    return (b.width * b.height - a.width * a.height);
+  });
+  var dimension = dimensions[0];
+  CameraPreview.takePicture({width:dimension.width, height:dimension.height, quality: 85}, function(base64PictureData){
+    /*
+      base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
+      Its up to the you to figure out the best way to save it to disk or whatever for your application.
+    */
+
+    var image = 'data:image/jpeg;base64,' + imgData;
+    let holder = document.getElementById('originalPicture');
+    let width = holder.offsetWidth;
+    loadImage(
+      image,
+      function(canvas) {
+        holder.innerHTML = "";
+        if (app.camera === 'front') {
+          // front camera requires we flip horizontally
+          canvas.style.transform = 'scale(1, -1)';
+        }
+        holder.appendChild(canvas);
+      },
+      {
+        maxWidth: width,
+        orientation: true,
+        canvas: true
+      }
+    );
+  });
+});
+```
 
 ### stopCamera([successCallback, errorCallback])
 
@@ -235,8 +308,6 @@ CameraPreview.getFlashMode(function(currentFlashMode){
 ```
 
 ### getHorizontalFOV(cb, [errorCallback])
-
-*Currently this feature is for Android only. A PR for iOS support would be happily accepted*
 
 <info>Get the Horizontal FOV for the camera device currently started. Returns a string of a float that is the FOV of the camera in Degrees. </info><br/>
 

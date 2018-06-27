@@ -30,8 +30,8 @@ CameraPreview.startCamera = function(options, onSuccess, onError) {
     if (typeof(options.alpha) === 'undefined') {
         options.alpha = 1;
     }
-
-    exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha, options.tapFocus]);
+    options.disableExifHeaderStripping = options.disableExifHeaderStripping || false;
+    exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha, options.tapFocus, options.disableExifHeaderStripping]);
 };
 
 CameraPreview.stopCamera = function(onSuccess, onError) {
