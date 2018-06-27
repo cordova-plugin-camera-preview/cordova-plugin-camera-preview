@@ -14,6 +14,7 @@
   </js-module>
 
   <platform name="android">
+    <source-file src="src/android/SimpleOrientationListener.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/CameraPreview.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/CustomSurfaceView.java" target-dir="src/com/cordovaplugincamerapreview" />
