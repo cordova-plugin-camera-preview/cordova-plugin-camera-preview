@@ -1,5 +1,5 @@
 package com.cordovaplugincamerapreview;
-
+import android.content.res.Resources;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.ImageFormat;
@@ -155,6 +155,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
     if (mSupportedPreviewSizes != null) {
       mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
     }
+    setCameraDisplayOrientation();
   }
 
   @Override
@@ -203,6 +204,11 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         nH = (height + scaledChildHeight) / 2;
         top = (height - scaledChildHeight) / 2;
         left = 0;
+      }
+      if (r>b){
+        //landscape
+        nW = Resources.getSystem().getDisplayMetrics().widthPixels;
+        nH = Resources.getSystem().getDisplayMetrics().heightPixels;
       }
       child.layout(left, top, nW, nH);
 

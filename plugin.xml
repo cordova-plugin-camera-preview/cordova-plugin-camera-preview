@@ -14,6 +14,7 @@
   </js-module>
 
   <platform name="android">
+    <source-file src="src/android/SimpleOrientationListener.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/CameraPreview.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/CustomSurfaceView.java" target-dir="src/com/cordovaplugincamerapreview" />
@@ -39,7 +40,7 @@
     </config-file>
 
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <activity android:name="com.cordovaplugincamerapreview.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
+      <activity android:name="com.cordovaplugincamerapreview.CameraActivity" android:configChanges="orientation|keyboardHidden" android:theme="@style/CameraPreviewTheme" />
     </config-file>
   </platform>
 
@@ -49,6 +50,10 @@
         <param name="ios-package" value="CameraPreview" onload="true" />
       </feature>
     </config-file>
+    
+       <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
+          <string>This App requires camera access to let you take the pictures that you would like to upload.</string>
+        </config-file>
 
     <header-file src="src/ios/CameraPreview.h" />
     <source-file src="src/ios/CameraPreview.m" />
