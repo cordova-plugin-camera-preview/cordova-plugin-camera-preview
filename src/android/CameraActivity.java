@@ -12,7 +12,6 @@ import android.hardware.Camera.Area;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
-import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.util.Log;
@@ -341,13 +340,6 @@ public class CameraActivity extends Fragment {
     return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
   }
 
-  ShutterCallback shutterCallback = new ShutterCallback() {
-    public void onShutter() {
-      // do nothing, availability of this callback causes default system shutter sound
-      // to work
-    }
-  };
-
   private static int exifToDegrees(int exifOrientation) {
     if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
       return 90;
@@ -472,7 +464,7 @@ public class CameraActivity extends Fragment {
           }
 
           setCameraParameters(params);
-          mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
+          mCamera.takePicture(null, null, jpegPictureCallback);
         }
       }.start();
     } else {
