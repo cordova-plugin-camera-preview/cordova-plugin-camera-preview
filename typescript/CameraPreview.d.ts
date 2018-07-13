@@ -65,4 +65,5 @@ interface CameraPreview {
   getSupportedWhiteBalanceMode(onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
   setWhiteBalanceMode(whiteBalanceMode?:CameraPreviewWhiteBalanceMode|string, onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
   onBackButton(onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
+  getCameraCharacteristics(onSuccess?:CameraPreviewSuccessHandler, onError?:CameraPreviewErrorHandler):void;
 }
