@@ -723,6 +723,9 @@
 
         CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
         UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
+        
+        CGFloat picWidth = resultImage.size.width;
+        CGFloat picHeight = resultImage.size.height;
 
         double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
         CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
@@ -734,6 +737,8 @@
         CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
 
         [params addObject:base64Image];
+        [params addObject:[NSString stringWithFormat:@"%f", picWidth]];
+        [params addObject:[NSString stringWithFormat:@"%f", picHeight]];
 
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
         [pluginResult setKeepCallbackAsBool:true];
@@ -741,4 +746,38 @@
       }
     }];
 }
+
+- (void) getCameraPreview:(CDVInvokedUrlCommand*)command {
+  NSLog(@"getCameraPreview");
+  NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+  [response setValue:self.previewImage forKey:@"image"];
+  [response setValue:self.previewWidth forKey:@"width"];
+  [response setValue:self.previewHeight forKey:@"height"];
+  
+  CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
+  //[pluginResult setKeepCallbackAsBool:true];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  
+  
+}
+
+- (void) invokePreviewDispatch:(CIImage*) preview {
+    CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:preview fromRect:preview.extent];
+    UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
+
+    CGFloat picWidthHelper = resultImage.size.width;
+    CGFloat picHeightHelper = resultImage.size.height;
+    self.previewWidth = [NSString stringWithFormat:@"%f", picWidthHelper];
+    self.previewHeight = [NSString stringWithFormat:@"%f", picHeightHelper];
+
+    double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
+    CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
+
+    CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
+    CGFloat quality = 99;
+    self.previewImage = [self getBase64Image:resultFinalImage withQuality:quality];
+
+    CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
+}
+
 @end

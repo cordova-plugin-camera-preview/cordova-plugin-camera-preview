@@ -18,6 +18,10 @@
 - (void) invokeTapToFocus:(CGPoint)point;
 @end;
 
+@protocol PreviewDelegate
+- (void) invokePreviewDispatch:(CIImage*)preview;
+@end;
+
 @interface CameraRenderController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OnFocusDelegate> {
   GLuint _renderBuffer;
   CVOpenGLESTextureCacheRef _videoTextureCache;

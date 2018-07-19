@@ -205,6 +205,10 @@ CameraPreview.getCameraCharacteristics = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getCameraCharacteristics", []);
 };
 
+CameraPreview.getCameraPreview = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getCameraPreview", []);
+};
+
 CameraPreview.FOCUS_MODE = {
     FIXED: 'fixed',
     AUTO: 'auto',

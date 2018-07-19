@@ -216,6 +216,12 @@
     [self.context presentRenderbuffer:GL_RENDERBUFFER];
     [(GLKView *)(self.view)display];
     [self.renderLock unlock];
+    
+    @autoreleasepool {
+      dispatch_async(self.sessionManager.sessionQueue, ^{
+        [self.delegate invokePreviewDispatch:croppedImage];
+      });
+    }
   }
 }
 

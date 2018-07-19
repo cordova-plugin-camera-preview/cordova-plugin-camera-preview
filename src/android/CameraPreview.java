@@ -64,6 +64,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String SET_WHITE_BALANCE_MODE_ACTION = "setWhiteBalanceMode";
   private static final String SET_BACK_BUTTON_CALLBACK = "onBackButton";
   private static final String GET_CAMERA_CHARACTERISTICS_ACTION = "getCameraCharacteristics";
+  private static final String GET_CAMERA_PREVIEW = "getCameraPreview";
 
   private static final int CAM_REQ_CODE = 0;
 
@@ -71,7 +72,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Manifest.permission.CAMERA
   };
 
-  private CameraActivity fragment;
+  private CameraActivity  fragment;
   private CallbackContext takePictureCallbackContext;
   private CallbackContext setFocusCallbackContext;
   private CallbackContext startCameraCallbackContext;
@@ -162,7 +163,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return getSupportedColorEffects(callbackContext);
     } else if (GET_CAMERA_CHARACTERISTICS_ACTION.equals(action)) {
       return getCameraCharacteristics(callbackContext);
-    }  
+    } else if (GET_CAMERA_PREVIEW.equals(action)) {
+      return getCameraPreview(callbackContext);
+    }
     return false;
   }
 
@@ -306,7 +309,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   public void onCameraStarted() {
     Log.d(TAG, "Camera started");
-
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, "Camera started");
     pluginResult.setKeepCallback(true);
     startCameraCallbackContext.sendPluginResult(pluginResult);
@@ -324,13 +326,19 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  public void onPictureTaken(String originalPicture) {
+  public void onPictureTaken(String originalPicture, int width, int height) {
     Log.d(TAG, "returning picture");
 
-    JSONArray data = new JSONArray();
-    data.put(originalPicture);
-
-    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
+    JSONObject json = new JSONObject();
+    try {
+      json.put("image", originalPicture);
+      json.put("width", width);
+      json.put("height", height);
+    }
+    catch (JSONException e) {
+      // not interested
+    }
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, json);
     pluginResult.setKeepCallback(true);
     takePictureCallbackContext.sendPluginResult(pluginResult);
   }
@@ -684,7 +692,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-private boolean getSupportedFlashModes(CallbackContext callbackContext) {
+  private boolean getSupportedFlashModes(CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
     }
@@ -705,7 +713,7 @@ private boolean getSupportedFlashModes(CallbackContext callbackContext) {
     return true;
   }
 
-private boolean getSupportedFocusModes(CallbackContext callbackContext) {
+  private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
     }
@@ -747,7 +755,7 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     return true;
   }
 
-    private boolean setFocusMode(String focusMode, CallbackContext callbackContext) {
+  private boolean setFocusMode(String focusMode, CallbackContext callbackContext) {
     if(this.hasCamera(callbackContext) == false){
       return true;
     }
@@ -989,5 +997,20 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     callbackContext.success(data);
     return true;
   }
-  
+
+  private boolean getCameraPreview(CallbackContext callbackContext) {
+    Log.d(TAG, "Request camera preview");
+    JSONObject json = new JSONObject();
+    try {
+      json.put("image", fragment.previewImage);
+      json.put("width", fragment.previewWidth);
+      json.put("height", fragment.previewHeight);
+    }
+    catch (JSONException e) {
+      // not interested
+    }
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, json);
+    callbackContext.sendPluginResult(pluginResult);
+    return true;
+  }
 }
