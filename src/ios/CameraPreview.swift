@@ -142,8 +142,10 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             }
 
             self.sessionManager.session?.stopRunning()
+            self.sessionManager.delegate = nil;
             self.sessionManager = nil
 
+            print("--> camera stopped")
             self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
         })
     }
