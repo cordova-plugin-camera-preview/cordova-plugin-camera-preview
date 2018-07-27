@@ -330,7 +330,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         if (containerView == null) {
           containerView = new RelativeLayout(cordova.getActivity().getApplicationContext());
           containerView.setId(containerViewId);
-          containerView.setBackgroundColor(Color.BLACK);
 
           containerView.setGravity(Gravity.CENTER);
           RelativeLayout.LayoutParams containerLayoutParams = new RelativeLayout.LayoutParams(computedWidth,
@@ -341,8 +340,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
           // Add the containerView to the parent of the webview
           webViewParentGroup.addView(containerView, containerLayoutParams);
-
         }
+
+        containerView.setBackgroundColor(Color.BLACK);
+
         // display camera bellow the webview
         if (toBack) {
           webView.getView().setBackgroundColor(0x00000000);
