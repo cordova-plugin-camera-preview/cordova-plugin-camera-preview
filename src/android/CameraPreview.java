@@ -903,6 +903,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragmentTransaction.commit();
     fragment = null;
 
+    RelativeLayout containerView = cordova.getActivity().findViewById(containerViewId);
+    containerView.setBackgroundColor(Color.TRANSPARENT);
+
     callbackContext.success();
   }
 
