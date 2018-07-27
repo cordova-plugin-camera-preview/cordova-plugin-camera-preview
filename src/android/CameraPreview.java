@@ -325,12 +325,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       @Override
       public void run() {
 
-        // create or update the layout params for the container view
+        // The layout is only created on first call, and next times we reuse it
         RelativeLayout containerView = cordova.getActivity().findViewById(containerViewId);
         if (containerView == null) {
           containerView = new RelativeLayout(cordova.getActivity().getApplicationContext());
           containerView.setId(containerViewId);
-          containerView.setBackgroundColor(Color.BLACK);
 
           containerView.setGravity(Gravity.CENTER);
           RelativeLayout.LayoutParams containerLayoutParams = new RelativeLayout.LayoutParams(computedWidth,
@@ -341,8 +340,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
           // Add the containerView to the parent of the webview
           webViewParentGroup.addView(containerView, containerLayoutParams);
-
         }
+
+        containerView.setBackgroundColor(Color.BLACK);
+
         // display camera bellow the webview
         if (toBack) {
           webView.getView().setBackgroundColor(0x00000000);
@@ -902,6 +903,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragmentTransaction.remove(fragment);
     fragmentTransaction.commit();
     fragment = null;
+
+    // Hide the layout because it is not destroyed
+    RelativeLayout containerView = cordova.getActivity().findViewById(containerViewId);
+    containerView.setBackgroundColor(Color.TRANSPARENT);
 
     callbackContext.success();
   }
