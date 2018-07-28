@@ -91,6 +91,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         this.execCallback = callbackContext;
         this.execArgs = args;
         cordova.requestPermissions(this, CAM_REQ_CODE, permissions);
+        return true;
       }
     } else if (TAKE_PICTURE_ACTION.equals(action)) {
       return takePicture(args.getInt(0), args.getInt(1), args.getInt(2), callbackContext);
@@ -239,6 +240,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.tapToFocus = tapFocus;
     fragment.disableExifHeaderStripping = disableExifHeaderStripping;
     fragment.storeToFile = storeToFile;
+    fragment.toBack = toBack;
 
     DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
     // offset
@@ -269,15 +271,17 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         }
         //display camera bellow the webview
         if(toBack){
+
           webView.getView().setBackgroundColor(0x00000000);
           webViewParent = webView.getView().getParent();
-          ((ViewGroup)webViewParent).removeView(webView.getView());
-          ((ViewGroup)containerView.getParent()).addView(webView.getView(), 0);
-          ((ViewGroup)webView.getView()).bringToFront();
+           ((ViewGroup)webView.getView()).bringToFront();
+
         }else{
+
           //set camera back to front
           containerView.setAlpha(opacity);
           containerView.bringToFront();
+
         }
 
         //add the fragment to the container
@@ -803,8 +807,6 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
       cordova.getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          ((ViewGroup)webView.getView().getParent()).removeView(webView.getView());
-          ((ViewGroup)webViewParent).addView(webView.getView(), 0);
           ((ViewGroup)webView.getView()).bringToFront();
           webViewParent = null;
         }
