@@ -178,7 +178,7 @@ CameraPreview.onBackButton = function(onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
 };
 
-CameraPreview.fetchLocal = function(url, onSuccess, onError) {
+CameraPreview.getBlob = function(url, onSuccess, onError) {
     var xhr = new XMLHttpRequest
     xhr.onload = function() {
         if (xhr.status != 0 && (xhr.status < 200 || xhr.status >= 300)) {

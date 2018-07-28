@@ -267,7 +267,38 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
   });
 });
 ```
+### getBlob(url, [successCallback, errorCallback])
 
+When working with local files you may want to display those on certain containers like canvas,
+given that file:// is not always a valid url type, you need to first convert it explicitly to
+a blob, before you push it further into the display side. The function getBlob will do the
+proper conversion for you, and if succedeed will pass the content on it's callback function as
+first argument.
+
+```javascript
+
+function displayImage(content) {
+  var ctx = $("canvas").getContext('2d');
+
+  img.onload = function(){
+    ctx.drawImage(img, 0, 0)
+  }
+
+  img.src = URL.createObjectURL(blob);
+}
+
+function takePicture() {
+  CameraPreview.takePicture({width: app.dimension.width, height: app.dimension.height}, function(data){
+    if (cordova.platformId === 'android') {
+      CameraPreview.getBlob('file://' + data, function(image) {
+        displayImage(image);
+      });
+    } else {
+      displayImage('data:image/jpeg;base64,' + data);
+    }
+  });
+}
+```
 
 ### stopCamera([successCallback, errorCallback])
 
