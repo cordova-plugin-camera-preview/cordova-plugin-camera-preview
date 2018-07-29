@@ -137,7 +137,6 @@ CameraPreview.tapToFocus = function(xPoint, yPoint, onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "tapToFocus", [xPoint, yPoint]);
 };
 
-
 CameraPreview.getExposureModes = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getExposureModes", []);
 };
@@ -175,7 +174,7 @@ CameraPreview.setWhiteBalanceMode = function(whiteBalanceMode, onSuccess, onErro
 };
 
 CameraPreview.onBackButton = function(onSuccess, onError) {
-  exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
+    exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
 };
 
 CameraPreview.getBlob = function(url, onSuccess, onError) {
@@ -200,6 +199,10 @@ CameraPreview.getBlob = function(url, onSuccess, onError) {
     xhr.open('GET', url);
     xhr.responseType = 'arraybuffer';
     xhr.send(null);
+};
+
+CameraPreview.getCameraCharacteristics = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getCameraCharacteristics", []);
 };
 
 CameraPreview.FOCUS_MODE = {
