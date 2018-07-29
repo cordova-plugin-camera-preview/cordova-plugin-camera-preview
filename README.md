@@ -451,7 +451,7 @@ function takePicture() {
 }
 ```
 
-### Using `storeToFile`
+# storeToFile
 
 When capturing large images you rather want those to be stored into a file instead of having those
 base64 enconded, as enconding at least on Android is very expensive. With the feature storeToFile enabled
@@ -526,7 +526,7 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
 });
 ```
 
-### Using `disableExifHeaderStripping`
+## disableExifHeaderStripping
 
 If you want to capture large images you will notice in Android that performace is very bad, in those cases you can set
 this flag, and add some extra Javascript/HTML to get a proper display of your captured images without risking your application speed.
