@@ -556,8 +556,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let width = command.arguments[0] as? CGFloat ?? 0.0
         let height = command.arguments[1] as? CGFloat ?? 0.0
         
-        cameraRenderController.view.frame = CGRect(x: 0, y: 0, width: width, height: height)
-        
         // Set capture device format matching given width and height
         setCaptureDeviceFormat(width, height: height)
         
