@@ -142,10 +142,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             }
 
             self.sessionManager.session?.stopRunning()
-            if self.sessionManager.delegate != nil {
-                self.sessionManager.delegate = nil;
-            }
+
             if self.sessionManager != nil {
+                self.sessionManager.delegate = nil;
                 self.sessionManager = nil;
             }
 
