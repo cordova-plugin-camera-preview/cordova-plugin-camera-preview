@@ -742,6 +742,18 @@ Note: Use AUTO to allow the device automatically adjusts the exposure once and t
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
 
+# Customize Android Support Library versions (Android only)
+The default `ANDROID_SUPPORT_LIBRARY_VERSION` is set to `25+`.
+If you need a different version, add argument `--variable ANDROID_SUPPORT_LIBRARY_VERSION="{version}"`.
+
+Or edit `config.xml` with following,
+
+```xml
+<plugin name="cordova-plugin-camera-preview" spec="X.X.X">
+  <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="25+" />
+</plugin>
+```
+
 # Sample App
 
 <a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview-sample-app">cordova-plugin-camera-preview-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
