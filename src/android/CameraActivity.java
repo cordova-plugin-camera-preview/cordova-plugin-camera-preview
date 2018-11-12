@@ -52,7 +52,7 @@ import java.util.Arrays;
 public class CameraActivity extends Fragment {
 
   public interface CameraPreviewListener {
-    void onPictureTaken(String originalPicture);
+    void onPictureTaken(String originalPicture, int width, int height);
     void onPictureTakenError(String message);
     void onFocusSet(int pointX, int pointY);
     void onFocusSetError(String message);
@@ -71,6 +71,7 @@ public class CameraActivity extends Fragment {
   private View view;
   private Camera.Parameters cameraParameters;
   private Camera mCamera;
+  private String mData = null;
   private int numberOfCameras;
   private int cameraCurrentlyLocked;
   private int currentQuality;
@@ -89,6 +90,15 @@ public class CameraActivity extends Fragment {
   public int height;
   public int x;
   public int y;
+
+  public int picWidth;
+  public int picHeight;
+
+  public String previewImage;
+  public int previewWidth;
+  public int previewHeight;
+
+  private Camera.Size previewSize = null;
 
   public void setEventListener(CameraPreviewListener listener){
     eventListener = listener;
@@ -130,9 +140,9 @@ public class CameraActivity extends Fragment {
       mainLayout.addView(mPreview);
       mainLayout.setEnabled(false);
 
-        if(toBack == false) {
+      if (toBack == false) {
             this.setupTouchAndBackButton();
-        }
+      }
 
     }
   }
@@ -302,6 +312,7 @@ public class CameraActivity extends Fragment {
             FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
             camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
             frameCamContainerLayout.setLayoutParams(camViewLayout);
+            mCamera.setPreviewCallback(previewCallback);
           }
         }
       });
@@ -449,14 +460,13 @@ public class CameraActivity extends Fragment {
 
         if (!storeToFile) {
           String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
-
-          eventListener.onPictureTaken(encodedImage);
+          eventListener.onPictureTaken(encodedImage, picWidth, picHeight);
         } else {
           String path = getTempDirectoryPath() + "/capture.jpg";
           FileOutputStream out = new FileOutputStream(path);
           out.write(data);
           out.close();
-          eventListener.onPictureTaken(path);
+          eventListener.onPictureTaken(path, picWidth, picHeight);
         }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
       } catch (OutOfMemoryError e) {
@@ -543,6 +553,8 @@ public class CameraActivity extends Fragment {
       }
     }
     Log.d(TAG, "CameraPreview optimalPictureSize " + size.width + 'x' + size.height);
+    this.picWidth = size.width;
+    this.picHeight = size.height;
     return size;
   }
 
@@ -628,4 +640,36 @@ public class CameraActivity extends Fragment {
       Math.round((y + 100) * 2000 / height - 1000)
     );
   }
+
+  private Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
+    @Override
+    public void onPreviewFrame(byte[] data, Camera camera) {
+      try {
+        Camera.Parameters parameters = mCamera.getParameters();
+        Matrix matrix = new Matrix();
+        matrix.preRotate(mPreview.getDisplayOrientation());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        YuvImage yuvImage = new YuvImage(data, parameters.getPreviewFormat(), parameters.getPreviewSize().width, parameters.getPreviewSize().height, null);
+        yuvImage.compressToJpeg(new Rect(0, 0, parameters.getPreviewSize().width, parameters.getPreviewSize().height), 90, out);
+        byte[] imageBytes = out.toByteArray();
+
+        Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+        bitmap = applyMatrix(bitmap, matrix);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 99, outputStream);
+        data = outputStream.toByteArray();
+        out.flush();
+        out.close();
+        mData = Base64.encodeToString(data, Base64.NO_WRAP);
+        previewWidth = parameters.getPreviewSize().width;
+        previewHeight = parameters.getPreviewSize().height;
+        previewImage = mData;
+      }
+      catch(Exception e) {
+        Log.d(TAG, "onPreviewFrame failing due " + e);
+      }
+
+    }
+  };
 }
