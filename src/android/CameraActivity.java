@@ -340,6 +340,9 @@ public class CameraActivity extends Fragment {
     return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
   }
 
+  /**
+   * Build rotate/scale matrix depending on EXIF orientation
+   */
   private static Matrix buildMatrixFromExifOrientation(int orientation) {
     Matrix matrix = new Matrix();
     switch (orientation) {
