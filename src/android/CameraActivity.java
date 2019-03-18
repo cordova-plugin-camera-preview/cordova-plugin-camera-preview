@@ -371,8 +371,8 @@ public class CameraActivity extends Fragment {
          break;
      default:
         break;
-      return matrix;
     }
+    return matrix;
   }
 
   PictureCallback jpegPictureCallback = new PictureCallback() {
