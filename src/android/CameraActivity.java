@@ -340,15 +340,42 @@ public class CameraActivity extends Fragment {
     return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
   }
 
-  private static int exifToDegrees(int exifOrientation) {
-    if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-      return 90;
-    } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-      return 180;
-    } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-      return 270;
+  /**
+   * Build rotate/scale matrix depending on EXIF orientation
+   */
+  private static Matrix buildMatrixFromExifOrientation(int orientation) {
+    Matrix matrix = new Matrix();
+    switch (orientation) {
+      case ExifInterface.ORIENTATION_NORMAL:
+        break;
+      case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+          matrix.setScale(-1, 1);
+          break;
+      case ExifInterface.ORIENTATION_ROTATE_180:
+          matrix.setRotate(180);
+          break;
+      case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+          matrix.setRotate(180);
+          matrix.postScale(-1, 1);
+          break;
+      case ExifInterface.ORIENTATION_TRANSPOSE:
+          matrix.setRotate(90);
+          matrix.postScale(-1, 1);
+          break;
+     case ExifInterface.ORIENTATION_ROTATE_90:
+         matrix.setRotate(90);
+         break;
+     case ExifInterface.ORIENTATION_TRANSVERSE:
+         matrix.setRotate(-90);
+         matrix.postScale(-1, 1);
+         break;
+     case ExifInterface.ORIENTATION_ROTATE_270:
+         matrix.setRotate(-90);
+         break;
+     default:
+        break;
     }
-    return 0;
+    return matrix;
   }
 
   PictureCallback jpegPictureCallback = new PictureCallback() {
@@ -368,20 +395,11 @@ public class CameraActivity extends Fragment {
       try {
 
         if (!disableExifHeaderStripping) {
-          Matrix matrix = new Matrix();
-          if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            Log.d(TAG, "CameraPreview cameraCurrentlyLocked");
-            matrix.preScale(1.0f, -1.0f);
-          }
 
           ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
-          int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-          int rotationInDegrees = exifToDegrees(rotation);
-
-          if (rotation != 0f) {
-            Log.d(TAG, "CameraPreview rotation");
-            matrix.preRotate(rotationInDegrees);
-          }
+          int exifOrientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+          Log.d(TAG, "CameraPreview exifOrientation: " + exifOrientation);
+          Matrix matrix = buildMatrixFromExifOrientation(exifOrientation);
 
           // Check if matrix has changed. In that case, apply matrix and override data
           if (!matrix.isIdentity()) {
