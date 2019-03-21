@@ -416,11 +416,11 @@ public class CameraActivity extends Fragment {
     // Create the cache directory if it doesn't exist
     cache.mkdirs();
     return cache.getAbsolutePath();
-}
+  }
 
-private String getTempFilePath() {
-  return getTempDirectoryPath() + "/capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg"
-}
+  private String getTempFilePath() {
+    return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+  }
 
   PictureCallback jpegPictureCallback = new PictureCallback(){
     public void onPictureTaken(byte[] data, Camera arg1){
