@@ -93,8 +93,8 @@ All options stated are optional and will default to values here
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
 * `tapFocus` - Defaults to false - Allows the user to tap to focus, when the view is in the foreground
 * `previewDrag` - Defaults to false - Does not work if toBack is set to false
+* `storeToFile` - Defaults to false - Capture images to a file and return back the file path instead of returning base64 encoded data.
 * `disableExifHeaderStripping` - Defaults to false - **Android Only** - Disable automatic rotation of the image, and let the browser deal with it (keep reading on how to achieve it)
-* `storeToFile` - Defaults to false - **Android Only** - Capture images to a file and return back the file path instead of returning base64 encoded data.
 
 ```javascript
 let options = {
@@ -106,7 +106,9 @@ let options = {
   toBack: false,
   tapPhoto: true,
   tapFocus: false,
-  previewDrag: false
+  previewDrag: false,
+  storeToFile: false,
+  disableExifHeaderStripping: false
 };
 
 CameraPreview.startCamera(options);
@@ -159,14 +161,21 @@ CameraPreview.hide();
 <info>Take the picture. If width and height are not specified or are 0 it will use the defaults. If width and height are specified, it will choose a supported photo size that is closest to width and height specified and has closest aspect ratio to the preview. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
 
 ```javascript
-CameraPreview.takePicture({width:640, height:640, quality: 85}, function(base64PictureData){
+CameraPreview.takePicture({width:640, height:640, quality: 85}, function(base64PictureData|filePath) {
   /*
+    if the storeToFile option is false (the default), then base64PictureData is returned.
     base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
     Its up to the you to figure out the best way to save it to disk or whatever for your application.
   */
 
+  /*
+    if the storeToFile option is set to true, then a filePath is returned. Note that the file
+    is stored in temporary storage, so you should move it to a permanent location if you
+    don't want the OS to remove it arbitrarily.
+  */
+
   // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
-  imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
+  imageSrcData = 'data:image/jpeg;base64,' + base64PictureData;
   $('img#my-img').attr('src', imageSrcData);
 });
 
@@ -499,14 +508,11 @@ function takePicture() {
 
 # storeToFile
 
-When capturing large images you rather want those to be stored into a file instead of having those
+When capturing large images you may want them to be stored into a file instead of having them
 base64 enconded, as enconding at least on Android is very expensive. With the feature storeToFile enabled
 the plugin will capture the image into a temporary file inside the application temporary cache (the same
-place where Cordova will extract your assets). *NOTE:* this method will overwrite any previous captured
-image for sake of simplicity, so if you want to capture multiple images and keep those, you will need
-assistance from some other plugin to rename the file or store somewhere else, this is made by design to
-keep the plugin simple. This method is better used with *disableExifHeaderStripping* to get the best
-possible performance.
+place where Cordova will extract your assets). This method is better used with *disableExifHeaderStripping* 
+to get the best possible performance.
 
 
 Example:
@@ -743,14 +749,14 @@ Note: Use AUTO to allow the device automatically adjusts the exposure once and t
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
 
 # Customize Android Support Library versions (Android only)
-The default `ANDROID_SUPPORT_LIBRARY_VERSION` is set to `25+`.
+The default `ANDROID_SUPPORT_LIBRARY_VERSION` is set to `26+`.
 If you need a different version, add argument `--variable ANDROID_SUPPORT_LIBRARY_VERSION="{version}"`.
 
 Or edit `config.xml` with following,
 
 ```xml
 <plugin name="cordova-plugin-camera-preview" spec="X.X.X">
-  <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="25+" />
+  <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="26+" />
 </plugin>
 ```
 
