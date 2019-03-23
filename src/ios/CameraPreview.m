@@ -1,7 +1,7 @@
 #import <Cordova/CDV.h>
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
-
+#import <GLKit/GLKit.h>
 #import "CameraPreview.h"
 
 @implementation CameraPreview
@@ -465,6 +465,27 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }
 }
+
+- (void) takeSnapshot:(CDVInvokedUrlCommand*)command {
+    NSLog(@"takeSnapshot");
+    CDVPluginResult *pluginResult;
+    if (self.cameraRenderController != NULL && self.cameraRenderController.view != NULL) {
+        CGFloat quality = (CGFloat)[command.arguments[0] floatValue] / 100.0f;
+        dispatch_async(self.sessionManager.sessionQueue, ^{
+            UIImage *image = ((GLKView*)self.cameraRenderController.view).snapshot;
+            NSString *base64Image = [self getBase64Image:image.CGImage withQuality:quality];
+            NSMutableArray *params = [[NSMutableArray alloc] init];
+            [params addObject:base64Image];
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
+            [pluginResult setKeepCallbackAsBool:true];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        });
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
+}
+
 
 -(void) setColorEffect:(CDVInvokedUrlCommand*)command {
   NSLog(@"setColorEffect");
