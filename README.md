@@ -153,7 +153,6 @@ CameraPreview.show();
 ```javascript
 CameraPreview.hide();
 ```
-
 ### takePicture(options, successCallback, [errorCallback])
 
 <info>Take the picture. If width and height are not specified or are 0 it will use the defaults. If width and height are specified, it will choose a supported photo size that is closest to width and height specified and has closest aspect ratio to the preview. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
@@ -174,6 +173,21 @@ CameraPreview.takePicture({width:640, height:640, quality: 85}, function(base64P
 
 CameraPreview.takePicture(function(base64PictureData){
   /* code here */
+});
+```
+### takeSnapshot(options, successCallback, [errorCallback])
+
+<info>Take snapshot of the camera preview. The result image will be the same size specified in `startCamera` options. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
+
+```javascript
+CameraPreview.takeSnapshot({quality: 85}, function(base64PictureData){
+  /*
+    base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
+  */
+
+  // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
+  imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
+  $('img#my-img').attr('src', imageSrcData);
 });
 ```
 ### getSupportedFocusModes(cb, [errorCallback])
