@@ -547,80 +547,45 @@ public class CameraActivity extends Fragment {
     Log.d(TAG, "CameraPreview optimalPictureSize " + size.width + 'x' + size.height);
     return size;
   }
+  static byte[] rotateNV21(final byte[] yuv,
+                           final int width,
+                           final int height,
+                           final int rotation)
+  {
+    if (rotation == 0) return yuv;
+    if (rotation % 90 != 0 || rotation < 0 || rotation > 270) {
+      throw new IllegalArgumentException("0 <= rotation < 360, rotation % 90 == 0");
+    }
 
-  public static byte[] rotateYUV420Degree90(byte[] data, int imageWidth, int imageHeight) {
-    byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
-    // Rotate the Y luma
-    int i = 0;
-    for (int x = 0; x < imageWidth; x++) {
-      for (int y = imageHeight - 1; y >= 0; y--) {
-        yuv[i] = data[y * imageWidth + x];
-        i++;
-      }
-    }
-    // Rotate the U and V color components
-    i = imageWidth * imageHeight * 3 / 2 - 1;
-    for (int x = imageWidth - 1; x > 0; x = x - 2) {
-      for (int y = 0; y < imageHeight / 2; y++) {
-        yuv[i] = data[(imageWidth * imageHeight) + (y * imageWidth) + x];
-        i--;
-        yuv[i] = data[(imageWidth * imageHeight) + (y * imageWidth)
-                + (x - 1)];
-        i--;
-      }
-    }
-    return yuv;
-  }
+    final byte[]  output    = new byte[yuv.length];
+    final int     frameSize = width * height;
+    final boolean swap      = rotation % 180 != 0;
+    final boolean xflip     = rotation % 270 != 0;
+    final boolean yflip     = rotation >= 180;
 
-  private static byte[] rotateYUV420Degree180(byte[] data, int imageWidth, int imageHeight) {
-    byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
-    int i = 0;
-    int count = 0;
-    for (i = imageWidth * imageHeight - 1; i >= 0; i--) {
-      yuv[count] = data[i];
-      count++;
-    }
-    i = imageWidth * imageHeight * 3 / 2 - 1;
-    for (i = imageWidth * imageHeight * 3 / 2 - 1; i >= imageWidth
-            * imageHeight; i -= 2) {
-      yuv[count++] = data[i - 1];
-      yuv[count++] = data[i];
-    }
-    return yuv;
-  }
+    for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i++) {
+        final int yIn = j * width + i;
+        final int uIn = frameSize + (j >> 1) * width + (i & ~1);
+        final int vIn = uIn       + 1;
 
-  public static byte[] rotateYUV420Degree270(byte[] data, int imageWidth,
-                                             int imageHeight) {
-    byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
-    int nWidth = 0, nHeight = 0;
-    int wh = 0;
-    int uvHeight = 0;
-    if (imageWidth != nWidth || imageHeight != nHeight) {
-      nWidth = imageWidth;
-      nHeight = imageHeight;
-      wh = imageWidth * imageHeight;
-      uvHeight = imageHeight >> 1;// uvHeight = height / 2
-    }
-    // ??Y
-    int k = 0;
-    for (int i = 0; i < imageWidth; i++) {
-      int nPos = 0;
-      for (int j = 0; j < imageHeight; j++) {
-        yuv[k] = data[nPos + i];
-        k++;
-        nPos += imageWidth;
+        final int wOut     = swap  ? height              : width;
+        final int hOut     = swap  ? width               : height;
+        final int iSwapped = swap  ? j                   : i;
+        final int jSwapped = swap  ? i                   : j;
+        final int iOut     = xflip ? wOut - iSwapped - 1 : iSwapped;
+        final int jOut     = yflip ? hOut - jSwapped - 1 : jSwapped;
+
+        final int yOut = jOut * wOut + iOut;
+        final int uOut = frameSize + (jOut >> 1) * wOut + (iOut & ~1);
+        final int vOut = uOut + 1;
+
+        output[yOut] = (byte)(0xff & yuv[yIn]);
+        output[uOut] = (byte)(0xff & yuv[uIn]);
+        output[vOut] = (byte)(0xff & yuv[vIn]);
       }
     }
-    for (int i = 0; i < imageWidth; i += 2) {
-      int nPos = wh;
-      for (int j = 0; j < uvHeight; j++) {
-        yuv[k] = data[nPos + i];
-        yuv[k + 1] = data[nPos + i + 1];
-        k += 2;
-        nPos += imageWidth;
-      }
-    }
-    return rotateYUV420Degree180(yuv, imageWidth, imageHeight);
+    return output;
   }
   public void takeSnapshot(final int quality) {
     mCamera.setPreviewCallback(new Camera.PreviewCallback() {
@@ -629,8 +594,22 @@ public class CameraActivity extends Fragment {
         try {
           Camera.Parameters parameters = camera.getParameters();
           Camera.Size size = parameters.getPreviewSize();
-          bytes = rotateYUV420Degree270(bytes, size.width, size.height);
-
+          int orientation = mPreview.getDisplayOrientation();
+          if (mPreview.getCameraFacing() == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            switch (orientation) {
+              case 90:
+                bytes = rotateNV21(bytes, size.width, size.height, 270);
+                break;
+              case 270:
+                bytes = rotateNV21(bytes, size.width, size.height, 90);
+                break;
+              default:
+                bytes = rotateNV21(bytes, size.width, size.height, orientation);
+                break;
+            }
+          } else {
+            bytes = rotateNV21(bytes, size.width, size.height, orientation);
+          }
           YuvImage yuvImage = new YuvImage(bytes, parameters.getPreviewFormat(), size.width, size.height, null);
           ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
