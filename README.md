@@ -185,6 +185,23 @@ CameraPreview.takePicture(function(base64PictureData){
   /* code here */
 });
 ```
+
+### takeSnapshot(options, successCallback, [errorCallback])
+
+<info>Take snapshot of the camera preview. The result image will be the same size specified in `startCamera` options. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
+
+```javascript
+CameraPreview.takeSnapshot({quality: 85}, function(base64PictureData){
+  /*
+    base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
+  */
+
+  // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
+  imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
+  $('img#my-img').attr('src', imageSrcData);
+});
+```
+
 ### getSupportedFocusModes(cb, [errorCallback])
 
 <info>Get focus modes supported by the camera device currently started. Returns an array containing supported focus modes. See <code>[FOCUS_MODE](#camera_Settings.FocusMode)</code> for possible values that can be returned.</info><br/>

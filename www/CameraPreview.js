@@ -51,6 +51,25 @@ CameraPreview.show = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "showCamera", []);
 };
 
+CameraPreview.takeSnapshot = function(opts, onSuccess, onError) {
+    if (!opts) {
+        opts = {};
+    } else if (isFunction(opts)) {
+        onSuccess = opts;
+        opts = {};
+    }
+
+    if (!isFunction(onSuccess)) {
+        return false;
+    }
+
+    if (!opts.quality || opts.quality > 100 || opts.quality < 0) {
+        opts.quality = 85;
+    }
+
+    exec(onSuccess, onError, PLUGIN_NAME, "takeSnapshot", [opts.quality]);
+};
+
 CameraPreview.takePicture = function(opts, onSuccess, onError) {
     if (!opts) {
         opts = {};

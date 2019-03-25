@@ -55,6 +55,8 @@ public class CameraActivity extends Fragment {
   public interface CameraPreviewListener {
     void onPictureTaken(String originalPicture);
     void onPictureTakenError(String message);
+    void onSnapshotTaken(String originalPicture);
+    void onSnapshotTakenError(String message);
     void onFocusSet(int pointX, int pointY);
     void onFocusSetError(String message);
     void onBackButton();
@@ -549,6 +551,88 @@ public class CameraActivity extends Fragment {
     }
     Log.d(TAG, "CameraPreview optimalPictureSize " + size.width + 'x' + size.height);
     return size;
+  }
+  static byte[] rotateNV21(final byte[] yuv,
+                           final int width,
+                           final int height,
+                           final int rotation)
+  {
+    if (rotation == 0) return yuv;
+    if (rotation % 90 != 0 || rotation < 0 || rotation > 270) {
+      throw new IllegalArgumentException("0 <= rotation < 360, rotation % 90 == 0");
+    }
+
+    final byte[]  output    = new byte[yuv.length];
+    final int     frameSize = width * height;
+    final boolean swap      = rotation % 180 != 0;
+    final boolean xflip     = rotation % 270 != 0;
+    final boolean yflip     = rotation >= 180;
+
+    for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i++) {
+        final int yIn = j * width + i;
+        final int uIn = frameSize + (j >> 1) * width + (i & ~1);
+        final int vIn = uIn       + 1;
+
+        final int wOut     = swap  ? height              : width;
+        final int hOut     = swap  ? width               : height;
+        final int iSwapped = swap  ? j                   : i;
+        final int jSwapped = swap  ? i                   : j;
+        final int iOut     = xflip ? wOut - iSwapped - 1 : iSwapped;
+        final int jOut     = yflip ? hOut - jSwapped - 1 : jSwapped;
+
+        final int yOut = jOut * wOut + iOut;
+        final int uOut = frameSize + (jOut >> 1) * wOut + (iOut & ~1);
+        final int vOut = uOut + 1;
+
+        output[yOut] = (byte)(0xff & yuv[yIn]);
+        output[uOut] = (byte)(0xff & yuv[uIn]);
+        output[vOut] = (byte)(0xff & yuv[vIn]);
+      }
+    }
+    return output;
+  }
+  public void takeSnapshot(final int quality) {
+    mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+      @Override
+      public void onPreviewFrame(byte[] bytes, Camera camera) {
+        try {
+          Camera.Parameters parameters = camera.getParameters();
+          Camera.Size size = parameters.getPreviewSize();
+          int orientation = mPreview.getDisplayOrientation();
+          if (mPreview.getCameraFacing() == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            switch (orientation) {
+              case 90:
+                bytes = rotateNV21(bytes, size.width, size.height, 270);
+                break;
+              case 270:
+                bytes = rotateNV21(bytes, size.width, size.height, 90);
+                break;
+              default:
+                bytes = rotateNV21(bytes, size.width, size.height, orientation);
+                break;
+            }
+          } else {
+            bytes = rotateNV21(bytes, size.width, size.height, orientation);
+          }
+          YuvImage yuvImage = new YuvImage(bytes, parameters.getPreviewFormat(), size.width, size.height, null);
+          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+          Rect rect = new Rect(0, 0, size.width, size.height);
+
+          yuvImage.compressToJpeg(rect, quality, byteArrayOutputStream);
+          byte[] data = byteArrayOutputStream.toByteArray();
+          byteArrayOutputStream.close();
+          eventListener.onSnapshotTaken(Base64.encodeToString(data, Base64.NO_WRAP));
+        } catch (IOException e) {
+          Log.d(TAG, "CameraPreview IOException");
+          eventListener.onSnapshotTakenError("IO Error");
+        } finally {
+
+          mCamera.setPreviewCallback(null);
+        }
+      }
+    });
   }
 
   public void takePicture(final int width, final int height, final int quality){

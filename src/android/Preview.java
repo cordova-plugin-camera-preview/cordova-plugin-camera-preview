@@ -28,6 +28,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
   Camera mCamera;
   int cameraId;
   int displayOrientation;
+  int facing = Camera.CameraInfo.CAMERA_FACING_BACK;
   int viewWidth;
   int viewHeight;
 
@@ -70,6 +71,9 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
   public int getDisplayOrientation() {
     return displayOrientation;
   }
+  public int getCameraFacing() {
+    return facing;
+  }
 
   public void printPreviewSize(String from) {
     Log.d(TAG, "printPreviewSize from " + from + ": > width: " + mPreviewSize.width + " height: " + mPreviewSize.height);
@@ -104,7 +108,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
         degrees = 270;
         break;
     }
-
+    facing = info.facing;
     if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
       displayOrientation = (info.orientation + degrees) % 360;
       displayOrientation = (360 - displayOrientation) % 360;
