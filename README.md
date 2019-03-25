@@ -188,7 +188,7 @@ CameraPreview.takePicture(function(base64PictureData){
 
 ### takeSnapshot(options, successCallback, [errorCallback])
 
-<info>Take snapshot of the camera preview. The result image will be the same size specified in `startCamera` options. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
+<info>Take snapshot of the camera preview. The resulting image will be the same size as specified in `startCamera` options. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
 
 ```javascript
 CameraPreview.takeSnapshot({quality: 85}, function(base64PictureData){
