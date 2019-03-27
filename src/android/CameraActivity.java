@@ -48,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class CameraActivity extends Fragment {
 
@@ -417,7 +418,11 @@ public class CameraActivity extends Fragment {
     // Create the cache directory if it doesn't exist
     cache.mkdirs();
     return cache.getAbsolutePath();
-}
+  }
+
+  private String getTempFilePath() {
+    return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+  }
 
   PictureCallback jpegPictureCallback = new PictureCallback(){
     public void onPictureTaken(byte[] data, Camera arg1){
@@ -454,7 +459,7 @@ public class CameraActivity extends Fragment {
 
           eventListener.onPictureTaken(encodedImage);
         } else {
-          String path = getTempDirectoryPath() + "/capture.jpg";
+          String path = getTempFilePath();
           FileOutputStream out = new FileOutputStream(path);
           out.write(data);
           out.close();
