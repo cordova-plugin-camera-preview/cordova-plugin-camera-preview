@@ -80,9 +80,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 self.viewController.addChildViewController(self.cameraRenderController)
                 
                 // Add video preview layer
-                let previewLayer = AVCaptureVideoPreviewLayer(session: self.sessionManager?.session!)
-                previewLayer?.frame = self.cameraRenderController.view.frame
-                self.cameraRenderController.view.layer.addSublayer(previewLayer!)
+                if let session = self.sessionManager?.session {
+                    let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+                    previewLayer.frame = self.cameraRenderController.view.frame
+                    self.cameraRenderController.view.layer.addSublayer(previewLayer)
+                }
                 
                 if toBack {
                     // display the camera below the webview
@@ -109,7 +111,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
     
     func checkDeviceAuthorizationStatus(_ completion: @escaping (_ granted: Bool) -> Void) {
-        AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo, completionHandler: completion)
+        AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: completion)
     }
 
     func stopCamera(_ command: CDVInvokedUrlCommand) {
@@ -750,7 +752,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     
     func invokeTakePicture(withQuality quality: CGFloat) {
     
-        let connection = sessionManager.stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
+        let connection = sessionManager.stillImageOutput?.connection(with: AVMediaType.video)
 
         if let aConnection = connection {
 
@@ -760,7 +762,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             }
 
             // Fix front mirroring
-            aConnection.isVideoMirrored = sessionManager.device?.position == AVCaptureDevicePosition.front
+            aConnection.isVideoMirrored = sessionManager.device?.position == AVCaptureDevice.Position.front
 
             // Capture image
             sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer!, _ error: Error?) -> Void in

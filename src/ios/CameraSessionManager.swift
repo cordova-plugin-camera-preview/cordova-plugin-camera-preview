@@ -28,8 +28,8 @@ class CameraSessionManager: NSObject {
         // Create the AVCaptureSession
         session = AVCaptureSession()
         sessionQueue = DispatchQueue(label: "session queue")
-        if (session?.canSetSessionPreset(AVCaptureSessionPresetPhoto))! {
-            session?.sessionPreset = AVCaptureSessionPresetPhoto
+        if (session?.canSetSessionPreset(AVCaptureSession.Preset.photo))! {
+            session?.sessionPreset = AVCaptureSession.Preset.photo
         }
         filterLock = NSLock()
         let wbIncandescent = TemperatureAndTint()
@@ -117,9 +117,11 @@ class CameraSessionManager: NSObject {
                 videoDeviceInput = try? AVCaptureDeviceInput(device: aDevice)
             }
             
-            if (self.session?.canAddInput(videoDeviceInput))! {
-                self.session?.addInput(videoDeviceInput)
-                self.videoDeviceInput = videoDeviceInput
+            if let videoDeviceInput = videoDeviceInput {
+                if (self.session?.canAddInput(videoDeviceInput))! {
+                    self.session?.addInput(videoDeviceInput)
+                    self.videoDeviceInput = videoDeviceInput
+                }
             }
             
             let stillImageOutput = AVCaptureStillImageOutput()
@@ -139,7 +141,7 @@ class CameraSessionManager: NSObject {
     func updateOrientation(_ orientation: AVCaptureVideoOrientation) {
         var captureConnection: AVCaptureConnection?
         if stillImageOutput != nil {
-            captureConnection = stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
+            captureConnection = stillImageOutput?.connection(with: AVMediaType.video)
             if captureConnection?.isVideoOrientationSupported != nil {
                 captureConnection?.videoOrientation = orientation
             }
@@ -156,15 +158,15 @@ class CameraSessionManager: NSObject {
         let error: Error? = nil
         var success = true
         self.session?.beginConfiguration()
-        if self.videoDeviceInput != nil {
-            self.session?.removeInput(self.videoDeviceInput)
+        if let videoDeviceInput = self.videoDeviceInput {
+            self.session?.removeInput(videoDeviceInput)
             self.videoDeviceInput = nil
         }
         var videoDevice: AVCaptureDevice? = nil
         videoDevice = self.cameraWithPosition(position: self.defaultCamera!)
-        if videoDevice?.hasFlash ?? false && videoDevice?.isFlashModeSupported(AVCaptureFlashMode(rawValue: self.defaultFlashMode.rawValue)!) ?? false {
+        if videoDevice?.hasFlash ?? false && videoDevice?.isFlashModeSupported(AVCaptureDevice.FlashMode(rawValue: self.defaultFlashMode.rawValue)!) ?? false {
             if try! videoDevice?.lockForConfiguration() != nil {
-                videoDevice?.flashMode = AVCaptureFlashMode(rawValue: self.defaultFlashMode.rawValue)!
+                videoDevice?.flashMode = AVCaptureDevice.FlashMode(rawValue: self.defaultFlashMode.rawValue)!
                 videoDevice?.unlockForConfiguration()
             } else {
                 if let anError = error {
@@ -184,9 +186,12 @@ class CameraSessionManager: NSObject {
             success = false
         }
         
-        if (self.session?.canAddInput(videoDeviceInput))! {
-            self.session?.addInput(videoDeviceInput)
-            self.videoDeviceInput = videoDeviceInput
+        
+        if let videoDeviceInput = videoDeviceInput {
+            if (self.session?.canAddInput(videoDeviceInput))! {
+                self.session?.addInput(videoDeviceInput)
+                self.videoDeviceInput = videoDeviceInput
+            }
         }
 
         self.session?.commitConfiguration()
@@ -276,7 +281,7 @@ class CameraSessionManager: NSObject {
     }
 
     func getFlashMode() -> Int {
-        if device!.hasFlash && device!.isFlashModeSupported(AVCaptureFlashMode(rawValue: defaultFlashMode.rawValue)!) {
+        if device!.hasFlash && device!.isFlashModeSupported(AVCaptureDevice.FlashMode(rawValue: defaultFlashMode.rawValue)!) {
             return device!.flashMode.rawValue
         }
         return -1
@@ -473,11 +478,11 @@ class CameraSessionManager: NSObject {
         let wbTemperature: TemperatureAndTint! = TemperatureAndTint()
         
         while wbTemperature == enumerator.next() {
-            var temperatureAndTintValues: AVCaptureWhiteBalanceTemperatureAndTintValues! = AVCaptureWhiteBalanceTemperatureAndTintValues()
+            var temperatureAndTintValues: AVCaptureDevice.WhiteBalanceTemperatureAndTintValues! = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues()
             temperatureAndTintValues.temperature = ((wbTemperature?.minTemperature)! + (wbTemperature?.maxTemperature)!) / 2
             temperatureAndTintValues.tint = wbTemperature?.tint ?? 0.0
             
-            let rgbGains: AVCaptureWhiteBalanceGains? = videoDevice?.deviceWhiteBalanceGains(for: temperatureAndTintValues)
+            let rgbGains: AVCaptureDevice.WhiteBalanceGains? = videoDevice?.deviceWhiteBalanceGains(for: temperatureAndTintValues)
             if let aMode = wbTemperature?.mode {
                 print("mode: \(aMode)")
             }
@@ -545,13 +550,13 @@ class CameraSessionManager: NSObject {
             print("Additional modes for \(whiteBalanceMode ?? "")")
             let temperatureForWhiteBalanceSetting = colorTemperatures[whiteBalanceMode!]
             if temperatureForWhiteBalanceSetting != nil {
-                var temperatureAndTintValues: AVCaptureWhiteBalanceTemperatureAndTintValues! = AVCaptureWhiteBalanceTemperatureAndTintValues()
+                var temperatureAndTintValues: AVCaptureDevice.WhiteBalanceTemperatureAndTintValues! = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues()
                 temperatureAndTintValues.temperature = ((temperatureForWhiteBalanceSetting?.minTemperature)! + (temperatureForWhiteBalanceSetting?.maxTemperature)!) / 2
                 temperatureAndTintValues.tint = temperatureForWhiteBalanceSetting?.tint ?? 0.0
-                let rgbGains: AVCaptureWhiteBalanceGains? = videoDevice?.deviceWhiteBalanceGains(for: temperatureAndTintValues)
+                let rgbGains: AVCaptureDevice.WhiteBalanceGains? = videoDevice?.deviceWhiteBalanceGains(for: temperatureAndTintValues)
                 if ((rgbGains?.blueGain ?? 0.0) >= 1) && ((rgbGains?.blueGain ?? 0.0) <= (videoDevice?.maxWhiteBalanceGain ?? 0.0)) && ((rgbGains?.redGain ?? 0.0) >= 1) && ((rgbGains?.redGain ?? 0.0) <= (videoDevice?.maxWhiteBalanceGain ?? 0.0)) && ((rgbGains?.greenGain ?? 0.0) >= 1) && ((rgbGains?.greenGain ?? 0.0) <= (videoDevice?.maxWhiteBalanceGain ?? 0.0)) {
                     if let aGains = rgbGains {
-                        videoDevice?.setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains(aGains, completionHandler: nil)
+                        videoDevice?.setWhiteBalanceModeLocked(with: aGains, completionHandler: nil)
                     }
                     currentWhiteBalanceMode = whiteBalanceMode!
                 } else {
@@ -573,11 +578,11 @@ class CameraSessionManager: NSObject {
     
     func setPictureSize(_ format: AVCaptureDevice.Format?) {
         let error: Error? = nil
-        let videoDevice: AVCaptureDevice? = cameraWithPosition(position: defaultCamera!)
         
         if try! device?.lockForConfiguration() != nil {
-            device?.activeFormat = format
-            
+            if let format = format {
+                device?.activeFormat = format
+            }
             device?.unlockForConfiguration()
             session?.commitConfiguration()
         } else {
@@ -637,7 +642,7 @@ class CameraSessionManager: NSObject {
 
     // Find a camera with the specified AVCaptureDevicePosition, returning nil if one is not found
     func cameraWithPosition(position: AVCaptureDevice.Position) -> AVCaptureDevice? {
-        let devices = AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo) as! [AVCaptureDevice]
+        let devices = AVCaptureDevice.devices(for: AVMediaType.video) as! [AVCaptureDevice]
         
         for device: AVCaptureDevice in devices {
             if device.position == position {
@@ -647,4 +652,3 @@ class CameraSessionManager: NSObject {
         return nil
     }
 }
-

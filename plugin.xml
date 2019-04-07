@@ -49,7 +49,7 @@
       </feature>
     </config-file>
 
-    <dependency id="cordova-plugin-add-swift-support" version="1.7.0"/>
+    <dependency id="cordova-plugin-add-swift-support" version="2.0.2"/>
     <source-file src="src/ios/CameraPreview.swift" />
     <source-file src="src/ios/TemperatureAndTint.swift" />
     <source-file src="src/ios/CameraSessionManager.swift" />
