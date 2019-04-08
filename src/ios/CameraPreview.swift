@@ -13,7 +13,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         webView.isOpaque = false
         webView.backgroundColor = UIColor.clear
     }
-
+    
     // 0 [options.x,
     // 1 options.y,
     // 2 options.width,
@@ -25,7 +25,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     // 8 options.alpha,
     // 9 options.tapFocus,
     // 10 options.disableExifHeaderStripping]
-    @objc(startCamera:) func startCamera(_ command: CDVInvokedUrlCommand) {
+    @objc func startCamera(_ command: CDVInvokedUrlCommand) {
         print("--> startCamera")
         
         // Check if camera usage permission is granted in privacy settings. User only has to accept once.
@@ -50,7 +50,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 return
             }
             
-
+            
             let width = CGFloat((command.arguments[2] as? Int)!)
             let height = CGFloat((command.arguments[3] as? Int)!)
             let defaultCamera = command.arguments[4]
@@ -113,15 +113,15 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     func checkDeviceAuthorizationStatus(_ completion: @escaping (_ granted: Bool) -> Void) {
         AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: completion)
     }
-
-    @objc(stopCamera:) func stopCamera(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func stopCamera(_ command: CDVInvokedUrlCommand) {
         print("--> stopCamera")
         if cameraRenderController != nil {
             cameraRenderController.view.removeFromSuperview()
             cameraRenderController.removeFromParentViewController()
             cameraRenderController = nil
         }
-
+        
         commandDelegate.run(inBackground: {() -> Void in
             guard self.sessionManager != nil else {
                 print("--> Camera not started")
@@ -136,26 +136,26 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 }
             }
             
-
+            
             if let outputs = self.sessionManager.session?.outputs as? [AVCaptureOutput] {
                 for output in outputs {
                     self.sessionManager.session?.removeOutput(output)
                 }
             }
-
+            
             self.sessionManager.session?.stopRunning()
-
+            
             if self.sessionManager != nil {
                 self.sessionManager.delegate = nil;
                 self.sessionManager = nil;
             }
-
+            
             print("--> camera stopped")
             self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
         })
     }
-
-    @objc(hideCamera:) func hideCamera(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func hideCamera(_ command: CDVInvokedUrlCommand) {
         print("--> hideCamera")
         guard cameraRenderController != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
@@ -165,11 +165,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         cameraRenderController.view.isHidden = true
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-    
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(showCamera:) func showCamera(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func showCamera(_ command: CDVInvokedUrlCommand) {
         print("--> showCamera")
         guard cameraRenderController != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
@@ -181,8 +181,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(switchCamera:) func switchCamera(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func switchCamera(_ command: CDVInvokedUrlCommand) {
         print("--> switchCamera")
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
@@ -194,8 +194,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
         })
     }
-
-    @objc(getSupportedFocusModes:) func getSupportedFocusModes(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getSupportedFocusModes(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -206,21 +206,21 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusModes)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getFocusMode:) func getFocusMode(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getFocusMode(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
-    
+        
         let focusMode = sessionManager.getFocusMode()
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusMode)
-    
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
     
-    @objc(setFocusMode:) func setFocusMode(_ command: CDVInvokedUrlCommand) {
+    @objc func setFocusMode(_ command: CDVInvokedUrlCommand) {
         print("--> setFocusMode");
         var focusMode = command.arguments[0] as? String
         guard sessionManager != nil else {
@@ -233,20 +233,20 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: focusMode)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getSupportedFlashModes:) func getSupportedFlashModes(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getSupportedFlashModes(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
-    
+        
         let flashModes = sessionManager.getFlashModes()
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: flashModes)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getFlashMode:) func getFlashMode(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getFlashMode(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -268,8 +268,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: sFlashMode)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(setFlashMode:) func setFlashMode(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func setFlashMode(_ command: CDVInvokedUrlCommand) {
         print("--> Flash Mode")
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
@@ -305,8 +305,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(setZoom:) func setZoom(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func setZoom(_ command: CDVInvokedUrlCommand) {
         print("--> setZoom")
         let desiredZoomFactor = command.arguments[0] as? CGFloat ?? 0.0
         
@@ -320,8 +320,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getZoom:) func getZoom(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getZoom(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -330,11 +330,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         let zoom: CGFloat = sessionManager.getZoom()
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(zoom))
-    
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
     
-    @objc(getHorizontalFOV:) func getHorizontalFOV(_ command: CDVInvokedUrlCommand) {
+    @objc func getHorizontalFOV(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -346,8 +346,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getMaxZoom:) func getMaxZoom(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getMaxZoom(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -356,11 +356,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         let maxZoom: CGFloat = sessionManager.getMaxZoom()
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(maxZoom))
-    
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getExposureModes:) func getExposureModes(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getExposureModes(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -369,11 +369,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         let exposureModes = sessionManager.getExposureModes()
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: exposureModes)
-   
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getExposureMode:) func getExposureMode(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getExposureMode(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -385,8 +385,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(setExposureMode:) func setExposureMode(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func setExposureMode(_ command: CDVInvokedUrlCommand) {
         var exposureMode = command.arguments[0] as? String
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
@@ -399,8 +399,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getSupportedWhiteBalanceModes:) func getSupportedWhiteBalanceModes(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getSupportedWhiteBalanceModes(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -411,8 +411,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getWhiteBalanceMode:) func getWhiteBalanceMode(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getWhiteBalanceMode(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -424,8 +424,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(setWhiteBalanceMode:) func setWhiteBalanceMode(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func setWhiteBalanceMode(_ command: CDVInvokedUrlCommand) {
         let whiteBalanceMode = command.arguments[0] as? String
         
         guard sessionManager != nil else {
@@ -438,8 +438,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: wbMode)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getExposureCompensationRange:) func getExposureCompensationRange(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getExposureCompensationRange(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -453,8 +453,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: dimensions)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getExposureCompensation:) func getExposureCompensation(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getExposureCompensation(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -463,11 +463,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         let exposureCompensation: CGFloat = sessionManager.getExposureCompensation()
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(exposureCompensation))
-
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(setExposureCompensation:) func setExposureCompensation(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func setExposureCompensation(_ command: CDVInvokedUrlCommand) {
         print("Zoom")
         let exposureCompensation = command.arguments[0] as? Float ?? 0.0
         guard sessionManager != nil else {
@@ -478,11 +478,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
         sessionManager.setExposureCompensation(exposureCompensation)
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: Double(exposureCompensation))
-
+        
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(takePicture:) func takePicture(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func takePicture(_ command: CDVInvokedUrlCommand) {
         print("takePicture")
         guard cameraRenderController != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
@@ -495,7 +495,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         invokeTakePicture(withQuality: quality)
     }
     
-    @objc(setColorEffect:) func setColorEffect(_ command: CDVInvokedUrlCommand) {
+    @objc func setColorEffect(_ command: CDVInvokedUrlCommand) {
         print("setColorEffect")
         var pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         let filterName = command.arguments[0] as? String
@@ -540,7 +540,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
     
-    @objc(setPictureSize:) func setPictureSize(_ command: CDVInvokedUrlCommand) {
+    @objc func setPictureSize(_ command: CDVInvokedUrlCommand) {
         print("--> setPictureSize")
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
@@ -563,8 +563,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
-
-    @objc(getSupportedPictureSizes:) func getSupportedPictureSizes(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func getSupportedPictureSizes(_ command: CDVInvokedUrlCommand) {
         print("--> getSupportedPictureSizes")
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
@@ -595,7 +595,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
     
-    @objc(setScreenRotation:) func setScreenRotation(_ command: CDVInvokedUrlCommand) {
+    @objc func setScreenRotation(_ command: CDVInvokedUrlCommand) {
         guard sessionManager != nil else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Session not started")
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -603,18 +603,18 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         }
         
         let rotationAngle = command.arguments[0] as? Int ?? 0
-
+        
         switch rotationAngle {
-            case 0:
-                self.captureVideoOrientation = .portrait
-            case 90:
-                self.captureVideoOrientation = .landscapeRight
-            case 180:
-                self.captureVideoOrientation = .portraitUpsideDown
-            case 270:
-                self.captureVideoOrientation = .landscapeLeft
-            default:
-                self.captureVideoOrientation = .portrait
+        case 0:
+            self.captureVideoOrientation = .portrait
+        case 90:
+            self.captureVideoOrientation = .landscapeRight
+        case 180:
+            self.captureVideoOrientation = .portraitUpsideDown
+        case 270:
+            self.captureVideoOrientation = .landscapeLeft
+        default:
+            self.captureVideoOrientation = .portrait
         }
     }
     
@@ -628,8 +628,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         }
         return base64Image
     }
-
-    @objc(tapToFocus:) func tapToFocus(_ command: CDVInvokedUrlCommand) {
+    
+    @objc func tapToFocus(_ command: CDVInvokedUrlCommand) {
         print("--> tapToFocus")
         let xPoint = command.arguments[0] as? CGFloat ?? 0.0
         let yPoint = command.arguments[1] as? CGFloat ?? 0.0
@@ -638,7 +638,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             commandDelegate.send(pluginResult, callbackId: command.callbackId)
             return
         }
-
+        
         var completion = {() -> Void in
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
             self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
@@ -650,18 +650,18 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     func radiansFromUIImageOrientation(_ orientation: UIImageOrientation) -> Double {
         var radians: Double
         switch self.captureVideoOrientation! {
-            case .portrait:
-                radians = .pi / 2
-            case .landscapeLeft:
-                radians = .pi
-            case .landscapeRight:
-                radians = 0.0
-            case .portraitUpsideDown:
-                radians = -.pi / 2
+        case .portrait:
+            radians = .pi / 2
+        case .landscapeLeft:
+            radians = .pi
+        case .landscapeRight:
+            radians = 0.0
+        case .portraitUpsideDown:
+            radians = -.pi / 2
         }
         return radians
     }
-
+    
     func cgImageRotated(_ originalCGImage: CGImage, withRadians radians: Double) -> CGImage? {
         let imageSize = CGSize(width: originalCGImage.width, height: originalCGImage.height)
         var rotatedSize: CGSize
@@ -693,9 +693,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         let drawingRect = CGRect(x: 0.0, y: 0.0, width: imageSize.width, height: imageSize.height)
         rotatedContext?.draw(originalCGImage, in: drawingRect)
         let rotatedCGImage = rotatedContext?.makeImage()
-    
+        
         UIGraphicsEndImageContext()
-    
+        
         return rotatedCGImage
     }
     
@@ -705,19 +705,19 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         }
         sessionManager.tapToFocus(toFocus: point.x, yPoint: point.y, completion: &completion)
     }
-
+    
     func invokeTakePicture() {
         invokeTakePicture(withQuality: 0.85)
     }
-
+    
     func invokeTakePictureOnFocus() {
         // The sessionManager will call onFocus, as soon as the camera is done with focusing.
         sessionManager.takePictureOnFocus()
     }
-
+    
     func setCaptureDeviceFormat(_ width: CGFloat, height: CGFloat) {
         print("--> setCaptureDeviceFormat")
-
+        
         let allFormats = sessionManager.getDeviceFormats();
         
         // Keep only formats with given dimensions
@@ -728,7 +728,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 dimensionsFormats.append(format)
             }
         }
-
+        
         var foundFormat: AVCaptureDevice.Format?
         
         // Find ideal format for this screen, = format with preview width just superior to screen width
@@ -748,25 +748,25 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
         }
     }
-
+    
     
     func invokeTakePicture(withQuality quality: CGFloat) {
-    
+        
         let connection = sessionManager.stillImageOutput?.connection(with: AVMediaType.video)
-
+        
         if let aConnection = connection {
-
+            
             // Set orientation
             if self.cameraRenderController.disableExifHeaderStripping {
                 sessionManager.updateOrientation(self.captureVideoOrientation!)
             }
-
+            
             // Fix front mirroring
             aConnection.isVideoMirrored = sessionManager.device?.position == AVCaptureDevice.Position.front
-
+            
             // Capture image
             sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer!, _ error: Error?) -> Void in
-
+                
                 print("Done creating still image")
                 if error != nil {
                     print("Error taking picture : \(error)")
@@ -774,11 +774,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                     self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
                 } else {
                     let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
-
+                    
                     let capturedImage = UIImage(data: imageData!)
-
+                    
                     var finalImage: UIImage? = nil
-
+                    
                     // Apply filters if needed
                     let filter: CIFilter? = self.sessionManager.ciFilter
                     var finalCGImage: CGImage? = nil
