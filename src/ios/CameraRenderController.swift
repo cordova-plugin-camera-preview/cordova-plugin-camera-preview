@@ -126,7 +126,7 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
         })
     }
 
-    func handleFocusAndTakePictureTap(_ recognizer: UITapGestureRecognizer?) {
+    @objc func handleFocusAndTakePictureTap(_ recognizer: UITapGestureRecognizer?) {
         print("handleFocusAndTakePictureTap")
         // let the delegate take an image, the next time the image is in focus.
         delegate?.invokeTakePictureOnFocus()
@@ -134,12 +134,12 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
         handleFocusTap(recognizer)
     }
 
-    func handleTakePictureTap(_ recognizer: UITapGestureRecognizer?) {
+    @objc func handleTakePictureTap(_ recognizer: UITapGestureRecognizer?) {
         print("handleTakePictureTap")
         delegate?.invokeTakePicture()
     }
 
-    func handleFocusTap(_ recognizer: UITapGestureRecognizer?) {
+    @objc func handleFocusTap(_ recognizer: UITapGestureRecognizer?) {
         print("handleTapFocusTap")
         if recognizer?.state == .ended {
             let point: CGPoint? = recognizer?.location(in: view)
@@ -157,14 +157,14 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
         recognizer.setTranslation(CGPoint(x: 0, y: 0), in: view)
     }
 
-    func appplicationIsActive(_ notification: Notification?) {
+    @objc func appplicationIsActive(_ notification: Notification?) {
         sessionManager?.sessionQueue?.async(execute: {() -> Void in
             print("Starting session")
             self.sessionManager?.session?.startRunning()
         })
     }
 
-    func applicationEnteredForeground(_ notification: Notification?) {
+    @objc func applicationEnteredForeground(_ notification: Notification?) {
         sessionManager?.sessionQueue?.async(execute: {() -> Void in
             print("Stopping session")
             self.sessionManager?.session?.stopRunning()
@@ -217,7 +217,7 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
                 // Fix front mirroring
                 if self.sessionManager?.defaultCamera == .front {
                     let matrix = CGAffineTransform(scaleX: -1, y: 1).translatedBy(x: 0, y: (croppedImage?.extent.size.height)!)
-                    croppedImage = croppedImage?.applying(matrix)
+                    croppedImage = croppedImage?.transformed(by: matrix)
                 }
                 
                 self.latestFrame = croppedImage
@@ -250,5 +250,3 @@ class CameraRenderController: UIViewController, AVCaptureVideoDataOutputSampleBu
         return true
     }
 }
-
-
