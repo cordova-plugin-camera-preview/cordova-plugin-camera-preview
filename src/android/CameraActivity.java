@@ -601,25 +601,16 @@ public class CameraActivity extends Fragment {
           Camera.Size size = parameters.getPreviewSize();
           int orientation = mPreview.getDisplayOrientation();
           if (mPreview.getCameraFacing() == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            switch (orientation) {
-              case 90:
-                bytes = rotateNV21(bytes, size.width, size.height, 270);
-                break;
-              case 270:
-                bytes = rotateNV21(bytes, size.width, size.height, 90);
-                break;
-              default:
-                bytes = rotateNV21(bytes, size.width, size.height, orientation);
-                break;
-            }
+            bytes = rotateNV21(bytes, size.width, size.height, (360 - orientation) % 360);
           } else {
             bytes = rotateNV21(bytes, size.width, size.height, orientation);
           }
-          YuvImage yuvImage = new YuvImage(bytes, parameters.getPreviewFormat(), size.width, size.height, null);
+          // switch width/height when rotating 90/270 deg
+          Rect rect = orientation == 90 || orientation == 270 ?
+            new Rect(0, 0, size.height, size.width) :
+            new Rect(0, 0, size.width, size.height);
+          YuvImage yuvImage = new YuvImage(bytes, parameters.getPreviewFormat(), rect.width(), rect.height(), null);
           ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-          Rect rect = new Rect(0, 0, size.width, size.height);
-
           yuvImage.compressToJpeg(rect, quality, byteArrayOutputStream);
           byte[] data = byteArrayOutputStream.toByteArray();
           byteArrayOutputStream.close();
