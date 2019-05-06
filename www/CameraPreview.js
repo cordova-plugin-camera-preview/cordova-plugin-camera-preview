@@ -11,7 +11,13 @@ function isFunction(obj) {
 };
 
 CameraPreview.startCamera = function(options, onSuccess, onError) {
-    options = options || {};
+    if(!options){
+        options = {};
+    }else if(isFunction(options)){
+        onSuccess = options;
+        options = {};
+    }
+  
     options.x = options.x || 0;
     options.y = options.y || 0;
     options.width = options.width || window.screen.width;
