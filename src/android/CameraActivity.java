@@ -253,7 +253,7 @@ public class CameraActivity extends Fragment {
     // Find the total number of cameras available
     numberOfCameras = Camera.getNumberOfCameras();
 
-    int facing = defaultCamera.equals("front") ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
+    int facing = "front".equals(defaultCamera) ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
 
     // Find the ID of the default camera
     Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
