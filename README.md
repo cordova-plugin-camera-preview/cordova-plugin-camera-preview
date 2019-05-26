@@ -426,6 +426,8 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
 
 ### getCameraCharacteristics(cb, [errorCallback])
 
+*Currently this feature is for Android only. A PR for iOS support would be happily accepted*
+
 <info>Get the characteristics of all available cameras. Returns a JSON object representing the characteristics of all available cameras.</info><br/>
 
 ```javascript
