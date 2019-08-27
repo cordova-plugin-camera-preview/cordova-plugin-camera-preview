@@ -14,6 +14,7 @@ import android.util.Log;
 import android.util.Size;
 import android.util.SizeF;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
@@ -285,9 +286,23 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         //display camera bellow the webview
         if(toBack){
 
-          webView.getView().setBackgroundColor(0x00000000);
-          webViewParent = webView.getView().getParent();
-           ((ViewGroup)webView.getView()).bringToFront();
+          View view = webView.getView();
+          ViewParent rootParent = containerView.getParent();
+          ViewParent curParent = view.getParent();
+
+          view.setBackgroundColor(0x00000000);
+          // If parents do not match look for.
+          if(curParent.getParent() != rootParent) {
+            while(curParent.getParent() != rootParent) {
+              curParent = curParent.getParent();
+            }
+            ((ViewGroup)curParent).setBackgroundColor(0x00000000);
+            ((ViewGroup)curParent).bringToFront();  
+          } else {
+            // Default
+            webViewParent = curParent;
+            ((ViewGroup)view).bringToFront();            
+          }
 
         }else{
 
