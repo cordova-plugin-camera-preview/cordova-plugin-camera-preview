@@ -2,7 +2,7 @@
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
 
-- Nothing yet
+- [PR #568](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/568) - Resolves plugin interaction issues when toBack is set and other plugins like cordova-plugin-googlemaps are changing the layout
 
 ## v0.11.0 - May 20, 2019 - LATEST RELEASED VERSION
 
