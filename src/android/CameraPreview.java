@@ -293,15 +293,23 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
           view.setBackgroundColor(0x00000000);
           // If parents do not match look for.
           if(curParent.getParent() != rootParent) {
-            while(curParent.getParent() != rootParent) {
+            while(curParent != null && curParent.getParent() != rootParent) {
               curParent = curParent.getParent();
             }
-            ((ViewGroup)curParent).setBackgroundColor(0x00000000);
-            ((ViewGroup)curParent).bringToFront();  
-          } else {
+
+            if(curParent != null) {
+              ((ViewGroup)curParent).setBackgroundColor(0x00000000);
+              ((ViewGroup)curParent).bringToFront();
+            } else {
+              // Do default...
+              curParent = view.getParent();
+              webViewParent = curParent;
+              ((ViewGroup)view).bringToFront();
+            }
+          }else{
             // Default
             webViewParent = curParent;
-            ((ViewGroup)view).bringToFront();            
+            ((ViewGroup)view).bringToFront();
           }
 
         }else{
