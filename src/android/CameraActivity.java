@@ -330,6 +330,9 @@ public class CameraActivity extends Fragment {
   }
 
   public void switchCamera() {
+    // Find the total number of cameras available
+    numberOfCameras = Camera.getNumberOfCameras();
+    
     // check for availability of multiple cameras
     if (numberOfCameras == 1) {
       //There is only one camera available
