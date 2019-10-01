@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.Area;
 import android.hardware.Camera.AutoFocusCallback;
@@ -554,8 +555,7 @@ public class CameraActivity extends Fragment {
     });
   }
 
-  public void takePicture(final int width, final int height, final int quality){
-    Log.d(TAG, "CameraPreview takePicture width: " + width + ", height: " + height + ", quality: " + quality);
+  public void takePicture(final int quality){
 
     if (mPreview != null) {
       if (!canTakePicture) {
