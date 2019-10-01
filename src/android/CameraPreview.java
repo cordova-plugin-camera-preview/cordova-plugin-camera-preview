@@ -1012,7 +1012,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  public boolean onFocusSet(final int pointX, final int pointY) {
+  public void onFocusSet(final int pointX, final int pointY) {
     Log.d(TAG, "Focus set, returning coordinates");
 
     JSONObject data = new JSONObject();
@@ -1044,8 +1044,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  public void setBackButtonListener(CallbackContext callbackContext) {
+  public boolean setBackButtonListener(CallbackContext callbackContext) {
     tapBackButtonContext = callbackContext;
+    return true;
   }
 
   public void onBackButton() {
