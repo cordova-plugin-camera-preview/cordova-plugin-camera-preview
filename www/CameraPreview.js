@@ -25,13 +25,14 @@ CameraPreview.startCamera = function (options, onSuccess, onError) {
     options.tapFocus = false;
   }
 
-  options.previewDrag = options.previewDrag || false;
-  options.toBack = options.toBack || false;
-  if (typeof (options.alpha) === 'undefined') {
-    options.alpha = 1;
-  }
-  options.disableExifHeaderStripping = options.disableExifHeaderStripping || false;
-  exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha, options.tapFocus, options.disableExifHeaderStripping]);
+    options.previewDrag = options.previewDrag || false;
+    options.toBack = options.toBack || false;
+    if (typeof(options.alpha) === 'undefined') {
+        options.alpha = 1;
+    }
+    options.disableExifHeaderStripping = options.disableExifHeaderStripping || false;
+    options.storeToFile = options.storeToFile || false;
+    exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [options.x, options.y, options.width, options.height, options.camera, options.tapPhoto, options.previewDrag, options.toBack, options.alpha, options.tapFocus, options.disableExifHeaderStripping, options.storeToFile]);
 };
 
 CameraPreview.stopCamera = function (onSuccess, onError) {
@@ -48,6 +49,25 @@ CameraPreview.hide = function (onSuccess, onError) {
 
 CameraPreview.show = function (onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "showCamera", []);
+};
+
+CameraPreview.takeSnapshot = function(opts, onSuccess, onError) {
+    if (!opts) {
+        opts = {};
+    } else if (isFunction(opts)) {
+        onSuccess = opts;
+        opts = {};
+    }
+
+    if (!isFunction(onSuccess)) {
+        return false;
+    }
+
+    if (!opts.quality || opts.quality > 100 || opts.quality < 0) {
+        opts.quality = 85;
+    }
+
+    exec(onSuccess, onError, PLUGIN_NAME, "takeSnapshot", [opts.quality]);
 };
 
 CameraPreview.takePicture = function (opts, onSuccess, onError) {
@@ -133,7 +153,6 @@ CameraPreview.tapToFocus = function (xPoint, yPoint, onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "tapToFocus", [xPoint, yPoint]);
 };
 
-
 CameraPreview.getExposureModes = function (onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "getExposureModes", []);
 };
@@ -176,6 +195,34 @@ CameraPreview.setScreenRotation = function (screenRotation, onSuccess, onError) 
 
 CameraPreview.onBackButton = function (onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
+};
+
+CameraPreview.getBlob = function(url, onSuccess, onError) {
+    var xhr = new XMLHttpRequest
+    xhr.onload = function() {
+        if (xhr.status != 0 && (xhr.status < 200 || xhr.status >= 300)) {
+            if (isFunction(onError)) {
+                onError('Local request failed');
+            }
+            return;
+        }
+        var blob = new Blob([xhr.response], {type: "image/jpeg"});
+        if (isFunction(onSuccess)) {
+            onSuccess(blob);
+        }
+    };
+    xhr.onerror = function() {
+        if (isFunction(onError)) {
+            onError('Local request failed');
+        }
+    };
+    xhr.open('GET', url);
+    xhr.responseType = 'arraybuffer';
+    xhr.send(null);
+};
+
+CameraPreview.getCameraCharacteristics = function(onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "getCameraCharacteristics", []);
 };
 
 CameraPreview.FOCUS_MODE = {
