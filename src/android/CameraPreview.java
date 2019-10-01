@@ -228,7 +228,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return camera;
   }
 
-  private void getSupportedPictureSizes(CallbackContext callbackContext) {
+  private boolean getSupportedPictureSizes(CallbackContext callbackContext) {
     List<Camera.Size> supportedSizes = null;
 
     // TODO: change whole logic so that every method can be called even when camera
@@ -246,7 +246,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     if (supportedSizes == null) {
       callbackContext.error("Camera Parameters access error");
-      return;
+      return true;
     }
 
     JSONArray sizes = new JSONArray();
@@ -264,13 +264,14 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       sizes.put(jsonSize);
     }
     callbackContext.success(sizes);
+    return true;
   }
 
     private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, boolean tapFocus, boolean disableExifHeaderStripping, boolean storeToFile, CallbackContext callbackContext) {
     Log.d(TAG, "start camera action");
     if (fragment != null) {
       callbackContext.error("CameraAlreadyStarted");
-      return;
+      return true;
     }
 
     final float opacity = Float.parseFloat(alpha);
@@ -362,7 +363,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         fragmentTransaction.commit();
       }
     });
-
+  
+    return true;
   }
 
   public void onCameraStarted() {
@@ -401,14 +403,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     takeSnapshotCallbackContext = null;
   }
 
-  private void takePicture(int quality, CallbackContext callbackContext) {
+  private boolean takePicture(int quality, CallbackContext callbackContext) {
     if (!this.hasView(callbackContext)) {
-      return;
+      return true;
     }
 
     takePictureCallbackContext = callbackContext;
 
     fragment.takePicture(quality);
+    return true;
   }
 
   public void onPictureTaken(String originalPicture) {
@@ -427,9 +430,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     takePictureCallbackContext.error(message);
   }
 
-  private void setColorEffect(String effect, CallbackContext callbackContext) {
+  private boolean setColorEffect(String effect, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -445,11 +448,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("Color effect not supported" + effect);
     }
+    return true;
   }
 
-  private void getSupportedColorEffects(CallbackContext callbackContext) {
+  private boolean getSupportedColorEffects(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -465,11 +469,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     callbackContext.success(jsonColorEffects);
+    return true;
   }
 
-  private void getExposureModes(CallbackContext callbackContext) {
+  private boolean getExposureModes(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -483,11 +488,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("Exposure modes not supported");
     }
+    return true;
   }
 
-  private void getExposureMode(CallbackContext callbackContext) {
+  private boolean getExposureMode(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -506,11 +512,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("Exposure mode not supported");
     }
+    return true;
   }
 
-  private void setExposureMode(String exposureMode, CallbackContext callbackContext) {
+  private boolean setExposureMode(String exposureMode, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -523,11 +530,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("Exposure mode not supported");
     }
+    return true;
   }
 
-  private void getExposureCompensation(CallbackContext callbackContext) {
+  private boolean getExposureCompensation(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -540,11 +548,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       int exposureCompensation = camera.getParameters().getExposureCompensation();
       callbackContext.success(exposureCompensation);
     }
+    return true;
   }
 
-  private void setExposureCompensation(int exposureCompensation, CallbackContext callbackContext) {
+  private boolean setExposureCompensation(int exposureCompensation, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -566,11 +575,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
       callbackContext.success(exposureCompensation);
     }
+    return true;
   }
 
-  private void getExposureCompensationRange(CallbackContext callbackContext) {
+  private boolean getExposureCompensationRange(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -591,11 +601,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       }
       callbackContext.success(jsonExposureRange);
     }
+    return true;
   }
 
-  private void getSupportedWhiteBalanceModes(CallbackContext callbackContext) {
+  private boolean getSupportedWhiteBalanceModes(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -614,11 +625,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       }
     }
     callbackContext.success(jsonWhiteBalanceModes);
+    return true;
   }
 
-  private void getWhiteBalanceMode(CallbackContext callbackContext) {
+  private boolean getWhiteBalanceMode(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -641,11 +653,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("White balance mode not supported");
     }
+    return true;
   }
 
-  private void setWhiteBalanceMode(String whiteBalanceMode, CallbackContext callbackContext) {
+  private boolean setWhiteBalanceMode(String whiteBalanceMode, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -669,11 +682,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("White balance parameter not supported");
     }
+    return true;
   }
 
-  private void getMaxZoom(CallbackContext callbackContext) {
+  private boolean getMaxZoom(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -685,11 +699,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("Zoom not supported");
     }
+    return true;
   }
 
-  private void getHorizontalFOV(CallbackContext callbackContext) {
+  private boolean getHorizontalFOV(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -698,11 +713,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     float horizontalViewAngle = params.getHorizontalViewAngle();
 
     callbackContext.success(String.valueOf(horizontalViewAngle));
+    return true;
   }
 
-  private void getZoom(CallbackContext callbackContext) {
+  private boolean getZoom(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -714,11 +730,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("Zoom not supported");
     }
+    return true;
   }
 
-  private void setZoom(double zoom, CallbackContext callbackContext) {
+  private boolean setZoom(double zoom, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -734,6 +751,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("Zoom not supported");
     }
+    return true;
   }
 
   private int calculateZoomIndex(double zoom, List<Integer> zoomRatios) {
@@ -752,7 +770,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return zoomIndex;
   }
 
-  private void setScreenRotation(int screenRotation, CallbackContext callbackContext) {
+  private boolean setScreenRotation(int screenRotation, CallbackContext callbackContext) {
 
     this.screenRotation = screenRotation;
 
@@ -761,6 +779,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     callbackContext.success();
+    return true;
   }
 
   private void setCameraRotation() {
@@ -780,19 +799,20 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.setCameraParameters(params);
   }
 
-  private void setPictureSize(int width, int height, CallbackContext callbackContext) {
+  private boolean setPictureSize(int width, int height, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
     Log.d(TAG, "setPictureSize: " + width + " " + height);
 
     fragment.setPictureSize(width, height);
     callbackContext.success();
+    return true;
   }
 
-  private void getSupportedFlashModes(CallbackContext callbackContext) {
+  private boolean getSupportedFlashModes(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -808,11 +828,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     callbackContext.success(jsonFlashModes);
+    return true;
   }
 
-  private void getSupportedFocusModes(CallbackContext callbackContext) {
+  private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -829,11 +850,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("Camera focus modes parameters access error");
     }
+    return true;
   }
 
-  private void getFocusMode(CallbackContext callbackContext) {
+  private boolean getFocusMode(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -848,11 +870,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("FocusMode not supported");
     }
+    return true;
   }
 
-  private void setFocusMode(String focusMode, CallbackContext callbackContext) {
+  private boolean setFocusMode(String focusMode, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -868,11 +891,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("Focus mode not recognised: " + focusMode);
     }
+    return true;
   }
 
-  private void getFlashMode(CallbackContext callbackContext) {
+  private boolean getFlashMode(CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -885,11 +909,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else {
       callbackContext.error("FlashMode not supported");
     }
+    return true;
   }
 
-  private void setFlashMode(String flashMode, CallbackContext callbackContext) {
+  private boolean setFlashMode(String flashMode, CallbackContext callbackContext) {
     if (!this.hasCamera(callbackContext)) {
-      return;
+      return true;
     }
 
     Camera camera = fragment.getCamera();
@@ -901,14 +926,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       params.setFlashMode(flashMode);
     } else {
       callbackContext.error("Flash mode not recognised: " + flashMode);
-      return;
+      return true;
     }
 
     fragment.setCameraParameters(params);
     callbackContext.success(flashMode);
+    return true;
   }
 
-  private void stopCamera(CallbackContext callbackContext) {
+  private boolean stopCamera(CallbackContext callbackContext) {
 
     if (webViewParent != null) {
       cordova.getActivity().runOnUiThread(new Runnable() {
@@ -921,7 +947,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     if (!this.hasView(callbackContext)) {
-      return;
+      return true;
     }
 
     FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
@@ -935,11 +961,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     containerView.setBackgroundColor(Color.TRANSPARENT);
 
     callbackContext.success();
+    return true;
   }
 
-  private void showCamera(CallbackContext callbackContext) {
+  private boolean showCamera(CallbackContext callbackContext) {
     if (!this.hasView(callbackContext)) {
-      return;
+      return true;
     }
 
     FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
@@ -948,11 +975,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragmentTransaction.commit();
 
     callbackContext.success();
+    return true;
   }
 
-  private void hideCamera(CallbackContext callbackContext) {
+  private boolean hideCamera(CallbackContext callbackContext) {
     if (!this.hasView(callbackContext)) {
-      return;
+      return true;
     }
 
     FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
@@ -961,11 +989,12 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragmentTransaction.commit();
 
     callbackContext.success();
+    return true;
   }
 
-  private void tapToFocus(final int pointX, final int pointY, CallbackContext callbackContext) {
+  private boolean tapToFocus(final int pointX, final int pointY, CallbackContext callbackContext) {
     if (!this.hasView(callbackContext)) {
-      return;
+      return true;
     }
 
     setFocusCallbackContext = callbackContext;
@@ -980,9 +1009,10 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         }
       }
     });
+    return true;
   }
 
-  public void onFocusSet(final int pointX, final int pointY) {
+  public boolean onFocusSet(final int pointX, final int pointY) {
     Log.d(TAG, "Focus set, returning coordinates");
 
     JSONObject data = new JSONObject();
@@ -1003,14 +1033,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     setFocusCallbackContext.error(message);
   }
 
-  private void switchCamera(CallbackContext callbackContext) {
+  private boolean switchCamera(CallbackContext callbackContext) {
     if (!this.hasView(callbackContext)) {
-      return;
+      return true;
     }
 
     fragment.switchCamera();
     setCameraRotation();
     callbackContext.success();
+    return true;
   }
 
   public void setBackButtonListener(CallbackContext callbackContext) {
@@ -1041,38 +1072,38 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       for (String cameraId : cManager.getCameraIdList()) {
         CameraCharacteristics characteristics = cManager.getCameraCharacteristics(cameraId);
 	
-	JSONObject cameraData = new JSONObject();
-	
-	// INFO_SUPPORTED_HARDWARE_LEVEL
-	Integer supportLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-	cameraData.put("INFO_SUPPORTED_HARDWARE_LEVEL", supportLevel);
-	
-	// LENS_FACING
-	Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-	cameraData.put("LENS_FACING", lensFacing);
-	
-	// SENSOR_INFO_PHYSICAL_SIZE
-	SizeF sensorInfoPhysicalSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
-	cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_WIDTH", new Double(sensorInfoPhysicalSize.getWidth()));
-	cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_HEIGHT", new Double(sensorInfoPhysicalSize.getHeight()));
-	
-	// SENSOR_INFO_PIXEL_ARRAY_SIZE
-	Size sensorInfoPixelSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
-	cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH", new Integer(sensorInfoPixelSize.getWidth()));
-	cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT", new Integer(sensorInfoPixelSize.getHeight()));
-	
-	// LENS_INFO_AVAILABLE_FOCAL_LENGTHS
-	float[] focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
-	JSONArray focalLengthsArray = new JSONArray();
-	for (int focusId=0; focusId<focalLengths.length; focusId++) {
-	  JSONObject focalLengthsData = new JSONObject();
-	  focalLengthsData.put("FOCAL_LENGTH", new Double(focalLengths[focusId]));
-	  focalLengthsArray.put(focalLengthsData);
-	}
-	cameraData.put("LENS_INFO_AVAILABLE_FOCAL_LENGTHS", focalLengthsArray);
-	
-	// add camera data to result list
-	cameraCharacteristicsArray.put(cameraData);
+        JSONObject cameraData = new JSONObject();
+        
+        // INFO_SUPPORTED_HARDWARE_LEVEL
+        Integer supportLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+        cameraData.put("INFO_SUPPORTED_HARDWARE_LEVEL", supportLevel);
+        
+        // LENS_FACING
+        Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+        cameraData.put("LENS_FACING", lensFacing);
+        
+        // SENSOR_INFO_PHYSICAL_SIZE
+        SizeF sensorInfoPhysicalSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
+        cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_WIDTH", new Double(sensorInfoPhysicalSize.getWidth()));
+        cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_HEIGHT", new Double(sensorInfoPhysicalSize.getHeight()));
+        
+        // SENSOR_INFO_PIXEL_ARRAY_SIZE
+        Size sensorInfoPixelSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
+        cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH", new Integer(sensorInfoPixelSize.getWidth()));
+        cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT", new Integer(sensorInfoPixelSize.getHeight()));
+        
+        // LENS_INFO_AVAILABLE_FOCAL_LENGTHS
+        float[] focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
+        JSONArray focalLengthsArray = new JSONArray();
+        for (int focusId=0; focusId<focalLengths.length; focusId++) {
+          JSONObject focalLengthsData = new JSONObject();
+          focalLengthsData.put("FOCAL_LENGTH", new Double(focalLengths[focusId]));
+          focalLengthsArray.put(focalLengthsData);
+        }
+        cameraData.put("LENS_INFO_AVAILABLE_FOCAL_LENGTHS", focalLengthsArray);
+        
+        // add camera data to result list
+        cameraCharacteristicsArray.put(cameraData);
       }
 		
       data.put("CAMERA_CHARACTERISTICS", cameraCharacteristicsArray);
