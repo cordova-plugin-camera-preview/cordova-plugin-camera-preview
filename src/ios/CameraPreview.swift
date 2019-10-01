@@ -1,11 +1,14 @@
 import AVFoundation
 import CoreMotion
 
+let TMP_IMAGE_PREFIX = "cpcp_capture_"
+
 @objc(CameraPreview)
 class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     var sessionManager: CameraSessionManager!
     var cameraRenderController: CameraRenderController!
     var onPictureTakenHandlerId = ""
+    var storeToFile: Bool!
     var captureVideoOrientation: AVCaptureVideoOrientation?
     
     override func pluginInitialize() {
@@ -24,7 +27,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     // 7 options.toBack,
     // 8 options.alpha,
     // 9 options.tapFocus,
-    // 10 options.disableExifHeaderStripping]
+    // 10 options.disableExifHeaderStripping
+    // 12 options.storeToFile]
     @objc func startCamera(_ command: CDVInvokedUrlCommand) {
         print("--> startCamera")
         
@@ -60,6 +64,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             let alpha = CGFloat((command.arguments[8] as? Int)!)
             let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
             let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0
+            self.storeToFile = (command.arguments[11] as? Int)! != 0
             
             DispatchQueue.main.async {
                 let x = (command.arguments[0] as? CGFloat ?? 0.0) + self.webView.frame.origin.x
@@ -803,16 +808,52 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                         finalImage = UIImage(cgImage: imageRotated!)
                     }
                     
-                    // Export to Base64
-                    var params = [AnyHashable]()
-                    let base64Image = self.getBase64Image(finalImage!, withQuality: quality)
-                    params.append(base64Image!)
-                    
-                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: params)
-                    pluginResult?.setKeepCallbackAs(true)
-                    self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
+                    if (self.storeToFile) {
+                        if let image = finalImage {
+                            if let data = UIImageJPEGRepresentation(image, quality) {
+                                let fileUrl = self.getFileUrl("jpg")!
+                                try? data.write(to: fileUrl, options: [.atomic])
+                                
+                                let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: fileUrl.standardized.absoluteString)
+                                // This means that the callback on JS side is kept for further calls from native side to JS side
+                                pluginResult?.setKeepCallbackAs(true)
+                                self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
+                            }
+                        }
+                    } else {
+                        // Export to Base64
+                        let base64Image = self.getBase64Image(finalImage!, withQuality: quality)
+                        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: base64Image)
+                        // This means that the callback on JS side is kept for further calls from native side to JS side
+                        pluginResult?.setKeepCallbackAs(true)
+                        self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
+                    }
                 }
             })
         }
+    }
+    
+    func getTempDirectoryPath() -> String? {
+        let tmpPath = URL(fileURLWithPath: NSTemporaryDirectory()).standardized.absoluteString
+        return tmpPath
+    }
+    
+    
+    func getNoCloudDirectoryPath() -> URL {
+        let paths = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask)
+        let documentsDirectory = paths[0]
+        return documentsDirectory.appendingPathComponent("NoCloud")
+    }
+    
+    func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
+    
+    func getFileUrl(_ `extension`: String?) -> URL? {
+        let fileName = String(format: "%@%04d.%@", TMP_IMAGE_PREFIX, Int.random(in: 0 ... 1000000), `extension` ?? "")
+        let fileUrl = self.getNoCloudDirectoryPath().appendingPathComponent(fileName)
+        print(fileUrl.absoluteString)
+        return fileUrl
     }
 }
