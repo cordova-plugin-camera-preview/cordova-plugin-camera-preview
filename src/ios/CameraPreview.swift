@@ -5,11 +5,12 @@ let TMP_IMAGE_PREFIX = "cpcp_capture_"
 
 @objc(CameraPreview)
 class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
+    
     var sessionManager: CameraSessionManager!
     var cameraRenderController: CameraRenderController!
     var onPictureTakenHandlerId = ""
     var storeToFile: Bool!
-    var exifInfos: Dictionary<String, Double> = Dictionary<String, Double>()
+    var exifInfos: Dictionary<String, Any> = Dictionary<String, Any>()
     var withExifInfos = false
     var captureVideoOrientation: AVCaptureVideoOrientation?
     let dateFormatterForPhotoExif: DateFormatter = DateFormatter()
@@ -627,45 +628,42 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
     
     @objc func setExifInfos(_ command: CDVInvokedUrlCommand) {
-//        let latitude = command.arguments[0] as? Double
-//        let longitude = command.arguments[1] as? Double
-//        let altitude = command.arguments[2] as? Double
-//        let timestamp = command.arguments[3] as? TimeInterval
-//        let trueHeading = command.arguments[4] as? Double
-//        let magneticHeading = command.arguments[5] as? Double
-//        let software = command.arguments[6] as? String
+        let latitude = command.arguments[0] as? Double
+        let longitude = command.arguments[1] as? Double
+        let altitude = command.arguments[2] as? Double
+        let timestamp = command.arguments[3] as? TimeInterval
+        let trueHeading = command.arguments[4] as? Double
+        let magneticHeading = command.arguments[5] as? Double
+        let software = command.arguments[6] as? String
+
+        self.exifInfos = Dictionary<String, Any>()
         
-        let latitude = 25.354
-        let longitude = 10.123
-//        let altitude = 12
-//        let timestamp: TimeInterval = 1570028709689
-//        let trueHeading = 12
-//        let magneticHeading = 13
-//        let software = "BeMyEye"
-        
-//        if latitude != nil {
+        if latitude != nil {
             self.exifInfos["latitude"] = latitude
-//        }
-//        if longitude != nil {
+        }
+        if longitude != nil {
             self.exifInfos["longitude"] = longitude
-//        }
-//        if altitude != nil {
-//            self.exifInfos["altitude"] = altitude
-//        }
-//        if timestamp != nil {
-//            self.exifInfos["timestamp"] = timestamp
-//        }
-//        if trueHeading != nil {
-//            self.exifInfos["trueHeading"] = trueHeading
-//        }
-//        if magneticHeading != nil {
-//            self.exifInfos["magneticHeading"] = magneticHeading
-//        }
-//        if software != nil {
-//            self.exifInfos["software"] = software
-//        }
+        }
+        if altitude != nil {
+            self.exifInfos["altitude"] = altitude
+        }
+        if timestamp != nil {
+            self.exifInfos["timestamp"] = timestamp
+        }
+        if trueHeading != nil {
+            self.exifInfos["trueHeading"] = trueHeading
+        }
+        if magneticHeading != nil {
+            self.exifInfos["magneticHeading"] = magneticHeading
+        }
+        if software != nil {
+            self.exifInfos["software"] = software
+        }
         
         self.withExifInfos = true
+        
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+        commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
     
     func getBase64Image(_ image: UIImage, withQuality quality: CGFloat) -> String? {
@@ -869,43 +867,29 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                                 var latitudeRef: String
                                 var longitudeRef: String
                                 
-//                                let latitude = self.exifInfos["latitude"] as! Double
+                                if let latitude = (self.exifInfos["latitude"] as? Double), latitude < 0.0 {
+                                    latitudeRef = "S"
+                                    self.exifInfos["latitude"] = abs(latitude)
+                                } else {
+                                    latitudeRef = "N"
+                                }
+
+                                if let longitude = (self.exifInfos["longitude"] as? Double), longitude < 0.0 {
+                                    longitudeRef = "W"
+                                    self.exifInfos["longitude"] = abs(longitude)
+                                } else {
+                                    longitudeRef = "E"
+                                }
 //
-//                                if latitude != nil && latitude < 0.0 {
-//                                    latitudeRef = "S"
-//                                    self.exifInfos["latitude"] = abs(latitude)
-//                                } else {
-//                                    latitudeRef = "N"
-//                                }
-                                
-                                let latitude = self.exifInfos["latitude"]
-                                print("latitude")
-                                print(latitude)
-//                                if let latitude = self.exifInfos["latitude"], latitude < 0.0 {
-//                                    latitudeRef = "S"
-//                                    self.exifInfos["latitude"] = abs(latitude)
-//                                } else {
-//                                    latitudeRef = "N"
-//                                }
+                                gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
+                                gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
+                                gps.setValue(self.exifInfos["latitude"], forKey: kCGImagePropertyGPSLatitude as String)
+                                gps.setValue(self.exifInfos["longitude"], forKey: kCGImagePropertyGPSLongitude as String)
 //
-//
-//
-//                                if let longitude = self.exifInfos["longitude"], longitude < 0.0 {
-//                                    longitudeRef = "W"
-//                                    self.exifInfos["longitude"] = abs(longitude)
-//                                } else {
-//                                    longitudeRef = "E"
-//                                }
-//
-//                                gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
-//                                gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
-//                                gps.setValue(self.exifInfos["latitude"], forKey: kCGImagePropertyGPSLatitude as String)
-//                                gps.setValue(self.exifInfos["longitude"], forKey: kCGImagePropertyGPSLongitude as String)
-//
-//                                self.dateFormatterForPhotoExif.dateFormat = "HH:mm:ss"
-//                                gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSTimeStamp as String)
-//                                self.dateFormatterForPhotoExif.dateFormat = "yyyy:MM:dd"
-//                                gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSDateStamp as String)
+                                self.dateFormatterForPhotoExif.dateFormat = "HH:mm:ss"
+                                gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSTimeStamp as String)
+                                self.dateFormatterForPhotoExif.dateFormat = "yyyy:MM:dd"
+                                gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSDateStamp as String)
                                 
                                 let type = "public.jpeg"
                                 let data = NSMutableData()
