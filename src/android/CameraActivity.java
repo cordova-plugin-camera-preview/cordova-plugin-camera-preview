@@ -419,13 +419,15 @@ public class CameraActivity extends Fragment {
   /**
    * This will write exif information to image file.
    *
-   * @param exif
+   * @param path
    */
-  private void writeExifInfos(ExifInterface exif) {
+  private void writeExifInfos(String path) {
 
     Log.d(TAG, "writeExifInfos");
 
     try {
+
+      ExifInterface exif = new ExifInterface(path);
 
       double absoluteValueLatitude = Math.abs(latitude);
       double absoluteValueLongitude = Math.abs(longitude);
@@ -468,6 +470,18 @@ public class CameraActivity extends Fragment {
       exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, String.valueOf(timestamp));
       exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, String.valueOf(timestamp));
 
+      if (trueHeading != null || magneticHeading != null) {
+        if (trueHeading == null || trueHeading < 0) {
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION, String.valueOf(magneticHeading) + "/1");
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "M");
+        } else {
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION, String.valueOf(trueHeading) + "/1");
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "T");
+        }
+      }
+
+      exif.setAttribute(ExifInterface.TAG_SOFTWARE, software);
+
       exif.saveAttributes();
     }
     catch (IOException e) {
@@ -484,13 +498,9 @@ public class CameraActivity extends Fragment {
 
       try {
 
-        if (!disableExifHeaderStripping || withExifInfos) {
+        Log.d(TAG, "RotateImageIfNecessary");
+        if (!disableExifHeaderStripping) {
           ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
-
-          if (withExifInfos) {
-            writeExifInfos(exifInterface);
-            withExifInfos = false;
-          }
 
           int exifOrientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
           Log.d(TAG, "CameraPreview exifOrientation: " + exifOrientation);
@@ -517,6 +527,12 @@ public class CameraActivity extends Fragment {
           FileOutputStream out = new FileOutputStream(path);
           out.write(data);
           out.close();
+
+          if (withExifInfos) {
+            Log.d(TAG, "about to withExifInfos");
+            writeExifInfos(path);
+            withExifInfos = false;
+          }
           eventListener.onPictureTaken(path);
         }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");

@@ -1126,7 +1126,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     if (this.hasCamera(callbackContext) == false) {
         return true;
     }
-    Log.d(TAG, "setExifInfos");
+    Log.d(TAG, "setExifInfos action");
     fragment.latitude = latitude;
     fragment.longitude = longitude;
     fragment.altitude = altitude;
@@ -1135,6 +1135,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.magneticHeading = magneticHeading;
     fragment.software = software;
     fragment.withExifInfos = true;
+    callbackContext.success();
     return true;
   }
   
