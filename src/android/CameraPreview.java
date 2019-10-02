@@ -72,6 +72,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String SET_SCREEN_ROTATION_ACTION = "setScreenRotation";
   private static final String SET_BACK_BUTTON_CALLBACK = "onBackButton";
   private static final String GET_CAMERA_CHARACTERISTICS_ACTION = "getCameraCharacteristics";
+  private static final String SET_EXIF_INFOS = "setExifInfos";
 
   private static final int CAM_REQ_CODE = 0;
 
@@ -176,7 +177,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return getSupportedColorEffects(callbackContext);
     } else if (GET_CAMERA_CHARACTERISTICS_ACTION.equals(action)) {
       return getCameraCharacteristics(callbackContext);
-    }  
+    } else if (SET_EXIF_INFOS.equals(action)) {
+      return setExifInfos(args.getDouble(0), args.getDouble(1), args.getDouble(2), args.getLong(3), args.getDouble(4), args.getDouble(5), args.getString(6), callbackContext);
+    }
     return false;
   }
 
@@ -415,7 +418,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   }
 
   public void onPictureTaken(String originalPicture) {
-    Log.d(TAG, "returning picture");
+    Log.d(TAG, "returning picture" + originalPicture);
 
     JSONArray data = new JSONArray();
     data.put(originalPicture);
@@ -1116,6 +1119,23 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     callbackContext.success(data);
+    return true;
+  }
+
+  private boolean setExifInfos(Double latitude, Double longitude, Double altitude, Long timestamp, Double trueHeading, Double magneticHeading, String software, CallbackContext callbackContext) {
+    if (this.hasCamera(callbackContext) == false) {
+        return true;
+    }
+    Log.d(TAG, "setExifInfos action");
+    fragment.latitude = latitude;
+    fragment.longitude = longitude;
+    fragment.altitude = altitude;
+    fragment.timestamp = timestamp;
+    fragment.trueHeading = trueHeading;
+    fragment.magneticHeading = magneticHeading;
+    fragment.software = software;
+    fragment.withExifInfos = true;
+    callbackContext.success();
     return true;
   }
   

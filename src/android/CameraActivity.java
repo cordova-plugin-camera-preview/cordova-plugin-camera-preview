@@ -79,6 +79,15 @@ public class CameraActivity extends Fragment {
   public boolean storeToFile;
   public boolean toBack;
 
+  public Double latitude;
+  public Double longitude;
+  public Double altitude;
+  public Long timestamp;
+  public Double trueHeading;
+  public Double magneticHeading;
+  public String software;
+  public boolean withExifInfos;
+
   public void setEventListener(CameraPreviewListener listener) {
     eventListener = listener;
   }
@@ -384,14 +393,14 @@ public class CameraActivity extends Fragment {
   }
 
   private String getTempDirectoryPath() {
-    File cache = null;
+    File dir = null;
 
     // Use internal storage
-    cache = getActivity().getCacheDir();
+    dir = getActivity().getExternalFilesDir(null);
 
     // Create the cache directory if it doesn't exist
-    cache.mkdirs();
-    return cache.getAbsolutePath();
+    dir.mkdirs();
+    return dir.getAbsolutePath();
   }
 
   private String getTempFilePath() {
@@ -407,6 +416,80 @@ public class CameraActivity extends Fragment {
     }
   };
 
+  /**
+   * This will write exif information to image file.
+   *
+   * @param path
+   */
+  private void writeExifInfos(String path) {
+
+    Log.d(TAG, "writeExifInfos");
+
+    try {
+
+      ExifInterface exif = new ExifInterface(path);
+
+      double absoluteValueLatitude = Math.abs(latitude);
+      double absoluteValueLongitude = Math.abs(longitude);
+
+      // Converts latitude in degrees minutes seconds
+      int degreesLatitude = (int) Math.floor(absoluteValueLatitude);
+      int minutesLatitude = (int) Math.floor((absoluteValueLatitude - degreesLatitude) * 60);
+      double secondsLatitude = (absoluteValueLatitude - (degreesLatitude + ((double) minutesLatitude / 60))) * 3600000;
+
+      // Converts latitude in degrees minutes seconds
+      int degreesLongitude = (int) Math.floor(absoluteValueLongitude);
+      int minutesLongitude = (int) Math.floor((absoluteValueLongitude - degreesLongitude) * 60);
+      double secondsLongitude = (absoluteValueLongitude - (degreesLongitude + ((double) minutesLongitude / 60))) * 3600000;
+
+      String exifLatitude = degreesLatitude + "/1," + minutesLatitude + "/1," + secondsLatitude + "/1000";
+      String exifLongitude = degreesLongitude + "/1," + minutesLongitude + "/1," + secondsLongitude + "/1000";
+
+      if (latitude > 0) {
+        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "N");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "S");
+      }
+
+      if (longitude > 0) {
+        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "E");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "W");
+      }
+
+      exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, exifLatitude);
+      exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, exifLongitude);
+
+      exif.setAltitude(altitude);
+      if (altitude > 0) {
+        exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "1");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "0");
+      }
+
+      exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, String.valueOf(timestamp));
+      exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, String.valueOf(timestamp));
+
+      if (trueHeading != null || magneticHeading != null) {
+        if (trueHeading == null || trueHeading < 0) {
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION, String.valueOf(magneticHeading) + "/1");
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "M");
+        } else {
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION, String.valueOf(trueHeading) + "/1");
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "T");
+        }
+      }
+
+      exif.setAttribute(ExifInterface.TAG_SOFTWARE, software);
+
+      exif.saveAttributes();
+    }
+    catch (IOException e) {
+      Log.e("BeMyEyeCamera", "Could not wirte exif :\n" + e);
+    }
+  }
+
+
   class RotateImageIfNecessary extends AsyncTask<byte[], String, String> {
     @Override
     protected String doInBackground(byte[][] params) {
@@ -415,9 +498,10 @@ public class CameraActivity extends Fragment {
 
       try {
 
+        Log.d(TAG, "RotateImageIfNecessary");
         if (!disableExifHeaderStripping) {
-
           ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
+
           int exifOrientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
           Log.d(TAG, "CameraPreview exifOrientation: " + exifOrientation);
           Matrix matrix = buildMatrixFromExifOrientation(exifOrientation);
@@ -443,6 +527,12 @@ public class CameraActivity extends Fragment {
           FileOutputStream out = new FileOutputStream(path);
           out.write(data);
           out.close();
+
+          if (withExifInfos) {
+            Log.d(TAG, "about to withExifInfos");
+            writeExifInfos(path);
+            withExifInfos = false;
+          }
           eventListener.onPictureTaken(path);
         }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
