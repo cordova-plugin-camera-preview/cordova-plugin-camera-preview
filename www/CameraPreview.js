@@ -226,7 +226,6 @@ CameraPreview.getCameraCharacteristics = function(onSuccess, onError) {
 };
 
 CameraPreview.setExifInfos = function (position, software, compassHeading, onSuccess, onError) {
-    options.storeToFile = options.storeToFile || false;
     var coords = position ? position.coords : { latitude: 0, longitude: 0, altitude: 0 };
     timestamp = position ? position.timestamp : 0;
     trueHeading = compassHeading ? compassHeading.trueHeading : null;
