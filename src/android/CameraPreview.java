@@ -178,7 +178,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else if (GET_CAMERA_CHARACTERISTICS_ACTION.equals(action)) {
       return getCameraCharacteristics(callbackContext);
     } else if (SET_EXIF_INFOS.equals(action)) {
-      return setExifInfos(args.getDouble(0), args.getDouble(0), args.getDouble(0), args.getLong(0), args.getDouble(0), args.getDouble(0), args.getString(0),callbackContext);
+      return setExifInfos(args.getDouble(0), args.getDouble(1), args.getDouble(2), args.getLong(3), args.getDouble(4), args.getDouble(5), args.getString(6), callbackContext);
     }
     return false;
   }
@@ -1126,6 +1126,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     if (this.hasCamera(callbackContext) == false) {
         return true;
     }
+    Log.d(TAG, "setExifInfos");
     fragment.latitude = latitude;
     fragment.longitude = longitude;
     fragment.altitude = altitude;

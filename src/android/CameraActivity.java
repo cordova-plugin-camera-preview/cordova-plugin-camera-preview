@@ -423,6 +423,7 @@ public class CameraActivity extends Fragment {
    */
   private void writeExifInfos(ExifInterface exif) {
 
+    Log.d(TAG, "writeExifInfos");
 
     try {
 
