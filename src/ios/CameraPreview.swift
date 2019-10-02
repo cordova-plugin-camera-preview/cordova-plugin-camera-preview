@@ -9,7 +9,10 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     var cameraRenderController: CameraRenderController!
     var onPictureTakenHandlerId = ""
     var storeToFile: Bool!
+    var exifInfos: Dictionary<String, Double> = Dictionary<String, Double>()
+    var withExifInfos = false
     var captureVideoOrientation: AVCaptureVideoOrientation?
+    let dateFormatterForPhotoExif: DateFormatter = DateFormatter()
     
     override func pluginInitialize() {
         // start as transparent
@@ -623,6 +626,48 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         }
     }
     
+    @objc func setExifInfos(_ command: CDVInvokedUrlCommand) {
+//        let latitude = command.arguments[0] as? Double
+//        let longitude = command.arguments[1] as? Double
+//        let altitude = command.arguments[2] as? Double
+//        let timestamp = command.arguments[3] as? TimeInterval
+//        let trueHeading = command.arguments[4] as? Double
+//        let magneticHeading = command.arguments[5] as? Double
+//        let software = command.arguments[6] as? String
+        
+        let latitude = 25.354
+        let longitude = 10.123
+//        let altitude = 12
+//        let timestamp: TimeInterval = 1570028709689
+//        let trueHeading = 12
+//        let magneticHeading = 13
+//        let software = "BeMyEye"
+        
+//        if latitude != nil {
+            self.exifInfos["latitude"] = latitude
+//        }
+//        if longitude != nil {
+            self.exifInfos["longitude"] = longitude
+//        }
+//        if altitude != nil {
+//            self.exifInfos["altitude"] = altitude
+//        }
+//        if timestamp != nil {
+//            self.exifInfos["timestamp"] = timestamp
+//        }
+//        if trueHeading != nil {
+//            self.exifInfos["trueHeading"] = trueHeading
+//        }
+//        if magneticHeading != nil {
+//            self.exifInfos["magneticHeading"] = magneticHeading
+//        }
+//        if software != nil {
+//            self.exifInfos["software"] = software
+//        }
+        
+        self.withExifInfos = true
+    }
+    
     func getBase64Image(_ image: UIImage, withQuality quality: CGFloat) -> String? {
         var base64Image: String? = nil
         do {
@@ -771,58 +816,134 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             
             // Capture image
             sessionManager.stillImageOutput?.captureStillImageAsynchronously(from: aConnection, completionHandler: {(_ sampleBuffer: CMSampleBuffer!, _ error: Error?) -> Void in
-                
                 print("Done creating still image")
+                
                 if error != nil {
                     print("Error taking picture : \(error)")
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "\(error)")
                     self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
-                } else {
-                    let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
-                    
-                    let capturedImage = UIImage(data: imageData!)
-                    
-                    var finalImage: UIImage? = nil
-                    
-                    // Apply filters if needed
-                    let filter: CIFilter? = self.sessionManager.ciFilter
-                    var finalCGImage: CGImage? = nil
-                    if filter != nil {
-                        let imageToFilter = CIImage(cgImage: (capturedImage?.cgImage)!)
-                        self.sessionManager.filterLock?.lock()
-                        filter?.setValue(imageToFilter, forKey: kCIInputImageKey)
-                        let filteredCImage = filter?.outputImage
-                        self.sessionManager.filterLock?.unlock()
-                        finalCGImage = self.cameraRenderController.ciContext?.createCGImage(filteredCImage!, from: filteredCImage?.extent ?? CGRect.zero)
-                        finalImage = UIImage(cgImage: finalCGImage!)
-                    } else {
-                        finalImage = capturedImage
-                    }
-                    
-                    // Rotate image if EXIF stripping not disabled
-                    if !self.cameraRenderController.disableExifHeaderStripping {
-                        let ciImage = CIImage(image: finalImage!)
-                        finalCGImage = self.cameraRenderController.ciContext?.createCGImage(ciImage!, from: ciImage?.extent ?? CGRect.zero)
-                        let radians = self.radiansFromUIImageOrientation((finalImage?.imageOrientation)!)
-                        let imageRotated = self.cgImageRotated(finalCGImage!, withRadians: radians)
-                        finalImage = UIImage(cgImage: imageRotated!)
-                    }
-                    
+                    return
+                }
+
+                // Get the image data
+                let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
+                
+//                // Set EXIFs if needed
+//                if (self.withExifInfos) {
+//                    if let imageSource = CGImageSourceCreateWithData(imageData! as CFData, nil) {
+//                        self.writeExifInfos(imageSource)
+//                    }
+//                }
+                
+                var finalImage: UIImage? = UIImage(data: imageData!)
+                
+                // Apply filter if needed
+                if let filter = self.sessionManager.ciFilter {
+                    finalImage = self.applyFilter(finalImage!, filter: filter)
+                }
+                
+                // Rotate image if EXIF stripping not disabled
+                if !self.cameraRenderController.disableExifHeaderStripping {
+                    finalImage = self.rotateImage(finalImage!)
+                }
+                
+                if let image = finalImage {
                     if (self.storeToFile) {
-                        if let image = finalImage {
-                            if let data = UIImageJPEGRepresentation(image, quality) {
-                                let fileUrl = self.getFileUrl("jpg")!
-                                try? data.write(to: fileUrl, options: [.atomic])
+                        if let data = UIImageJPEGRepresentation(image, quality) {
+                            
+                            // Create the image source
+                            if let imageSource = CGImageSourceCreateWithData(data as CFData, nil) {
+                                let metadata = NSMutableDictionary(dictionary: CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)!)
+                             
+                                metadata[kCGImageDestinationLossyCompressionQuality as String] = quality
                                 
-                                let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: fileUrl.standardized.absoluteString)
-                                // This means that the callback on JS side is kept for further calls from native side to JS side
-                                pluginResult?.setKeepCallbackAs(true)
-                                self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
+                                let tiff: NSMutableDictionary = metadata[kCGImagePropertyTIFFDictionary as String] as! NSMutableDictionary
+                                tiff.setValue("BeMyEye", forKey: kCGImagePropertyTIFFModel as String)
+                                let exif: NSMutableDictionary = metadata[kCGImagePropertyExifDictionary as String] as! NSMutableDictionary
+                                exif.setValue("BeMyEye", forKey: kCGImagePropertyExifLensModel as String)
+
+                                let gps = NSMutableDictionary()
+                                metadata.setValue(gps, forKey: kCGImagePropertyGPSDictionary as String)
+                                
+                                // Calculate north/south and east/west because we can't set negative latitude and longitude
+                                var latitudeRef: String
+                                var longitudeRef: String
+                                
+//                                let latitude = self.exifInfos["latitude"] as! Double
+//
+//                                if latitude != nil && latitude < 0.0 {
+//                                    latitudeRef = "S"
+//                                    self.exifInfos["latitude"] = abs(latitude)
+//                                } else {
+//                                    latitudeRef = "N"
+//                                }
+                                
+                                let latitude = self.exifInfos["latitude"]
+                                print("latitude")
+                                print(latitude)
+//                                if let latitude = self.exifInfos["latitude"], latitude < 0.0 {
+//                                    latitudeRef = "S"
+//                                    self.exifInfos["latitude"] = abs(latitude)
+//                                } else {
+//                                    latitudeRef = "N"
+//                                }
+//
+//
+//
+//                                if let longitude = self.exifInfos["longitude"], longitude < 0.0 {
+//                                    longitudeRef = "W"
+//                                    self.exifInfos["longitude"] = abs(longitude)
+//                                } else {
+//                                    longitudeRef = "E"
+//                                }
+//
+//                                gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
+//                                gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
+//                                gps.setValue(self.exifInfos["latitude"], forKey: kCGImagePropertyGPSLatitude as String)
+//                                gps.setValue(self.exifInfos["longitude"], forKey: kCGImagePropertyGPSLongitude as String)
+//
+//                                self.dateFormatterForPhotoExif.dateFormat = "HH:mm:ss"
+//                                gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSTimeStamp as String)
+//                                self.dateFormatterForPhotoExif.dateFormat = "yyyy:MM:dd"
+//                                gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSDateStamp as String)
+                                
+                                let type = "public.jpeg"
+                                let data = NSMutableData()
+                                let dest: CGImageDestination = CGImageDestinationCreateWithData(data, type as CFString, 1, nil)!
+                                
+                                let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
+                                CGImageDestinationAddImage(dest, cgImage!, metadata)
+                                CGImageDestinationFinalize(dest)
+                                
+                                // Write the thumbnail at path
+                                do {
+                                    // Write the file at path
+                                    let fileUrl = self.getFileUrl("jpg")!
+                                    try data.write(to: fileUrl, options: [.atomic])
+                                    
+                                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: fileUrl.standardized.absoluteString)
+                                    // This means that the callback on JS side is kept for further calls from native side to JS side
+                                    pluginResult?.setKeepCallbackAs(true)
+                                    self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
+                                } catch let error as NSError {
+                                    print("We have an error to save the picture: \(error)")
+                                }
                             }
+                            
+                            
+//                            // Write the file at path
+//                            let fileUrl = self.getFileUrl("jpg")!
+//                            try? data.write(to: fileUrl, options: [.atomic])
+                            
+//                            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: fileUrl.standardized.absoluteString)
+//                            // This means that the callback on JS side is kept for further calls from native side to JS side
+//                            pluginResult?.setKeepCallbackAs(true)
+//                            self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
                         }
                     } else {
                         // Export to Base64
-                        let base64Image = self.getBase64Image(finalImage!, withQuality: quality)
+                        let base64Image = self.getBase64Image(image, withQuality: quality)
+                        
                         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: base64Image)
                         // This means that the callback on JS side is kept for further calls from native side to JS side
                         pluginResult?.setKeepCallbackAs(true)
@@ -831,6 +952,54 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 }
             })
         }
+    }
+    
+    func applyFilter(_ image: UIImage, filter: CIFilter) -> UIImage {
+        let imageToFilter = CIImage(cgImage: (image.cgImage)!)
+        self.sessionManager.filterLock?.lock()
+        filter.setValue(imageToFilter, forKey: kCIInputImageKey)
+        let filteredCImage = filter.outputImage
+        self.sessionManager.filterLock?.unlock()
+        let finalCGImage = self.cameraRenderController.ciContext?.createCGImage(filteredCImage!, from: filteredCImage?.extent ?? CGRect.zero)
+        
+        return UIImage(cgImage: finalCGImage!)
+    }
+    
+    func rotateImage(_ image: UIImage) -> UIImage {
+        let ciImage = CIImage(image: image)
+        let finalCGImage = self.cameraRenderController.ciContext?.createCGImage(ciImage!, from: ciImage?.extent ?? CGRect.zero)
+        let radians = self.radiansFromUIImageOrientation(image.imageOrientation)
+        let imageRotated = self.cgImageRotated(finalCGImage!, withRadians: radians)
+        return UIImage(cgImage: imageRotated!)
+    }
+    
+    func writeExifInfos(_ imageSource: CGImageSource) {
+//        let gps = NSMutableDictionary()
+//        metadata.setValue(gps, forKey: kCGImagePropertyGPSDictionary as String)
+//
+//
+//        // Calculate north/south and east/west because we can't set negative latitude and longitude
+//        var latitudeRef: String
+//        var longitudeRef: String
+//
+//        if self.loc["lat"] < 0.0 {
+//            latitudeRef = "S"
+//            self.loc["lat"] = abs(self.loc["lat"]!)
+//        } else {
+//            latitudeRef = "N"
+//        }
+//
+//        if self.loc["lng"] < 0.0 {
+//            longitudeRef = "W"
+//            self.loc["lng"] = abs(self.loc["lng"]!)
+//        } else {
+//            longitudeRef = "E"
+//        }
+//
+//        gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
+//        gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
+//        gps.setValue(self.loc["lat"], forKey: kCGImagePropertyGPSLatitude as String)
+//        gps.setValue(self.loc["lng"], forKey: kCGImagePropertyGPSLongitude as String)
     }
     
     func getTempDirectoryPath() -> String? {
