@@ -225,6 +225,15 @@ CameraPreview.getCameraCharacteristics = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getCameraCharacteristics", []);
 };
 
+CameraPreview.setExifInfos = function (position, software, compassHeading, onSuccess, onError) {
+    options.storeToFile = options.storeToFile || false;
+    var coords = position ? position.coords : { latitude: 0, longitude: 0, altitude: 0 };
+    timestamp = position ? position.timestamp : 0;
+    trueHeading = compassHeading ? compassHeading.trueHeading : null;
+    magneticHeading = compassHeading ? compassHeading.magneticHeading : null;
+    exec(onSuccess, onError, PLUGIN_NAME, "setExifInfos", [coords.latitude, coords.longitude, coords.altitude, timestamp, trueHeading, magneticHeading, software]);
+};
+
 CameraPreview.FOCUS_MODE = {
   FIXED: 'fixed',
   AUTO: 'auto',
