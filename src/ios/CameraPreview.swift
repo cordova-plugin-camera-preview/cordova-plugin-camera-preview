@@ -822,117 +822,86 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                     self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
                     return
                 }
-
-                // Get the image data
-                let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
                 
-//                // Set EXIFs if needed
-//                if (self.withExifInfos) {
-//                    if let imageSource = CGImageSourceCreateWithData(imageData! as CFData, nil) {
-//                        self.writeExifInfos(imageSource)
-//                    }
-//                }
-                
-                var finalImage: UIImage? = UIImage(data: imageData!)
-                
-                // Apply filter if needed
-                if let filter = self.sessionManager.ciFilter {
-                    finalImage = self.applyFilter(finalImage!, filter: filter)
-                }
-                
-                // Rotate image if EXIF stripping not disabled
-                if !self.cameraRenderController.disableExifHeaderStripping {
-                    finalImage = self.rotateImage(finalImage!)
-                }
-                
-                if let image = finalImage {
-                    if (self.storeToFile) {
-                        if let data = UIImageJPEGRepresentation(image, quality) {
-                            
-                            // Create the image source
-                            if let imageSource = CGImageSourceCreateWithData(data as CFData, nil) {
-                                let metadata = NSMutableDictionary(dictionary: CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)!)
-                             
-                                metadata[kCGImageDestinationLossyCompressionQuality as String] = quality
-                                
-                                let tiff: NSMutableDictionary = metadata[kCGImagePropertyTIFFDictionary as String] as! NSMutableDictionary
-                                tiff.setValue("BeMyEye", forKey: kCGImagePropertyTIFFModel as String)
-                                let exif: NSMutableDictionary = metadata[kCGImagePropertyExifDictionary as String] as! NSMutableDictionary
-                                exif.setValue("BeMyEye", forKey: kCGImagePropertyExifLensModel as String)
-
-                                let gps = NSMutableDictionary()
-                                metadata.setValue(gps, forKey: kCGImagePropertyGPSDictionary as String)
-                                
-                                // Calculate north/south and east/west because we can't set negative latitude and longitude
-                                var latitudeRef: String
-                                var longitudeRef: String
-                                
-                                if let latitude = (self.exifInfos["latitude"] as? Double), latitude < 0.0 {
-                                    latitudeRef = "S"
-                                    self.exifInfos["latitude"] = abs(latitude)
-                                } else {
-                                    latitudeRef = "N"
-                                }
-
-                                if let longitude = (self.exifInfos["longitude"] as? Double), longitude < 0.0 {
-                                    longitudeRef = "W"
-                                    self.exifInfos["longitude"] = abs(longitude)
-                                } else {
-                                    longitudeRef = "E"
-                                }
-//
-                                gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
-                                gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
-                                gps.setValue(self.exifInfos["latitude"], forKey: kCGImagePropertyGPSLatitude as String)
-                                gps.setValue(self.exifInfos["longitude"], forKey: kCGImagePropertyGPSLongitude as String)
-//
-                                self.dateFormatterForPhotoExif.dateFormat = "HH:mm:ss"
-                                gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSTimeStamp as String)
-                                self.dateFormatterForPhotoExif.dateFormat = "yyyy:MM:dd"
-                                gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSDateStamp as String)
-                                
-                                let type = "public.jpeg"
-                                let data = NSMutableData()
-                                let dest: CGImageDestination = CGImageDestinationCreateWithData(data, type as CFString, 1, nil)!
-                                
-                                let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
-                                CGImageDestinationAddImage(dest, cgImage!, metadata)
-                                CGImageDestinationFinalize(dest)
-                                
-                                // Write the thumbnail at path
-                                do {
-                                    // Write the file at path
-                                    let fileUrl = self.getFileUrl("jpg")!
-                                    try data.write(to: fileUrl, options: [.atomic])
-                                    
-                                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: fileUrl.standardized.absoluteString)
-                                    // This means that the callback on JS side is kept for further calls from native side to JS side
-                                    pluginResult?.setKeepCallbackAs(true)
-                                    self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
-                                } catch let error as NSError {
-                                    print("We have an error to save the picture: \(error)")
-                                }
-                            }
-                            
-                            
-//                            // Write the file at path
-//                            let fileUrl = self.getFileUrl("jpg")!
-//                            try? data.write(to: fileUrl, options: [.atomic])
-                            
-//                            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: fileUrl.standardized.absoluteString)
-//                            // This means that the callback on JS side is kept for further calls from native side to JS side
-//                            pluginResult?.setKeepCallbackAs(true)
-//                            self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
-                        }
-                    } else {
-                        // Export to Base64
-                        let base64Image = self.getBase64Image(image, withQuality: quality)
+                if (self.storeToFile) {
+                    // Get the image data
+                    if let data = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer) {
                         
-                        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: base64Image)
-                        // This means that the callback on JS side is kept for further calls from native side to JS side
-                        pluginResult?.setKeepCallbackAs(true)
-                        self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
+                        // Get the image source from the data
+                        if let imageSource = CGImageSourceCreateWithData(data as CFData, nil) {
+                            
+                            let metadata = NSMutableDictionary(dictionary: CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)!)
+                            print("exif data 2 = \(metadata[kCGImagePropertyExifDictionary as String] as? [String : AnyObject])")
+                            metadata[kCGImageDestinationLossyCompressionQuality as String] = quality
+                            
+                            let tiff: NSMutableDictionary = metadata[kCGImagePropertyTIFFDictionary as String] as! NSMutableDictionary
+                            tiff.setValue(self.exifInfos["software"], forKey: kCGImagePropertyTIFFSoftware as String)
+
+                            let gps = NSMutableDictionary()
+                            metadata.setValue(gps, forKey: kCGImagePropertyGPSDictionary as String)
+
+                            // Calculate north/south and east/west because we can't set negative latitude and longitude
+                            var latitudeRef: String
+                            var longitudeRef: String
+
+                            if let latitude = (self.exifInfos["latitude"] as? Double), latitude < 0.0 {
+                                latitudeRef = "S"
+                                self.exifInfos["latitude"] = abs(latitude)
+                            } else {
+                                latitudeRef = "N"
+                            }
+
+                            if let longitude = (self.exifInfos["longitude"] as? Double), longitude < 0.0 {
+                                longitudeRef = "W"
+                                self.exifInfos["longitude"] = abs(longitude)
+                            } else {
+                                longitudeRef = "E"
+                            }
+
+                            gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
+                            gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
+                            gps.setValue(self.exifInfos["latitude"], forKey: kCGImagePropertyGPSLatitude as String)
+                            gps.setValue(self.exifInfos["longitude"], forKey: kCGImagePropertyGPSLongitude as String)
+
+                            self.dateFormatterForPhotoExif.dateFormat = "HH:mm:ss"
+                            gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSTimeStamp as String)
+                            self.dateFormatterForPhotoExif.dateFormat = "yyyy:MM:dd"
+                            gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSDateStamp as String)
+                            
+                            let type = "public.jpeg"
+                            let data = NSMutableData()
+                            let dest: CGImageDestination = CGImageDestinationCreateWithData(data, type as CFString, 1, nil)!
+                            
+                            let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
+                            CGImageDestinationAddImage(dest, cgImage!, metadata)
+                            CGImageDestinationFinalize(dest)
+                            
+                            do {
+                                // Write the file at path
+                                let fileUrl = self.getFileUrl("jpg")!
+                                try data.write(to: fileUrl, options: [.atomic])
+                                
+                                let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: fileUrl.standardized.absoluteString)
+                                // This means that the callback on JS side is kept for further calls from native side to JS side
+                                pluginResult?.setKeepCallbackAs(true)
+                                self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
+                            } catch let error as NSError {
+                                print("We have an error to save the picture: \(error)")
+                            }
+                        }
                     }
+                } else {
+                    // Get the image data
+                    let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
+                    let image: UIImage? = UIImage(data: imageData!)
+                    
+                    // Export to Base64
+                    let base64Image = self.getBase64Image(image!, withQuality: quality)
+                    
+                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: base64Image)
+                    // This means that the callback on JS side is kept for further calls from native side to JS side
+                    pluginResult?.setKeepCallbackAs(true)
+                    self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
                 }
             })
         }
