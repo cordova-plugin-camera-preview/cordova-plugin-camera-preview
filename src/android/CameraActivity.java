@@ -77,6 +77,7 @@ public class CameraActivity extends Fragment {
   public boolean tapToFocus;
   public boolean disableExifHeaderStripping;
   public boolean storeToFile;
+  public String storageDirectory;
   public boolean toBack;
 
   public Double latitude;
@@ -404,7 +405,11 @@ public class CameraActivity extends Fragment {
   }
 
   private String getTempFilePath() {
-    return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+    if (storageDirectory != null) {
+      return storageDirectory + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+    } else {
+      return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+    }
   }
 
 
@@ -460,12 +465,12 @@ public class CameraActivity extends Fragment {
       exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, exifLatitude);
       exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, exifLongitude);
 
-      exif.setAltitude(altitude);
       if (altitude > 0) {
         exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "1");
       } else {
         exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "0");
       }
+      exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, String.valueOf(altitude) + "/1");
 
       exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, String.valueOf(timestamp));
       exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, String.valueOf(timestamp));
