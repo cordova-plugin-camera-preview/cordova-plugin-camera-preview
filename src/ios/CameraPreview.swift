@@ -834,39 +834,9 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                             print("exif data 2 = \(metadata[kCGImagePropertyExifDictionary as String] as? [String : AnyObject])")
                             metadata[kCGImageDestinationLossyCompressionQuality as String] = quality
                             
-                            let tiff: NSMutableDictionary = metadata[kCGImagePropertyTIFFDictionary as String] as! NSMutableDictionary
-                            tiff.setValue(self.exifInfos["software"], forKey: kCGImagePropertyTIFFSoftware as String)
-
-                            let gps = NSMutableDictionary()
-                            metadata.setValue(gps, forKey: kCGImagePropertyGPSDictionary as String)
-
-                            // Calculate north/south and east/west because we can't set negative latitude and longitude
-                            var latitudeRef: String
-                            var longitudeRef: String
-
-                            if let latitude = (self.exifInfos["latitude"] as? Double), latitude < 0.0 {
-                                latitudeRef = "S"
-                                self.exifInfos["latitude"] = abs(latitude)
-                            } else {
-                                latitudeRef = "N"
+                            if (self.withExifInfos) {
+                                self.writeExifInfosToMetadata(to: metadata)
                             }
-
-                            if let longitude = (self.exifInfos["longitude"] as? Double), longitude < 0.0 {
-                                longitudeRef = "W"
-                                self.exifInfos["longitude"] = abs(longitude)
-                            } else {
-                                longitudeRef = "E"
-                            }
-
-                            gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
-                            gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
-                            gps.setValue(self.exifInfos["latitude"], forKey: kCGImagePropertyGPSLatitude as String)
-                            gps.setValue(self.exifInfos["longitude"], forKey: kCGImagePropertyGPSLongitude as String)
-
-                            self.dateFormatterForPhotoExif.dateFormat = "HH:mm:ss"
-                            gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSTimeStamp as String)
-                            self.dateFormatterForPhotoExif.dateFormat = "yyyy:MM:dd"
-                            gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSDateStamp as String)
                             
                             let type = "public.jpeg"
                             let data = NSMutableData()
@@ -926,33 +896,42 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         return UIImage(cgImage: imageRotated!)
     }
     
-    func writeExifInfos(_ imageSource: CGImageSource) {
-//        let gps = NSMutableDictionary()
-//        metadata.setValue(gps, forKey: kCGImagePropertyGPSDictionary as String)
-//
-//
-//        // Calculate north/south and east/west because we can't set negative latitude and longitude
-//        var latitudeRef: String
-//        var longitudeRef: String
-//
-//        if self.loc["lat"] < 0.0 {
-//            latitudeRef = "S"
-//            self.loc["lat"] = abs(self.loc["lat"]!)
-//        } else {
-//            latitudeRef = "N"
-//        }
-//
-//        if self.loc["lng"] < 0.0 {
-//            longitudeRef = "W"
-//            self.loc["lng"] = abs(self.loc["lng"]!)
-//        } else {
-//            longitudeRef = "E"
-//        }
-//
-//        gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
-//        gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
-//        gps.setValue(self.loc["lat"], forKey: kCGImagePropertyGPSLatitude as String)
-//        gps.setValue(self.loc["lng"], forKey: kCGImagePropertyGPSLongitude as String)
+    func writeExifInfosToMetadata(to metadata: NSMutableDictionary) {
+        let tiff: NSMutableDictionary = metadata[kCGImagePropertyTIFFDictionary as String] as! NSMutableDictionary
+        tiff.setValue(self.exifInfos["software"], forKey: kCGImagePropertyTIFFSoftware as String)
+
+        let gps = NSMutableDictionary()
+        metadata.setValue(gps, forKey: kCGImagePropertyGPSDictionary as String)
+
+        // Calculate north/south and east/west because we can't set negative latitude and longitude
+        var latitudeRef: String
+        var longitudeRef: String
+
+        if let latitude = (self.exifInfos["latitude"] as? Double), latitude < 0.0 {
+            latitudeRef = "S"
+            self.exifInfos["latitude"] = abs(latitude)
+        } else {
+            latitudeRef = "N"
+        }
+
+        if let longitude = (self.exifInfos["longitude"] as? Double), longitude < 0.0 {
+            longitudeRef = "W"
+            self.exifInfos["longitude"] = abs(longitude)
+        } else {
+            longitudeRef = "E"
+        }
+
+        gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
+        gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
+        gps.setValue(self.exifInfos["latitude"], forKey: kCGImagePropertyGPSLatitude as String)
+        gps.setValue(self.exifInfos["longitude"], forKey: kCGImagePropertyGPSLongitude as String)
+
+        self.dateFormatterForPhotoExif.dateFormat = "HH:mm:ss"
+        gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSTimeStamp as String)
+        self.dateFormatterForPhotoExif.dateFormat = "yyyy:MM:dd"
+        gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSDateStamp as String)
+        
+        self.withExifInfos = false
     }
     
     func getTempDirectoryPath() -> String? {
