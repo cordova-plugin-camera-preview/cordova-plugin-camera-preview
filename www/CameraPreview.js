@@ -86,8 +86,13 @@ CameraPreview.takePicture = function (opts, onSuccess, onError) {
   if (!opts.quality || opts.quality > 100 || opts.quality < 0) {
     opts.quality = 85;
   }
-
-  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [opts.quality]);
+  
+  var coords = opts.position ? opts.position.coords : { latitude: 0, longitude: 0, altitude: 0 };
+  var timestamp = opts.position ? opts.position.timestamp : 0;
+  var trueHeading = opts.compassHeading ? opts.compassHeading.trueHeading : null;
+  var magneticHeading = opts.compassHeading ? opts.compassHeading.magneticHeading : null;
+  var software = opts.software ? opts.software : 'BeMyCam';
+  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [opts.quality, coords.latitude, coords.longitude, coords.altitude, timestamp, trueHeading, magneticHeading, software]);
 };
 
 CameraPreview.setColorEffect = function (effect, onSuccess, onError) {
@@ -224,14 +229,6 @@ CameraPreview.getBlob = function(url, onSuccess, onError) {
 
 CameraPreview.getCameraCharacteristics = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "getCameraCharacteristics", []);
-};
-
-CameraPreview.setExifInfos = function (position, software, compassHeading, onSuccess, onError) {
-    var coords = position ? position.coords : { latitude: 0, longitude: 0, altitude: 0 };
-    timestamp = position ? position.timestamp : 0;
-    trueHeading = compassHeading ? compassHeading.trueHeading : null;
-    magneticHeading = compassHeading ? compassHeading.magneticHeading : null;
-    exec(onSuccess, onError, PLUGIN_NAME, "setExifInfos", [coords.latitude, coords.longitude, coords.altitude, timestamp, trueHeading, magneticHeading, software]);
 };
 
 CameraPreview.FOCUS_MODE = {

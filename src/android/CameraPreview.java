@@ -72,7 +72,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String SET_SCREEN_ROTATION_ACTION = "setScreenRotation";
   private static final String SET_BACK_BUTTON_CALLBACK = "onBackButton";
   private static final String GET_CAMERA_CHARACTERISTICS_ACTION = "getCameraCharacteristics";
-  private static final String SET_EXIF_INFOS = "setExifInfos";
 
   private static final int CAM_REQ_CODE = 0;
 
@@ -112,7 +111,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         return true;
       }
     } else if (TAKE_PICTURE_ACTION.equals(action)) {
-      return takePicture(args.getInt(0), callbackContext);
+      return takePicture(args.getInt(0), args.getDouble(1), args.getDouble(2), args.getDouble(3), args.getLong(4), args.getDouble(5), args.getDouble(6), args.getString(7), callbackContext);
     } else if (TAKE_SNAPSHOT_ACTION.equals(action)) {
       return takeSnapshot(args.getInt(0), callbackContext);
     } else if (COLOR_EFFECT_ACTION.equals(action)) {
@@ -177,9 +176,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return getSupportedColorEffects(callbackContext);
     } else if (GET_CAMERA_CHARACTERISTICS_ACTION.equals(action)) {
       return getCameraCharacteristics(callbackContext);
-    } else if (SET_EXIF_INFOS.equals(action)) {
-      Log.d(TAG, args.toString());
-      return setExifInfos(args.getDouble(0), args.getDouble(1), args.getDouble(2), args.getLong(3), args.getDouble(4), args.getDouble(5), args.getString(6), callbackContext);
     }
     return false;
   }
@@ -408,11 +404,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     takeSnapshotCallbackContext = null;
   }
 
-  private boolean takePicture(int quality, CallbackContext callbackContext) {
+  private boolean takePicture(int quality, Double latitude, Double longitude, Double altitude, Long timestamp, Double trueHeading, Double magneticHeading, String software, CallbackContext callbackContext) {
     if (!this.hasView(callbackContext)) {
       return true;
     }
-
+    setExifInfos(latitude, longitude, altitude, timestamp, trueHeading, magneticHeading, software)
     takePictureCallbackContext = callbackContext;
 
     Log.d(TAG, "takePicture action");
@@ -1125,10 +1121,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  private boolean setExifInfos(Double latitude, Double longitude, Double altitude, Long timestamp, Double trueHeading, Double magneticHeading, String software, CallbackContext callbackContext) {
-    if (this.hasCamera(callbackContext) == false) {
-        return true;
-    }
+  private void setExifInfos(Double latitude, Double longitude, Double altitude, Long timestamp, Double trueHeading, Double magneticHeading, String software) {
     Log.d(TAG, "setExifInfos action");
     fragment.latitude = latitude;
     fragment.longitude = longitude;
@@ -1138,8 +1131,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.magneticHeading = magneticHeading;
     fragment.software = software;
     fragment.withExifInfos = true;
-    callbackContext.success();
-    return true;
   }
   
 }
