@@ -31,9 +31,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.Exception;
 import java.lang.Integer;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import static android.hardware.Camera.Parameters.FOCUS_MODE_AUTO;
@@ -466,14 +470,21 @@ public class CameraActivity extends Fragment {
       exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, exifLongitude);
 
       if (altitude > 0) {
-        exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "1");
-      } else {
         exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "0");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "1");
       }
-      exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, String.valueOf(altitude) + "/1");
+      exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, String.valueOf(Math.abs(altitude)) + "/1");
 
-      exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, String.valueOf(timestamp));
-      exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, String.valueOf(timestamp));
+      Date gpsDate = new Date(timestamp);
+      SimpleDateFormat gpsDateStampFormater = new SimpleDateFormat("yyyy:MM:dd", Locale.getDefault());
+      SimpleDateFormat gpsTimeStampFormater = new SimpleDateFormat("kk:mm:ss", Locale.getDefault());
+
+      gpsDateStampFormater.setTimeZone(TimeZone.getTimeZone("UTC"));
+      gpsTimeStampFormater.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+      exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, gpsDateStampFormater.format(gpsDate));
+      exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, gpsTimeStampFormater.format(gpsDate));
 
       if (trueHeading != null || magneticHeading != null) {
         if (trueHeading == null || trueHeading < 0) {
