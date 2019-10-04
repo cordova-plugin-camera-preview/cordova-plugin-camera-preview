@@ -408,7 +408,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     if (!this.hasView(callbackContext)) {
       return true;
     }
-    setExifInfos(latitude, longitude, altitude, timestamp, trueHeading, magneticHeading, software)
+    setExifInfos(latitude, longitude, altitude, timestamp, trueHeading, magneticHeading, software);
     takePictureCallbackContext = callbackContext;
 
     Log.d(TAG, "takePicture action");
