@@ -10,6 +10,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     var cameraRenderController: CameraRenderController!
     var onPictureTakenHandlerId = ""
     var storeToFile: Bool!
+    var storageDirectory = ""
     var exifInfos: Dictionary<String, Any> = Dictionary<String, Any>()
     var withExifInfos = false
     var captureVideoOrientation: AVCaptureVideoOrientation?
@@ -32,7 +33,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     // 8 options.alpha,
     // 9 options.tapFocus,
     // 10 options.disableExifHeaderStripping
-    // 12 options.storeToFile]
+    // 12 options.storeToFile
+    // 13 options.storageDirectory]
     @objc func startCamera(_ command: CDVInvokedUrlCommand) {
         print("--> startCamera")
         
@@ -69,6 +71,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             let tapToFocus: Bool = (command.arguments[9] as? Int)! != 0
             let disableExifHeaderStripping: Bool = (command.arguments[10] as? Int)! != 0
             self.storeToFile = (command.arguments[11] as? Int)! != 0
+            self.storageDirectory = (command.arguments[12] as? String) ?? ""
             
             DispatchQueue.main.async {
                 let x = (command.arguments[0] as? CGFloat ?? 0.0) + self.webView.frame.origin.x
@@ -847,8 +850,17 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                             CGImageDestinationFinalize(dest)
                             
                             do {
+                                let fileName = self.getFileName("jpg")!
+                                var fileUrl: URL
+                                
+                                if (self.storageDirectory != "") {
+                                    let filePath = String(format: "%@/%@", self.storageDirectory, fileName)
+                                    fileUrl = URL(string: filePath)!
+                                } else {
+                                    fileUrl = self.getFileUrl("jpg")!
+                                }
+                                
                                 // Write the file at path
-                                let fileUrl = self.getFileUrl("jpg")!
                                 try data.write(to: fileUrl, options: [.atomic])
                                 
                                 let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: fileUrl.standardized.absoluteString)
@@ -934,9 +946,10 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         self.withExifInfos = false
     }
     
-    func getTempDirectoryPath() -> String? {
-        let tmpPath = URL(fileURLWithPath: NSTemporaryDirectory()).standardized.absoluteString
-        return tmpPath
+    func getTempDirectoryPath() -> URL {
+        let paths = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
+        let documentsDirectory = paths[0]
+        return documentsDirectory.appendingPathComponent("NoCloud")
     }
     
     
@@ -952,9 +965,12 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     }
     
     func getFileUrl(_ `extension`: String?) -> URL? {
-        let fileName = String(format: "%@%04d.%@", TMP_IMAGE_PREFIX, Int.random(in: 0 ... 1000000), `extension` ?? "")
-        let fileUrl = self.getNoCloudDirectoryPath().appendingPathComponent(fileName)
-        print(fileUrl.absoluteString)
+        let fileName = self.getFileName(`extension`)!
+        let fileUrl = self.getTempDirectoryPath().appendingPathComponent(fileName)
         return fileUrl
+    }
+    
+    func getFileName(_ `extension`: String?) -> String? {
+        return String(format: "%@%04d.%@", TMP_IMAGE_PREFIX, Int.random(in: 0 ... 1000000), `extension` ?? "")
     }
 }
