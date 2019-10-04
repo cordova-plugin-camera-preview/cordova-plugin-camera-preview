@@ -503,6 +503,41 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         }
         
         onPictureTakenHandlerId = command.callbackId
+                
+        // Save EXIF infos
+        let latitude = command.arguments[1] as? Double
+        let longitude = command.arguments[2] as? Double
+        let altitude = command.arguments[3] as? Double
+        let timestamp = command.arguments[4] as? TimeInterval
+        let trueHeading = command.arguments[5] as? Double
+        let magneticHeading = command.arguments[6] as? Double
+        let software = command.arguments[7] as? String
+
+        self.exifInfos = Dictionary<String, Any>()
+        
+        if latitude != nil {
+            self.exifInfos["latitude"] = latitude
+        }
+        if longitude != nil {
+            self.exifInfos["longitude"] = longitude
+        }
+        if altitude != nil {
+            self.exifInfos["altitude"] = altitude
+        }
+        if timestamp != nil {
+            self.exifInfos["timestamp"] = timestamp
+        }
+        if trueHeading != nil {
+            self.exifInfos["trueHeading"] = trueHeading
+        }
+        if magneticHeading != nil {
+            self.exifInfos["magneticHeading"] = magneticHeading
+        }
+        if software != nil {
+            self.exifInfos["software"] = software
+        }
+        
+        // Take picture
         let quality = (command.arguments[0]  as? CGFloat  ?? 0.0) / 100.0
         invokeTakePicture(withQuality: quality)
     }
@@ -628,45 +663,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         default:
             self.captureVideoOrientation = .portrait
         }
-    }
-    
-    @objc func setExifInfos(_ command: CDVInvokedUrlCommand) {
-        let latitude = command.arguments[0] as? Double
-        let longitude = command.arguments[1] as? Double
-        let altitude = command.arguments[2] as? Double
-        let timestamp = command.arguments[3] as? TimeInterval
-        let trueHeading = command.arguments[4] as? Double
-        let magneticHeading = command.arguments[5] as? Double
-        let software = command.arguments[6] as? String
-
-        self.exifInfos = Dictionary<String, Any>()
-        
-        if latitude != nil {
-            self.exifInfos["latitude"] = latitude
-        }
-        if longitude != nil {
-            self.exifInfos["longitude"] = longitude
-        }
-        if altitude != nil {
-            self.exifInfos["altitude"] = altitude
-        }
-        if timestamp != nil {
-            self.exifInfos["timestamp"] = timestamp
-        }
-        if trueHeading != nil {
-            self.exifInfos["trueHeading"] = trueHeading
-        }
-        if magneticHeading != nil {
-            self.exifInfos["magneticHeading"] = magneticHeading
-        }
-        if software != nil {
-            self.exifInfos["software"] = software
-        }
-        
-        self.withExifInfos = true
-        
-        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        commandDelegate.send(pluginResult, callbackId: command.callbackId)
     }
     
     func getBase64Image(_ image: UIImage, withQuality quality: CGFloat) -> String? {
@@ -837,9 +833,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                             print("exif data 2 = \(metadata[kCGImagePropertyExifDictionary as String] as? [String : AnyObject])")
                             metadata[kCGImageDestinationLossyCompressionQuality as String] = quality
                             
-                            if (self.withExifInfos) {
-                                self.writeExifInfosToMetadata(to: metadata)
-                            }
+                            self.writeExifInfosToMetadata(to: metadata)
                             
                             let type = "public.jpeg"
                             let data = NSMutableData()
@@ -943,7 +937,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         self.dateFormatterForPhotoExif.dateFormat = "yyyy:MM:dd"
         gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSDateStamp as String)
         
-        self.withExifInfos = false
+        // Clear EXIF after usage
+        self.exifInfos = Dictionary<String, Any>()
     }
     
     func getTempDirectoryPath() -> URL {
