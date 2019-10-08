@@ -940,6 +940,14 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         } else {
             longitudeRef = "E"
         }
+        
+        let trueHeading = self.exifInfos["trueHeading"] as? Int
+        let magneticHeading = self.exifInfos["magneticHeading"] as? Int
+        
+        if (trueHeading != nil || magneticHeading != nil) {
+          gps[kCGImagePropertyGPSImgDirectionRef] = trueHeading == nil || trueHeading < 0 ? "M" : "T"
+          gps[kCGImagePropertyGPSImgDirection] = trueHeading == nil || trueHeading < 0 ? [magneticHeading, 1] : [trueHeading, 1]
+        }
 
         gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
         gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
