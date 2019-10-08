@@ -918,10 +918,10 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     
     func writeExifInfosToMetadata(to metadata: NSMutableDictionary) {
         let tiff: NSMutableDictionary = metadata[kCGImagePropertyTIFFDictionary as String] as! NSMutableDictionary
-        tiff.setValue(self.exifInfos["software"], forKey: kCGImagePropertyTIFFSoftware as String)
+        tiff[kCGImagePropertyTIFFSoftware as String] = self.exifInfos["software"]
 
         let gps = NSMutableDictionary()
-        metadata.setValue(gps, forKey: kCGImagePropertyGPSDictionary as String)
+        metadata[kCGImagePropertyGPSDictionary as String] = gps
 
         // Calculate north/south and east/west because we can't set negative latitude and longitude
         var latitudeRef: String
@@ -941,23 +941,28 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             longitudeRef = "E"
         }
         
-        let trueHeading = self.exifInfos["trueHeading"] as? Int
-        let magneticHeading = self.exifInfos["magneticHeading"] as? Int
+        let trueHeading = self.exifInfos["trueHeading"] as? Double
+        let magneticHeading = self.exifInfos["magneticHeading"] as? Double
         
         if (trueHeading != nil || magneticHeading != nil) {
-          gps[kCGImagePropertyGPSImgDirectionRef] = trueHeading == nil || trueHeading < 0 ? "M" : "T"
-          gps[kCGImagePropertyGPSImgDirection] = trueHeading == nil || trueHeading < 0 ? [magneticHeading, 1] : [trueHeading, 1]
+            if (trueHeading == nil || trueHeading! < 0.0) {
+                gps[kCGImagePropertyGPSImgDirection] = [magneticHeading, 1]
+                gps[kCGImagePropertyGPSImgDirectionRef] = "M"
+            } else {
+                gps[kCGImagePropertyGPSImgDirection] = [trueHeading, 1]
+                gps[kCGImagePropertyGPSImgDirectionRef] = "T"
+            }
         }
 
-        gps.setValue(latitudeRef, forKey: kCGImagePropertyGPSLatitudeRef as String)
-        gps.setValue(longitudeRef, forKey: kCGImagePropertyGPSLongitudeRef as String)
-        gps.setValue(self.exifInfos["latitude"], forKey: kCGImagePropertyGPSLatitude as String)
-        gps.setValue(self.exifInfos["longitude"], forKey: kCGImagePropertyGPSLongitude as String)
+        gps[kCGImagePropertyGPSLatitudeRef as String] = latitudeRef
+        gps[kCGImagePropertyGPSLongitudeRef as String] = longitudeRef
+        gps[kCGImagePropertyGPSLatitude as String] = self.exifInfos["latitude"]
+        gps[kCGImagePropertyGPSLongitude as String] = self.exifInfos["longitude"]
 
         self.dateFormatterForPhotoExif.dateFormat = "HH:mm:ss"
-        gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSTimeStamp as String)
+        gps[kCGImagePropertyGPSTimeStamp as String] = self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval)))
         self.dateFormatterForPhotoExif.dateFormat = "yyyy:MM:dd"
-        gps.setValue(self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval))), forKey: kCGImagePropertyGPSDateStamp as String)
+        gps[kCGImagePropertyGPSDateStamp as String] = self.dateFormatterForPhotoExif.string(from: Date(timeIntervalSince1970: (self.exifInfos["timestamp"] as! TimeInterval)))
         
         // Clear EXIF after usage
         self.exifInfos = Dictionary<String, Any>()
