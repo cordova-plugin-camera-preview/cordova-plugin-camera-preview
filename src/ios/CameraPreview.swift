@@ -694,7 +694,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         
     }
     
-    func radiansFromUIImageOrientation(_ orientation: UIImageOrientation) -> Double {
+    func getRadiansFromCaptureVideoOrientation() -> Double {
         var radians: Double
         switch self.captureVideoOrientation! {
         case .portrait:
@@ -897,7 +897,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     func rotateImage(_ image: UIImage) -> UIImage {
         let ciImage = CIImage(image: image)
         let finalCGImage = self.cameraRenderController.ciContext?.createCGImage(ciImage!, from: ciImage?.extent ?? CGRect.zero)
-        let radians = self.radiansFromUIImageOrientation(image.imageOrientation)
+        let radians = self.getRadiansFromCaptureVideoOrientation()
         let imageRotated = self.cgImageRotated(finalCGImage!, withRadians: radians)
         return UIImage(cgImage: imageRotated!)
     }
