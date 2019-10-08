@@ -839,16 +839,21 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                             let data = NSMutableData()
                             let dest: CGImageDestination = CGImageDestinationCreateWithData(data, type as CFString, 1, nil)!
                             
-                            let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
+                            var cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
                             CGImageDestinationAddImage(dest, cgImage!, metadata)
                             CGImageDestinationFinalize(dest)
+                            
+                            // Rotate image if EXIF stripping not disabled
+                            if !self.cameraRenderController.disableExifHeaderStripping {
+                                cgImage = self.rotateImage(UIImage(cgImage: cgImage!))
+                            }
                             
                             do {
                                 let fileName = self.getFileName("jpg")!
                                 var fileUrl: URL
                                 
                                 if (self.storageDirectory != "") {
-                                    let filePath = String(format: "%@/%@", self.storageDirectory, fileName)
+                                    let filePath = String(format: "%@%@", self.storageDirectory, fileName)
                                     fileUrl = URL(string: filePath)!
                                 } else {
                                     fileUrl = self.getFileUrl("jpg")!
@@ -857,7 +862,17 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                                 // Write the file at path
                                 try data.write(to: fileUrl, options: [.atomic])
                                 
-                                let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: fileUrl.standardized.absoluteString)
+                                
+                                
+                                var resultMedia = Dictionary<String, Any>()
+                                let isPortrait = self.captureVideoOrientation == AVCaptureVideoOrientation.portrait
+                                             || self.captureVideoOrientation == AVCaptureVideoOrientation.portraitUpsideDown
+
+                                resultMedia["filePath"] = fileUrl.standardized.absoluteString
+                                resultMedia["width"] = isPortrait ? cgImage!.height : cgImage!.width
+                                resultMedia["height"] = isPortrait ? cgImage!.width : cgImage!.height
+                                
+                                let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: resultMedia)
                                 // This means that the callback on JS side is kept for further calls from native side to JS side
                                 pluginResult?.setKeepCallbackAs(true)
                                 self.commandDelegate.send(pluginResult, callbackId: self.onPictureTakenHandlerId)
@@ -894,12 +909,11 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         return UIImage(cgImage: finalCGImage!)
     }
     
-    func rotateImage(_ image: UIImage) -> UIImage {
+    func rotateImage(_ image: UIImage) -> CGImage {
         let ciImage = CIImage(image: image)
         let finalCGImage = self.cameraRenderController.ciContext?.createCGImage(ciImage!, from: ciImage?.extent ?? CGRect.zero)
         let radians = self.getRadiansFromCaptureVideoOrientation()
-        let imageRotated = self.cgImageRotated(finalCGImage!, withRadians: radians)
-        return UIImage(cgImage: imageRotated!)
+        return self.cgImageRotated(finalCGImage!, withRadians: radians)!
     }
     
     func writeExifInfosToMetadata(to metadata: NSMutableDictionary) {
