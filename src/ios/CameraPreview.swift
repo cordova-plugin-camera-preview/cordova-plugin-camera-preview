@@ -824,10 +824,10 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 
                 if (self.storeToFile) {
                     // Get the image data
-                    if let data = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer) {
+                    if let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer) {
                         
                         // Get the image source from the data
-                        if let imageSource = CGImageSourceCreateWithData(data as CFData, nil) {
+                        if let imageSource = CGImageSourceCreateWithData(imageData as CFData, nil) {
                             
                             let metadata = NSMutableDictionary(dictionary: CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil)!)
                             print("exif data 2 = \(metadata[kCGImagePropertyExifDictionary as String] as? [String : AnyObject])")
@@ -871,6 +871,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                                 resultMedia["filePath"] = fileUrl.standardized.absoluteString
                                 resultMedia["width"] = isPortrait ? cgImage!.height : cgImage!.width
                                 resultMedia["height"] = isPortrait ? cgImage!.width : cgImage!.height
+                                resultMedia["orientation"] = metadata[kCGImagePropertyOrientation as String]
                                 
                                 let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: resultMedia)
                                 // This means that the callback on JS side is kept for further calls from native side to JS side
