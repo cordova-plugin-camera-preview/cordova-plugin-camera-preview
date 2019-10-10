@@ -969,27 +969,15 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
         self.exifInfos = Dictionary<String, Any>()
     }
     
-    func getTempDirectoryPath() -> URL {
+    func getTempDirectoryUrl() -> URL {
         let paths = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
         let documentsDirectory = paths[0]
         return documentsDirectory.appendingPathComponent("NoCloud")
     }
     
-    
-    func getNoCloudDirectoryPath() -> URL {
-        let paths = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask)
-        let documentsDirectory = paths[0]
-        return documentsDirectory.appendingPathComponent("NoCloud")
-    }
-    
-    func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return paths[0]
-    }
-    
     func getFileUrl(_ `extension`: String?) -> URL? {
         let fileName = self.getFileName(`extension`)!
-        let fileUrl = self.getTempDirectoryPath().appendingPathComponent(fileName)
+        let fileUrl = self.getTempDirectoryUrl().appendingPathComponent(fileName)
         return fileUrl
     }
     
