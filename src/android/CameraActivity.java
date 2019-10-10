@@ -2,6 +2,8 @@ package com.cordovaplugincamerapreview;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.util.Base64;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -22,7 +24,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.media.ExifInterface;
+import android.support.media.ExifInterface;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -50,7 +52,7 @@ import static android.hardware.Camera.Parameters.FOCUS_MODE_MACRO;
 public class CameraActivity extends Fragment {
 
   public interface CameraPreviewListener {
-    void onPictureTaken(String originalPicture);
+    void onPictureTaken(String originalPicture, int width, int height, int orientation);
     void onPictureTakenError(String message);
     void onSnapshotTaken(String originalPicture);
     void onSnapshotTakenError(String message);
@@ -92,6 +94,10 @@ public class CameraActivity extends Fragment {
   public Double magneticHeading;
   public String software;
   public boolean withExifInfos;
+  public int screenRotation = 0;
+
+  private SensorManager sensorManager;
+  private Sensor sensor;
 
   public void setEventListener(CameraPreviewListener listener) {
     eventListener = listener;
@@ -486,8 +492,8 @@ public class CameraActivity extends Fragment {
       exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, gpsDateStampFormater.format(gpsDate));
       exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, gpsTimeStampFormater.format(gpsDate));
 
-      if (trueHeading != null || magneticHeading != null) {
-        if (trueHeading == null || trueHeading < 0) {
+      if (trueHeading != Double.NaN || magneticHeading != Double.NaN) {
+        if (trueHeading == Double.NaN || trueHeading < 0) {
           exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION, String.valueOf(magneticHeading) + "/1");
           exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "M");
         } else {
@@ -495,13 +501,13 @@ public class CameraActivity extends Fragment {
           exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "T");
         }
       }
-
       exif.setAttribute(ExifInterface.TAG_SOFTWARE, software);
 
       exif.saveAttributes();
     }
     catch (IOException e) {
-      Log.e("BeMyEyeCamera", "Could not wirte exif :\n" + e);
+      Log.e(TAG, "Could not wirte exif :\n" + e);
+      eventListener.onPictureTakenError("Picture too large (memory)");
     }
   }
 
@@ -515,10 +521,10 @@ public class CameraActivity extends Fragment {
       try {
 
         Log.d(TAG, "RotateImageIfNecessary");
+        ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
         if (!disableExifHeaderStripping) {
-          ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
-
           int exifOrientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+
           Log.d(TAG, "CameraPreview exifOrientation: " + exifOrientation);
           Matrix matrix = buildMatrixFromExifOrientation(exifOrientation);
 
@@ -533,11 +539,14 @@ public class CameraActivity extends Fragment {
             data = outputStream.toByteArray();
           }
         }
+        int width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 500);
+        int height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 500);
+        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
 
         if (!storeToFile) {
           String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
 
-          eventListener.onPictureTaken(encodedImage);
+          eventListener.onPictureTaken(encodedImage, width, height, orientation);
         } else {
           String path = getTempFilePath();
           FileOutputStream out = new FileOutputStream(path);
@@ -545,11 +554,11 @@ public class CameraActivity extends Fragment {
           out.close();
 
           if (withExifInfos) {
-            Log.d(TAG, "about to withExifInfos");
             writeExifInfos(path);
             withExifInfos = false;
           }
-          eventListener.onPictureTaken(path);
+
+          eventListener.onPictureTaken(path, width, height, orientation);
         }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
 

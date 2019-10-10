@@ -111,7 +111,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         return true;
       }
     } else if (TAKE_PICTURE_ACTION.equals(action)) {
-      return takePicture(args.getInt(0), args.getDouble(1), args.getDouble(2), args.getDouble(3), args.getLong(4), args.getDouble(5), args.getDouble(6), args.getString(7), callbackContext);
+      return takePicture(args.getInt(0), args.optDouble(1), args.optDouble(2), args.optDouble(3), args.optLong(4), args.optDouble(5), args.optDouble(6), args.getString(7), callbackContext);
     } else if (TAKE_SNAPSHOT_ACTION.equals(action)) {
       return takeSnapshot(args.getInt(0), callbackContext);
     } else if (COLOR_EFFECT_ACTION.equals(action)) {
@@ -267,7 +267,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-    private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, boolean tapFocus, boolean disableExifHeaderStripping, boolean storeToFile, String storageDirectory, CallbackContext callbackContext) {
+  private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, boolean tapFocus, boolean disableExifHeaderStripping, boolean storeToFile, String storageDirectory, CallbackContext callbackContext) {
     Log.d(TAG, "start camera action");
     if (fragment != null) {
       callbackContext.error("CameraAlreadyStarted");
@@ -364,7 +364,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         fragmentTransaction.commit();
       }
     });
-  
+
     return true;
   }
 
@@ -416,15 +416,26 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  public void onPictureTaken(String originalPicture) {
+  public void onPictureTaken(String originalPicture, int width, int height, int orientation) {
     Log.d(TAG, "returning picture" + originalPicture);
 
-    JSONArray data = new JSONArray();
-    data.put(originalPicture);
+    try {
+      //JSONArray data = new JSONArray();
+      JSONObject data = new JSONObject();
+      data.put("filePath", originalPicture);
+      data.put("width", width);
+      data.put("height", height);
+      data.put("orientation", orientation);
 
-    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
-    pluginResult.setKeepCallback(true);
-    takePictureCallbackContext.sendPluginResult(pluginResult);
+      PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
+      pluginResult.setKeepCallback(true);
+      takePictureCallbackContext.sendPluginResult(pluginResult);
+    } catch (JSONException e) {
+      Log.d(TAG, "onPictureTaken exception");
+      PluginResult pluginResult = new PluginResult(PluginResult.Status.ERROR);
+      pluginResult.setKeepCallback(true);
+      takePictureCallbackContext.sendPluginResult(pluginResult);
+    }
   }
 
   public void onPictureTakenError(String message) {
@@ -775,7 +786,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private boolean setScreenRotation(int screenRotation, CallbackContext callbackContext) {
 
     this.screenRotation = screenRotation;
-
+    fragment.screenRotation = screenRotation;
     if (fragment != null && fragment.getCamera() != null) {
       setCameraRotation();
     }
@@ -1067,34 +1078,34 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     JSONObject data = new JSONObject();
     JSONArray cameraCharacteristicsArray = new JSONArray();
-	
+
     // Get the CameraManager
     CameraManager cManager = (CameraManager) this.cordova.getActivity().getApplicationContext().getSystemService(Context.CAMERA_SERVICE);
-	
+
     try {
       for (String cameraId : cManager.getCameraIdList()) {
         CameraCharacteristics characteristics = cManager.getCameraCharacteristics(cameraId);
-	
+
         JSONObject cameraData = new JSONObject();
-        
+
         // INFO_SUPPORTED_HARDWARE_LEVEL
         Integer supportLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
         cameraData.put("INFO_SUPPORTED_HARDWARE_LEVEL", supportLevel);
-        
+
         // LENS_FACING
         Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
         cameraData.put("LENS_FACING", lensFacing);
-        
+
         // SENSOR_INFO_PHYSICAL_SIZE
         SizeF sensorInfoPhysicalSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
         cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_WIDTH", new Double(sensorInfoPhysicalSize.getWidth()));
         cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_HEIGHT", new Double(sensorInfoPhysicalSize.getHeight()));
-        
+
         // SENSOR_INFO_PIXEL_ARRAY_SIZE
         Size sensorInfoPixelSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
         cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH", new Integer(sensorInfoPixelSize.getWidth()));
         cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT", new Integer(sensorInfoPixelSize.getHeight()));
-        
+
         // LENS_INFO_AVAILABLE_FOCAL_LENGTHS
         float[] focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
         JSONArray focalLengthsArray = new JSONArray();
@@ -1104,13 +1115,13 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
           focalLengthsArray.put(focalLengthsData);
         }
         cameraData.put("LENS_INFO_AVAILABLE_FOCAL_LENGTHS", focalLengthsArray);
-        
+
         // add camera data to result list
         cameraCharacteristicsArray.put(cameraData);
       }
-		
+
       data.put("CAMERA_CHARACTERISTICS", cameraCharacteristicsArray);
-		
+
     } catch (CameraAccessException e) {
       Log.e(TAG, e.getMessage(), e);
     } catch (JSONException e) {
@@ -1132,5 +1143,5 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.software = software;
     fragment.withExifInfos = true;
   }
-  
+
 }
