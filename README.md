@@ -1,9 +1,10 @@
-Cordova Plugin Camera Preview
-====================
+# Cordova Plugin Camera Preview
+<a href="https://badge.fury.io/js/cordova-plugin-camera-preview" target="_blank"><img height="21" style='border:0px;height:21px;' border='0' src="https://badge.fury.io/js/cordova-plugin-camera-preview.svg" alt="NPM Version"></a>
+<a href='https://www.npmjs.org/package/cordova-plugin-camera-preview' target='_blank'><img height='21' style='border:0px;height:21px;' src='https://img.shields.io/npm/dt/cordova-plugin-camera-preview.svg?label=NPM+Downloads' border='0' alt='NPM Downloads' /></a>
 
 Cordova plugin that allows camera interaction from Javascript and HTML
 
-**This plugin is under constant development. It is recommended to use master to always have the latest fixes and features.**
+**Releases are being kept up to date when appropriate. However, this plugin is under constant development. As such it is recommended to use master to always have the latest fixes & features.**
 
 **PR's are greatly appreciated. Maintainer(s) wanted.**
 
@@ -65,7 +66,7 @@ If you are developing for iOS 10+ you must also add the following to your config
 </gap:config-file>
 ```
 
-### Android Quirks (older devices)
+#### Android Quirks (older devices)
 When using the plugin for older devices, the camera preview will take the focus inside the app once initialized.
 In order to prevent the app from closing when a user presses the back button, the event for the camera view is disabled.
 If you still want the user to navigate, you can add a listener for the back event for the preview
@@ -92,7 +93,8 @@ All options stated are optional and will default to values here
 * `tapPhoto` - Defaults to true - Does not work if toBack is set to false in which case you use the takePicture method
 * `tapFocus` - Defaults to false - Allows the user to tap to focus, when the view is in the foreground
 * `previewDrag` - Defaults to false - Does not work if toBack is set to false
-* `disableExifHeaderStripping` - Defaults to false - On Android disable automatic rotation of the image, and let the browser deal with it (keep reading on how to achieve it)
+* `storeToFile` - Defaults to false - Capture images to a file and return back the file path instead of returning base64 encoded data.
+* `disableExifHeaderStripping` - Defaults to false - **Android Only** - Disable automatic rotation of the image, and let the browser deal with it (keep reading on how to achieve it)
 
 ```javascript
 let options = {
@@ -104,7 +106,9 @@ let options = {
   toBack: false,
   tapPhoto: true,
   tapFocus: false,
-  previewDrag: false
+  previewDrag: false,
+  storeToFile: false,
+  disableExifHeaderStripping: false
 };
 
 CameraPreview.startCamera(options);
@@ -119,78 +123,6 @@ html, body, .ion-app, .ion-content {
 ```
 
 When both tapFocus and tapPhoto are true, the camera will focus, and take a picture as soon as the camera is done focusing.
-
-#### Using disableExifHeaderStripping
-
-If you want to capture large images you will notice in Android that performace is very bad, in those cases you can set
-this flag, and add some extra Javascript/HTML to get a proper display of your captured images without risking your application speed.
-
-Example:
-
-```html
-<script src="https://raw.githubusercontent.com/blueimp/JavaScript-Load-Image/master/js/load-image.all.min.js"></script>
-
-<p><div id="originalPicture" style="width: 100%"></div></p>
-```
-
-```javascript
-let options = {
-  x: 0,
-  y: 0,
-  width: window.screen.width,
-  height: window.screen.height,
-  camera: CameraPreview.CAMERA_DIRECTION.BACK,
-  toBack: false,
-  tapPhoto: true,
-  tapFocus: false,
-  previewDrag: false,
-  disableExifHeaderStripping: true
-};
-....
-
-function gotRotatedCanvas(canvasimg) {
-  var displayCanvas = $('canvas#display-canvas');
-  loadImage.scale(canvasimg, function(img){
-    displayCanvas.drawImage(img)
-  }, {
-    maxWidth: displayCanvas.width,
-    maxHeight: displayCanvas.height
-  });
-}
-
-CameraPreview.getSupportedPictureSizes(function(dimensions){
-  dimensions.sort(function(a, b){
-    return (b.width * b.height - a.width * a.height);
-  });
-  var dimension = dimensions[0];
-  CameraPreview.takePicture({width:dimension.width, height:dimension.height, quality: 85}, function(base64PictureData){
-    /*
-      base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
-      Its up to the you to figure out the best way to save it to disk or whatever for your application.
-    */
-
-    var image = 'data:image/jpeg;base64,' + imgData;
-    let holder = document.getElementById('originalPicture');
-    let width = holder.offsetWidth;
-    loadImage(
-      image,
-      function(canvas) {
-        holder.innerHTML = "";
-        if (app.camera === 'front') {
-          // front camera requires we flip horizontally
-          canvas.style.transform = 'scale(1, -1)';
-        }
-        holder.appendChild(canvas);
-      },
-      {
-        maxWidth: width,
-        orientation: true,
-        canvas: true
-      }
-    );
-  });
-});
-```
 
 ### stopCamera([successCallback, errorCallback])
 
@@ -229,14 +161,21 @@ CameraPreview.hide();
 <info>Take the picture. If width and height are not specified or are 0 it will use the defaults. If width and height are specified, it will choose a supported photo size that is closest to width and height specified and has closest aspect ratio to the preview. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
 
 ```javascript
-CameraPreview.takePicture({width:640, height:640, quality: 85}, function(base64PictureData){
+CameraPreview.takePicture({width:640, height:640, quality: 85}, function(base64PictureData|filePath) {
   /*
+    if the storeToFile option is false (the default), then base64PictureData is returned.
     base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
     Its up to the you to figure out the best way to save it to disk or whatever for your application.
   */
 
+  /*
+    if the storeToFile option is set to true, then a filePath is returned. Note that the file
+    is stored in temporary storage, so you should move it to a permanent location if you
+    don't want the OS to remove it arbitrarily.
+  */
+
   // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
-  imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
+  imageSrcData = 'data:image/jpeg;base64,' + base64PictureData;
   $('img#my-img').attr('src', imageSrcData);
 });
 
@@ -246,6 +185,23 @@ CameraPreview.takePicture(function(base64PictureData){
   /* code here */
 });
 ```
+
+### takeSnapshot(options, successCallback, [errorCallback])
+
+<info>Take snapshot of the camera preview. The resulting image will be the same size as specified in `startCamera` options. The argument `quality` defaults to `85` and specifies the quality/compression value: `0=max compression`, `100=max quality`.</info><br/>
+
+```javascript
+CameraPreview.takeSnapshot({quality: 85}, function(base64PictureData){
+  /*
+    base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
+  */
+
+  // One simple example is if you are going to use it inside an HTML img src attribute then you would do the following:
+  imageSrcData = 'data:image/jpeg;base64,' +base64PictureData;
+  $('img#my-img').attr('src', imageSrcData);
+});
+```
+
 ### getSupportedFocusModes(cb, [errorCallback])
 
 <info>Get focus modes supported by the camera device currently started. Returns an array containing supported focus modes. See <code>[FOCUS_MODE](#camera_Settings.FocusMode)</code> for possible values that can be returned.</info><br/>
@@ -468,6 +424,54 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
 });
 ```
 
+### getCameraCharacteristics(cb, [errorCallback])
+
+*Currently this feature is for Android only. A PR for iOS support would be happily accepted*
+
+<info>Get the characteristics of all available cameras. Returns a JSON object representing the characteristics of all available cameras.</info><br/>
+
+```javascript
+CameraPreview.getCameraCharacteristics(function(characteristics){
+  console.log(characteristics);
+});
+```
+
+Example Characteristics:
+
+```
+{
+  "CAMERA_CHARACTERISTICS": [
+    {
+      "INFO_SUPPORTED_HARDWARE_LEVEL": 1,
+      "LENS_FACING": 1,
+      "SENSOR_INFO_PHYSICAL_SIZE_WIDTH": 5.644999980926514,
+      "SENSOR_INFO_PHYSICAL_SIZE_HEIGHT": 4.434999942779541,
+      "SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH": 4032,
+      "SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT": 3024,
+      "LENS_INFO_AVAILABLE_FOCAL_LENGTHS": [
+        {
+          "FOCAL_LENGTH": 4.199999809265137
+        }
+      ]
+    },
+
+    {
+      "INFO_SUPPORTED_HARDWARE_LEVEL": 0,
+      "LENS_FACING": 0,
+      "SENSOR_INFO_PHYSICAL_SIZE_WIDTH": 3.494999885559082,
+      "SENSOR_INFO_PHYSICAL_SIZE_HEIGHT": 2.625999927520752,
+      "SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH": 2608,
+      "SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT": 1960,
+      "LENS_INFO_AVAILABLE_FOCAL_LENGTHS": [
+        {
+          "FOCAL_LENGTH": 2.0999999046325684
+        }
+      ]
+    }
+  ]
+}
+```
+
 ### tapToFocus(xPoint, yPoint, [successCallback, errorCallback])
 
 <info>Set specific focus point. Note, this assumes the camera is full-screen.</info><br/>
@@ -486,6 +490,182 @@ CameraPreview.tapToFocus(xPoint, yPoint);
 CameraPreview.onBackButton(function() {
   console.log('Back button pushed');
 });
+```
+
+### getBlob(url, [successCallback, errorCallback])
+
+When working with local files you may want to display those on certain containers like canvas,
+given that file:// is not always a valid url type, you need to first convert it explicitly to
+a blob, before you push it further into the display side. The function getBlob will do the
+proper conversion for you, and if succedeed will pass the content on it's callback function as
+first argument.
+
+```javascript
+
+function displayImage(content) {
+  var ctx = $("canvas").getContext('2d');
+
+  img.onload = function(){
+    ctx.drawImage(img, 0, 0)
+  }
+
+  img.src = URL.createObjectURL(blob);
+}
+
+function takePicture() {
+  CameraPreview.takePicture({width: app.dimension.width, height: app.dimension.height}, function(data){
+    if (cordova.platformId === 'android') {
+      CameraPreview.getBlob('file://' + data, function(image) {
+        displayImage(image);
+      });
+    } else {
+      displayImage('data:image/jpeg;base64,' + data);
+    }
+  });
+}
+```
+
+# storeToFile
+
+When capturing large images you may want them to be stored into a file instead of having them
+base64 enconded, as enconding at least on Android is very expensive. With the feature storeToFile enabled
+the plugin will capture the image into a temporary file inside the application temporary cache (the same
+place where Cordova will extract your assets). This method is better used with *disableExifHeaderStripping* 
+to get the best possible performance.
+
+
+Example:
+
+```html
+<script src="https://raw.githubusercontent.com/blueimp/JavaScript-Load-Image/master/js/load-image.all.min.js"></script>
+
+<p><div id="originalPicture" style="width: 100%"></div></p>
+```
+
+```javascript
+let options = {
+  x: 0,
+  y: 0,
+  width: window.screen.width,
+  height: window.screen.height,
+  camera: CameraPreview.CAMERA_DIRECTION.BACK,
+  toBack: false,
+  tapPhoto: true,
+  tapFocus: false,
+  previewDrag: false,
+  disableExifHeaderStripping: true,
+  storeToFile: true
+};
+....
+
+function gotRotatedCanvas(canvasimg) {
+  var displayCanvas = $('canvas#display-canvas');
+  loadImage.scale(canvasimg, function(img){
+    displayCanvas.drawImage(img)
+  }, {
+    maxWidth: displayCanvas.width,
+    maxHeight: displayCanvas.height
+  });
+}
+
+CameraPreview.getSupportedPictureSizes(function(dimensions){
+  dimensions.sort(function(a, b){
+    return (b.width * b.height - a.width * a.height);
+  });
+  var dimension = dimensions[0];
+  CameraPreview.takePicture({width:dimension.width, height:dimension.height, quality: 85}, function(path){
+    var image = 'file://' + path;
+    let holder = document.getElementById('originalPicture');
+    let width = holder.offsetWidth;
+    loadImage(
+      image,
+      function(canvas) {
+        holder.innerHTML = "";
+        if (app.camera === 'front') {
+          // front camera requires we flip horizontally
+          canvas.style.transform = 'scale(1, -1)';
+        }
+        holder.appendChild(canvas);
+      },
+      {
+        maxWidth: width,
+        orientation: true,
+        canvas: true
+      }
+    );
+  });
+});
+```
+
+## disableExifHeaderStripping
+
+If you want to capture large images you will notice in Android that performace is very bad, in those cases you can set
+this flag, and add some extra Javascript/HTML to get a proper display of your captured images without risking your application speed.
+
+Example:
+
+```html
+<script src="https://raw.githubusercontent.com/blueimp/JavaScript-Load-Image/master/js/load-image.all.min.js"></script>
+
+<p><div id="originalPicture" style="width: 100%"></div></p>
+```
+
+```javascript
+let options = {
+  x: 0,
+  y: 0,
+  width: window.screen.width,
+  height: window.screen.height,
+  camera: CameraPreview.CAMERA_DIRECTION.BACK,
+  toBack: false,
+  tapPhoto: true,
+  tapFocus: false,
+  previewDrag: false,
+  disableExifHeaderStripping: true
+};
+....
+
+function gotRotatedCanvas(canvasimg) {
+  var displayCanvas = $('canvas#display-canvas');
+  loadImage.scale(canvasimg, function(img){
+    displayCanvas.drawImage(img)
+  }, {
+    maxWidth: displayCanvas.width,
+    maxHeight: displayCanvas.height
+  });
+}
+
+CameraPreview.getSupportedPictureSizes(function(dimensions){
+  dimensions.sort(function(a, b){
+    return (b.width * b.height - a.width * a.height);
+  });
+  var dimension = dimensions[0];
+  CameraPreview.takePicture({width:dimension.width, height:dimension.height, quality: 85}, function(base64PictureData){
+    /*
+      base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
+      Its up to the you to figure out the best way to save it to disk or whatever for your application.
+    */
+
+    var image = 'data:image/jpeg;base64,' + imgData;
+    let holder = document.getElementById('originalPicture');
+    let width = holder.offsetWidth;
+    loadImage(
+      image,
+      function(canvas) {
+        holder.innerHTML = "";
+        if (app.camera === 'front') {
+          // front camera requires we flip horizontally
+          canvas.style.transform = 'scale(1, -1)';
+        }
+        holder.appendChild(canvas);
+      },
+      {
+        maxWidth: width,
+        orientation: true,
+        canvas: true
+      }
+    );
+  });
 ```
 
 # Settings
@@ -587,6 +767,18 @@ Note: Use AUTO to allow the device automatically adjusts the exposure once and t
 # IOS Quirks
 It is not possible to use your computers webcam during testing in the simulator, you must device test.
 
+# Customize Android Support Library versions (Android only)
+The default `ANDROID_SUPPORT_LIBRARY_VERSION` is set to `26+`.
+If you need a different version, add argument `--variable ANDROID_SUPPORT_LIBRARY_VERSION="{version}"`.
+
+Or edit `config.xml` with following,
+
+```xml
+<plugin name="cordova-plugin-camera-preview" spec="X.X.X">
+  <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="26+" />
+</plugin>
+```
+
 # Sample App
 
 <a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview-sample-app">cordova-plugin-camera-preview-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
@@ -597,6 +789,6 @@ It is not possible to use your computers webcam during testing in the simulator,
 
 # Credits
 
-Maintained by Weston Ganger - [@westonganger](https://github.com/westonganger)
+Maintained by [Weston Ganger](https://westonganger.com) - [@westonganger](https://github.com/westonganger)
 
 Created by Marcel Barbosa Pinto [@mbppower](https://github.com/mbppower)
