@@ -33,8 +33,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     // 8 options.alpha,
     // 9 options.tapFocus,
     // 10 options.disableExifHeaderStripping
-    // 12 options.storeToFile
-    // 13 options.storageDirectory]
+    // 11 options.storeToFile
+    // 12 options.storageDirectory]
     @objc func startCamera(_ command: CDVInvokedUrlCommand) {
         print("--> startCamera")
         
