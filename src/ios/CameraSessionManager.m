@@ -137,7 +137,7 @@
 
       AVCaptureVideoDataOutput *dataOutput = [[AVCaptureVideoDataOutput alloc] init];
       if ([self.session canAddOutput:dataOutput]) {
-        self.dataOutput = dataOutput;
+          self.dataOutput = dataOutput;
         [dataOutput setAlwaysDiscardsLateVideoFrames:YES];
         [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
 
@@ -152,6 +152,44 @@
       completion(success);
   });
 }
+
+-(void) startRecordVideo:(NSURL *) fileUrl {
+    
+    NSDictionary *outputSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    [NSNumber numberWithInt:720], AVVideoWidthKey, [NSNumber numberWithInt:1280], AVVideoHeightKey, AVVideoCodecH264, AVVideoCodecKey, nil];
+    self.assetWriterInput = [AVAssetWriterInput  assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:outputSettings];
+    
+    self.pixelBufferAdaptor = [[AVAssetWriterInputPixelBufferAdaptor alloc]initWithAssetWriterInput:self.assetWriterInput sourcePixelBufferAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
+                [
+                    NSNumber numberWithInt:kCVPixelFormatType_32BGRA],kCVPixelBufferPixelFormatTypeKey,nil]
+               ];
+    
+    
+    /* Asset writer with MPEG4 format*/
+    NSError *error = nil;
+    
+    self.assetWriterMyData = [[AVAssetWriter alloc]
+                              initWithURL:fileUrl
+                              fileType:AVFileTypeQuickTimeMovie
+                              error: &error];
+    [self.assetWriterMyData addInput:self.assetWriterInput];
+    self.assetWriterInput.expectsMediaDataInRealTime = YES;
+    
+    self.isRecording = true;
+    [self.assetWriterMyData startWriting];
+    [self.assetWriterMyData startSessionAtSourceTime:kCMTimeZero];
+}
+
+-(void)stopRecordVideo {
+    self.isRecording = false;
+//    [self.assetWriterMyData finishWriting];
+    [self.assetWriterMyData finishWritingWithCompletionHandler:^(){
+        NSLog (@"finished writing");
+    }];
+    //[self.session removeOutput:self.videoFileOutput];
+    //self.videoFileOutput = nil;
+}
+
 
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation {
   AVCaptureConnection *captureConnection;
@@ -418,7 +456,7 @@
     [exposureModes addObject:@"auto"];
   };
   if ([videoDevice isExposureModeSupported:2]) {
-    [exposureModes addObject:@"continuous"];
+    [exposureModes addObject:@"cotinuous"];
   };
   if ([videoDevice isExposureModeSupported:3]) {
     [exposureModes addObject:@"custom"];

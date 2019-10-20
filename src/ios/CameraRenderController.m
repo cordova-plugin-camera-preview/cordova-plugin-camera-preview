@@ -157,7 +157,23 @@
       });
 }
 
+//-(void) captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
+//    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+//
+//    NSLog(@"didOutputSampleBuffer");
+//    // a very dense way to keep track of the time at which this frame
+//    // occurs relative to the output stream, but it's just an example!
+//    static int64_t frameNumber = 0;
+//    if(self.sessionManager.assetWriterInput.readyForMoreMediaData) {
+//        [self.sessionManager.pixelBufferAdaptor appendPixelBuffer:imageBuffer withPresentationTime:CMTimeMake(frameNumber, 25)];
+//    }
+//
+//    frameNumber++;
+//}
+
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+    
+    
   if ([self.renderLock tryLock]) {
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
     CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
@@ -215,6 +231,15 @@
     [self.ciContext drawImage:croppedImage inRect:dest fromRect:[croppedImage extent]];
     [self.context presentRenderbuffer:GL_RENDERBUFFER];
     [(GLKView *)(self.view)display];
+      
+
+    if(self.sessionManager.assetWriterInput.readyForMoreMediaData && self.sessionManager.isRecording) {
+      static int64_t frameNumber = 0;
+      NSLog (@"readyForMoreMediaData");
+      CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+      [self.sessionManager.pixelBufferAdaptor appendPixelBuffer:imageBuffer withPresentationTime:CMTimeMake(frameNumber, 25)];
+      frameNumber++;
+    }
     [self.renderLock unlock];
   }
 }
