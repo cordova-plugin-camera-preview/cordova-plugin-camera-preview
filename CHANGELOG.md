@@ -2,11 +2,15 @@
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
 
+- Nothing yet
+
+## v0.11.1 - November 19, 2019 - LATEST RELEASED VERSION
+
 - [PR #573](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/573) - Fetch number of cameras immediately before switching cameras in Android
 - [Issue #428](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/issues/428) - Fix mispelling of `continuous` within iOS source code for focus modes (was `cotinuous` before)
 - [PR #568](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/568), [PR #570](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/570) - Resolves plugin interaction issues when toBack is set and other plugins like cordova-plugin-googlemaps are changing the layout
 
-## v0.11.0 - May 20, 2019 - LATEST RELEASED VERSION
+## v0.11.0 - May 20, 2019
 
 - [PR #525](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/525) - Add function `takeSnapshot` for quick image captures
 - [PR #441](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/441) - Add android only option `storeToFile` for storage in temporary file instead of base64
