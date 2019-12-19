@@ -2,7 +2,7 @@
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
 
-- Nothing yet
+- [PR #582](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/582) - Add support for Android devices without Autofocus which can increase the amount of devices for which app installation is allowed by about (~4k at time of)
 
 ## v0.11.1 - November 19, 2019 - LATEST RELEASED VERSION
 
