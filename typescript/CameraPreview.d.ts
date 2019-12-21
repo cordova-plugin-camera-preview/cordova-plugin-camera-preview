@@ -74,3 +74,5 @@ interface CameraPreview {
  getBlob(path: string, onSuccess?: CameraPreviewSuccessHandler, onError?: CameraPreviewErrorHandler): void;
  getCameraCharacteristics(onSuccess?: CameraPreviewSuccessHandler, onError?: CameraPreviewErrorHandler): void;
 }
+
+declare module 'cordova-plugin-camera-preview';
