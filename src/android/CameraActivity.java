@@ -43,6 +43,8 @@ import org.apache.cordova.LOG;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.Exception;
 import java.lang.Integer;
@@ -50,13 +52,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.UUID;
 
 public class CameraActivity extends Fragment {
 
   public interface CameraPreviewListener {
     void onPictureTaken(String originalPicture);
     void onPictureTakenError(String message);
+    void onSnapshotTaken(String originalPicture);
+    void onSnapshotTakenError(String message);
     void onFocusSet(int pointX, int pointY);
     void onFocusSetError(String message);
     void onBackButton();
@@ -91,6 +95,7 @@ public class CameraActivity extends Fragment {
   public boolean dragEnabled;
   public boolean tapToFocus;
   public boolean disableExifHeaderStripping;
+  public boolean storeToFile;
   public boolean toBack;
 
   public int width;
@@ -150,7 +155,6 @@ public class CameraActivity extends Fragment {
 
     }
   }
-
   private void setupTouchAndBackButton() {
 
       final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
@@ -265,7 +269,7 @@ public class CameraActivity extends Fragment {
     // Find the total number of cameras available
     numberOfCameras = Camera.getNumberOfCameras();
 
-    int facing = defaultCamera.equals("front") ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
+    int facing = "front".equals(defaultCamera) ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
 
     // Find the ID of the default camera
     Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
@@ -344,10 +348,12 @@ public class CameraActivity extends Fragment {
   }
 
   public void switchCamera() {
+    // Find the total number of cameras available
+    numberOfCameras = Camera.getNumberOfCameras();
+    
     // check for availability of multiple cameras
     if (numberOfCameras == 1) {
       //There is only one camera available
-      eventListener.onSwitchCameraError("There is only one camera available");
     }else{
       Log.d(TAG, "numberOfCameras: " + numberOfCameras);
 
@@ -389,12 +395,9 @@ public class CameraActivity extends Fragment {
         Log.d(TAG, "camera parameter NULL");
       }
 
-
-      mCamera = mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
-      cameraParameters = mCamera.getParameters();
+      mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
 
       mCamera.startPreview();
-      eventListener.onSwitchCameraSuccess();
     }
   }
 
@@ -427,6 +430,21 @@ public class CameraActivity extends Fragment {
     return 0;
   }
 
+  private String getTempDirectoryPath() {
+    File cache = null;
+
+    // Use internal storage
+    cache = getActivity().getCacheDir();
+
+    // Create the cache directory if it doesn't exist
+    cache.mkdirs();
+    return cache.getAbsolutePath();
+  }
+
+  private String getTempFilePath() {
+    return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+  }
+
   PictureCallback jpegPictureCallback = new PictureCallback(){
     public void onPictureTaken(byte[] data, Camera arg1){
       Log.d(TAG, "CameraPreview jpegPictureCallback");
@@ -457,9 +475,17 @@ public class CameraActivity extends Fragment {
           }
         }
 
-        String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
+        if (!storeToFile) {
+          String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
 
-        eventListener.onPictureTaken(encodedImage);
+          eventListener.onPictureTaken(encodedImage);
+        } else {
+          String path = getTempFilePath();
+          FileOutputStream out = new FileOutputStream(path);
+          out.write(data);
+          out.close();
+          eventListener.onPictureTaken(path);
+        }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
       } catch (OutOfMemoryError e) {
         // most likely failed to allocate memory for rotateBitmap
@@ -547,6 +573,79 @@ public class CameraActivity extends Fragment {
     Log.d(TAG, "CameraPreview optimalPictureSize " + size.width + 'x' + size.height);
     return size;
   }
+  static byte[] rotateNV21(final byte[] yuv,
+                           final int width,
+                           final int height,
+                           final int rotation)
+  {
+    if (rotation == 0) return yuv;
+    if (rotation % 90 != 0 || rotation < 0 || rotation > 270) {
+      throw new IllegalArgumentException("0 <= rotation < 360, rotation % 90 == 0");
+    }
+
+    final byte[]  output    = new byte[yuv.length];
+    final int     frameSize = width * height;
+    final boolean swap      = rotation % 180 != 0;
+    final boolean xflip     = rotation % 270 != 0;
+    final boolean yflip     = rotation >= 180;
+
+    for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i++) {
+        final int yIn = j * width + i;
+        final int uIn = frameSize + (j >> 1) * width + (i & ~1);
+        final int vIn = uIn       + 1;
+
+        final int wOut     = swap  ? height              : width;
+        final int hOut     = swap  ? width               : height;
+        final int iSwapped = swap  ? j                   : i;
+        final int jSwapped = swap  ? i                   : j;
+        final int iOut     = xflip ? wOut - iSwapped - 1 : iSwapped;
+        final int jOut     = yflip ? hOut - jSwapped - 1 : jSwapped;
+
+        final int yOut = jOut * wOut + iOut;
+        final int uOut = frameSize + (jOut >> 1) * wOut + (iOut & ~1);
+        final int vOut = uOut + 1;
+
+        output[yOut] = (byte)(0xff & yuv[yIn]);
+        output[uOut] = (byte)(0xff & yuv[uIn]);
+        output[vOut] = (byte)(0xff & yuv[vIn]);
+      }
+    }
+    return output;
+  }
+  public void takeSnapshot(final int quality) {
+    mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+      @Override
+      public void onPreviewFrame(byte[] bytes, Camera camera) {
+        try {
+          Camera.Parameters parameters = camera.getParameters();
+          Camera.Size size = parameters.getPreviewSize();
+          int orientation = mPreview.getDisplayOrientation();
+          if (mPreview.getCameraFacing() == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            bytes = rotateNV21(bytes, size.width, size.height, (360 - orientation) % 360);
+          } else {
+            bytes = rotateNV21(bytes, size.width, size.height, orientation);
+          }
+          // switch width/height when rotating 90/270 deg
+          Rect rect = orientation == 90 || orientation == 270 ?
+            new Rect(0, 0, size.height, size.width) :
+            new Rect(0, 0, size.width, size.height);
+          YuvImage yuvImage = new YuvImage(bytes, parameters.getPreviewFormat(), rect.width(), rect.height(), null);
+          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+          yuvImage.compressToJpeg(rect, quality, byteArrayOutputStream);
+          byte[] data = byteArrayOutputStream.toByteArray();
+          byteArrayOutputStream.close();
+          eventListener.onSnapshotTaken(Base64.encodeToString(data, Base64.NO_WRAP));
+        } catch (IOException e) {
+          Log.d(TAG, "CameraPreview IOException");
+          eventListener.onSnapshotTakenError("IO Error");
+        } finally {
+
+          mCamera.setPreviewCallback(null);
+        }
+      }
+    });
+  }
 
   public void takePicture(final int width, final int height, final int quality){
     Log.d(TAG, "CameraPreview takePicture width: " + width + ", height: " + height + ", quality: " + quality);
@@ -555,8 +654,7 @@ public class CameraActivity extends Fragment {
       if(!canTakePicture){
         return;
       }
-      Activity activity = getActivity();
-      muteStream(true, activity);
+
       canTakePicture = false;
 
       new Thread() {
@@ -567,7 +665,7 @@ public class CameraActivity extends Fragment {
           params.setPictureSize(size.width, size.height);
           currentQuality = quality;
 
-          if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+          if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT && !storeToFile) {
             // The image will be recompressed in the callback
             params.setJpegQuality(99);
           } else {
