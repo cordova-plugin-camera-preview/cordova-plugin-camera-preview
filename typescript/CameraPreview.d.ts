@@ -1,42 +1,44 @@
-type CameraPreviewErrorHandler = (err: any) => any;
-type CameraPreviewSuccessHandler = (data: any) => any;
+declare module 'cordova-plugin-camera-preview' {
+  type CameraPreviewErrorHandler = (err: any) => any;
+  type CameraPreviewSuccessHandler = (data: any) => any;
 
-type CameraPreviewCameraDirection = 'back'|'front';
-type CameraPreviewColorEffect = 'aqua'|'blackboard'|'mono'|'negative'|'none'|'posterize'|'sepia'|'solarize'|'whiteboard';
-type CameraPreviewExposureMode = 'lock'|'auto'|'continuous'|'custom';
-type CameraPreviewFlashMode = 'off'|'on'|'auto'|'red-eye'|'torch';
-type CameraPreviewFocusMode = 'fixed'|'auto'|'continuous'|'continuous-picture'|'continuous-video'|'edof'|'infinity'|'macro';
-type CameraPreviewWhiteBalanceMode = 'lock'|'auto'|'continuous'|'incandescent'|'cloudy-daylight'|'daylight'|'fluorescent'|'shade'|'twilight'|'warm-fluorescent';
+  type CameraPreviewCameraDirection = 'back'|'front';
+  type CameraPreviewColorEffect = 'aqua'|'blackboard'|'mono'|'negative'|'none'|'posterize'|'sepia'|'solarize'|'whiteboard';
+  type CameraPreviewExposureMode = 'lock'|'auto'|'continuous'|'custom';
+  type CameraPreviewFlashMode = 'off'|'on'|'auto'|'red-eye'|'torch';
+  type CameraPreviewFocusMode = 'fixed'|'auto'|'continuous'|'continuous-picture'|'continuous-video'|'edof'|'infinity'|'macro';
+  type CameraPreviewWhiteBalanceMode = 'lock'|'auto'|'continuous'|'incandescent'|'cloudy-daylight'|'daylight'|'fluorescent'|'shade'|'twilight'|'warm-fluorescent';
 
-interface CameraPreviewStartCameraOptions {
- alpha?: number;
- camera?: CameraPreviewCameraDirection|string;
- height?: number;
- previewDrag?: boolean;
- tapFocus?: boolean;
- tapPhoto?: boolean;
- toBack?: boolean;
- width?: number;
- x?: number;
- y?: number;
- disableExifHeaderStripping?: boolean;
- storeToFile?: boolean;
-}
+  interface CameraPreviewStartCameraOptions {
+   alpha?: number;
+   camera?: CameraPreviewCameraDirection|string;
+   height?: number;
+   previewDrag?: boolean;
+   tapFocus?: boolean;
+   tapPhoto?: boolean;
+   toBack?: boolean;
+   width?: number;
+   x?: number;
+   y?: number;
+   disableExifHeaderStripping?: boolean;
+   storeToFile?: boolean;
+  }
 
-interface CameraPreviewTakePictureOptions {
- height?: number;
- quality?: number;
- width?: number;
-}
+  interface CameraPreviewTakePictureOptions {
+   height?: number;
+   quality?: number;
+   width?: number;
+  }
 
-interface CameraPreviewTakeSnapshotOptions {
- quality?: number;
-}
+  interface CameraPreviewTakeSnapshotOptions {
+   quality?: number;
+  }
 
-interface CameraPreviewPreviewSizeDimension {
- height?: number;
- width?: number;
-}
+  interface CameraPreviewPreviewSizeDimension {
+   height?: number;
+   width?: number;
+  }
+
 
 interface CameraPreview {
  startCamera(options?: CameraPreviewStartCameraOptions, onSuccess?: CameraPreviewSuccessHandler, onError?: CameraPreviewErrorHandler): void;
@@ -75,4 +77,7 @@ interface CameraPreview {
  onBackButton(onSuccess?: CameraPreviewSuccessHandler, onError?: CameraPreviewErrorHandler): void;
  getBlob(path: string, onSuccess?: CameraPreviewSuccessHandler, onError?: CameraPreviewErrorHandler): void;
  getCameraCharacteristics(onSuccess?: CameraPreviewSuccessHandler, onError?: CameraPreviewErrorHandler): void;
+
+  }
+
 }
