@@ -51,5 +51,9 @@
 @property (nonatomic, assign) id delegate;
 @property (nonatomic) NSString *currentWhiteBalanceMode;
 @property (nonatomic) NSDictionary *colorTemperatures;
-
+@property (nonatomic) AVCaptureMovieFileOutput *videoFileOutput;
+@property (nonatomic) AVAssetWriterInput *assetWriterInput;
+@property (nonatomic) AVAssetWriterInputPixelBufferAdaptor *pixelBufferAdaptor;
+@property (nonatomic) AVAssetWriter *assetWriterMyData;
+@property (nonatomic) BOOL isRecording;
 @end

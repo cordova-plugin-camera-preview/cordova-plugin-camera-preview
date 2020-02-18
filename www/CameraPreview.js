@@ -202,7 +202,33 @@ CameraPreview.onBackButton = function(onSuccess, onError) {
     exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
 };
 
-CameraPreview.getBlob = function(url, onSuccess, onError) {
+CameraPreview.stopRecordVideo = function (onSuccess, onError) {
+    exec(onSuccess, onError, PLUGIN_NAME, "stopRecordVideo");
+};
+
+CameraPreview.startRecordVideo = function (opts, onSuccess, onError) {
+    if (!opts) {
+        opts = {};
+    } else if (isFunction(opts)) {
+        onSuccess = opts;
+        opts = {};
+    }
+
+    if (!isFunction(onSuccess)) {
+        return false;
+    }
+
+    opts.width = opts.width || 0;
+    opts.height = opts.height || 0;
+
+    if (!opts.quality || opts.quality > 100 || opts.quality < 0) {
+        opts.quality = 85;
+    }
+
+    exec(onSuccess, onError, PLUGIN_NAME, "startRecordVideo", [opts.cameraDirection, opts.width, opts.height, opts.quality, opts.withFlash]);
+};
+
+CameraPreview.getBlob = function (url, onSuccess, onError) {
     var xhr = new XMLHttpRequest
     xhr.onload = function() {
         if (xhr.status != 0 && (xhr.status < 200 || xhr.status >= 300)) {

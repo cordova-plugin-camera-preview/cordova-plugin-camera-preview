@@ -1,11 +1,14 @@
 package com.cordovaplugincamerapreview;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.hardware.Camera;
+import android.os.Handler;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -26,6 +29,7 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.File;
 import java.util.List;
 import java.util.Arrays;
 
@@ -47,6 +51,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String PREVIEW_SIZE_ACTION = "setPreviewSize";
   private static final String SWITCH_CAMERA_ACTION = "switchCamera";
   private static final String TAKE_PICTURE_ACTION = "takePicture";
+  private static final String START_RECORD_VIDEO_ACTION = "startRecordVideo";
+  private static final String STOP_RECORD_VIDEO_ACTION = "stopRecordVideo";
   private static final String TAKE_SNAPSHOT_ACTION = "takeSnapshot";
   private static final String SHOW_CAMERA_ACTION = "showCamera";
   private static final String HIDE_CAMERA_ACTION = "hideCamera";
@@ -68,14 +74,23 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String GET_CAMERA_CHARACTERISTICS_ACTION = "getCameraCharacteristics";
 
   private static final int CAM_REQ_CODE = 0;
+  private static final int VID_REQ_CODE = 1;
+  private String VIDEO_FILE_PATH = "";
+  private static final String VIDEO_FILE_EXTENSION = ".mp4";
 
   private static final String [] permissions = {
     Manifest.permission.CAMERA
   };
-
+  private static final String [] videoPermissions = {
+    Manifest.permission.RECORD_AUDIO,
+    Manifest.permission.WRITE_EXTERNAL_STORAGE
+  };
   private CameraActivity fragment;
   private CallbackContext takePictureCallbackContext;
   private CallbackContext takeSnapshotCallbackContext;
+  private CallbackContext startRecordVideoCallbackContext;
+  private CallbackContext stopRecordVideoCallbackContext;
+  private CallbackContext switchCameraCallbackContext;
   private CallbackContext setFocusCallbackContext;
   private CallbackContext startCameraCallbackContext;
   private CallbackContext tapBackButtonContext  = null;
@@ -107,6 +122,19 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return takePicture(args.getInt(0), args.getInt(1), args.getInt(2), callbackContext);
     } else if (TAKE_SNAPSHOT_ACTION.equals(action)) {
       return takeSnapshot(args.getInt(0), callbackContext);
+    }else if (START_RECORD_VIDEO_ACTION.equals(action)) {
+
+      if ( cordova.hasPermission(videoPermissions[1]) && cordova.hasPermission(videoPermissions[2])) {
+        return startRecordVideo(args.getString(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getBoolean(4), callbackContext);
+      }
+      else {
+        this.execCallback = callbackContext;
+        this.execArgs = args;
+        cordova.requestPermissions(this, VID_REQ_CODE, videoPermissions);
+        return true;
+      }
+    } else if (STOP_RECORD_VIDEO_ACTION.equals(action)) {
+      return stopRecordVideo(callbackContext);
     } else if (COLOR_EFFECT_ACTION.equals(action)) {
       return setColorEffect(args.getString(0), callbackContext);
     } else if (ZOOM_ACTION.equals(action)) {
@@ -167,7 +195,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return getSupportedColorEffects(callbackContext);
     } else if (GET_CAMERA_CHARACTERISTICS_ACTION.equals(action)) {
       return getCameraCharacteristics(callbackContext);
-    }  
+    }
     return false;
   }
 
@@ -181,6 +209,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
     if (requestCode == CAM_REQ_CODE) {
       startCamera(this.execArgs.getInt(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getString(4), this.execArgs.getBoolean(5), this.execArgs.getBoolean(6), this.execArgs.getBoolean(7), this.execArgs.getString(8), this.execArgs.getBoolean(9), this.execArgs.getBoolean(10), this.execArgs.getBoolean(11), this.execCallback);
+    }
+    else if(requestCode == VID_REQ_CODE){
+       startRecordVideo(this.execArgs.getString(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getBoolean(4),  this.execCallback);
     }
   }
 
@@ -325,6 +356,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(containerView.getId(), fragment);
         fragmentTransaction.commit();
+
       }
     });
 
@@ -368,11 +400,34 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     takeSnapshotCallbackContext = null;
   }
 
+  private boolean startRecordVideo(String camera, int width, int height, int quality, boolean withFlash, CallbackContext callbackContext) {
+    if(this.hasView(callbackContext) == false){
+      return true;
+    }
+    final String filename = "videoTmp";
+    VIDEO_FILE_PATH = cordova.getActivity().getCacheDir().toString() + "/";
+    startRecordVideoCallbackContext = callbackContext;
+     cordova.getThreadPool().execute(new Runnable() {
+      @Override
+      public void run() {
+        fragment.startRecord(getFilePath(filename), camera, width, height, quality, withFlash);
+      }
+    });
+
+    return true;
+}
+   public void onStartRecordVideo() {
+    Log.d(TAG, "onStartRecordVideo started");
+
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, "StartRecordVideo started");
+    pluginResult.setKeepCallback(true);
+    startRecordVideoCallbackContext.sendPluginResult(pluginResult);
+  }
+
   private boolean takePicture(int width, int height, int quality, CallbackContext callbackContext) {
     if(this.hasView(callbackContext) == false){
       return true;
     }
-
     takePictureCallbackContext = callbackContext;
 
     fragment.takePicture(width, height, quality);
@@ -394,6 +449,52 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   public void onPictureTakenError(String message) {
     Log.d(TAG, "CameraPreview onPictureTakenError");
     takePictureCallbackContext.error(message);
+  }
+
+  public void onStartRecordVideoError(String message) {
+    Log.d(TAG, "CameraPreview onStartRecordVideo");
+    startRecordVideoCallbackContext.error(message);
+  }
+
+  private boolean stopRecordVideo(CallbackContext callbackContext) {
+    if(this.hasView(callbackContext) == false){
+      return true;
+    }
+
+    stopRecordVideoCallbackContext = callbackContext;
+
+    cordova.getThreadPool().execute(new Runnable() {
+      @Override
+      public void run() {
+        fragment.stopRecord();
+      }
+    });
+
+    return true;
+  }
+
+  public void onStopRecordVideo(String file) {
+    Log.d(TAG, "onStopRecordVideo success");
+    PluginResult result = new PluginResult(PluginResult.Status.ERROR, file); //chnaged from Status OK to ERROR as OK was used when confirming video start TODO: Get a better way
+    result.setKeepCallback(true);
+    stopRecordVideoCallbackContext.sendPluginResult(result);
+  }
+
+  public void onStopRecordVideoError(String err) {
+    Log.d(TAG, "onStopRecordVideo error");
+
+    stopRecordVideoCallbackContext.error(err);
+  }
+
+  private String getFilePath(String filename) {
+    // Add number suffix if file exists
+    int i = 1;
+    String fileName = filename;
+    while (new File(VIDEO_FILE_PATH + fileName + VIDEO_FILE_EXTENSION).exists()) {
+      fileName = filename + '_' + i;
+      i++;
+    }
+    return VIDEO_FILE_PATH + fileName + VIDEO_FILE_EXTENSION;
   }
 
   private boolean setColorEffect(String effect, CallbackContext callbackContext) {
@@ -971,6 +1072,16 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     return true;
   }
 
+  public void onSwitchCameraSuccess() {
+    Log.d(TAG, "onSwitchCameraSuccess success");
+    switchCameraCallbackContext.success();
+  }
+
+  public void onSwitchCameraError(String err) {
+    Log.d(TAG, "onSwitchCameraError error");
+    switchCameraCallbackContext.error(err);
+  }
+
   public boolean setBackButtonListener(CallbackContext callbackContext) {
     tapBackButtonContext = callbackContext;
     return true;
@@ -992,34 +1103,34 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
 
     JSONObject data = new JSONObject();
     JSONArray cameraCharacteristicsArray = new JSONArray();
-	
+
     // Get the CameraManager
     CameraManager cManager = (CameraManager) this.cordova.getActivity().getApplicationContext().getSystemService(Context.CAMERA_SERVICE);
-	
+
     try {
       for (String cameraId : cManager.getCameraIdList()) {
         CameraCharacteristics characteristics = cManager.getCameraCharacteristics(cameraId);
-	
+
 	JSONObject cameraData = new JSONObject();
-	
+
 	// INFO_SUPPORTED_HARDWARE_LEVEL
 	Integer supportLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
 	cameraData.put("INFO_SUPPORTED_HARDWARE_LEVEL", supportLevel);
-	
+
 	// LENS_FACING
 	Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
 	cameraData.put("LENS_FACING", lensFacing);
-	
+
 	// SENSOR_INFO_PHYSICAL_SIZE
 	SizeF sensorInfoPhysicalSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
 	cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_WIDTH", new Double(sensorInfoPhysicalSize.getWidth()));
 	cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_HEIGHT", new Double(sensorInfoPhysicalSize.getHeight()));
-	
+
 	// SENSOR_INFO_PIXEL_ARRAY_SIZE
 	Size sensorInfoPixelSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
 	cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH", new Integer(sensorInfoPixelSize.getWidth()));
 	cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT", new Integer(sensorInfoPixelSize.getHeight()));
-	
+
 	// LENS_INFO_AVAILABLE_FOCAL_LENGTHS
 	float[] focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
 	JSONArray focalLengthsArray = new JSONArray();
@@ -1029,13 +1140,13 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
 	  focalLengthsArray.put(focalLengthsData);
 	}
 	cameraData.put("LENS_INFO_AVAILABLE_FOCAL_LENGTHS", focalLengthsArray);
-	
+
 	// add camera data to result list
 	cameraCharacteristicsArray.put(cameraData);
       }
-		
+
       data.put("CAMERA_CHARACTERISTICS", cameraCharacteristicsArray);
-		
+
     } catch (CameraAccessException e) {
       Log.e(TAG, e.getMessage(), e);
     } catch (JSONException e) {
@@ -1045,5 +1156,5 @@ private boolean getSupportedFocusModes(CallbackContext callbackContext) {
     callbackContext.success(data);
     return true;
   }
-  
+
 }
