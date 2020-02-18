@@ -451,35 +451,29 @@ CameraPreview.getCameraCharacteristics(function(characteristics) {
 });
 ```
 
-### backgroundVideoStart(cb, [errorCallback])
+### recordVideoStart(cb, [errorCallback])
 
 _Currently this feature is for Android only._
 
 <info>Record Video and start saving to the cache</info><br/>
 
 ```javascript
-CameraPreview.backgroundVideoStart(function(result) {
+CameraPreview.recordVideoStart(function(result) {
   console.log(result);
 });
 ```
 
-### backgroundVideoStop(cb, [errorCallback])
+### recordVideoStop(cb, [errorCallback])
 
 _Currently this feature is for Android only._
 
 <info>Stop Record VideoReturn Recorded Video File Path</info><br/>
 
 ```javascript
-CameraPreview.backgroundVideoStop(function(url) {
+CameraPreview.recordVideoStop(function(url) {
   console.log(url);
 });
 ```
-
-### backgroundVideoPause(cb, [errorCallback])
-
-_Currently this feature is not available.PR Accepted_
-
-<info>Pause Record VideoReturn Recorded Video File Path</info><br/>
 
 Example Characteristics:
 

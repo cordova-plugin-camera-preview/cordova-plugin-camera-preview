@@ -103,11 +103,11 @@ public class CameraActivity extends Fragment {
   public int x;
   public int y;
 
-  /** VIDEO RECORD **/
+
   private RecordingState mRecordingState = RecordingState.INITIALIZING;
   private MediaRecorder mRecorder = null;
   private String recordFilePath;
-  /** VIDEO RECORD **/
+
 
   public void setEventListener(CameraPreviewListener listener){
     eventListener = listener;
@@ -350,7 +350,7 @@ public class CameraActivity extends Fragment {
   public void switchCamera() {
     // Find the total number of cameras available
     numberOfCameras = Camera.getNumberOfCameras();
-    
+
     // check for availability of multiple cameras
     if (numberOfCameras == 1) {
       //There is only one camera available
@@ -732,23 +732,7 @@ public class CameraActivity extends Fragment {
 
       mRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
       mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-//      mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-
       mRecorder.setProfile(profile);
-//      Camera.Size size = getOptimalPictureSize(width, height, cameraParams.getPreviewSize(), cameraParams.getSupportedPictureSizes());
-//      videoWidth = size.width;
-//      videoHeight = size.height;
-
-
-//      mRecorder.setVideoFrameRate(profile.videoFrameRate);
-//      mRecorder.setVideoSize(videoWidth, videoHeight);
-//      mRecorder.setVideoEncodingBitRate(profile.videoBitRate);
-//      mRecorder.setAudioEncodingBitRate(profile.audioBitRate);
-//      mRecorder.setAudioChannels(profile.audioChannels);
-//      mRecorder.setAudioSamplingRate(profile.audioSampleRate);
-
-//      mRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-//      mRecorder.setAudioEncoder(profile.audioCodec);
       mRecorder.setOutputFile(filePath);
       mRecorder.setOrientationHint(mOrientationHint);
 
@@ -822,7 +806,7 @@ public class CameraActivity extends Fragment {
   public void muteStream(boolean mute, Activity activity) {
        AudioManager audioManager = ((AudioManager)activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE));
         int direction = mute ? audioManager.ADJUST_MUTE : audioManager.ADJUST_UNMUTE;
-    //    audioManager.adjustStreamVolume(AudioManager.STREAM_RING, direction, 1);
+
   }
 
   public void setFocusArea(final int pointX, final int pointY, final Camera.AutoFocusCallback callback) {

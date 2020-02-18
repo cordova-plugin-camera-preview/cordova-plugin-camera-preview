@@ -36,8 +36,6 @@
 - (void) takePictureOnFocus;
 - (void) setTorchMode;
 - (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation;
--(void)startRecordVideo:(NSURL *)fileUrl;
--(void)stopRecordVideo;
 
 @property (atomic) CIFilter *ciFilter;
 @property (nonatomic) NSLock *filterLock;
