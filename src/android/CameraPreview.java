@@ -79,8 +79,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String VIDEO_FILE_EXTENSION = ".mp4";
 
   private static final String [] permissions = {
-    Manifest.permission.CAMERA,
-
+    Manifest.permission.CAMERA
   };
   private static final String [] videoPermissions = {
     Manifest.permission.RECORD_AUDIO,
@@ -111,7 +110,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
     if (START_CAMERA_ACTION.equals(action)) {
-      if (cordova.hasPermission(permissions[0]) && cordova.hasPermission(permissions[1]) && cordova.hasPermission(permissions[2])) {
+      if (cordova.hasPermission(permissions[0])) {
         return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4), args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), args.getBoolean(9), args.getBoolean(10), args.getBoolean(11), callbackContext);
       } else {
         this.execCallback = callbackContext;
@@ -125,16 +124,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return takeSnapshot(args.getInt(0), callbackContext);
     }else if (START_RECORD_VIDEO_ACTION.equals(action)) {
 
-           if ( cordova.hasPermission(videoPermissions[1]) && cordova.hasPermission(videoPermissions[2])) {
+      if ( cordova.hasPermission(videoPermissions[1]) && cordova.hasPermission(videoPermissions[2])) {
         return startRecordVideo(args.getString(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getBoolean(4), callbackContext);
-      } else {
+      }
+      else {
         this.execCallback = callbackContext;
         this.execArgs = args;
         cordova.requestPermissions(this, VID_REQ_CODE, videoPermissions);
         return true;
       }
-
-
     } else if (STOP_RECORD_VIDEO_ACTION.equals(action)) {
       return stopRecordVideo(callbackContext);
     } else if (COLOR_EFFECT_ACTION.equals(action)) {
@@ -430,8 +428,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     if(this.hasView(callbackContext) == false){
       return true;
     }
-
-
     takePictureCallbackContext = callbackContext;
 
     fragment.takePicture(width, height, quality);
