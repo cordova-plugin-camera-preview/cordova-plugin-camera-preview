@@ -7,22 +7,23 @@ Cordova plugin that allows camera interaction from Javascript and HTML
 
 **Releases are being kept up to date when appropriate. However, this plugin is under constant development. As such it is recommended to use master to always have the latest fixes & features.**
 
-**PR's are greatly appreciated. Maintainer(s) wanted.**
+**PR's are greatly appreciated.**
 
 # Features
 
 <ul>
-  <li>Start a camera preview from HTML code.</li>
-  <li>Record and save Video Files In Cache</li>
-  <li>Maintain HTML interactivity.</li>
-  <li>Drag the preview box.</li>
-  <li>Set camera color effect.</li>
-  <li>Send the preview box to back of the HTML content.</li>
-  <li>Set a custom position for the camera preview box.</li>
-  <li>Set a custom size for the preview box.</li>
-  <li>Set a custom alpha for the preview box.</li>
+  <li>Start a camera preview from HTML code</li>
+  <li>Take Photos and Snapshots</li>
+  <li>Maintain HTML interactivity</li>
+  <li>Drag the preview box</li>
+  <li>Set camera color effect</li>
+  <li>Send the preview box to back of the HTML content</li>
+  <li>Set a custom position for the camera preview box</li>
+  <li>Set a custom size for the preview box</li>
+  <li>Set a custom alpha for the preview box</li>
   <li>Set the focus mode, zoom, color effects, exposure mode, white balance mode and exposure compensation</li>
   <li>Tap to focus</li>
+  <li>Record Videos</li>
 </ul>
 
 # Installation
@@ -706,6 +707,64 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
       }
     );
   });
+```
+
+### recordVideoStart(cb, [errorCallback])
+
+*Currently this feature is for Android only. A PR for iOS support would be happily accepted*
+
+<info>Record Video and start saving to the cache</info><br/>
+
+```javascript
+CameraPreview.recordVideoStart();
+```
+
+### recordVideoStop(cb, [errorCallback])
+
+*Currently this feature is for Android only. A PR for iOS support would be happily accepted*
+
+<info>Stop Record VideoReturn Recorded Video File Path</info><br/>
+
+```javascript
+CameraPreview.recordVideoStop(function(filePath) {
+  console.log(filePath);
+});
+```
+
+Example Characteristics:
+
+```
+{
+  "CAMERA_CHARACTERISTICS": [
+    {
+      "INFO_SUPPORTED_HARDWARE_LEVEL": 1,
+      "LENS_FACING": 1,
+      "SENSOR_INFO_PHYSICAL_SIZE_WIDTH": 5.644999980926514,
+      "SENSOR_INFO_PHYSICAL_SIZE_HEIGHT": 4.434999942779541,
+      "SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH": 4032,
+      "SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT": 3024,
+      "LENS_INFO_AVAILABLE_FOCAL_LENGTHS": [
+        {
+          "FOCAL_LENGTH": 4.199999809265137
+        }
+      ]
+    },
+
+    {
+      "INFO_SUPPORTED_HARDWARE_LEVEL": 0,
+      "LENS_FACING": 0,
+      "SENSOR_INFO_PHYSICAL_SIZE_WIDTH": 3.494999885559082,
+      "SENSOR_INFO_PHYSICAL_SIZE_HEIGHT": 2.625999927520752,
+      "SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH": 2608,
+      "SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT": 1960,
+      "LENS_INFO_AVAILABLE_FOCAL_LENGTHS": [
+        {
+          "FOCAL_LENGTH": 2.0999999046325684
+        }
+      ]
+    }
+  ]
+}
 ```
 
 # Settings
