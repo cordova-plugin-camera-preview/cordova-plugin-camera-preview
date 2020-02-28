@@ -670,7 +670,7 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
   });
 ```
 
-### recordVideoStart(cb, [errorCallback])
+### startRecordVideo(cb, [errorCallback])
 
 *Currently this feature is for Android only. A PR for iOS support would be happily accepted*
 
@@ -680,7 +680,7 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
 CameraPreview.recordVideoStart();
 ```
 
-### recordVideoStop(cb, [errorCallback])
+### stopRecordVideo(cb, [errorCallback])
 
 *Currently this feature is for Android only. A PR for iOS support would be happily accepted*
 
