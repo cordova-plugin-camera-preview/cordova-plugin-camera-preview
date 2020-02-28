@@ -91,6 +91,7 @@ public class CameraActivity extends Fragment {
   // The first rear facing camera
   private int defaultCameraId;
   public String defaultCamera;
+
   public boolean tapToTakePicture;
   public boolean dragEnabled;
   public boolean tapToFocus;
@@ -103,11 +104,11 @@ public class CameraActivity extends Fragment {
   public int x;
   public int y;
 
+  private enum RecordingState {INITIALIZING, STARTED, STOPPED}
 
   private RecordingState mRecordingState = RecordingState.INITIALIZING;
   private MediaRecorder mRecorder = null;
   private String recordFilePath;
-
 
   public void setEventListener(CameraPreviewListener listener){
     eventListener = listener;
@@ -155,6 +156,7 @@ public class CameraActivity extends Fragment {
 
     }
   }
+
   private void setupTouchAndBackButton() {
 
       final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
@@ -262,7 +264,6 @@ public class CameraActivity extends Fragment {
           });
         }
       });
-
   }
 
   private void setDefaultCameraId(){
@@ -573,11 +574,8 @@ public class CameraActivity extends Fragment {
     Log.d(TAG, "CameraPreview optimalPictureSize " + size.width + 'x' + size.height);
     return size;
   }
-  static byte[] rotateNV21(final byte[] yuv,
-                           final int width,
-                           final int height,
-                           final int rotation)
-  {
+
+  static byte[] rotateNV21(final byte[] yuv, final int width, final int height, final int rotation){
     if (rotation == 0) return yuv;
     if (rotation % 90 != 0 || rotation < 0 || rotation > 270) {
       throw new IllegalArgumentException("0 <= rotation < 360, rotation % 90 == 0");
@@ -613,6 +611,7 @@ public class CameraActivity extends Fragment {
     }
     return output;
   }
+
   public void takeSnapshot(final int quality) {
     mCamera.setPreviewCallback(new Camera.PreviewCallback() {
       @Override
@@ -804,14 +803,12 @@ public class CameraActivity extends Fragment {
   }
 
   public void muteStream(boolean mute, Activity activity) {
-       AudioManager audioManager = ((AudioManager)activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE));
-        int direction = mute ? audioManager.ADJUST_MUTE : audioManager.ADJUST_UNMUTE;
-
+    AudioManager audioManager = ((AudioManager)activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE));
+    int direction = mute ? audioManager.ADJUST_MUTE : audioManager.ADJUST_UNMUTE;
   }
 
   public void setFocusArea(final int pointX, final int pointY, final Camera.AutoFocusCallback callback) {
     if (mCamera != null) {
-
       mCamera.cancelAutoFocus();
 
       Camera.Parameters parameters = mCamera.getParameters();
@@ -855,8 +852,6 @@ public class CameraActivity extends Fragment {
       Math.round((y + 100) * 2000 / height - 1000)
     );
   }
-
-  private enum RecordingState {INITIALIZING, STARTED, STOPPED}
 
   static Camera.Size getBestResolution(Camera.Parameters cp) {
     List<Camera.Size> sl = cp.getSupportedVideoSizes();
