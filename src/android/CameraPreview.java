@@ -74,17 +74,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String GET_CAMERA_CHARACTERISTICS_ACTION = "getCameraCharacteristics";
 
   private static final int CAM_REQ_CODE = 0;
-  private static final int VID_REQ_CODE = 1;
   private String VIDEO_FILE_PATH = "";
   private static final String VIDEO_FILE_EXTENSION = ".mp4";
 
   private static final String [] permissions = {
-    Manifest.permission.CAMERA
-  };
-  private static final String [] videoPermissions = {
+    Manifest.permission.CAMERA,
     Manifest.permission.RECORD_AUDIO,
     Manifest.permission.WRITE_EXTERNAL_STORAGE
   };
+
   private CameraActivity fragment;
   private CallbackContext takePictureCallbackContext;
   private CallbackContext takeSnapshotCallbackContext;
@@ -110,7 +108,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
     if (START_CAMERA_ACTION.equals(action)) {
-      if (cordova.hasPermission(permissions[0])) {
+      if (cordova.hasPermission(permissions[0]) && cordova.hasPermission(permissions[1]) && cordova.hasPermission(permissions[2])) {
         return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4), args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), args.getBoolean(9), args.getBoolean(10), args.getBoolean(11), callbackContext);
       } else {
         this.execCallback = callbackContext;
@@ -123,16 +121,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else if (TAKE_SNAPSHOT_ACTION.equals(action)) {
       return takeSnapshot(args.getInt(0), callbackContext);
     }else if (START_RECORD_VIDEO_ACTION.equals(action)) {
-
-      if ( cordova.hasPermission(videoPermissions[0]) && cordova.hasPermission(videoPermissions[1])) {
-        return startRecordVideo(args.getString(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getBoolean(4), callbackContext);
-      }
-      else {
-        this.execCallback = callbackContext;
-        this.execArgs = args;
-        cordova.requestPermissions(this, VID_REQ_CODE, videoPermissions);
-        return true;
-      }
+      return startRecordVideo(args.getString(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getBoolean(4), callbackContext);
     } else if (STOP_RECORD_VIDEO_ACTION.equals(action)) {
       return stopRecordVideo(callbackContext);
     } else if (COLOR_EFFECT_ACTION.equals(action)) {
@@ -209,9 +198,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
     if (requestCode == CAM_REQ_CODE) {
       startCamera(this.execArgs.getInt(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getString(4), this.execArgs.getBoolean(5), this.execArgs.getBoolean(6), this.execArgs.getBoolean(7), this.execArgs.getString(8), this.execArgs.getBoolean(9), this.execArgs.getBoolean(10), this.execArgs.getBoolean(11), this.execCallback);
-    }
-    else if(requestCode == VID_REQ_CODE){
-       startRecordVideo(this.execArgs.getString(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getBoolean(4),  this.execCallback);
     }
   }
 
@@ -475,7 +461,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   public void onStopRecordVideo(String file) {
     Log.d(TAG, "onStopRecordVideo success");
-    PluginResult result = new PluginResult(PluginResult.Status.ERROR, file); //chnaged from Status OK to ERROR as OK was used when confirming video start TODO: Get a better way
+    PluginResult result = new PluginResult(PluginResult.Status.OK, file); //chnaged from Status OK to ERROR as OK was used when confirming video start TODO: Get a better way
     result.setKeepCallback(true);
     stopRecordVideoCallbackContext.sendPluginResult(result);
   }
