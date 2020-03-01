@@ -670,24 +670,31 @@ CameraPreview.getSupportedPictureSizes(function(dimensions){
   });
 ```
 
-### recordVideoStart(cb, [errorCallback])
+### startRecordVideo(options,[cb], [errorCallback])
 
 *Currently this feature is for Android only. A PR for iOS support would be happily accepted*
 
 <info>Record Video and start saving to the cache</info><br/>
 
 ```javascript
-CameraPreview.recordVideoStart();
+let options = {
+            cameraDirection: CameraPreview.CAMERA_DIRECTION.BACK,
+            width: window.screen.width / 2,
+            height: window.screen.height / 2,
+            quality: 60,
+            withFlash: false
+        }
+CameraPreview.startRecordVideo(options);
 ```
 
-### recordVideoStop(cb, [errorCallback])
+### stopRecordVideo(cb, [errorCallback])
 
 *Currently this feature is for Android only. A PR for iOS support would be happily accepted*
 
 <info>Stop Record VideoReturn Recorded Video File Path</info><br/>
 
 ```javascript
-CameraPreview.recordVideoStop(function(filePath) {
+CameraPreview.stopRecordVideo(function(filePath) {
   console.log(filePath);
 });
 ```
