@@ -461,7 +461,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
   public void onStopRecordVideo(String file) {
     Log.d(TAG, "onStopRecordVideo success");
-    PluginResult result = new PluginResult(PluginResult.Status.OK, file); //chnaged from Status OK to ERROR as OK was used when confirming video start TODO: Get a better way
+    PluginResult result = new PluginResult(PluginResult.Status.OK, file);
     result.setKeepCallback(true);
     stopRecordVideoCallbackContext.sendPluginResult(result);
   }
