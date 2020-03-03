@@ -116,7 +116,7 @@ let options = {
 CameraPreview.startCamera(options);
 ```
 
-When setting the toBack to true, remember to add the style below on your app's HTML or body element:
+When setting `toBack` to true, remember to add the style below on your app's HTML or body element:
 
 ```css
 html, body, .ion-app, .ion-content {
@@ -124,7 +124,11 @@ html, body, .ion-app, .ion-content {
 }
 ```
 
-When both tapFocus and tapPhoto are true, the camera will focus, and take a picture as soon as the camera is done focusing.
+When both `tapFocus` and `tapPhoto` are true, the camera will focus, and take a picture as soon as the camera is done focusing.
+
+If you capture large images in Android you may notice that performace is poor, in those cases you can set `disableExifHeaderStripping` to true and instead just add some extra Javascript/HTML to get a proper display of your captured images without risking your application speed.
+
+When capturing large images you may want them to be stored into a file instead of having them base64 encoded, as enconding at least on Android is very expensive. With the feature `storeToFile` enabled the plugin will capture the image into a temporary file inside the application temporary cache (the same place where Cordova will extract your assets). This method is better used with `disableExifHeaderStripping` to get the best possible performance.
 
 ### stopCamera([successCallback, errorCallback])
 
@@ -527,157 +531,20 @@ function takePicture() {
 }
 ```
 
-# storeToFile
-
-When capturing large images you may want them to be stored into a file instead of having them
-base64 enconded, as enconding at least on Android is very expensive. With the feature storeToFile enabled
-the plugin will capture the image into a temporary file inside the application temporary cache (the same
-place where Cordova will extract your assets). This method is better used with *disableExifHeaderStripping* 
-to get the best possible performance.
-
-
-Example:
-
-```html
-<script src="https://raw.githubusercontent.com/blueimp/JavaScript-Load-Image/master/js/load-image.all.min.js"></script>
-
-<p><div id="originalPicture" style="width: 100%"></div></p>
-```
-
-```javascript
-let options = {
-  x: 0,
-  y: 0,
-  width: window.screen.width,
-  height: window.screen.height,
-  camera: CameraPreview.CAMERA_DIRECTION.BACK,
-  toBack: false,
-  tapPhoto: true,
-  tapFocus: false,
-  previewDrag: false,
-  disableExifHeaderStripping: true,
-  storeToFile: true
-};
-....
-
-function gotRotatedCanvas(canvasimg) {
-  var displayCanvas = $('canvas#display-canvas');
-  loadImage.scale(canvasimg, function(img){
-    displayCanvas.drawImage(img)
-  }, {
-    maxWidth: displayCanvas.width,
-    maxHeight: displayCanvas.height
-  });
-}
-
-CameraPreview.getSupportedPictureSizes(function(dimensions){
-  dimensions.sort(function(a, b){
-    return (b.width * b.height - a.width * a.height);
-  });
-  var dimension = dimensions[0];
-  CameraPreview.takePicture({width:dimension.width, height:dimension.height, quality: 85}, function(path){
-    var image = 'file://' + path;
-    let holder = document.getElementById('originalPicture');
-    let width = holder.offsetWidth;
-    loadImage(
-      image,
-      function(canvas) {
-        holder.innerHTML = "";
-        if (app.camera === 'front') {
-          // front camera requires we flip horizontally
-          canvas.style.transform = 'scale(1, -1)';
-        }
-        holder.appendChild(canvas);
-      },
-      {
-        maxWidth: width,
-        orientation: true,
-        canvas: true
-      }
-    );
-  });
-});
-```
-
-## disableExifHeaderStripping
-
-If you want to capture large images you will notice in Android that performace is very bad, in those cases you can set
-this flag, and add some extra Javascript/HTML to get a proper display of your captured images without risking your application speed.
-
-Example:
-
-```html
-<script src="https://raw.githubusercontent.com/blueimp/JavaScript-Load-Image/master/js/load-image.all.min.js"></script>
-
-<p><div id="originalPicture" style="width: 100%"></div></p>
-```
-
-```javascript
-let options = {
-  x: 0,
-  y: 0,
-  width: window.screen.width,
-  height: window.screen.height,
-  camera: CameraPreview.CAMERA_DIRECTION.BACK,
-  toBack: false,
-  tapPhoto: true,
-  tapFocus: false,
-  previewDrag: false,
-  disableExifHeaderStripping: true
-};
-....
-
-function gotRotatedCanvas(canvasimg) {
-  var displayCanvas = $('canvas#display-canvas');
-  loadImage.scale(canvasimg, function(img){
-    displayCanvas.drawImage(img)
-  }, {
-    maxWidth: displayCanvas.width,
-    maxHeight: displayCanvas.height
-  });
-}
-
-CameraPreview.getSupportedPictureSizes(function(dimensions){
-  dimensions.sort(function(a, b){
-    return (b.width * b.height - a.width * a.height);
-  });
-  var dimension = dimensions[0];
-  CameraPreview.takePicture({width:dimension.width, height:dimension.height, quality: 85}, function(base64PictureData){
-    /*
-      base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
-      Its up to the you to figure out the best way to save it to disk or whatever for your application.
-    */
-
-    var image = 'data:image/jpeg;base64,' + imgData;
-    let holder = document.getElementById('originalPicture');
-    let width = holder.offsetWidth;
-    loadImage(
-      image,
-      function(canvas) {
-        holder.innerHTML = "";
-        if (app.camera === 'front') {
-          // front camera requires we flip horizontally
-          canvas.style.transform = 'scale(1, -1)';
-        }
-        holder.appendChild(canvas);
-      },
-      {
-        maxWidth: width,
-        orientation: true,
-        canvas: true
-      }
-    );
-  });
-```
-
-### startRecordVideo(cb, [errorCallback])
+### startRecordVideo(options, cb, [errorCallback])
 
 *Currently this feature is for Android only. A PR for iOS support would be happily accepted*
 
 <info>Start recording video to the cache.</info><br/>
 
 ```javascript
-CameraPreview.startRecordVideo();
+CameraPreview.startRecordVideo({
+  cameraDirection: CameraPreview.CAMERA_DIRECTION.BACK,
+  width: (window.screen.width / 2),
+  height: (window.screen.height / 2),
+  quality: 60,
+  withFlash: false
+});
 ```
 
 ### stopRecordVideo(cb, [errorCallback])
