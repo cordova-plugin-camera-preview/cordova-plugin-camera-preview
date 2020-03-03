@@ -54,7 +54,8 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 ```
 
 #### iOS Quirks
-If you are developing for iOS 10+ you must also add the following to your config.xml
+1. It is not possible to use your computers webcam during testing in the simulator, you must device test.
+2. If you are developing for iOS 10+ you must also add the following to your config.xml
 
 ```xml
 <config-file platform="ios" target="*-Info.plist" parent="NSCameraUsageDescription" overwrite="true">
@@ -68,13 +69,19 @@ If you are developing for iOS 10+ you must also add the following to your config
 </gap:config-file>
 ```
 
-#### Android Quirks (older devices)
-When using the plugin for older devices, the camera preview will take the focus inside the app once initialized.
-In order to prevent the app from closing when a user presses the back button, the event for the camera view is disabled.
-If you still want the user to navigate, you can add a listener for the back event for the preview
-(see <code>[onBackButton](#onBackButton)</code>)
+#### Android Quirks
 
+1. When using the plugin for older devices, the camera preview will take the focus inside the app once initialized. In order to prevent the app from closing when a user presses the back button, the event for the camera view is disabled. If you still want the user to navigate, you can add a listener for the back event for the preview (see <code>[onBackButton](#onBackButton)</code>)
 
+2. The default `ANDROID_SUPPORT_LIBRARY_VERSION` is set to `26+`. If you need a different version, add argument `--variable ANDROID_SUPPORT_LIBRARY_VERSION="{version}"`. 
+
+OR edit `config.xml` with following,
+
+```xml
+<plugin name="cordova-plugin-camera-preview" spec="X.X.X">
+  <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="26+" />
+</plugin>
+```
 
 # Methods
 
@@ -538,12 +545,16 @@ function takePicture() {
 <info>Start recording video to the cache.</info><br/>
 
 ```javascript
-CameraPreview.startRecordVideo({
+var opt = {
   cameraDirection: CameraPreview.CAMERA_DIRECTION.BACK,
   width: (window.screen.width / 2),
   height: (window.screen.height / 2),
   quality: 60,
   withFlash: false
+}
+
+CameraPreview.startRecordVideo(opts, function(filePath){
+  console.log(filePath)    
 });
 ```
 
@@ -557,42 +568,6 @@ CameraPreview.startRecordVideo({
 CameraPreview.stopRecordVideo(function(filePath) {
   console.log(filePath);
 });
-```
-
-Example Characteristics:
-
-```
-{
-  "CAMERA_CHARACTERISTICS": [
-    {
-      "INFO_SUPPORTED_HARDWARE_LEVEL": 1,
-      "LENS_FACING": 1,
-      "SENSOR_INFO_PHYSICAL_SIZE_WIDTH": 5.644999980926514,
-      "SENSOR_INFO_PHYSICAL_SIZE_HEIGHT": 4.434999942779541,
-      "SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH": 4032,
-      "SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT": 3024,
-      "LENS_INFO_AVAILABLE_FOCAL_LENGTHS": [
-        {
-          "FOCAL_LENGTH": 4.199999809265137
-        }
-      ]
-    },
-
-    {
-      "INFO_SUPPORTED_HARDWARE_LEVEL": 0,
-      "LENS_FACING": 0,
-      "SENSOR_INFO_PHYSICAL_SIZE_WIDTH": 3.494999885559082,
-      "SENSOR_INFO_PHYSICAL_SIZE_HEIGHT": 2.625999927520752,
-      "SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH": 2608,
-      "SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT": 1960,
-      "LENS_INFO_AVAILABLE_FOCAL_LENGTHS": [
-        {
-          "FOCAL_LENGTH": 2.0999999046325684
-        }
-      ]
-    }
-  ]
-}
 ```
 
 # Settings
@@ -690,21 +665,6 @@ Note: Use AUTO to allow the device automatically adjusts the exposure once and t
 | SHADE | string | shade | |
 | TWILIGHT | string | twilight | |
 | WARM_FLUORESCENT | string | warm-fluorescent | |
-
-# IOS Quirks
-It is not possible to use your computers webcam during testing in the simulator, you must device test.
-
-# Customize Android Support Library versions (Android only)
-The default `ANDROID_SUPPORT_LIBRARY_VERSION` is set to `26+`.
-If you need a different version, add argument `--variable ANDROID_SUPPORT_LIBRARY_VERSION="{version}"`.
-
-Or edit `config.xml` with following,
-
-```xml
-<plugin name="cordova-plugin-camera-preview" spec="X.X.X">
-  <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="26+" />
-</plugin>
-```
 
 # Sample App
 
