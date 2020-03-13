@@ -81,16 +81,17 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
   private static final String [] permissions = {
     Manifest.permission.CAMERA
   };
+
   private static final String [] videoPermissions = {
     Manifest.permission.RECORD_AUDIO,
     Manifest.permission.WRITE_EXTERNAL_STORAGE
   };
+
   private CameraActivity fragment;
   private CallbackContext takePictureCallbackContext;
   private CallbackContext takeSnapshotCallbackContext;
   private CallbackContext startRecordVideoCallbackContext;
   private CallbackContext stopRecordVideoCallbackContext;
-  private CallbackContext switchCameraCallbackContext;
   private CallbackContext setFocusCallbackContext;
   private CallbackContext startCameraCallbackContext;
   private CallbackContext tapBackButtonContext  = null;
@@ -194,6 +195,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else if (GET_CAMERA_CHARACTERISTICS_ACTION.equals(action)) {
       return getCameraCharacteristics(callbackContext);
     }
+
     return false;
   }
 
@@ -205,11 +207,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         return;
       }
     }
-    if (requestCode == CAM_REQ_CODE) {
+
+    if(requestCode == CAM_REQ_CODE){
       startCamera(this.execArgs.getInt(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getString(4), this.execArgs.getBoolean(5), this.execArgs.getBoolean(6), this.execArgs.getBoolean(7), this.execArgs.getString(8), this.execArgs.getBoolean(9), this.execArgs.getBoolean(10), this.execArgs.getBoolean(11), this.execCallback);
-    }
-    else if(requestCode == VID_REQ_CODE){
-       startRecordVideo(this.execArgs.getString(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getBoolean(4),  this.execCallback);
+    }else if(requestCode == VID_REQ_CODE){
+      startRecordVideo(this.execArgs.getString(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getBoolean(4),  this.execCallback);
     }
   }
 
@@ -1089,17 +1091,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.switchCamera();
 
     callbackContext.success();
+
     return true;
-  }
-
-  public void onSwitchCameraSuccess() {
-    Log.d(TAG, "onSwitchCameraSuccess success");
-    switchCameraCallbackContext.success();
-  }
-
-  public void onSwitchCameraError(String err) {
-    Log.d(TAG, "onSwitchCameraError error");
-    switchCameraCallbackContext.error(err);
   }
 
   public boolean setBackButtonListener(CallbackContext callbackContext) {
