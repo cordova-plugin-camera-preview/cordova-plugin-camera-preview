@@ -69,8 +69,6 @@ public class CameraActivity extends Fragment {
     void onStartRecordVideoError(String message);
     void onStopRecordVideo(String file);
     void onStopRecordVideoError(String error);
-    void onSwitchCameraSuccess();
-    void onSwitchCameraError(String error);
   }
 
   private CameraPreviewListener eventListener;
