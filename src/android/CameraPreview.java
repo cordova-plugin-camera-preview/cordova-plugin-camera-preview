@@ -17,7 +17,6 @@ import android.util.Log;
 import android.util.Size;
 import android.util.SizeF;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -32,7 +31,7 @@ import org.json.JSONException;
 import java.util.List;
 import java.util.Arrays;
 
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
@@ -303,15 +302,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       public void run() {
 
         // The layout is only created on first call, and next times we reuse it
-        RelativeLayout containerView = cordova.getActivity().findViewById(containerViewId);
+        FrameLayout containerView = cordova.getActivity().findViewById(containerViewId);
         if (containerView == null) {
-          containerView = new RelativeLayout(cordova.getActivity().getApplicationContext());
+          containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
           containerView.setId(containerViewId);
 
-          containerView.setGravity(Gravity.CENTER);
-          RelativeLayout.LayoutParams containerLayoutParams = new RelativeLayout.LayoutParams(computedWidth,
-              computedHeight);
+          FrameLayout.LayoutParams containerLayoutParams = new FrameLayout.LayoutParams(computedWidth, computedHeight);
           containerLayoutParams.setMargins(computedX, computedY, 0, 0);
+          containerView.setLayoutParams(containerLayoutParams);
+
           // Get the parent view of the webview
           ViewGroup webViewParentGroup = (ViewGroup) webView.getView().getParent();
 
@@ -970,7 +969,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment = null;
 
     // Hide the layout because it is not destroyed
-    RelativeLayout containerView = cordova.getActivity().findViewById(containerViewId);
+    FrameLayout containerView = cordova.getActivity().findViewById(containerViewId);
     containerView.setBackgroundColor(Color.TRANSPARENT);
 
     callbackContext.success();
