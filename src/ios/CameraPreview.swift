@@ -87,14 +87,14 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 self.cameraRenderController.tapToFocus = tapToFocus
                 self.cameraRenderController.disableExifHeaderStripping = disableExifHeaderStripping
                 self.cameraRenderController.sessionManager = self.sessionManager
-                self.cameraRenderController.view.frame = CGRect(x: x, y: y, width: width, height: height)
+                self.cameraRenderController.view.frame = CGRect(x: x, y: y, width: width, height: height) // Relative to full screen
                 self.cameraRenderController.delegate = self
                 self.viewController.addChildViewController(self.cameraRenderController)
                 
                 // Add video preview layer
                 if let session = self.sessionManager?.session {
                     let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-                    previewLayer.frame = self.cameraRenderController.view.frame
+                    previewLayer.frame = CGRect(x: 0, y: 0, width: width, height: height) // Relative to cameraRenderController view
                     self.cameraRenderController.view.layer.addSublayer(previewLayer)
                 }
                 
