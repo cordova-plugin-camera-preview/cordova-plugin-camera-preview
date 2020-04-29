@@ -759,7 +759,7 @@
 
         CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
 
-        [pluginResult setKeepCallbackAsBool:true];
+        [pluginResult setKeepCallbackAsBool:self.cameraRenderController.tapToTakePicture];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
       }
     }];
