@@ -1,6 +1,7 @@
 # Changelog
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
+- [PR #605](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/605) - Improve memory usage when capturing multiple photos
 - [PR #599](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/599) - Use androidx package instead of legacy android support package
 - [PR #587](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/587) - Add video recording functionality for Android
 
