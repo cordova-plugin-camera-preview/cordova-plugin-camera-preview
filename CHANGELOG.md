@@ -1,11 +1,15 @@
 # Changelog
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
-- [PR #605](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/605) - Improve memory usage when capturing multiple photos
-- [PR #599](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/599) - Use androidx package instead of legacy android support package
-- [PR #587](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/587) - Add video recording functionality for Android
+- Nothing yet
 
-## v0.11.2 - February 12, 2020 - LATEST RELEASED VERSION
+## v0.12.0 - May 4, 2020 - LATEST RELEASED VERSION
+- [PR #605](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/605) - Improve memory usage when capturing multiple photos for both Android and iOS
+- [PR #587](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/587) - Add video recording functionality for Android
+- [PR #599](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/599) - Use androidx package instead of legacy android support package
+- [PR #606](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/606) - Remove `android:required` from manifest to avoid conflict with other plugins
+
+## v0.11.2 - February 12, 2020
 - [PR #582](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/582) - Add support for Android devices without Autofocus which can increase the amount of devices for which app installation is allowed by about (~4k at time of)
 - [PR #583](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/583) - Fix typescript error CameraPreview.d.ts is not a module 
 
