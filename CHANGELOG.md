@@ -1,7 +1,7 @@
 # Changelog
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
-- Nothing yet
+- [PR #615](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/615) - Correctly handle torch mode in getFlashMode
 
 ## v0.12.0 - May 4, 2020 - LATEST RELEASED VERSION
 - [PR #605](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/605) - Improve memory usage when capturing multiple photos for both Android and iOS
