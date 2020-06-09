@@ -353,6 +353,10 @@
   }
 }
 
+- (BOOL)isTorchActive {
+  return ([self.device hasTorch] && [self.device isTorchAvailable] && [self.device isTorchActive]);
+}
+
 - (void)setTorchMode {
   NSError *error = nil;
 

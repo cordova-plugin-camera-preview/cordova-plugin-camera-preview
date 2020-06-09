@@ -34,6 +34,7 @@
 - (void) updateOrientation:(AVCaptureVideoOrientation)orientation;
 - (void) tapToFocus:(CGFloat)xPoint yPoint:(CGFloat)yPoint;
 - (void) takePictureOnFocus;
+- (BOOL) isTorchActive;
 - (void) setTorchMode;
 - (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation;
 
