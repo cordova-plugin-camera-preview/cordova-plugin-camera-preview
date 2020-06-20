@@ -416,6 +416,14 @@ CameraPreview.setExposureCompensation(3);
 CameraPreview.setPreviewSize({width: window.screen.width, height: window.screen.height});
 ```
 
+### setPreviewDimensions([dimensions, successCallback, errorCallback])
+
+<info>Change the position and size of the preview window.</info><br/>
+
+```javascript
+CameraPreview.setPreviewDimensions({x: 0, y: 0, width: window.screen.width, height: window.screen.height});
+```
+
 ### getSupportedPictureSizes(cb, [errorCallback])
 
 ```javascript
