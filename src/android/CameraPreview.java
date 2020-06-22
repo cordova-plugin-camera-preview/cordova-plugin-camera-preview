@@ -870,7 +870,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Camera camera = fragment.getCamera();
     Camera.Parameters params = camera.getParameters();
 
-    params.setPreviewDimensions(width, height);
+    params.setPreviewSize(width, height);
     fragment.setCameraParameters(params);
     camera.startPreview();
 
