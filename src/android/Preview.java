@@ -108,6 +108,7 @@ class Preview extends RelativeLayout implements SurfaceHolder.Callback {
       case Surface.ROTATION_270:
         degrees = 270;
         break;
+    }
 
     facing = info.facing;
 
