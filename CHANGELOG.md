@@ -1,6 +1,7 @@
 # Changelog
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
+- [#624](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/issues/624) - Remove unused coefficient argument from the `calculateTapArea` method of the Android code
 - [#619](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/619) - Fix compiler errors in startRecordVideo by declaring final variables
 - [#615](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/615) - Correctly handle torch mode in getFlashMode
 

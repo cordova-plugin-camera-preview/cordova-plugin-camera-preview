@@ -811,13 +811,12 @@ public class CameraActivity extends Fragment {
 
       Camera.Parameters parameters = mCamera.getParameters();
 
-      Rect focusRect = calculateTapArea(pointX, pointY, 1f);
+      Rect focusRect = calculateTapArea(pointX, pointY);
       parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
       parameters.setFocusAreas(Arrays.asList(new Camera.Area(focusRect, 1000)));
 
       if (parameters.getMaxNumMeteringAreas() > 0) {
-        Rect meteringRect = calculateTapArea(pointX, pointY, 1.5f);
-        parameters.setMeteringAreas(Arrays.asList(new Camera.Area(meteringRect, 1000)));
+        parameters.setMeteringAreas(Arrays.asList(new Camera.Area(focusRect, 1000)));
       }
 
       try {
@@ -830,7 +829,7 @@ public class CameraActivity extends Fragment {
     }
   }
 
-  private Rect calculateTapArea(float x, float y, float coefficient) {
+  private Rect calculateTapArea(float x, float y) {
     if (x < 100) {
       x = 100;
     }
