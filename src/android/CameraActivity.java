@@ -37,7 +37,7 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import androidx.exifinterface.media.ExifInterface;
+import android.support.media.ExifInterface;
 
 import org.apache.cordova.LOG;
 

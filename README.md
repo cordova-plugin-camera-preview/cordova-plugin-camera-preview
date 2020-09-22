@@ -73,6 +73,16 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 
 1. When using the plugin for older devices, the camera preview will take the focus inside the app once initialized. In order to prevent the app from closing when a user presses the back button, the event for the camera view is disabled. If you still want the user to navigate, you can add a listener for the back event for the preview (see <code>[onBackButton](#onBackButton)</code>)
 
+2. The default `ANDROID_SUPPORT_LIBRARY_VERSION` is set to `26+`. If you need a different version, add argument `--variable ANDROID_SUPPORT_LIBRARY_VERSION="{version}"`. 
+
+OR edit `config.xml` with following,
+
+```xml
+<plugin name="cordova-plugin-camera-preview" spec="X.X.X">
+  <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="26+" />
+</plugin>
+```
+
 # Methods
 
 ### startCamera(options, [successCallback, errorCallback])
