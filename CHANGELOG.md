@@ -1,11 +1,14 @@
 # Changelog
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
+- Nothing yet
+
+## v0.12.1 - Oct 21, 2020 - LATEST RELEASED VERSIO
 - [#624](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/issues/624) - Remove unused coefficient argument from the `calculateTapArea` method of the Android code
 - [#619](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/619) - Fix compiler errors in startRecordVideo by declaring final variables
 - [#615](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/615) - Correctly handle torch mode in getFlashMode
 
-## v0.12.0 - May 4, 2020 - LATEST RELEASED VERSION
+## v0.12.0 - May 4, 2020
 - [#605](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/605) - Improve memory usage when capturing multiple photos for both Android and iOS
 - [#587](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/587) - Add video recording functionality for Android
 - [#599](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/599) - Use androidx package instead of legacy android support package
