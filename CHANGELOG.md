@@ -1,7 +1,7 @@
 # Changelog
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
-- Nothing yet
+- [#630](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/630) - For Android, make both camera and autofocus non-required for the library. This is an application level concern.
 
 ## v0.12.1 - Oct 21, 2020 - LATEST RELEASED VERSIO
 - [#624](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/issues/624) - Remove unused coefficient argument from the `calculateTapArea` method of the Android code
