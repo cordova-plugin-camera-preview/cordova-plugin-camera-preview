@@ -682,63 +682,67 @@ public class CameraActivity extends Fragment {
 
   public void startRecord(final String filePath, final String camera, final int width, final int height, final int quality, final boolean withFlash){
     Log.d(TAG, "CameraPreview startRecord camera: " + camera + " width: " + width + ", height: " + height + ", quality: " + quality);
-    Activity activity = getActivity();
-    muteStream(true, activity);
-    if (this.mRecordingState == RecordingState.STARTED) {
-      Log.d(TAG, "Already Recording");
-      return;
-    }
+    if(mCamera != null) {
+      Activity activity = getActivity();
+      muteStream(true, activity);
+      if (this.mRecordingState == RecordingState.STARTED) {
+        Log.d(TAG, "Already Recording");
+        return;
+      }
 
-    this.recordFilePath = filePath;
-    int mOrientationHint = calculateOrientationHint();
-    int videoWidth = 0;//set whatever
-    int videoHeight = 0;//set whatever
+      this.recordFilePath = filePath;
+      int mOrientationHint = calculateOrientationHint();
+      int videoWidth = 0;//set whatever
+      int videoHeight = 0;//set whatever
 
-    Camera.Parameters cameraParams = mCamera.getParameters();
-    if (withFlash) {
-      cameraParams.setFlashMode(withFlash ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
-      mCamera.setParameters(cameraParams);
-      mCamera.startPreview();
-    }
+      Camera.Parameters cameraParams = mCamera.getParameters();
+      if (withFlash) {
+        cameraParams.setFlashMode(withFlash ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
+        mCamera.setParameters(cameraParams);
+        mCamera.startPreview();
+      }
 
-    mCamera.unlock();
-    mRecorder = new MediaRecorder();
+      mCamera.unlock();
+      mRecorder = new MediaRecorder();
 
-    try {
-      mRecorder.setCamera(mCamera);
+      try {
+        mRecorder.setCamera(mCamera);
 
-      CamcorderProfile profile;
-      if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_HIGH)) {
-        profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_HIGH);
-      } else {
-        if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_480P)) {
-          profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_480P);
+        CamcorderProfile profile;
+        if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_HIGH)) {
+          profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_HIGH);
         } else {
-          if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_720P)) {
-            profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_720P);
+          if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_480P)) {
+            profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_480P);
           } else {
-            if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_1080P)) {
-              profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_1080P);
+            if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_720P)) {
+              profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_720P);
             } else {
-              profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_LOW);
+              if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_1080P)) {
+                profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_1080P);
+              } else {
+                profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_LOW);
+              }
             }
           }
         }
+
+
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
+        mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mRecorder.setProfile(profile);
+        mRecorder.setOutputFile(filePath);
+        mRecorder.setOrientationHint(mOrientationHint);
+
+        mRecorder.prepare();
+        Log.d(TAG, "Starting recording");
+        mRecorder.start();
+        eventListener.onStartRecordVideo();
+      } catch (IOException e) {
+        eventListener.onStartRecordVideoError(e.getMessage());
       }
-
-
-      mRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
-      mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-      mRecorder.setProfile(profile);
-      mRecorder.setOutputFile(filePath);
-      mRecorder.setOrientationHint(mOrientationHint);
-
-      mRecorder.prepare();
-      Log.d(TAG, "Starting recording");
-      mRecorder.start();
-      eventListener.onStartRecordVideo();
-    } catch (IOException e) {
-      eventListener.onStartRecordVideoError(e.getMessage());
+    } else {
+      Log.d(TAG, "Requiring RECORD_AUDIO permission to continue");
     }
   }
 
