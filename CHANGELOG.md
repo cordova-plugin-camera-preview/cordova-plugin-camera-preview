@@ -1,6 +1,7 @@
 # Changelog
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
+- [#639](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/639) - Typescript definition fix
 - [#633](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/633) - Fix app crash with `startRecordVideo` after allowing the `RECORD_AUDIO` permission prompt.
 - [#630](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/630) - For Android, make both camera and autofocus non-required for the library. This is an application level concern.
 
