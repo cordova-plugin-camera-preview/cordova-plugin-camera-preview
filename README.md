@@ -543,7 +543,7 @@ var opt = {
   withFlash: false
 }
 
-CameraPreview.startRecordVideo(opts, function(filePath){
+CameraPreview.startRecordVideo(opt, function(filePath){
   console.log(filePath)    
 });
 ```
