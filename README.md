@@ -535,7 +535,7 @@ function takePicture() {
 <info>Start recording video to the cache.</info><br/>
 
 ```javascript
-var opt = {
+var opts = {
   cameraDirection: CameraPreview.CAMERA_DIRECTION.BACK,
   width: (window.screen.width / 2),
   height: (window.screen.height / 2),
