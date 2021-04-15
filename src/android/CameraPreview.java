@@ -342,7 +342,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
           }else{
             // Default
             webViewParent = curParent;
-            ((ViewGroup)view).bringToFront();
+            ((ViewGroup)curParent).bringToFront();
           }
 
         }else{
