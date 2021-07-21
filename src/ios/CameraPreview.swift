@@ -15,6 +15,7 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     var withExifInfos = false
     var captureVideoOrientation: AVCaptureVideoOrientation?
     let dateFormatterForPhotoExif: DateFormatter = DateFormatter()
+    var startCameraInProgress = false
     
     override func pluginInitialize() {
         // start as transparent
@@ -37,6 +38,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
     // 12 options.storageDirectory]
     @objc func startCamera(_ command: CDVInvokedUrlCommand) {
         print("--> startCamera")
+        
+        self.startCameraInProgress = true
         
         // Check if camera usage permission is granted in privacy settings. User only has to accept once.
         checkDeviceAuthorizationStatus({(_ granted: Bool) -> Void in
@@ -114,6 +117,8 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                 self.sessionManager.delegate = self.cameraRenderController
                 self.sessionManager.setupSession(defaultCamera as? String, completion: {(_ started: Bool, _ error: String?) -> Void in
                     if started {
+                        print("--> camera started")
+                        self.startCameraInProgress = false
                         self.commandDelegate.send(CDVPluginResult(status: CDVCommandStatus_OK), callbackId: command.callbackId)
                     }
                 })
@@ -134,10 +139,24 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
             cameraRenderController = nil
         }
         
+        guard self.startCameraInProgress == false else {
+            print("--> startCamera in progress")
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "startCamera in progress")
+            self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+            return
+        }
+        
         commandDelegate.run(inBackground: {() -> Void in
             guard self.sessionManager != nil else {
                 print("--> Camera not started")
                 let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Camera not started")
+                self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
+                return
+            }
+            
+            guard self.startCameraInProgress == false else {
+                print("--> startCamera in progress")
+                let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "startCamera in progress")
                 self.commandDelegate.send(pluginResult, callbackId: command.callbackId)
                 return
             }
@@ -154,8 +173,6 @@ class CameraPreview: CDVPlugin, TakePictureDelegate, FocusDelegate {
                     self.sessionManager.session?.removeOutput(output)
                 }
             }
-            
-            self.sessionManager.session?.stopRunning()
             
             if self.sessionManager != nil {
                 self.sessionManager.delegate = nil;
