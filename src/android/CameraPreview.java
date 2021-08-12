@@ -388,7 +388,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     data.put(originalPicture);
 
     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
-    pluginResult.setKeepCallback(true);
+    pluginResult.setKeepCallback(false);
     takeSnapshotCallbackContext.sendPluginResult(pluginResult);
     takeSnapshotCallbackContext = null;
   }
