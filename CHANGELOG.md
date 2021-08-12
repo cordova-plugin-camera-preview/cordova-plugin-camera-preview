@@ -1,7 +1,11 @@
 # Changelog
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
-- [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.2...master)
+- [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.3...master)
+- Nothing yet
+
+## v0.12.3 - Aug 11, 2021 - LATEST RELEASED VERSION
+- [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.2...v0.12.3)
 - [#654](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/654) - Fix memory leak when taking multiple snapshots
 
 ## v0.12.2 - Apr 15, 2021 - LATEST RELEASED VERSION
