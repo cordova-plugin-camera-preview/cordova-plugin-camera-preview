@@ -37,6 +37,7 @@
     BOOL tapToFocus = (BOOL) [command.arguments[9] boolValue];
     BOOL disableExifHeaderStripping = (BOOL) [command.arguments[10] boolValue]; // ignore Android only
     self.storeToFile = (BOOL) [command.arguments[11] boolValue];
+    self.disableShutterSound = (BOOL) [command.arguments[12] boolValue]; // ignore Android only
 
     // Create the session manager
     self.sessionManager = [[CameraSessionManager alloc] init];

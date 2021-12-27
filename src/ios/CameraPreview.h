@@ -47,5 +47,6 @@
 @property (nonatomic) CameraRenderController *cameraRenderController;
 @property (nonatomic) NSString *onPictureTakenHandlerId;
 @property (nonatomic) BOOL storeToFile;
+@property (nonatomic) BOOL disableShutterSound;
 
 @end
