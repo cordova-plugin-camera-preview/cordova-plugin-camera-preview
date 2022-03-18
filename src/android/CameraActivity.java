@@ -647,12 +647,12 @@ public class CameraActivity extends Fragment {
 		});
 	}
 
-	public void takePicture(final int width, final int height, final int quality){
+	public boolean takePicture(final int width, final int height, final int quality){
 		Log.d(TAG, "CameraPreview takePicture width: " + width + ", height: " + height + ", quality: " + quality);
 
 		if(mPreview != null) {
 			if(!canTakePicture){
-				return;
+				return false;
 			}
 
 			canTakePicture = false;
@@ -681,6 +681,8 @@ public class CameraActivity extends Fragment {
 		} else {
 			canTakePicture = true;
 		}
+
+		return true;
 	}
 
 	public void startRecord(final String filePath, final String camera, final int width, final int height, final int quality, final boolean withFlash){
