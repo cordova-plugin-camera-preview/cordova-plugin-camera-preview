@@ -1,6 +1,7 @@
 package com.cordovaplugincamerapreview;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -72,6 +73,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 	private static final String SET_WHITE_BALANCE_MODE_ACTION = "setWhiteBalanceMode";
 	private static final String SET_BACK_BUTTON_CALLBACK = "onBackButton";
 	private static final String GET_CAMERA_CHARACTERISTICS_ACTION = "getCameraCharacteristics";
+	private static final String CAN_DISABLE_SHUTTER_SOUND = "checkCanDisableShutterSound";
 
 	private static final int CAM_REQ_CODE = 0;
 	private static final int VID_REQ_CODE = 1;
@@ -194,6 +196,8 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 			return getSupportedColorEffects(callbackContext);
 		} else if (GET_CAMERA_CHARACTERISTICS_ACTION.equals(action)) {
 			return getCameraCharacteristics(callbackContext);
+		} else if (CAN_DISABLE_SHUTTER_SOUND.equals(action)) {
+			return checkCanDisableShutterSound(callbackContext);
 		}
 
 		return false;
@@ -1130,38 +1134,38 @@ private boolean getHorizontalFOV(CallbackContext callbackContext) {
 			for (String cameraId : cManager.getCameraIdList()) {
 				CameraCharacteristics characteristics = cManager.getCameraCharacteristics(cameraId);
 
-	JSONObject cameraData = new JSONObject();
+				JSONObject cameraData = new JSONObject();
 
-	// INFO_SUPPORTED_HARDWARE_LEVEL
-	Integer supportLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-	cameraData.put("INFO_SUPPORTED_HARDWARE_LEVEL", supportLevel);
+				// INFO_SUPPORTED_HARDWARE_LEVEL
+				Integer supportLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+				cameraData.put("INFO_SUPPORTED_HARDWARE_LEVEL", supportLevel);
 
-	// LENS_FACING
-	Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-	cameraData.put("LENS_FACING", lensFacing);
+				// LENS_FACING
+				Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+				cameraData.put("LENS_FACING", lensFacing);
 
-	// SENSOR_INFO_PHYSICAL_SIZE
-	SizeF sensorInfoPhysicalSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
-	cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_WIDTH", new Double(sensorInfoPhysicalSize.getWidth()));
-	cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_HEIGHT", new Double(sensorInfoPhysicalSize.getHeight()));
+				// SENSOR_INFO_PHYSICAL_SIZE
+				SizeF sensorInfoPhysicalSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE);
+				cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_WIDTH", new Double(sensorInfoPhysicalSize.getWidth()));
+				cameraData.put("SENSOR_INFO_PHYSICAL_SIZE_HEIGHT", new Double(sensorInfoPhysicalSize.getHeight()));
 
-	// SENSOR_INFO_PIXEL_ARRAY_SIZE
-	Size sensorInfoPixelSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
-	cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH", new Integer(sensorInfoPixelSize.getWidth()));
-	cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT", new Integer(sensorInfoPixelSize.getHeight()));
+				// SENSOR_INFO_PIXEL_ARRAY_SIZE
+				Size sensorInfoPixelSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
+				cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_WIDTH", new Integer(sensorInfoPixelSize.getWidth()));
+				cameraData.put("SENSOR_INFO_PIXEL_ARRAY_SIZE_HEIGHT", new Integer(sensorInfoPixelSize.getHeight()));
 
-	// LENS_INFO_AVAILABLE_FOCAL_LENGTHS
-	float[] focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
-	JSONArray focalLengthsArray = new JSONArray();
-	for (int focusId=0; focusId<focalLengths.length; focusId++) {
-		JSONObject focalLengthsData = new JSONObject();
-		focalLengthsData.put("FOCAL_LENGTH", new Double(focalLengths[focusId]));
-		focalLengthsArray.put(focalLengthsData);
-	}
-	cameraData.put("LENS_INFO_AVAILABLE_FOCAL_LENGTHS", focalLengthsArray);
+				// LENS_INFO_AVAILABLE_FOCAL_LENGTHS
+				float[] focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
+				JSONArray focalLengthsArray = new JSONArray();
+				for (int focusId=0; focusId<focalLengths.length; focusId++) {
+					JSONObject focalLengthsData = new JSONObject();
+					focalLengthsData.put("FOCAL_LENGTH", new Double(focalLengths[focusId]));
+					focalLengthsArray.put(focalLengthsData);
+				}
+				cameraData.put("LENS_INFO_AVAILABLE_FOCAL_LENGTHS", focalLengthsArray);
 
-	// add camera data to result list
-	cameraCharacteristicsArray.put(cameraData);
+				// add camera data to result list
+				cameraCharacteristicsArray.put(cameraData);
 			}
 
 			data.put("CAMERA_CHARACTERISTICS", cameraCharacteristicsArray);
@@ -1173,6 +1177,32 @@ private boolean getHorizontalFOV(CallbackContext callbackContext) {
 		}
 
 		callbackContext.success(data);
+		return true;
+	}
+
+	private boolean checkCanDisableShutterSound(CallbackContext callbackContext) {
+		boolean canDisable = false;
+
+		try {
+			int numberOfCameras = Camera.getNumberOfCameras();
+
+			// Find the ID of the default camera
+			Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+			for (int i = 0; i < numberOfCameras; i++) {
+				Camera.getCameraInfo(i, cameraInfo);
+
+				canDisable = cameraInfo.canDisableShutterSound;
+				if (!canDisable) break;
+			}
+
+			JSONObject data = new JSONObject();
+			data.put("canDisable", canDisable);
+
+			callbackContext.success(data);
+		} catch (Exception e){
+			callbackContext.error(e.getMessage());
+		}
+
 		return true;
 	}
 

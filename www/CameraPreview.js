@@ -280,6 +280,10 @@ CameraPreview.stopRecordVideo = function (onSuccess, onError) {
 	exec(onSuccess, onError, PLUGIN_NAME, "stopRecordVideo");
 };
 
+CameraPreview.checkCanDisableShutterSound = function(success, error){
+	exec(success, error, PLUGIN_NAME, "checkCanDisableShutterSound");
+};
+
 CameraPreview.FOCUS_MODE = {
 	FIXED: 'fixed',
 	AUTO: 'auto',
