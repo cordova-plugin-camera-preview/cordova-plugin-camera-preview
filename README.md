@@ -656,13 +656,11 @@ Note: Use AUTO to allow the device automatically adjusts the exposure once and t
 | TWILIGHT | string | twilight | |
 | WARM_FLUORESCENT | string | warm-fluorescent | |
 
-# Sample App
+# Plugin Demo App
 
-<a href="https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview-sample-app">cordova-plugin-camera-preview-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
+To test the plugin, you can [try the demo app](https://github.com/andreszs/cordova-plugin-demos/tree/main/com.andreszs.camera.preview.demo "try the demo app") by Andres Zsögön. Pre compiled [Android APK](https://www.andreszsogon.com/cordova-camera-preview-plugin-demo/ "Android APK") also available.
 
-# Screenshots
-
-<img src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-1.png"/> <img hspace="20" src="https://raw.githubusercontent.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/master/img/android-2.png"/>
+![Screenshot-1](https://github.com/andreszs/cordova-plugin-demos/blob/main/com.andreszs.camera.preview.demo/screenshots/cordova.camera.preview.demo.2.jpg?raw=true) ![Screenshot-2](https://github.com/andreszs/cordova-plugin-demos/blob/main/com.andreszs.camera.preview.demo/screenshots/cordova.camera.preview.demo.3.jpg?raw=true)
 
 # Credits
 
