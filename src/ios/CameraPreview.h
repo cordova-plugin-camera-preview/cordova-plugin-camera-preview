@@ -49,23 +49,3 @@
 @property (nonatomic) BOOL storeToFile;
 
 @end
-
-// get all subViews recursively
-// UIView+viewRecursion.h
-@interface UIView (viewRecursion)
-- (NSMutableArray*) allSubViews;
-@end
-
-// UIView+viewRecursion.m
-@implementation UIView (viewRecursion)
-- (NSMutableArray*)allSubViews
-{
-   NSMutableArray *arr = [NSMutableArray array];
-   [arr addObject:self];
-   for (UIView *subview in self.subviews)
-   {
-     [arr addObjectsFromArray:(NSArray*)[subview allSubViews]];
-   }
-   return arr;
-}
-@end
