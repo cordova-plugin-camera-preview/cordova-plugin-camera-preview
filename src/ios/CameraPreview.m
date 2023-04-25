@@ -471,7 +471,7 @@
             NSMutableArray *params = [[NSMutableArray alloc] init];
             [params addObject:base64Image];
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
-            [pluginResult setKeepCallbackAsBool:true];
+            [pluginResult setKeepCallbackAsBool:false];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         });
     } else {
