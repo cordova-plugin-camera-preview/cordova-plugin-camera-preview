@@ -138,7 +138,12 @@ public class CameraActivity extends Fragment {
 
 			//set box position and size
 			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
-			layoutParams.setMargins(x, y, 0, 0);
+			Configuration configuration = view.getContext().getResources().getConfiguration();
+			if(configuration.getLayoutDirection() == LayoutDirection.RTL){
+				layoutParams.setMargins(0, y, x, 0);
+			} else {
+				layoutParams.setMargins(x, y, 0, 0);
+			}
 			frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
 			frameContainerLayout.setLayoutParams(layoutParams);
 
