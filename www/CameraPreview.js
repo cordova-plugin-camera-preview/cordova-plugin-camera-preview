@@ -1,6 +1,6 @@
 var argscheck = require('cordova/argscheck'),
-    utils = require('cordova/utils'),
-    exec = require('cordova/exec');
+  utils = require('cordova/utils'),
+  exec = require('cordova/exec');
 
 var PLUGIN_NAME = "CameraPreview";
 
@@ -30,7 +30,7 @@ CameraPreview.startCamera = function(options, onSuccess, onError) {
     options.tapPhoto = true;
   }
 
-  if (typeof (options.tapFocus) == 'undefined') {
+  if (typeof(options.tapFocus) == 'undefined') {
     options.tapFocus = false;
   }
 
@@ -45,20 +45,21 @@ CameraPreview.startCamera = function(options, onSuccess, onError) {
   options.disableExifHeaderStripping = options.disableExifHeaderStripping || false;
 
   options.storeToFile = options.storeToFile || false;
-
+  options.storageDirectory = options.storageDirectory || null;
   exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [
-    options.x, 
-    options.y, 
-    options.width, 
-    options.height, 
-    options.camera, 
-    options.tapPhoto, 
-    options.previewDrag, 
-    options.toBack, 
-    options.alpha, 
-    options.tapFocus, 
-    options.disableExifHeaderStripping, 
-    options.storeToFile
+    options.x,
+    options.y,
+    options.width,
+    options.height,
+    options.camera,
+    options.tapPhoto,
+    options.previewDrag,
+    options.toBack,
+    options.alpha,
+    options.tapFocus,
+    options.disableExifHeaderStripping,
+    options.storeToFile,
+    options.storageDirectory
   ]);
 };
 
@@ -116,7 +117,17 @@ CameraPreview.takePicture = function(opts, onSuccess, onError) {
     opts.quality = 85;
   }
 
-  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [opts.width, opts.height, opts.quality]);
+  var coords = opts.position ? opts.position.coords : {
+    latitude: 0,
+    longitude: 0,
+    altitude: 0
+  };
+  var timestamp = opts.position ? opts.position.timestamp : 0;
+  var trueHeading = opts.compassHeading ? opts.compassHeading.trueHeading : null;
+  var magneticHeading = opts.compassHeading ? opts.compassHeading.magneticHeading : null;
+  var software = opts.software ? opts.software : 'BeMyCam';
+
+  exec(onSuccess, onError, PLUGIN_NAME, "takePicture", [opts.width, opts.height, opts.quality, coords.latitude, coords.longitude, coords.altitude, timestamp, trueHeading, magneticHeading, software]);
 };
 
 CameraPreview.setColorEffect = function(effect, onSuccess, onError) {
@@ -227,7 +238,7 @@ CameraPreview.onBackButton = function(onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
 };
 
-CameraPreview.getBlob = function (url, onSuccess, onError) {
+CameraPreview.getBlob = function(url, onSuccess, onError) {
   var xhr = new XMLHttpRequest
   xhr.onload = function() {
     if (xhr.status != 0 && (xhr.status < 200 || xhr.status >= 300)) {
@@ -236,7 +247,9 @@ CameraPreview.getBlob = function (url, onSuccess, onError) {
       }
       return;
     }
-    var blob = new Blob([xhr.response], {type: "image/jpeg"});
+    var blob = new Blob([xhr.response], {
+      type: "image/jpeg"
+    });
     if (isFunction(onSuccess)) {
       onSuccess(blob);
     }
@@ -251,7 +264,7 @@ CameraPreview.getBlob = function (url, onSuccess, onError) {
   xhr.send(null);
 };
 
-CameraPreview.startRecordVideo = function (opts, onSuccess, onError) {
+CameraPreview.startRecordVideo = function(opts, onSuccess, onError) {
   if (!opts) {
     opts = {};
   } else if (isFunction(opts)) {
@@ -273,7 +286,7 @@ CameraPreview.startRecordVideo = function (opts, onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "startRecordVideo", [opts.cameraDirection, opts.width, opts.height, opts.quality, opts.withFlash]);
 };
 
-CameraPreview.stopRecordVideo = function (onSuccess, onError) {
+CameraPreview.stopRecordVideo = function(onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "stopRecordVideo");
 };
 

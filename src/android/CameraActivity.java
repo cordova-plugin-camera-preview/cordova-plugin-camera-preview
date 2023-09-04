@@ -18,6 +18,8 @@ import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -52,12 +54,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 public class CameraActivity extends Fragment {
 
   public interface CameraPreviewListener {
-    void onPictureTaken(String originalPicture);
+    void onPictureTaken(String originalPicture, int width, int height, int orientation);
     void onPictureTakenError(String message);
     void onSnapshotTaken(String originalPicture);
     void onSnapshotTakenError(String message);
@@ -95,7 +99,21 @@ public class CameraActivity extends Fragment {
   public boolean tapToFocus;
   public boolean disableExifHeaderStripping;
   public boolean storeToFile;
+  public String storageDirectory;
   public boolean toBack;
+
+  public Double latitude;
+  public Double longitude;
+  public Double altitude;
+  public Long timestamp;
+  public Double trueHeading;
+  public Double magneticHeading;
+  public String software;
+  public boolean withExifInfos;
+  public int screenRotation = 0;
+
+  private SensorManager sensorManager;
+  private Sensor sensor;
 
   public int width;
   public int height;
@@ -430,18 +448,101 @@ public class CameraActivity extends Fragment {
   }
 
   private String getTempDirectoryPath() {
-    File cache = null;
+    File dir = null;
 
     // Use internal storage
-    cache = getActivity().getCacheDir();
+    dir = getActivity().getExternalFilesDir(null);
 
     // Create the cache directory if it doesn't exist
-    cache.mkdirs();
-    return cache.getAbsolutePath();
+    dir.mkdirs();
+    return dir.getAbsolutePath();
   }
 
   private String getTempFilePath() {
-    return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+    if (storageDirectory != null) {
+      return storageDirectory + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+    } else {
+      return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+    }
+  }
+  
+  /**
+   * This will write exif information to image file.
+   *
+   * @param exif
+   */
+  private void writeExifInfos(ExifInterface exif) {
+
+    Log.d(TAG, "writeExifInfos");
+
+    try {
+
+      double absoluteValueLatitude = Math.abs(latitude);
+      double absoluteValueLongitude = Math.abs(longitude);
+
+      // Converts latitude in degrees minutes seconds
+      int degreesLatitude = (int) Math.floor(absoluteValueLatitude);
+      int minutesLatitude = (int) Math.floor((absoluteValueLatitude - degreesLatitude) * 60);
+      double secondsLatitude = (absoluteValueLatitude - (degreesLatitude + ((double) minutesLatitude / 60))) * 3600000;
+
+      // Converts latitude in degrees minutes seconds
+      int degreesLongitude = (int) Math.floor(absoluteValueLongitude);
+      int minutesLongitude = (int) Math.floor((absoluteValueLongitude - degreesLongitude) * 60);
+      double secondsLongitude = (absoluteValueLongitude - (degreesLongitude + ((double) minutesLongitude / 60))) * 3600000;
+
+      String exifLatitude = degreesLatitude + "/1," + minutesLatitude + "/1," + secondsLatitude + "/1000";
+      String exifLongitude = degreesLongitude + "/1," + minutesLongitude + "/1," + secondsLongitude + "/1000";
+
+      if (latitude > 0) {
+        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "N");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "S");
+      }
+
+      if (longitude > 0) {
+        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "E");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "W");
+      }
+
+      exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, exifLatitude);
+      exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, exifLongitude);
+
+      if (altitude > 0) {
+        exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "0");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "1");
+      }
+      exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, String.valueOf(Math.abs(altitude)) + "/1");
+
+      Date gpsDate = new Date(timestamp);
+      SimpleDateFormat gpsDateStampFormater = new SimpleDateFormat("yyyy:MM:dd", Locale.getDefault());
+      SimpleDateFormat gpsTimeStampFormater = new SimpleDateFormat("kk:mm:ss", Locale.getDefault());
+
+      gpsDateStampFormater.setTimeZone(TimeZone.getTimeZone("UTC"));
+      gpsTimeStampFormater.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+      exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, gpsDateStampFormater.format(gpsDate));
+      exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, gpsTimeStampFormater.format(gpsDate));
+
+      if (trueHeading != Double.NaN || magneticHeading != Double.NaN) {
+        if (trueHeading == Double.NaN || trueHeading < 0) {
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION, String.valueOf(magneticHeading) + "/1");
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "M");
+        } else {
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION, String.valueOf(trueHeading) + "/1");
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "T");
+        }
+      }
+
+      exif.setAttribute(ExifInterface.TAG_SOFTWARE, software);
+
+      exif.saveAttributes();
+    }
+    catch (IOException e) {
+      Log.e("BeMyEyeCamera", "Could not wirte exif :\n" + e);
+      eventListener.onPictureTakenError("Picture too large (memory)");
+    }
   }
 
   PictureCallback jpegPictureCallback = new PictureCallback(){
@@ -449,6 +550,8 @@ public class CameraActivity extends Fragment {
       Log.d(TAG, "CameraPreview jpegPictureCallback");
 
       try {
+        Log.d(TAG, "RotateImageIfNecessary");
+        ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
         if (!disableExifHeaderStripping) {
           Matrix matrix = new Matrix();
           if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT) {
@@ -456,6 +559,7 @@ public class CameraActivity extends Fragment {
           }
 
           ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
+
           int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
           int rotationInDegrees = exifToDegrees(rotation);
 
@@ -473,17 +577,27 @@ public class CameraActivity extends Fragment {
             data = outputStream.toByteArray();
           }
         }
+        int width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 500);
+        int height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 500);
+        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
 
         if (!storeToFile) {
           String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
 
-          eventListener.onPictureTaken(encodedImage);
+          eventListener.onPictureTaken(encodedImage, width, height, orientation);
         } else {
           String path = getTempFilePath();
           FileOutputStream out = new FileOutputStream(path);
           out.write(data);
           out.close();
-          eventListener.onPictureTaken(path);
+          
+          if (withExifInfos) {
+            Log.d(TAG, "about to withExifInfos");
+            ExifInterface exif = new ExifInterface(path);
+            writeExifInfos(exif);
+            withExifInfos = false;
+          }
+          eventListener.onPictureTaken(path, width, height, orientation);
         }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
       } catch (OutOfMemoryError e) {

@@ -112,7 +112,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     if (START_CAMERA_ACTION.equals(action)) {
       if (cordova.hasPermission(permissions[0])) {
-        return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4), args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), args.getBoolean(9), args.getBoolean(10), args.getBoolean(11), callbackContext);
+        return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4), args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), args.getBoolean(9), args.getBoolean(10), args.getBoolean(11), args.getString(12), callbackContext);
       } else {
         this.execCallback = callbackContext;
         this.execArgs = args;
@@ -120,7 +120,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         return true;
       }
     } else if (TAKE_PICTURE_ACTION.equals(action)) {
-      return takePicture(args.getInt(0), args.getInt(1), args.getInt(2), callbackContext);
+      return takePicture(args.getInt(0), args.getInt(1), args.getInt(2), args.optDouble(3), args.optDouble(4), args.optDouble(5), args.optLong(6), args.optDouble(7), args.optDouble(8), args.getString(9), callbackContext);
     } else if (TAKE_SNAPSHOT_ACTION.equals(action)) {
       return takeSnapshot(args.getInt(0), callbackContext);
     }else if (START_RECORD_VIDEO_ACTION.equals(action)) {
@@ -209,7 +209,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }
 
     if(requestCode == CAM_REQ_CODE){
-      startCamera(this.execArgs.getInt(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getString(4), this.execArgs.getBoolean(5), this.execArgs.getBoolean(6), this.execArgs.getBoolean(7), this.execArgs.getString(8), this.execArgs.getBoolean(9), this.execArgs.getBoolean(10), this.execArgs.getBoolean(11), this.execCallback);
+      startCamera(this.execArgs.getInt(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getString(4), this.execArgs.getBoolean(5), this.execArgs.getBoolean(6), this.execArgs.getBoolean(7), this.execArgs.getString(8), this.execArgs.getBoolean(9), this.execArgs.getBoolean(10), this.execArgs.getBoolean(11), this.execArgs.getString(12), this.execCallback);
     }else if(requestCode == VID_REQ_CODE){
       startRecordVideo(this.execArgs.getString(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getBoolean(4),  this.execCallback);
     }
@@ -268,7 +268,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, boolean tapFocus, boolean disableExifHeaderStripping, boolean storeToFile, CallbackContext callbackContext) {
+  private boolean startCamera(int x, int y, int width, int height, String defaultCamera, Boolean tapToTakePicture, Boolean dragEnabled, final Boolean toBack, String alpha, boolean tapFocus, boolean disableExifHeaderStripping, boolean storeToFile, String storageDirectory, CallbackContext callbackContext) {
     Log.d(TAG, "start camera action");
 
     if (fragment != null) {
@@ -286,6 +286,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     fragment.tapToFocus = tapFocus;
     fragment.disableExifHeaderStripping = disableExifHeaderStripping;
     fragment.storeToFile = storeToFile;
+    fragment.storageDirectory = storageDirectory;
     fragment.toBack = toBack;
 
     DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
@@ -399,26 +400,39 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     takeSnapshotCallbackContext = null;
   }
 
-  private boolean takePicture(int width, int height, int quality, CallbackContext callbackContext) {
+  private boolean takePicture(int width, int height, int quality, Double latitude, Double longitude, Double altitude, Long timestamp, Double trueHeading, Double magneticHeading, String software, CallbackContext callbackContext) {
     if(this.hasView(callbackContext) == false){
       return true;
     }
+    setExifInfos(latitude, longitude, altitude, timestamp, trueHeading, magneticHeading, software);
     takePictureCallbackContext = callbackContext;
 
+    Log.d(TAG, "takePicture action");
     fragment.takePicture(width, height, quality);
 
     return true;
   }
 
-  public void onPictureTaken(String originalPicture) {
-    Log.d(TAG, "returning picture");
+  public void onPictureTaken(String originalPicture, int width, int height, int orientation) {
+    Log.d(TAG, "returning picture" + originalPicture);
 
-    JSONArray data = new JSONArray();
-    data.put(originalPicture);
+    try {
+      //JSONArray data = new JSONArray();
+      JSONObject data = new JSONObject();
+      data.put("filePath", originalPicture);
+      data.put("width", width);
+      data.put("height", height);
+      data.put("orientation", orientation);
 
-    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
-    pluginResult.setKeepCallback(fragment.tapToTakePicture);
-    takePictureCallbackContext.sendPluginResult(pluginResult);
+      PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
+      pluginResult.setKeepCallback(true);
+      takePictureCallbackContext.sendPluginResult(pluginResult);
+    } catch (JSONException e) {
+      Log.d(TAG, "onPictureTaken exception");
+      PluginResult pluginResult = new PluginResult(PluginResult.Status.ERROR);
+      pluginResult.setKeepCallback(true);
+      takePictureCallbackContext.sendPluginResult(pluginResult);
+    }
   }
 
   public void onPictureTakenError(String message) {
@@ -1062,7 +1076,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  public void onFocusSet(final int pointX, final int pointY) {
+  public boolean onFocusSet(final int pointX, final int pointY) {
     Log.d(TAG, "Focus set, returning coordinates");
 
     JSONObject data = new JSONObject();
@@ -1170,6 +1184,18 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     callbackContext.success(data);
     return true;
+  }
+
+  private void setExifInfos(Double latitude, Double longitude, Double altitude, Long timestamp, Double trueHeading, Double magneticHeading, String software, CallbackContext callbackContext) {
+    Log.d(TAG, "setExifInfos action");
+    fragment.latitude = latitude;
+    fragment.longitude = longitude;
+    fragment.altitude = altitude;
+    fragment.timestamp = timestamp;
+    fragment.trueHeading = trueHeading;
+    fragment.magneticHeading = magneticHeading;
+    fragment.software = software;
+    fragment.withExifInfos = true;
   }
 
 }
