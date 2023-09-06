@@ -1076,7 +1076,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  public boolean onFocusSet(final int pointX, final int pointY) {
+  public void onFocusSet(final int pointX, final int pointY) {
     Log.d(TAG, "Focus set, returning coordinates");
 
     JSONObject data = new JSONObject();
@@ -1186,7 +1186,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  private void setExifInfos(Double latitude, Double longitude, Double altitude, Long timestamp, Double trueHeading, Double magneticHeading, String software, CallbackContext callbackContext) {
+  private void setExifInfos(Double latitude, Double longitude, Double altitude, Long timestamp, Double trueHeading, Double magneticHeading, String software) {
     Log.d(TAG, "setExifInfos action");
     fragment.latitude = latitude;
     fragment.longitude = longitude;
