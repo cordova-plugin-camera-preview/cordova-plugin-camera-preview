@@ -398,6 +398,16 @@
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void) setExifInfos:(CDVInvokedUrlCommand*)command {
+  NSNumber latitude = 25.354;
+  NSNumber longitude = 10.123;
+
+  self.exifInfos["latitude"] = latitude
+  self.exifInfos["longitude"] = longitude
+
+  self.withExifInfos = true
+}
+
 - (void) getExposureCompensationRange:(CDVInvokedUrlCommand*)command {
   CDVPluginResult *pluginResult;
 
