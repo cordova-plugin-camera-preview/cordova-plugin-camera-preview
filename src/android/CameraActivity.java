@@ -558,8 +558,6 @@ public class CameraActivity extends Fragment {
             matrix.preScale(1.0f, -1.0f);
           }
 
-          ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
-
           int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
           int rotationInDegrees = exifToDegrees(rotation);
 
