@@ -693,6 +693,9 @@
 
       if (error) {
         NSLog(@"%@", error);
+		CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error description]];
+        [pluginResult setKeepCallbackAsBool:self.cameraRenderController.tapToTakePicture];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
       } else {
 
         NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
