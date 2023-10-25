@@ -1019,6 +1019,10 @@ private boolean getHorizontalFOV(CallbackContext callbackContext) {
 		fragment = null;
 
 		callbackContext.success();
+		// takePicture callback will not be triggered after camera is stopped if takePicture is still in progress
+		if(takePictureCallbackContext != null && !takePictureCallbackContext.isFinished()){
+			onPictureTakenError("Camera stopped");
+		}
 		return true;
 	}
 
