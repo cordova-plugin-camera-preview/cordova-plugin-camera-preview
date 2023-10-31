@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Handler;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -32,6 +33,7 @@ import org.json.JSONException;
 import java.io.File;
 import java.util.List;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
@@ -82,11 +84,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     Manifest.permission.CAMERA
   };
 
-  private static final String [] videoPermissions = {
-    Manifest.permission.RECORD_AUDIO,
-    Manifest.permission.WRITE_EXTERNAL_STORAGE
-  };
-
   private CameraActivity fragment;
   private CallbackContext takePictureCallbackContext;
   private CallbackContext takeSnapshotCallbackContext;
@@ -124,7 +121,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     } else if (TAKE_SNAPSHOT_ACTION.equals(action)) {
       return takeSnapshot(args.getInt(0), callbackContext);
     }else if (START_RECORD_VIDEO_ACTION.equals(action)) {
-      if ( cordova.hasPermission(videoPermissions[0]) && cordova.hasPermission(videoPermissions[1])) {
+      String[] videoPermissions = getPermissions();
+
+      if ( cordova.hasPermission(videoPermissions[0]) && cordova.hasPermission(videoPermissions[1]) && cordova.hasPermission(videoPermissions[2])) {
         return startRecordVideo(args.getString(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getBoolean(4), callbackContext);
       } else {
         this.execCallback = callbackContext;
@@ -1172,4 +1171,20 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
+  private String[] getPermissions() {
+    ArrayList<String> permissions = new ArrayList<>();
+
+    permissions.add(Manifest.permission.CAMERA);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      permissions.add(Manifest.permission.READ_MEDIA_IMAGES);
+      permissions.add(Manifest.permission.READ_MEDIA_VIDEO);
+    } else {
+      // Android API 32 or lower
+      permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+      permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+
+    return permissions.toArray(new String[0]);
+  }
 }
