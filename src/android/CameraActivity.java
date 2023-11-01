@@ -696,8 +696,23 @@ public class CameraActivity extends Fragment {
       int videoHeight = 0;//set whatever
 
       Camera.Parameters cameraParams = mCamera.getParameters();
-      if (false) {
-        cameraParams.setFlashMode(withFlash ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
+      if (withFlash) {
+        List<String> flashModes = cameraParams.getSupportedFlashModes();
+
+        if (flashModes != null) {
+          Log.d(TAG, "Enabling flash on device");
+
+          if (flashModes.contains(Camera.Parameters.FLASH_MODE_TORCH)) {
+            cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+          } else if (flashModes.contains(Camera.Parameters.FLASH_MODE_ON)) {
+            cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+          } else if (flashModes.contains(Camera.Parameters.FLASH_MODE_AUTO)) {
+            cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+          }
+        } else {
+          Log.d(TAG, "Flash not supported on device");
+        }
+
         mCamera.setParameters(cameraParams);
         mCamera.startPreview();
       }
