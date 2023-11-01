@@ -123,7 +123,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     }else if (START_RECORD_VIDEO_ACTION.equals(action)) {
       String[] videoPermissions = getPermissions();
 
-      if ( cordova.hasPermission(videoPermissions[0]) && cordova.hasPermission(videoPermissions[1]) && cordova.hasPermission(videoPermissions[2])) {
+      if (cordova.hasPermission(videoPermissions[0]) && cordova.hasPermission(videoPermissions[1]) && cordova.hasPermission(videoPermissions[2]) && cordova.hasPermission(videoPermissions[3])) {
         return startRecordVideo(args.getString(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getBoolean(4), callbackContext);
       } else {
         this.execCallback = callbackContext;
@@ -1171,10 +1171,11 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     return true;
   }
 
-  private String[] getPermissions() {
+  private String[] getVideoPermissions() {
     ArrayList<String> permissions = new ArrayList<>();
 
     permissions.add(Manifest.permission.CAMERA);
+    permissions.add(Manifest.permission.RECORD_AUDIO);
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       permissions.add(Manifest.permission.READ_MEDIA_IMAGES);
