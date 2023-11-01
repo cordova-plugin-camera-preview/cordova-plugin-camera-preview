@@ -738,8 +738,21 @@ public class CameraActivity extends Fragment {
         Log.d(TAG, "Starting recording");
         mRecorder.start();
         eventListener.onStartRecordVideo();
-      } catch (IOException e) {
-        eventListener.onStartRecordVideoError(e.getMessage());
+      } catch (IOException ioException) {
+        Log.e(TAG, "Recording failed, file issue", ioException);
+        eventListener.onStartRecordVideoError(ioException.getMessage());
+
+        mRecorder = null;
+      } catch (IllegalStateException stateException) {
+        Log.e(TAG, "Recording failed, audio/video may be in use by another application", stateException);
+        eventListener.onStartRecordVideoError("Failed to start recording, your audio or video may be in use by another application");
+
+        mRecorder = null;
+      } catch (Exception exception) {
+        Log.e(TAG, "Recording failed, unknown", exception);
+        eventListener.onStartRecordVideoError(exception.getMessage());
+
+        mRecorder = null;
       }
     } else {
       Log.d(TAG, "Requiring RECORD_AUDIO permission to continue");
