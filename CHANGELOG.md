@@ -2,13 +2,16 @@
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.3...master)
+- [#689](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/689) - Improve error handling for Android
+- [#688](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/688) - Fix exceptions thrown around flash types when calling setParameters on Android. We now check supported flash mode types and only enable the modes that are found.
+- [#687](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/687) - Add Android 33+ required permissions for media image and media video permissions
 - [#676](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/676) - Ensure `toBack` behaves correctly on Android
 
 ## v0.12.3 - Aug 11, 2021 - LATEST RELEASED VERSION
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.2...v0.12.3)
 - [#654](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/654) - Fix memory leak when taking multiple snapshots
 
-## v0.12.2 - Apr 15, 2021 - LATEST RELEASED VERSION
+## v0.12.2 - Apr 15, 2021
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.1...v0.12.2)
 - [#639](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/639) - Typescript definition fix
 - [#633](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/633) - Fix app crash with `startRecordVideo` after allowing the `RECORD_AUDIO` permission prompt.
