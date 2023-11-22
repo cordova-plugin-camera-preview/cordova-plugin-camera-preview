@@ -686,92 +686,98 @@
 }
 
 - (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(CGFloat) quality{
-    AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
-    [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
+	self.takePictureWidth = width;
+	self.takePictureHeight = height;
+	self.takePictureQuality = quality;
+	[self.sessionManager.stillImageOutput capturePhotoWithSettings:[AVCapturePhotoSettings photoSettings] delegate:self];
+}
 
-      NSLog(@"Done creating still image");
+- (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhoto:(AVCapturePhoto *)photo error:(NSError *)error {
+  CGFloat width = self.takePictureWidth;
+  CGFloat height = self.takePictureHeight;
+  CGFloat quality = self.takePictureQuality;
+  NSLog(@"Done creating still image");
 
-      if (error) {
-        NSLog(@"%@", error);
-		CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error description]];
-        [pluginResult setKeepCallbackAsBool:self.cameraRenderController.tapToTakePicture];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
-      } else {
+  if (error) {
+	NSLog(@"%@", error);
+	CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error description]];
+	[pluginResult setKeepCallbackAsBool:self.cameraRenderController.tapToTakePicture];
+	[self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
+  } else {
 
-        NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
-        UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
+	NSData *imageData = [photo fileDataRepresentation];
+	UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
 
-        CIImage *capturedCImage;
-        //image resize
+	CIImage *capturedCImage;
+	//image resize
 
-        if(width > 0 && height > 0){
-          CGFloat scaleHeight = width/capturedImage.size.height;
-          CGFloat scaleWidth = height/capturedImage.size.width;
-          CGFloat scale = scaleHeight > scaleWidth ? scaleWidth : scaleHeight;
+	if(width > 0 && height > 0){
+	  CGFloat scaleHeight = width/capturedImage.size.height;
+	  CGFloat scaleWidth = height/capturedImage.size.width;
+	  CGFloat scale = scaleHeight > scaleWidth ? scaleWidth : scaleHeight;
 
-          CIFilter *resizeFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
-          [resizeFilter setValue:[[CIImage alloc] initWithCGImage:[capturedImage CGImage]] forKey:kCIInputImageKey];
-          [resizeFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputAspectRatio"];
-          [resizeFilter setValue:[NSNumber numberWithFloat:scale] forKey:@"inputScale"];
-          capturedCImage = [resizeFilter outputImage];
-        }else{
-          capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
-        }
+	  CIFilter *resizeFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+	  [resizeFilter setValue:[[CIImage alloc] initWithCGImage:[capturedImage CGImage]] forKey:kCIInputImageKey];
+	  [resizeFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputAspectRatio"];
+	  [resizeFilter setValue:[NSNumber numberWithFloat:scale] forKey:@"inputScale"];
+	  capturedCImage = [resizeFilter outputImage];
+	}else{
+	  capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
+	}
 
-        CIImage *imageToFilter;
-        CIImage *finalCImage;
+	CIImage *imageToFilter;
+	CIImage *finalCImage;
 
-        //fix front mirroring
-        if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
-          CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
-          imageToFilter = [capturedCImage imageByApplyingTransform:matrix];
-        } else {
-          imageToFilter = capturedCImage;
-        }
+	//fix front mirroring
+	if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
+	  CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
+	  imageToFilter = [capturedCImage imageByApplyingTransform:matrix];
+	} else {
+	  imageToFilter = capturedCImage;
+	}
 
-        CIFilter *filter = [self.sessionManager ciFilter];
-        if (filter != nil) {
-          [self.sessionManager.filterLock lock];
-          [filter setValue:imageToFilter forKey:kCIInputImageKey];
-          finalCImage = [filter outputImage];
-          [self.sessionManager.filterLock unlock];
-        } else {
-          finalCImage = imageToFilter;
-        }
+	CIFilter *filter = [self.sessionManager ciFilter];
+	if (filter != nil) {
+	  [self.sessionManager.filterLock lock];
+	  [filter setValue:imageToFilter forKey:kCIInputImageKey];
+	  finalCImage = [filter outputImage];
+	  [self.sessionManager.filterLock unlock];
+	} else {
+	  finalCImage = imageToFilter;
+	}
 
-        CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
-        UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
+	CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
+	UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
 
-        double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
-        CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
+	double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
+	CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
 
-        CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
+	CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
 
-        CDVPluginResult *pluginResult;
-        if (self.storeToFile) {
-          NSData *data = UIImageJPEGRepresentation([UIImage imageWithCGImage:resultFinalImage], (CGFloat) quality);
-          NSString* filePath = [self getTempFilePath:@"jpg"];
-          NSError *err;
+	CDVPluginResult *pluginResult;
+	if (self.storeToFile) {
+	  NSData *data = UIImageJPEGRepresentation([UIImage imageWithCGImage:resultFinalImage], (CGFloat) quality);
+	  NSString* filePath = [self getTempFilePath:@"jpg"];
+	  NSError *err;
 
-          if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
-          }
-          else {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[NSURL fileURLWithPath:filePath] absoluteString]];
-          }
-        } else {
-          NSMutableArray *params = [[NSMutableArray alloc] init];
-          NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
-          [params addObject:base64Image];
-          pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
-        }
+	  if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
+		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
+	  }
+	  else {
+		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[NSURL fileURLWithPath:filePath] absoluteString]];
+	  }
+	} else {
+	  NSMutableArray *params = [[NSMutableArray alloc] init];
+	  NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
+	  [params addObject:base64Image];
+	  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
+	}
 
-        CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
+	CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
 
-        [pluginResult setKeepCallbackAsBool:self.cameraRenderController.tapToTakePicture];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
-      }
-    }];
+	[pluginResult setKeepCallbackAsBool:self.cameraRenderController.tapToTakePicture];
+	[self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
+  }
 }
 
 - (NSString*)getTempDirectoryPath

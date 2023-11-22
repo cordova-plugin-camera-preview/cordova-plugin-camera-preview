@@ -47,7 +47,7 @@
 @property (nonatomic) CGFloat videoZoomFactor;
 @property (nonatomic) AVCaptureDevice *device;
 @property (nonatomic) AVCaptureDeviceInput *videoDeviceInput;
-@property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
+@property (nonatomic) AVCapturePhotoOutput *stillImageOutput;
 @property (nonatomic) AVCaptureVideoDataOutput *dataOutput;
 @property (nonatomic, assign) id delegate;
 @property (nonatomic) NSString *currentWhiteBalanceMode;

@@ -5,7 +5,7 @@
 #import "CameraSessionManager.h"
 #import "CameraRenderController.h"
 
-@interface CameraPreview : CDVPlugin <TakePictureDelegate, FocusDelegate>
+@interface CameraPreview : CDVPlugin <TakePictureDelegate, FocusDelegate, AVCapturePhotoCaptureDelegate>
 
 - (void) startCamera:(CDVInvokedUrlCommand*)command;
 - (void) stopCamera:(CDVInvokedUrlCommand*)command;
@@ -48,5 +48,8 @@
 @property (nonatomic) NSString *onPictureTakenHandlerId;
 @property (nonatomic) BOOL storeToFile;
 @property (nonatomic) BOOL disableShutterSound;
+@property (nonatomic) CGFloat takePictureWidth;
+@property (nonatomic) CGFloat takePictureHeight;
+@property (nonatomic) CGFloat takePictureQuality;
 
 @end
