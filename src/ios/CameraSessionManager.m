@@ -723,4 +723,10 @@
   return nil;
 }
 
+- (AVCapturePhotoSettings*) captureSettings {
+	AVCapturePhotoSettings* settings = [AVCapturePhotoSettings photoSettings];
+	settings.flashMode = self.defaultFlashMode;
+	return settings;
+}
+
 @end

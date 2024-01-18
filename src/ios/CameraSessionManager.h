@@ -37,6 +37,7 @@
 - (BOOL) isTorchActive;
 - (void) setTorchMode;
 - (AVCaptureVideoOrientation) getCurrentOrientation:(UIInterfaceOrientation)toInterfaceOrientation;
+- (AVCapturePhotoSettings*) captureSettings;
 
 @property (atomic) CIFilter *ciFilter;
 @property (nonatomic) NSLock *filterLock;

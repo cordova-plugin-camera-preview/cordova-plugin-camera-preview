@@ -689,7 +689,8 @@
 	self.takePictureWidth = width;
 	self.takePictureHeight = height;
 	self.takePictureQuality = quality;
-	[self.sessionManager.stillImageOutput capturePhotoWithSettings:[AVCapturePhotoSettings photoSettings] delegate:self];
+	AVCapturePhotoSettings* settings = [self.sessionManager captureSettings];
+	[self.sessionManager.stillImageOutput capturePhotoWithSettings:settings delegate:self];
 }
 
 - (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhoto:(AVCapturePhoto *)photo error:(NSError *)error {
