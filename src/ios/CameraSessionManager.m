@@ -147,6 +147,8 @@
 
       [self updateOrientation:[self getCurrentOrientation]];
       self.device = videoDevice;
+      
+      [self.session startRunning];
 
       completion(success);
   });
@@ -215,6 +217,8 @@
       [self updateOrientation:[self getCurrentOrientation]];
       [self.session commitConfiguration];
       self.device = videoDevice;
+      
+      [self.session startRunning];
 
       completion(success);
   });
