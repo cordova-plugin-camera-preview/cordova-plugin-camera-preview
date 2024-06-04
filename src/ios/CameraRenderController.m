@@ -161,7 +161,7 @@
   if ([self.renderLock tryLock]) {
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
     CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-
+    dispatch_async(dispatch_get_main_queue(), ^{
 
     CGFloat scaleHeight = self.view.frame.size.height/image.extent.size.height;
     CGFloat scaleWidth = self.view.frame.size.width/image.extent.size.width;
@@ -216,6 +216,7 @@
     [self.context presentRenderbuffer:GL_RENDERBUFFER];
     [(GLKView *)(self.view)display];
     [self.renderLock unlock];
+	});
   }
 }
 

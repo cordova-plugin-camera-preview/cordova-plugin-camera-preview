@@ -93,6 +93,8 @@
   // If this fails, video input will just stream blank frames and the user will be notified. User only has to accept once.
   [self checkDeviceAuthorizationStatus];
 
+  dispatch_async(dispatch_get_main_queue(), ^{
+  AVCaptureVideoOrientation currentOrientation = [self getCurrentOrientation];
   dispatch_async(self.sessionQueue, ^{
       NSError *error = nil;
       BOOL success = TRUE;
@@ -145,12 +147,13 @@
         [self.session addOutput:dataOutput];
       }
 
-      [self updateOrientation:[self getCurrentOrientation]];
+      [self updateOrientation:currentOrientation];
       self.device = videoDevice;
       
       [self.session startRunning];
 
       completion(success);
+  });
   });
 }
 
@@ -177,6 +180,8 @@
     self.defaultCamera = AVCaptureDevicePositionFront;
   }
 
+  dispatch_async(dispatch_get_main_queue(), ^{
+  AVCaptureVideoOrientation currentOrientation = [self getCurrentOrientation];
   dispatch_async([self sessionQueue], ^{
       NSError *error = nil;
       BOOL success = TRUE;
@@ -214,13 +219,14 @@
         [self setVideoDeviceInput:videoDeviceInput];
       }
 
-      [self updateOrientation:[self getCurrentOrientation]];
+      [self updateOrientation:currentOrientation];
       [self.session commitConfiguration];
       self.device = videoDevice;
       
       [self.session startRunning];
 
       completion(success);
+  });
   });
 }
 
