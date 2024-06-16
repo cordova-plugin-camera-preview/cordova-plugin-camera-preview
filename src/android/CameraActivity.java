@@ -302,6 +302,7 @@ public class CameraActivity extends Fragment {
   public void onResume() {
     super.onResume();
 
+    try {
     mCamera = Camera.open(defaultCameraId);
 
     if (cameraParameters != null) {
@@ -312,7 +313,10 @@ public class CameraActivity extends Fragment {
 
     if (mPreview.mPreviewSize == null) {
       mPreview.setCamera(mCamera, cameraCurrentlyLocked);
-      eventListener.onCameraStarted();
+
+      if (eventListener != null) {
+        eventListener.onCameraStarted();
+      }
     } else {
       mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
       mCamera.startPreview();
@@ -343,6 +347,9 @@ public class CameraActivity extends Fragment {
           }
         }
       });
+    }
+    } catch (Exception e) {
+      // catch Exception java.lang.RuntimeException: Fail to connect to camera service
     }
   }
 
@@ -649,6 +656,9 @@ public class CameraActivity extends Fragment {
   }
 
   public void takeSnapshot(final int quality) {
+    if (mCamera == null) {
+      return;
+    }
     mCamera.setPreviewCallback(new Camera.PreviewCallback() {
       @Override
       public void onPreviewFrame(byte[] bytes, Camera camera) {
@@ -693,6 +703,7 @@ public class CameraActivity extends Fragment {
 
       new Thread() {
         public void run() {
+          try {
           Camera.Parameters params = mCamera.getParameters();
 
           Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(),
@@ -711,6 +722,10 @@ public class CameraActivity extends Fragment {
 
           mCamera.setParameters(params);
           mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
+
+          } catch (Exception e) {
+            // prevent Exception java.lang.RuntimeException: takePicture failed
+          }
         }
       }.start();
     } else {
