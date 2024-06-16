@@ -58,16 +58,27 @@ public class CameraActivity extends Fragment {
 
   public interface CameraPreviewListener {
     void onPictureTaken(String originalPicture);
+
     void onPictureTakenError(String message);
+
     void onSnapshotTaken(String originalPicture);
+
     void onSnapshotTakenError(String message);
+
     void onFocusSet(int pointX, int pointY);
+
     void onFocusSetError(String message);
+
     void onBackButton();
+
     void onCameraStarted();
+
     void onStartRecordVideo();
+
     void onStartRecordVideoError(String message);
+
     void onStopRecordVideo(String file);
+
     void onStopRecordVideoError(String error);
   }
 
@@ -102,13 +113,15 @@ public class CameraActivity extends Fragment {
   public int x;
   public int y;
 
-  private enum RecordingState {INITIALIZING, STARTED, STOPPED}
+  private enum RecordingState {
+    INITIALIZING, STARTED, STOPPED
+  }
 
   private RecordingState mRecordingState = RecordingState.INITIALIZING;
   private MediaRecorder mRecorder = null;
   private String recordFilePath;
 
-  public void setEventListener(CameraPreviewListener listener){
+  public void setEventListener(CameraPreviewListener listener) {
     eventListener = listener;
   }
 
@@ -119,44 +132,49 @@ public class CameraActivity extends Fragment {
     appResourcesPackage = getActivity().getPackageName();
 
     // Inflate the layout for this fragment
-    view = inflater.inflate(getResources().getIdentifier("camera_activity", "layout", appResourcesPackage), container, false);
+    view = inflater.inflate(getResources().getIdentifier("camera_activity", "layout", appResourcesPackage), container,
+        false);
     createCameraPreview();
     return view;
   }
 
-  public void setRect(int x, int y, int width, int height){
+  public void setRect(int x, int y, int width, int height) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
   }
 
-  private void createCameraPreview(){
-    if(mPreview == null) {
+  private void createCameraPreview() {
+    if (mPreview == null) {
       setDefaultCameraId();
 
-      //set box position and size
+      // set box position and size
       FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
       layoutParams.setMargins(x, y, 0, 0);
-      frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
+      frameContainerLayout = (FrameLayout) view
+          .findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
       frameContainerLayout.setLayoutParams(layoutParams);
 
-      //video view
+      // video view
       mPreview = new Preview(getActivity());
-      mainLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("video_view", "id", appResourcesPackage));
-      mainLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+      mainLayout = (FrameLayout) view
+          .findViewById(getResources().getIdentifier("video_view", "id", appResourcesPackage));
+      mainLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+          RelativeLayout.LayoutParams.MATCH_PARENT));
       mainLayout.addView(mPreview);
       mainLayout.setEnabled(false);
 
-        if(toBack == false) {
-            this.setupTouchAndBackButton();
-        }
+      if (toBack == false) {
+        this.setupTouchAndBackButton();
+      }
 
     }
   }
 
-  private void setupTouchAndBackButton(){
-    final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
+  private void setupTouchAndBackButton() {
+    final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(),
+        new TapGestureDetector());
 
     getActivity().runOnUiThread(new Runnable() {
       @Override
@@ -172,7 +190,6 @@ public class CameraActivity extends Fragment {
           @Override
           public boolean onTouch(View v, MotionEvent event) {
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) frameContainerLayout.getLayoutParams();
-
 
             boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
             if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
@@ -263,11 +280,12 @@ public class CameraActivity extends Fragment {
     });
   }
 
-  private void setDefaultCameraId(){
+  private void setDefaultCameraId() {
     // Find the total number of cameras available
     numberOfCameras = Camera.getNumberOfCameras();
 
-    int facing = "front".equals(defaultCamera) ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
+    int facing = "front".equals(defaultCamera) ? Camera.CameraInfo.CAMERA_FACING_FRONT
+        : Camera.CameraInfo.CAMERA_FACING_BACK;
 
     // Find the ID of the default camera
     Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
@@ -292,7 +310,7 @@ public class CameraActivity extends Fragment {
 
     cameraCurrentlyLocked = defaultCameraId;
 
-    if(mPreview.mPreviewSize == null){
+    if (mPreview.mPreviewSize == null) {
       mPreview.setCamera(mCamera, cameraCurrentlyLocked);
       eventListener.onCameraStarted();
     } else {
@@ -302,7 +320,8 @@ public class CameraActivity extends Fragment {
 
     Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
 
-    final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
+    final FrameLayout frameContainerLayout = (FrameLayout) view
+        .findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
 
     ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
 
@@ -314,9 +333,11 @@ public class CameraActivity extends Fragment {
           frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
           Activity activity = getActivity();
           if (isAdded() && activity != null) {
-            final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
+            final RelativeLayout frameCamContainerLayout = (RelativeLayout) view
+                .findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
 
-            FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
+            FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(),
+                frameContainerLayout.getHeight());
             camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
             frameCamContainerLayout.setLayoutParams(camViewLayout);
           }
@@ -329,7 +350,8 @@ public class CameraActivity extends Fragment {
   public void onPause() {
     super.onPause();
 
-    // Because the Camera object is a shared resource, it's very important to release it when the activity is paused.
+    // Because the Camera object is a shared resource, it's very important to
+    // release it when the activity is paused.
     if (mCamera != null) {
       setDefaultCameraId();
       mPreview.setCamera(null, -1);
@@ -352,8 +374,8 @@ public class CameraActivity extends Fragment {
 
     // check for availability of multiple cameras
     if (numberOfCameras == 1) {
-      //There is only one camera available
-    }else{
+      // There is only one camera available
+    } else {
       Log.d(TAG, "numberOfCameras: " + numberOfCameras);
 
       // OK, we have multiple cameras. Release this camera -> cameraCurrentlyLocked
@@ -381,11 +403,16 @@ public class CameraActivity extends Fragment {
         // Check for flashMode as well to prevent error on frontward facing camera.
         List<String> supportedFlashModesNewCamera = mCamera.getParameters().getSupportedFlashModes();
         String currentFlashModePreviousCamera = cameraParameters.getFlashMode();
-        if (supportedFlashModesNewCamera != null && supportedFlashModesNewCamera.contains(currentFlashModePreviousCamera)) {
+        if (supportedFlashModesNewCamera != null
+            && supportedFlashModesNewCamera.contains(currentFlashModePreviousCamera)) {
           Log.d(TAG, "current flash mode supported on new camera. setting params");
-         /* mCamera.setParameters(cameraParameters);
-            The line above is disabled because parameters that can actually be changed are different from one device to another. Makes less sense trying to reconfigure them when changing camera device while those settings gan be changed using plugin methods.
-         */
+          /*
+           * mCamera.setParameters(cameraParameters);
+           * The line above is disabled because parameters that can actually be changed
+           * are different from one device to another. Makes less sense trying to
+           * reconfigure them when changing camera device while those settings gan be
+           * changed using plugin methods.
+           */
         } else {
           Log.d(TAG, "current flash mode NOT supported on new camera");
         }
@@ -408,24 +435,30 @@ public class CameraActivity extends Fragment {
     }
   }
 
-  public boolean hasFrontCamera(){
-    return getActivity().getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
+  public boolean hasFrontCamera() {
+    return getActivity().getApplicationContext().getPackageManager()
+        .hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
   }
 
   public static Bitmap applyMatrix(Bitmap source, Matrix matrix) {
     return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
   }
 
-  ShutterCallback shutterCallback = new ShutterCallback(){
-    public void onShutter(){
-      // do nothing, availabilty of this callback causes default system shutter sound to work
+  ShutterCallback shutterCallback = new ShutterCallback() {
+    public void onShutter() {
+      // do nothing, availabilty of this callback causes default system shutter sound
+      // to work
     }
   };
 
   private static int exifToDegrees(int exifOrientation) {
-    if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
-    else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
-    else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
+    if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+      return 90;
+    } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+      return 180;
+    } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+      return 270;
+    }
     return 0;
   }
 
@@ -441,11 +474,12 @@ public class CameraActivity extends Fragment {
   }
 
   private String getTempFilePath() {
-    return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
+    return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8)
+        + ".jpg";
   }
 
-  PictureCallback jpegPictureCallback = new PictureCallback(){
-    public void onPictureTaken(byte[] data, Camera arg1){
+  PictureCallback jpegPictureCallback = new PictureCallback() {
+    public void onPictureTaken(byte[] data, Camera arg1) {
       Log.d(TAG, "CameraPreview jpegPictureCallback");
 
       try {
@@ -503,14 +537,16 @@ public class CameraActivity extends Fragment {
     }
   };
 
-  private Camera.Size getOptimalPictureSize(final int width, final int height, final Camera.Size previewSize, final List<Camera.Size> supportedSizes){
+  private Camera.Size getOptimalPictureSize(final int width, final int height, final Camera.Size previewSize,
+      final List<Camera.Size> supportedSizes) {
     /*
-      get the supportedPictureSize that:
-      - matches exactly width and height
-      - has the closest aspect ratio to the preview aspect ratio
-      - has picture.width and picture.height closest to width and height
-      - has the highest supported picture width and height up to 2 Megapixel if width == 0 || height == 0
-    */
+     * get the supportedPictureSize that:
+     * - matches exactly width and height
+     * - has the closest aspect ratio to the preview aspect ratio
+     * - has picture.width and picture.height closest to width and height
+     * - has the highest supported picture width and height up to 2 Megapixel if
+     * width == 0 || height == 0
+     */
     Camera.Size size = mCamera.new Size(width, height);
 
     // convert to landscape if necessary
@@ -522,7 +558,7 @@ public class CameraActivity extends Fragment {
 
     Camera.Size requestedSize = mCamera.new Size(size.width, size.height);
 
-    double previewAspectRatio  = (double)previewSize.width / (double)previewSize.height;
+    double previewAspectRatio = (double) previewSize.width / (double) previewSize.height;
 
     if (previewAspectRatio < 1.0) {
       // reset ratio to landscape
@@ -543,7 +579,7 @@ public class CameraActivity extends Fragment {
         return supportedSize;
       }
 
-      double difference = Math.abs(previewAspectRatio - ((double)supportedSize.width / (double)supportedSize.height));
+      double difference = Math.abs(previewAspectRatio - ((double) supportedSize.width / (double) supportedSize.height));
 
       if (difference < bestDifference - aspectTolerance) {
         // better aspectRatio found
@@ -562,7 +598,8 @@ public class CameraActivity extends Fragment {
           }
         } else {
           // check if this pictureSize closer to requested width and height
-          if (Math.abs(width * height - supportedSize.width * supportedSize.height) < Math.abs(width * height - size.width * size.height)) {
+          if (Math.abs(width * height - supportedSize.width * supportedSize.height) < Math
+              .abs(width * height - size.width * size.height)) {
             size.width = supportedSize.width;
             size.height = supportedSize.height;
           }
@@ -573,38 +610,39 @@ public class CameraActivity extends Fragment {
     return size;
   }
 
-  static byte[] rotateNV21(final byte[] yuv, final int width, final int height, final int rotation){
-    if (rotation == 0) return yuv;
+  static byte[] rotateNV21(final byte[] yuv, final int width, final int height, final int rotation) {
+    if (rotation == 0)
+      return yuv;
     if (rotation % 90 != 0 || rotation < 0 || rotation > 270) {
       throw new IllegalArgumentException("0 <= rotation < 360, rotation % 90 == 0");
     }
 
-    final byte[]  output    = new byte[yuv.length];
-    final int     frameSize = width * height;
-    final boolean swap      = rotation % 180 != 0;
-    final boolean xflip     = rotation % 270 != 0;
-    final boolean yflip     = rotation >= 180;
+    final byte[] output = new byte[yuv.length];
+    final int frameSize = width * height;
+    final boolean swap = rotation % 180 != 0;
+    final boolean xflip = rotation % 270 != 0;
+    final boolean yflip = rotation >= 180;
 
     for (int j = 0; j < height; j++) {
       for (int i = 0; i < width; i++) {
         final int yIn = j * width + i;
         final int uIn = frameSize + (j >> 1) * width + (i & ~1);
-        final int vIn = uIn       + 1;
+        final int vIn = uIn + 1;
 
-        final int wOut     = swap  ? height              : width;
-        final int hOut     = swap  ? width               : height;
-        final int iSwapped = swap  ? j                   : i;
-        final int jSwapped = swap  ? i                   : j;
-        final int iOut     = xflip ? wOut - iSwapped - 1 : iSwapped;
-        final int jOut     = yflip ? hOut - jSwapped - 1 : jSwapped;
+        final int wOut = swap ? height : width;
+        final int hOut = swap ? width : height;
+        final int iSwapped = swap ? j : i;
+        final int jSwapped = swap ? i : j;
+        final int iOut = xflip ? wOut - iSwapped - 1 : iSwapped;
+        final int jOut = yflip ? hOut - jSwapped - 1 : jSwapped;
 
         final int yOut = jOut * wOut + iOut;
         final int uOut = frameSize + (jOut >> 1) * wOut + (iOut & ~1);
         final int vOut = uOut + 1;
 
-        output[yOut] = (byte)(0xff & yuv[yIn]);
-        output[uOut] = (byte)(0xff & yuv[uIn]);
-        output[vOut] = (byte)(0xff & yuv[vIn]);
+        output[yOut] = (byte) (0xff & yuv[yIn]);
+        output[uOut] = (byte) (0xff & yuv[uIn]);
+        output[vOut] = (byte) (0xff & yuv[vIn]);
       }
     }
     return output;
@@ -624,9 +662,8 @@ public class CameraActivity extends Fragment {
             bytes = rotateNV21(bytes, size.width, size.height, orientation);
           }
           // switch width/height when rotating 90/270 deg
-          Rect rect = orientation == 90 || orientation == 270 ?
-            new Rect(0, 0, size.height, size.width) :
-            new Rect(0, 0, size.width, size.height);
+          Rect rect = orientation == 90 || orientation == 270 ? new Rect(0, 0, size.height, size.width)
+              : new Rect(0, 0, size.width, size.height);
           YuvImage yuvImage = new YuvImage(bytes, parameters.getPreviewFormat(), rect.width(), rect.height(), null);
           ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
           yuvImage.compressToJpeg(rect, quality, byteArrayOutputStream);
@@ -644,11 +681,11 @@ public class CameraActivity extends Fragment {
     });
   }
 
-  public void takePicture(final int width, final int height, final int quality){
+  public void takePicture(final int width, final int height, final int quality) {
     Log.d(TAG, "CameraPreview takePicture width: " + width + ", height: " + height + ", quality: " + quality);
 
-    if(mPreview != null) {
-      if(!canTakePicture){
+    if (mPreview != null) {
+      if (!canTakePicture) {
         return;
       }
 
@@ -658,11 +695,12 @@ public class CameraActivity extends Fragment {
         public void run() {
           Camera.Parameters params = mCamera.getParameters();
 
-          Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
+          Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(),
+              params.getSupportedPictureSizes());
           params.setPictureSize(size.width, size.height);
           currentQuality = quality;
 
-          if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT && !storeToFile) {
+          if (cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT && !storeToFile) {
             // The image will be recompressed in the callback
             params.setJpegQuality(99);
           } else {
@@ -680,9 +718,11 @@ public class CameraActivity extends Fragment {
     }
   }
 
-  public void startRecord(final String filePath, final String camera, final int width, final int height, final int quality, final boolean withFlash){
-    Log.d(TAG, "CameraPreview startRecord camera: " + camera + " width: " + width + ", height: " + height + ", quality: " + quality);
-    if(mCamera != null) {
+  public void startRecord(final String filePath, final String camera, final int width, final int height,
+      final int quality, final boolean withFlash) {
+    Log.d(TAG, "CameraPreview startRecord camera: " + camera + " width: " + width + ", height: " + height
+        + ", quality: " + quality);
+    if (mCamera != null) {
       Activity activity = getActivity();
       muteStream(true, activity);
       if (this.mRecordingState == RecordingState.STARTED) {
@@ -692,8 +732,8 @@ public class CameraActivity extends Fragment {
 
       this.recordFilePath = filePath;
       int mOrientationHint = calculateOrientationHint();
-      int videoWidth = 0;//set whatever
-      int videoHeight = 0;//set whatever
+      int videoWidth = 0;// set whatever
+      int videoHeight = 0;// set whatever
 
       Camera.Parameters cameraParams = mCamera.getParameters();
       if (withFlash) {
@@ -742,7 +782,6 @@ public class CameraActivity extends Fragment {
           }
         }
 
-
         mRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
         mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mRecorder.setProfile(profile);
@@ -760,7 +799,8 @@ public class CameraActivity extends Fragment {
         mRecorder = null;
       } catch (IllegalStateException stateException) {
         Log.e(TAG, "Recording failed, audio/video may be in use by another application", stateException);
-        eventListener.onStartRecordVideoError("Failed to start recording, your audio or video may be in use by another application");
+        eventListener.onStartRecordVideoError(
+            "Failed to start recording, your audio or video may be in use by another application");
 
         mRecorder = null;
       } catch (Exception exception) {
@@ -818,7 +858,7 @@ public class CameraActivity extends Fragment {
     Log.d(TAG, "stopRecord");
     try {
       mRecorder.stop();
-      mRecorder.reset();   // clear recorder configuration
+      mRecorder.reset(); // clear recorder configuration
       mRecorder.release(); // release the recorder object
       mRecorder = null;
       mCamera.lock();
@@ -833,7 +873,8 @@ public class CameraActivity extends Fragment {
   }
 
   public void muteStream(boolean mute, Activity activity) {
-    AudioManager audioManager = ((AudioManager)activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE));
+    AudioManager audioManager = ((AudioManager) activity.getApplicationContext()
+        .getSystemService(Context.AUDIO_SERVICE));
     int direction = mute ? audioManager.ADJUST_MUTE : audioManager.ADJUST_UNMUTE;
   }
 
@@ -875,11 +916,10 @@ public class CameraActivity extends Fragment {
       y = height - 100;
     }
     return new Rect(
-      Math.round((x - 100) * 2000 / width  - 1000),
-      Math.round((y - 100) * 2000 / height - 1000),
-      Math.round((x + 100) * 2000 / width  - 1000),
-      Math.round((y + 100) * 2000 / height - 1000)
-    );
+        Math.round((x - 100) * 2000 / width - 1000),
+        Math.round((y - 100) * 2000 / height - 1000),
+        Math.round((x + 100) * 2000 / width - 1000),
+        Math.round((y + 100) * 2000 / height - 1000));
   }
 
   static Camera.Size getBestResolution(Camera.Parameters cp) {
