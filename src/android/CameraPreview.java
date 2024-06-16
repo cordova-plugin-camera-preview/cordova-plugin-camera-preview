@@ -350,11 +350,15 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
           containerView.bringToFront();
         }
 
-        //add the fragment to the container
-        FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(containerView.getId(), fragment);
-        fragmentTransaction.commit();
+        try {
+          // add the fragment to the container
+          FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
+          FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+          fragmentTransaction.add(containerView.getId(), fragment);
+          fragmentTransaction.commit();
+        } catch (Exception e) {
+          // prevent Can not perform this action after onSaveInstanceState
+        }
       }
     });
 
@@ -376,7 +380,9 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     takeSnapshotCallbackContext = callbackContext;
 
-    fragment.takeSnapshot(quality);
+    if (fragment != null) {
+      fragment.takeSnapshot(quality);
+    }
     return true;
   }
 
@@ -975,7 +981,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     List<String> supportedFlashModes;
     supportedFlashModes = camera.getParameters().getSupportedFlashModes();
-    if (supportedFlashModes.indexOf(flashMode) > -1) {
+    if (supportedFlashModes != null && supportedFlashModes.indexOf(flashMode) > -1) {
       params.setFlashMode(flashMode);
     } else {
       callbackContext.error("Flash mode not recognised: " + flashMode);
@@ -1003,12 +1009,16 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
       return true;
     }
 
-    FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
-    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-    fragmentTransaction.remove(fragment);
-    fragmentTransaction.commit();
-    fragment = null;
-
+    try {
+      FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
+      FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+      fragmentTransaction.remove(fragment);
+      fragmentTransaction.commit();
+      fragment = null;
+    } catch (Exception e) {
+      // prevent null pointer exception "Cant perform this action after
+      // onSaveInstanceState"
+    }
     callbackContext.success();
     return true;
   }

@@ -284,44 +284,51 @@ public class CameraActivity extends Fragment {
   public void onResume() {
     super.onResume();
 
-    mCamera = Camera.open(defaultCameraId);
+    try {
+      mCamera = Camera.open(defaultCameraId);
 
-    if (cameraParameters != null) {
-      mCamera.setParameters(cameraParameters);
-    }
+      if (cameraParameters != null) {
+        mCamera.setParameters(cameraParameters);
+      }
 
-    cameraCurrentlyLocked = defaultCameraId;
+      cameraCurrentlyLocked = defaultCameraId;
 
-    if(mPreview.mPreviewSize == null){
-      mPreview.setCamera(mCamera, cameraCurrentlyLocked);
-      eventListener.onCameraStarted();
-    } else {
-      mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
-      mCamera.startPreview();
-    }
+      if(mPreview.mPreviewSize == null){
+        mPreview.setCamera(mCamera, cameraCurrentlyLocked);
 
-    Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
-
-    final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
-
-    ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
-
-    if (viewTreeObserver.isAlive()) {
-      viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-        @Override
-        public void onGlobalLayout() {
-          frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-          frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-          Activity activity = getActivity();
-          if (isAdded() && activity != null) {
-            final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
-
-            FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
-            camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-            frameCamContainerLayout.setLayoutParams(camViewLayout);
-          }
+        if (eventListener != null) {
+          eventListener.onCameraStarted();
         }
-      });
+      } else {
+        mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+        mCamera.startPreview();
+      }
+
+      Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
+
+      final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
+
+      ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
+
+      if (viewTreeObserver.isAlive()) {
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+          @Override
+          public void onGlobalLayout() {
+            frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+            frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            Activity activity = getActivity();
+            if (isAdded() && activity != null) {
+              final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
+
+              FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
+              camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+              frameCamContainerLayout.setLayoutParams(camViewLayout);
+            }
+          }
+        });
+      }
+    } catch (Exception e) {
+      // catch Exception java.lang.RuntimeException: Fail to connect to camera service
     }
   }
 
@@ -611,6 +618,9 @@ public class CameraActivity extends Fragment {
   }
 
   public void takeSnapshot(final int quality) {
+    if (mCamera == null) {
+      return;
+    }
     mCamera.setPreviewCallback(new Camera.PreviewCallback() {
       @Override
       public void onPreviewFrame(byte[] bytes, Camera camera) {
@@ -656,23 +666,27 @@ public class CameraActivity extends Fragment {
 
       new Thread() {
         public void run() {
-          Camera.Parameters params = mCamera.getParameters();
+          try {
+            Camera.Parameters params = mCamera.getParameters();
 
-          Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
-          params.setPictureSize(size.width, size.height);
-          currentQuality = quality;
+            Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
+            params.setPictureSize(size.width, size.height);
+            currentQuality = quality;
 
-          if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT && !storeToFile) {
-            // The image will be recompressed in the callback
-            params.setJpegQuality(99);
-          } else {
-            params.setJpegQuality(quality);
+            if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT && !storeToFile) {
+              // The image will be recompressed in the callback
+              params.setJpegQuality(99);
+            } else {
+              params.setJpegQuality(quality);
+            }
+
+            params.setRotation(mPreview.getDisplayOrientation());
+
+            mCamera.setParameters(params);
+            mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
+          } catch (Exception e) {
+            // prevent Exception java.lang.RuntimeException: takePicture failed
           }
-
-          params.setRotation(mPreview.getDisplayOrientation());
-
-          mCamera.setParameters(params);
-          mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
         }
       }.start();
     } else {
