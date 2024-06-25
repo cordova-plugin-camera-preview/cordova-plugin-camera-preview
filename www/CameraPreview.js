@@ -48,6 +48,8 @@ CameraPreview.startCamera = function(options, onSuccess, onError) {
 
 	options.disableShutterSound = options.disableShutterSound || false;
 
+	options.enableFastShoot = options.enableFastShoot || false;
+
 	exec(onSuccess, onError, PLUGIN_NAME, "startCamera", [
 		options.x, 
 		options.y, 
@@ -61,7 +63,8 @@ CameraPreview.startCamera = function(options, onSuccess, onError) {
 		options.tapFocus, 
 		options.disableExifHeaderStripping, 
 		options.storeToFile,
-		options.disableShutterSound
+		options.disableShutterSound,
+		options.enableFastShoot,
 	]);
 };
 

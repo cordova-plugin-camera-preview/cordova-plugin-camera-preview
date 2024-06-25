@@ -48,6 +48,7 @@
 @property (nonatomic) NSString *onPictureTakenHandlerId;
 @property (nonatomic) BOOL storeToFile;
 @property (nonatomic) BOOL disableShutterSound;
+@property (nonatomic) BOOL enableFastShoot;
 @property (nonatomic) CGFloat takePictureWidth;
 @property (nonatomic) CGFloat takePictureHeight;
 @property (nonatomic) CGFloat takePictureQuality;

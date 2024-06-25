@@ -38,6 +38,7 @@
     BOOL disableExifHeaderStripping = (BOOL) [command.arguments[10] boolValue]; // ignore Android only
     self.storeToFile = (BOOL) [command.arguments[11] boolValue];
     self.disableShutterSound = (BOOL) [command.arguments[12] boolValue]; // ignore Android only
+    self.enableFastShoot = (BOOL) [command.arguments[13] boolValue];
 
     // Create the session manager
     self.sessionManager = [[CameraSessionManager alloc] init];
@@ -697,6 +698,7 @@
   CGFloat width = self.takePictureWidth;
   CGFloat height = self.takePictureHeight;
   CGFloat quality = self.takePictureQuality;
+  BOOL enableFastShoot = self.enableFastShoot;
   NSLog(@"Done creating still image");
 
   if (error) {
@@ -707,23 +709,33 @@
   } else {
 
 	NSData *imageData = [photo fileDataRepresentation];
-	UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
 
 	CIImage *capturedCImage;
+	CGSize imageSize;
 	//image resize
 
+	if(enableFastShoot){
+		NSDictionary* ciImageOptions = @{
+			kCIImageApplyOrientationProperty : @true
+		};
+		capturedCImage = [[CIImage alloc] initWithData:imageData options:ciImageOptions];
+		imageSize = capturedCImage.extent.size;
+	} else {
+		UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
+		capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
+		imageSize = capturedImage.size;
+	}
+
 	if(width > 0 && height > 0){
-	  CGFloat scaleHeight = width/capturedImage.size.height;
-	  CGFloat scaleWidth = height/capturedImage.size.width;
+	  CGFloat scaleHeight = width/imageSize.height;
+	  CGFloat scaleWidth = height/imageSize.width;
 	  CGFloat scale = scaleHeight > scaleWidth ? scaleWidth : scaleHeight;
 
 	  CIFilter *resizeFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
-	  [resizeFilter setValue:[[CIImage alloc] initWithCGImage:[capturedImage CGImage]] forKey:kCIInputImageKey];
+	  [resizeFilter setValue:capturedCImage forKey:kCIInputImageKey];
 	  [resizeFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputAspectRatio"];
 	  [resizeFilter setValue:[NSNumber numberWithFloat:scale] forKey:@"inputScale"];
 	  capturedCImage = [resizeFilter outputImage];
-	}else{
-	  capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
 	}
 
 	CIImage *imageToFilter;
@@ -731,7 +743,12 @@
 
 	//fix front mirroring
 	if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
-	  CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
+	  CGAffineTransform matrix;
+	  if(enableFastShoot){
+		matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(-1, 1), capturedCImage.extent.size.width, 0);
+	  } else {
+	    matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
+	  }
 	  imageToFilter = [capturedCImage imageByApplyingTransform:matrix];
 	} else {
 	  imageToFilter = capturedCImage;
@@ -747,34 +764,60 @@
 	  finalCImage = imageToFilter;
 	}
 
-	CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
-	UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
-
-	double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
-	CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
-
-	CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
-
 	CDVPluginResult *pluginResult;
-	if (self.storeToFile) {
-	  NSData *data = UIImageJPEGRepresentation([UIImage imageWithCGImage:resultFinalImage], (CGFloat) quality);
-	  NSString* filePath = [self getTempFilePath:@"jpg"];
-	  NSError *err;
+	if(enableFastShoot){
+		if(self.storeToFile){
+			NSString* filePath = [self getTempFilePath:@"jpg"];
+			NSURL* path = [NSURL fileURLWithPath:filePath];
+			CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+			NSDictionary* options = @{
+				(NSString *)kCGImageDestinationLossyCompressionQuality : [NSNumber numberWithFloat:quality]
+			};
+			NSError* error;
+			BOOL saved = [self.cameraRenderController.ciContext writeJPEGRepresentationOfImage:finalCImage toURL:path colorSpace:colorSpace options: options error:&error];
+			if(!saved){
+				pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[error localizedDescription]];
+			} else {
+				pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[path absoluteString]];
+			}
+		} else {
+			CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];\
+			CGImageRelease(finalImage);
 
-	  if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
-	  }
-	  else {
-		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[NSURL fileURLWithPath:filePath] absoluteString]];
-	  }
+			NSMutableArray *params = [[NSMutableArray alloc] init];
+			NSString *base64Image = [self getBase64Image:finalImage withQuality:quality];
+			[params addObject:base64Image];
+			pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
+		}
 	} else {
-	  NSMutableArray *params = [[NSMutableArray alloc] init];
-	  NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
-	  [params addObject:base64Image];
-	  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
-	}
+		CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
+		UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
 
-	CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
+		double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
+		CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
+
+		CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
+
+		if (self.storeToFile) {
+			NSData *data = UIImageJPEGRepresentation([UIImage imageWithCGImage:resultFinalImage], (CGFloat) quality);
+			NSString* filePath = [self getTempFilePath:@"jpg"];
+			NSError *err;
+
+			if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
+				pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
+			}
+			else {
+				pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[NSURL fileURLWithPath:filePath] absoluteString]];
+			}
+		} else {
+			NSMutableArray *params = [[NSMutableArray alloc] init];
+			NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
+			[params addObject:base64Image];
+			pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
+		}
+
+		CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
+	}
 
 	[pluginResult setKeepCallbackAsBool:self.cameraRenderController.tapToTakePicture];
 	[self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
