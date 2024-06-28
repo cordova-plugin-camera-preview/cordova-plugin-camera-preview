@@ -25,10 +25,12 @@
   }
 
   if (command.arguments.count > 3) {
-    CGFloat x = (CGFloat)[command.arguments[0] floatValue] + self.webView.frame.origin.x;
-    CGFloat y = (CGFloat)[command.arguments[1] floatValue] + self.webView.frame.origin.y;
-    CGFloat width = (CGFloat)[command.arguments[2] floatValue];
-    CGFloat height = (CGFloat)[command.arguments[3] floatValue];
+	CGRect rect = CGRectMake(
+		(CGFloat)[command.arguments[0] floatValue],
+		(CGFloat)[command.arguments[1] floatValue],
+		(CGFloat)[command.arguments[2] floatValue],
+		(CGFloat)[command.arguments[3] floatValue]
+	);
     NSString *defaultCamera = command.arguments[4];
     BOOL tapToTakePicture = (BOOL)[command.arguments[5] boolValue];
     BOOL dragEnabled = (BOOL)[command.arguments[6] boolValue];
@@ -49,7 +51,7 @@
     self.cameraRenderController.tapToTakePicture = tapToTakePicture;
     self.cameraRenderController.tapToFocus = tapToFocus;
     self.cameraRenderController.sessionManager = self.sessionManager;
-    self.cameraRenderController.view.frame = CGRectMake(x, y, width, height);
+	[self setPreviewRect:rect];
     self.cameraRenderController.delegate = self;
 
     [self.viewController addChildViewController:self.cameraRenderController];
@@ -81,6 +83,12 @@
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid number of parameters"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }
+}
+
+- (void) setPreviewRect:(CGRect)rect {
+	CGFloat x = rect.origin.x + self.webView.frame.origin.x;
+	CGFloat y = rect.origin.y + self.webView.frame.origin.y;
+	self.cameraRenderController.view.frame = CGRectMake(x, y, rect.size.width, rect.size.height);
 }
 
 - (void) stopCamera:(CDVInvokedUrlCommand*)command {
@@ -538,10 +546,18 @@
     }
 
     if (command.arguments.count > 1) {
-        CGFloat width = (CGFloat)[command.arguments[0] floatValue];
-        CGFloat height = (CGFloat)[command.arguments[1] floatValue];
-
-        self.cameraRenderController.view.frame = CGRectMake(0, 0, width, height);
+		CGFloat x = 0, y = 0;
+		if(command.arguments.count > 2){
+			x = (CGFloat)[command.arguments[2] floatValue];
+			y = (CGFloat)[command.arguments[3] floatValue];
+		}
+		CGRect rect = CGRectMake(
+			x,
+			y,
+			(CGFloat)[command.arguments[0] floatValue],
+			(CGFloat)[command.arguments[1] floatValue]
+		);
+		[self setPreviewRect:rect];
 
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
