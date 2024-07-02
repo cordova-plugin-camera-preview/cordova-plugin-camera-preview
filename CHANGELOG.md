@@ -2,6 +2,7 @@
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.3...master)
+- [#699](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/commit/21961100181c97dcbf59e72749d6cf2add7f05ef) - Null pointer exception fixes
 - [#689](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/689) - Improve error handling for Android
 - [#688](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/688) - Fix exceptions thrown around flash types when calling setParameters on Android. We now check supported flash mode types and only enable the modes that are found.
 - [#687](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/687) - Add Android 33+ required permissions for media image and media video permissions
