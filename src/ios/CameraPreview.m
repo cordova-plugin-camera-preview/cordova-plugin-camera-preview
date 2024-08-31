@@ -59,7 +59,10 @@
       self.webView.opaque = NO;
       self.webView.backgroundColor = [UIColor clearColor];
 
-      [self.webView.superview addSubview:self.cameraRenderController.view];
+      self.webView.scrollView.opaque = NO;
+      self.webView.scrollView.backgroundColor = [UIColor clearColor];
+
+      [self.viewController.view insertSubview:self.cameraRenderController.view atIndex:0];
       [self.webView.superview bringSubviewToFront:self.webView];
     } else {
       self.cameraRenderController.view.alpha = alpha;
