@@ -382,15 +382,182 @@
     NSLog(@"Camera has no flash or flash mode not supported");
   }
 }
-
 - (void)setZoom:(CGFloat)desiredZoomFactor {
+    NSLog(@"CameraSessionManager: setZoom called with factor: %f", desiredZoomFactor);
+    
+    if (desiredZoomFactor == 0.5) {
+        [self switchToUltraWideCamera:^(BOOL switched) {
+            if (switched) {
+                NSLog(@"CameraSessionManager: Successfully switched to ultra-wide camera");
+            } else {
+                NSLog(@"CameraSessionManager: Failed to switch to ultra-wide camera, using minimum zoom");
+                [self setMinimumZoomForDevice:self.device];
+            }
+        }];
+    } else if (desiredZoomFactor >= 1.0 && [self isUltraWideCamera:self.device]) {
+        [self switchToMainCamera:^(BOOL switched) {
+            if (switched) {
+                NSLog(@"CameraSessionManager: Successfully switched to main camera");
+                [self setNormalZoom:desiredZoomFactor];
+            } else {
+                NSLog(@"CameraSessionManager: Failed to switch to main camera");
+            }
+        }];
+    } else {
+        [self setNormalZoom:desiredZoomFactor];
+    }
+}
 
-  [self.device lockForConfiguration:nil];
-  self.videoZoomFactor = MAX(1.0, MIN(desiredZoomFactor, self.device.activeFormat.videoMaxZoomFactor));
+- (BOOL)isUltraWideCamera:(AVCaptureDevice *)device {
+    if (@available(iOS 13.0, *)) {
+        return [device.deviceType isEqualToString:AVCaptureDeviceTypeBuiltInUltraWideCamera];
+    }
+    return NO;
+}
 
-  [self.device setVideoZoomFactor:self.videoZoomFactor];
-  [self.device unlockForConfiguration];
-  NSLog(@"%zd zoom factor set", self.videoZoomFactor);
+- (void)switchToMainCamera:(void(^)(BOOL switched))completion {
+    dispatch_async([self sessionQueue], ^{
+        NSError *error = nil;
+        BOOL success = YES;
+        
+        AVCaptureDevice *mainCamera = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        
+        if (!mainCamera) {
+            NSLog(@"CameraSessionManager: Main camera not available");
+            completion(NO);
+            return;
+        }
+        
+        [self.session beginConfiguration];
+        
+        if (self.videoDeviceInput != nil) {
+            [self.session removeInput:self.videoDeviceInput];
+            [self setVideoDeviceInput:nil];
+        }
+        
+        AVCaptureDeviceInput *mainCameraInput = [AVCaptureDeviceInput deviceInputWithDevice:mainCamera error:&error];
+        if (error) {
+            NSLog(@"CameraSessionManager: Error creating main camera input: %@", error);
+            success = NO;
+        } else if ([self.session canAddInput:mainCameraInput]) {
+            [self.session addInput:mainCameraInput];
+            [self setVideoDeviceInput:mainCameraInput];
+        } else {
+            NSLog(@"CameraSessionManager: Could not add main camera input to the session");
+            success = NO;
+        }
+        
+        [self updateOrientation:[self getCurrentOrientation]];
+        [self.session commitConfiguration];
+        
+        if (success) {
+            self.device = mainCamera;
+        }
+        
+        completion(success);
+    });
+}
+
+- (void)setNormalZoom:(CGFloat)zoomFactor {
+    NSError *error = nil;
+    if ([self.device lockForConfiguration:&error]) {
+        CGFloat minZoom = 1.0;
+        CGFloat maxZoom = self.device.activeFormat.videoMaxZoomFactor;
+        
+        // If we're on the ultra-wide camera, adjust the zoom factor
+        if (@available(iOS 13.0, *)) {
+            if ([self.device.deviceType isEqualToString:AVCaptureDeviceTypeBuiltInUltraWideCamera]) {
+                // Adjust zoom factor to account for ultra-wide field of view
+                zoomFactor = MAX(zoomFactor, 1.0);
+            }
+        }
+        
+        CGFloat resolvedZoom = MAX(minZoom, MIN(zoomFactor, maxZoom));
+        self.videoZoomFactor = resolvedZoom;
+        
+        NSLog(@"CameraSessionManager: Attempting to set zoom factor: %f", self.videoZoomFactor);
+        [self.device setVideoZoomFactor:self.videoZoomFactor];
+        [self.device unlockForConfiguration];
+        NSLog(@"CameraSessionManager: Final zoom factor set: %f", self.device.videoZoomFactor);
+    } else {
+        NSLog(@"CameraSessionManager: Failed to lock device for configuration. Error: %@", error);
+    }
+}
+
+- (void)switchToUltraWideCamera:(void(^)(BOOL switched))completion {
+    dispatch_async([self sessionQueue], ^{
+        NSError *error = nil;
+        BOOL success = YES;
+        
+        AVCaptureDevice *ultraWideDevice = nil;
+        
+        if (@available(iOS 13.0, *)) {
+            AVCaptureDeviceDiscoverySession *discoverySession = [AVCaptureDeviceDiscoverySession 
+                discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInUltraWideCamera]
+                mediaType:AVMediaTypeVideo 
+                position:AVCaptureDevicePositionBack];
+            
+            ultraWideDevice = discoverySession.devices.firstObject;
+        }
+        
+        if (!ultraWideDevice) {
+            NSLog(@"CameraSessionManager: Ultra-wide camera not available on this device");
+            completion(NO);
+            return;
+        }
+        
+        [self.session beginConfiguration];
+        
+        if (self.videoDeviceInput != nil) {
+            [self.session removeInput:self.videoDeviceInput];
+            [self setVideoDeviceInput:nil];
+        }
+        
+        if ([ultraWideDevice lockForConfiguration:&error]) {
+            if ([ultraWideDevice isFlashModeSupported:self.defaultFlashMode]) {
+                [ultraWideDevice setFlashMode:self.defaultFlashMode];
+            }
+            [ultraWideDevice unlockForConfiguration];
+        } else {
+            NSLog(@"CameraSessionManager: Failed to lock ultra-wide device for configuration: %@", error);
+            success = NO;
+        }
+        
+        AVCaptureDeviceInput *ultraWideDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:ultraWideDevice error:&error];
+        if (error) {
+            NSLog(@"CameraSessionManager: Error creating ultra-wide device input: %@", error);
+            success = NO;
+        } else if ([self.session canAddInput:ultraWideDeviceInput]) {
+            [self.session addInput:ultraWideDeviceInput];
+            [self setVideoDeviceInput:ultraWideDeviceInput];
+        } else {
+            NSLog(@"CameraSessionManager: Could not add ultra-wide camera input to the session");
+            success = NO;
+        }
+        
+        [self updateOrientation:[self getCurrentOrientation]];
+        [self.session commitConfiguration];
+        
+        if (success) {
+            self.device = ultraWideDevice;
+            [self setMinimumZoomForDevice:self.device];
+        }
+        
+        completion(success);
+    });
+}
+
+
+- (void)setMinimumZoomForDevice:(AVCaptureDevice *)device {
+    NSError *error = nil;
+    if ([device lockForConfiguration:&error]) {
+        self.videoZoomFactor = 1.0;
+        [device setVideoZoomFactor:self.videoZoomFactor];
+        [device unlockForConfiguration];
+        NSLog(@"CameraSessionManager: Set minimum zoom factor: %f", device.videoZoomFactor);
+    } else {
+        NSLog(@"CameraSessionManager: Failed to lock device for minimum zoom. Error: %@", error);
+    }
 }
 
 - (CGFloat)getZoom {
