@@ -62,7 +62,8 @@
       self.webView.scrollView.opaque = NO;
       self.webView.scrollView.backgroundColor = [UIColor clearColor];
 
-      [self.viewController.view insertSubview:self.cameraRenderController.view atIndex:0];
+      // [self.webView.superview addSubview:self.cameraRenderController.view];
+      [self.webView.superview insertSubview:self.cameraRenderController.view atIndex:0];
       [self.webView.superview bringSubviewToFront:self.webView];
     } else {
       self.cameraRenderController.view.alpha = alpha;
@@ -269,6 +270,7 @@
   CDVPluginResult *pluginResult;
 
   CGFloat desiredZoomFactor = [[command.arguments objectAtIndex:0] floatValue];
+  NSLog(@"CameraPreview: Received zoom factor: %f", desiredZoomFactor);
 
   if (self.sessionManager != nil) {
     [self.sessionManager setZoom:desiredZoomFactor];
