@@ -19,6 +19,14 @@
 - (void) switchCamera:(void(^)(BOOL switched))completion;
 - (void) setFlashMode:(NSInteger)flashMode;
 - (void) setZoom:(CGFloat)desiredZoomFactor;
+
+- (void)switchToUltraWideCamera:(void(^)(BOOL switched))completion;
+- (void)switchToMainCamera:(void(^)(BOOL switched))completion;
+- (void)setNormalZoom:(CGFloat)zoomFactor;
+- (void)setMinimumZoomForDevice:(AVCaptureDevice *)device;
+- (BOOL)isUltraWideCamera:(AVCaptureDevice *)device;
+
+
 - (CGFloat) getZoom;
 - (float) getHorizontalFOV;
 - (CGFloat) getMaxZoom;
