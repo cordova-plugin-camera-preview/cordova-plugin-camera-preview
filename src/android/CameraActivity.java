@@ -484,28 +484,44 @@ public class CameraActivity extends Fragment {
         if (!storeToFile) {
           String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
 
-          eventListener.onPictureTaken(encodedImage);
+          if (eventListener != null) {
+            eventListener.onPictureTaken(encodedImage);
+          } else {
+            Log.e(TAG, "eventListener is null");
+          }
         } else {
           String path = getTempFilePath();
           FileOutputStream out = new FileOutputStream(path);
           out.write(data);
           out.close();
-          eventListener.onPictureTaken(path);
+          if (eventListener != null) {
+            eventListener.onPictureTaken(path);
+          } else {
+            Log.e(TAG, "eventListener is null");
+          }
         }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
       } catch (OutOfMemoryError e) {
-        // most likely failed to allocate memory for rotateBitmap
-        Log.d(TAG, "CameraPreview OutOfMemoryError");
-        // failed to allocate memory
-        eventListener.onPictureTakenError("Picture too large (memory)");
+        Log.d(TAG, "CameraPreview OutOfMemoryError", e);
+        if (eventListener != null) {
+          eventListener.onPictureTakenError("Picture too large (memory)");
+        }
       } catch (IOException e) {
-        Log.d(TAG, "CameraPreview IOException");
-        eventListener.onPictureTakenError("IO Error when extracting exif");
+        Log.d(TAG, "CameraPreview IOException", e);
+        if (eventListener != null) {
+          eventListener.onPictureTakenError("IO Error when extracting exif");
+        }
       } catch (Exception e) {
-        Log.d(TAG, "CameraPreview onPictureTaken general exception");
+        Log.d(TAG, "CameraPreview onPictureTaken general exception", e);
       } finally {
         canTakePicture = true;
-        mCamera.startPreview();
+        if (mCamera != null) {
+          try {
+            mCamera.startPreview();
+          } catch (Exception e) {
+            Log.e(TAG, "Error starting preview in callback", e);
+          }
+        }
       }
     }
   };
