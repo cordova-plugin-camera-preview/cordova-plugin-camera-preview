@@ -354,10 +354,22 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
           // add the fragment to the container
           FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
           FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-          fragmentTransaction.add(containerView.getId(), fragment);
-          fragmentTransaction.commit();
+          
+          // Check if fragment is null
+          if (fragment != null) {
+            fragmentTransaction.add(containerView.getId(), fragment);
+            fragmentTransaction.commit();
+          } else {
+            Log.e(TAG, "Fragment is null, cannot add to container");
+            if (callbackContext != null) {
+              callbackContext.error("Failed to start camera: internal error");
+            }
+          }
         } catch (Exception e) {
-          // prevent Can not perform this action after onSaveInstanceState
+          Log.e(TAG, "Error adding fragment", e);
+          if (callbackContext != null) {
+            callbackContext.error("Failed to start camera: " + e.getMessage());
+          }
         }
       }
     });
