@@ -296,8 +296,17 @@ public class CameraActivity extends Fragment {
       if(mPreview.mPreviewSize == null){
         mPreview.setCamera(mCamera, cameraCurrentlyLocked);
 
+        // Don't immediately call the callback - post it as a delayed action
+        // to ensure the listener is properly set up when it's called
         if (eventListener != null) {
-          eventListener.onCameraStarted();
+          new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+              if (eventListener != null && isAdded() && !isDetached()) {
+                eventListener.onCameraStarted();
+              }
+            }
+          });
         }
       } else {
         mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
@@ -328,7 +337,7 @@ public class CameraActivity extends Fragment {
         });
       }
     } catch (Exception e) {
-      // catch Exception java.lang.RuntimeException: Fail to connect to camera service
+      Log.e(TAG, "Error in onResume", e);
     }
   }
 
