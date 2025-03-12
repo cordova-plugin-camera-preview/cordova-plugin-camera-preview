@@ -667,6 +667,12 @@ public class CameraActivity extends Fragment {
       new Thread() {
         public void run() {
           try {
+            if (mCamera == null) {
+              Log.d(TAG, "Camera is null, cannot take picture");
+              canTakePicture = true; // Reset flag if camera is null
+              return;
+            }
+            
             Camera.Parameters params = mCamera.getParameters();
 
             Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
@@ -685,7 +691,9 @@ public class CameraActivity extends Fragment {
             mCamera.setParameters(params);
             mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
           } catch (Exception e) {
-            // prevent Exception java.lang.RuntimeException: takePicture failed
+            // Reset flag so future attempts can be made
+            canTakePicture = true;
+            Log.e(TAG, "Error taking picture", e);
           }
         }
       }.start();
