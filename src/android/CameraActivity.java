@@ -53,6 +53,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Arrays;
 import java.util.UUID;
+import android.os.Handler;
+import android.os.Looper;
 
 public class CameraActivity extends Fragment {
 
@@ -108,6 +110,21 @@ public class CameraActivity extends Fragment {
   private MediaRecorder mRecorder = null;
   private String recordFilePath;
 
+  // Camera state enum to track camera lifecycle
+  private enum CameraState {
+      CLOSED,      // Camera is closed/released
+      OPENING,     // Camera is in the process of opening
+      CONFIGURING, // Camera is being configured with parameters
+      PREVIEW,     // Camera is showing preview
+      TAKING_PICTURE, // Camera is taking a picture
+      RECORDING    // Camera is recording
+  }
+
+  private CameraState cameraState = CameraState.CLOSED;
+  private final Object cameraStateLock = new Object(); // Lock for thread-safe state changes
+  private static final int CAMERA_OPEN_RETRY_COUNT = 3;
+  private Handler mainHandler;
+
   public void setEventListener(CameraPreviewListener listener){
     eventListener = listener;
   }
@@ -117,6 +134,7 @@ public class CameraActivity extends Fragment {
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     appResourcesPackage = getActivity().getPackageName();
+    mainHandler = new Handler(Looper.getMainLooper());
 
     // Inflate the layout for this fragment
     view = inflater.inflate(getResources().getIdentifier("camera_activity", "layout", appResourcesPackage), container, false);
@@ -283,54 +301,66 @@ public class CameraActivity extends Fragment {
   @Override
   public void onResume() {
     super.onResume();
-
-    try {
-      mCamera = Camera.open(defaultCameraId);
-
-      if (cameraParameters != null) {
-        mCamera.setParameters(cameraParameters);
-      }
-
-      cameraCurrentlyLocked = defaultCameraId;
-
-      if(mPreview.mPreviewSize == null){
-        mPreview.setCamera(mCamera, cameraCurrentlyLocked);
-
-        if (eventListener != null) {
-          eventListener.onCameraStarted();
-        }
-      } else {
-        mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
-        mCamera.startPreview();
-      }
-
-      Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
-
-      final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
-
-      ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
-
-      if (viewTreeObserver.isAlive()) {
-        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-          @Override
-          public void onGlobalLayout() {
-            frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-            Activity activity = getActivity();
-            if (isAdded() && activity != null) {
-              final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
-
-              FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
-              camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-              frameCamContainerLayout.setLayoutParams(camViewLayout);
+    
+    // Use a background thread to avoid blocking UI
+    new Thread(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                if (!safeCameraOpen(defaultCameraId)) {
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (eventListener != null) {
+                                eventListener.onPictureTakenError("Failed to open camera");
+                            }
+                        }
+                    });
+                    return;
+                }
+                
+                if (cameraParameters != null) {
+                    try {
+                        mCamera.setParameters(cameraParameters);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error setting camera parameters", e);
+                    }
+                }
+                
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mPreview != null) {
+                            if (mPreview.mPreviewSize == null) {
+                                mPreview.setCamera(mCamera, cameraCurrentlyLocked);
+                                
+                                if (eventListener != null) {
+                                    eventListener.onCameraStarted();
+                                }
+                            } else {
+                                mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+                                mCamera.startPreview();
+                                setCameraState(CameraState.PREVIEW);
+                            }
+                        }
+                    }
+                });
+                
+            } catch (Exception e) {
+                Log.e(TAG, "Error initializing camera", e);
+                releaseCamera();
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (eventListener != null) {
+                            eventListener.onPictureTakenError("Failed to initialize camera: " + e.getMessage());
+                        }
+                    }
+                });
             }
-          }
-        });
-      }
-    } catch (Exception e) {
-      // catch Exception java.lang.RuntimeException: Fail to connect to camera service
-    }
-  }
+        }
+    }).start();
+}
 
   @Override
   public void onPause() {
@@ -911,5 +941,66 @@ public class CameraActivity extends Fragment {
     }
 
     return large;
+  }
+
+  // New method to safely change camera state
+  private void setCameraState(CameraState newState) {
+      synchronized (cameraStateLock) {
+          Log.d(TAG, "Camera state changing from " + cameraState + " to " + newState);
+          cameraState = newState;
+      }
+  }
+
+  // New method to check if a camera operation can be performed
+  private boolean canPerformCameraOperation(CameraState requiredState) {
+      synchronized (cameraStateLock) {
+          return cameraState == requiredState;
+      }
+  }
+
+  // Add method to safely open camera with retries
+  private boolean safeCameraOpen(int cameraId) {
+      setCameraState(CameraState.OPENING);
+
+      for (int retryCount = 0; retryCount < CAMERA_OPEN_RETRY_COUNT; retryCount++) {
+          try {
+              releaseCamera(); // Always release before opening
+              mCamera = Camera.open(cameraId);
+
+              if (mCamera != null) {
+                  cameraCurrentlyLocked = cameraId;
+                  setCameraState(CameraState.CONFIGURING);
+                  return true;
+              }
+          } catch (Exception e) {
+              Log.e(TAG, "Failed to open camera (attempt " + (retryCount + 1) + ")", e);
+
+              // Wait a bit before retrying
+              try {
+                  Thread.sleep(100);
+              } catch (InterruptedException ie) {
+                  Thread.currentThread().interrupt();
+              }
+          }
+      }
+
+      setCameraState(CameraState.CLOSED);
+      return false;
+  }
+
+  // Ensure camera is properly released
+  private void releaseCamera() {
+      if (mCamera != null) {
+          try {
+              mCamera.setPreviewCallback(null);
+              mCamera.stopPreview();
+              mCamera.release();
+          } catch (Exception e) {
+              Log.e(TAG, "Error releasing camera", e);
+          } finally {
+              mCamera = null;
+              setCameraState(CameraState.CLOSED);
+          }
+      }
   }
 }
