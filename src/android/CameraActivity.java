@@ -21,6 +21,7 @@ import android.hardware.Camera.ShutterCallback;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.DisplayMetrics;
 import android.util.Size;
