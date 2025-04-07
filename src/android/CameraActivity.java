@@ -21,6 +21,7 @@ import android.hardware.Camera.ShutterCallback;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.DisplayMetrics;
 import android.util.Size;
@@ -296,8 +297,17 @@ public class CameraActivity extends Fragment {
       if(mPreview.mPreviewSize == null){
         mPreview.setCamera(mCamera, cameraCurrentlyLocked);
 
+        // Don't immediately call the callback - post it as a delayed action
+        // to ensure the listener is properly set up when it's called
         if (eventListener != null) {
-          eventListener.onCameraStarted();
+          new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+              if (eventListener != null && isAdded() && !isDetached()) {
+                eventListener.onCameraStarted();
+              }
+            }
+          });
         }
       } else {
         mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
@@ -328,7 +338,7 @@ public class CameraActivity extends Fragment {
         });
       }
     } catch (Exception e) {
-      // catch Exception java.lang.RuntimeException: Fail to connect to camera service
+      Log.e(TAG, "Error in onResume", e);
     }
   }
 
@@ -484,28 +494,44 @@ public class CameraActivity extends Fragment {
         if (!storeToFile) {
           String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
 
-          eventListener.onPictureTaken(encodedImage);
+          if (eventListener != null) {
+            eventListener.onPictureTaken(encodedImage);
+          } else {
+            Log.e(TAG, "eventListener is null");
+          }
         } else {
           String path = getTempFilePath();
           FileOutputStream out = new FileOutputStream(path);
           out.write(data);
           out.close();
-          eventListener.onPictureTaken(path);
+          if (eventListener != null) {
+            eventListener.onPictureTaken(path);
+          } else {
+            Log.e(TAG, "eventListener is null");
+          }
         }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
       } catch (OutOfMemoryError e) {
-        // most likely failed to allocate memory for rotateBitmap
-        Log.d(TAG, "CameraPreview OutOfMemoryError");
-        // failed to allocate memory
-        eventListener.onPictureTakenError("Picture too large (memory)");
+        Log.d(TAG, "CameraPreview OutOfMemoryError", e);
+        if (eventListener != null) {
+          eventListener.onPictureTakenError("Picture too large (memory)");
+        }
       } catch (IOException e) {
-        Log.d(TAG, "CameraPreview IOException");
-        eventListener.onPictureTakenError("IO Error when extracting exif");
+        Log.d(TAG, "CameraPreview IOException", e);
+        if (eventListener != null) {
+          eventListener.onPictureTakenError("IO Error when extracting exif");
+        }
       } catch (Exception e) {
-        Log.d(TAG, "CameraPreview onPictureTaken general exception");
+        Log.d(TAG, "CameraPreview onPictureTaken general exception", e);
       } finally {
         canTakePicture = true;
-        mCamera.startPreview();
+        if (mCamera != null) {
+          try {
+            mCamera.startPreview();
+          } catch (Exception e) {
+            Log.e(TAG, "Error starting preview in callback", e);
+          }
+        }
       }
     }
   };
@@ -667,6 +693,12 @@ public class CameraActivity extends Fragment {
       new Thread() {
         public void run() {
           try {
+            if (mCamera == null) {
+              Log.d(TAG, "Camera is null, cannot take picture");
+              canTakePicture = true; // Reset flag if camera is null
+              return;
+            }
+            
             Camera.Parameters params = mCamera.getParameters();
 
             Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
@@ -685,7 +717,9 @@ public class CameraActivity extends Fragment {
             mCamera.setParameters(params);
             mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
           } catch (Exception e) {
-            // prevent Exception java.lang.RuntimeException: takePicture failed
+            // Reset flag so future attempts can be made
+            canTakePicture = true;
+            Log.e(TAG, "Error taking picture", e);
           }
         }
       }.start();
