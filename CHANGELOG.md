@@ -2,6 +2,7 @@
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.13.0...master)
+- [#707](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/707) - Fixes to prevent null pointer and runtime errors
 - [#701](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/701) - Fix Camera preview not going to back in Ionic Capacitor
 
 ## v0.13.0 - July 23, 2024 - LATEST RELEASED VERSION
