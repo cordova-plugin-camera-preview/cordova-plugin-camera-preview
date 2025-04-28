@@ -149,7 +149,7 @@
 
       [self updateOrientation:currentOrientation];
       self.device = videoDevice;
-      
+
       [self.session startRunning];
 
       completion(success);
@@ -222,7 +222,7 @@
       [self updateOrientation:currentOrientation];
       [self.session commitConfiguration];
       self.device = videoDevice;
-      
+
       [self.session startRunning];
 
       completion(success);
@@ -734,9 +734,9 @@
 }
 
 - (AVCapturePhotoSettings*) captureSettings {
-	AVCapturePhotoSettings* settings = [AVCapturePhotoSettings photoSettings];
-	settings.flashMode = self.defaultFlashMode;
-	return settings;
+  AVCapturePhotoSettings* settings = [AVCapturePhotoSettings photoSettings];
+  settings.flashMode = self.defaultFlashMode;
+  return settings;
 }
 
 @end
