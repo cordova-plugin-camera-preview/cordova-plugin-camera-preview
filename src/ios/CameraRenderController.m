@@ -216,7 +216,7 @@
     [self.context presentRenderbuffer:GL_RENDERBUFFER];
     [(GLKView *)(self.view)display];
     [self.renderLock unlock];
-	});
+  });
   }
 }
 
