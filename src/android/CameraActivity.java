@@ -23,6 +23,7 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.util.LayoutDirection;
+import android.os.Handler;
 import android.util.Log;
 import android.util.DisplayMetrics;
 import android.util.Size;
@@ -289,45 +290,61 @@ public class CameraActivity extends Fragment {
   public void onResume() {
     super.onResume();
 
-    mCamera = Camera.open(defaultCameraId);
-    cameraOpened();
+    try {
+      mCamera = Camera.open(defaultCameraId);
+      cameraOpened();
 
-    if (cameraParameters != null) {
-      mCamera.setParameters(cameraParameters);
-    }
+      if (cameraParameters != null) {
+        mCamera.setParameters(cameraParameters);
+      }
 
-    cameraCurrentlyLocked = defaultCameraId;
+      cameraCurrentlyLocked = defaultCameraId;
 
-    if(mPreview.mPreviewSize == null){
-      mPreview.setCamera(mCamera, cameraCurrentlyLocked);
-      eventListener.onCameraStarted();
-    } else {
-      mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
-      mCamera.startPreview();
-    }
+      if(mPreview.mPreviewSize == null){
+        mPreview.setCamera(mCamera, cameraCurrentlyLocked);
 
-    Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
-
-    final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
-
-    ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
-
-    if (viewTreeObserver.isAlive()) {
-      viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-        @Override
-        public void onGlobalLayout() {
-          frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-          frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-          Activity activity = getActivity();
-          if (isAdded() && activity != null) {
-            final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
-
-            FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
-            camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-            frameCamContainerLayout.setLayoutParams(camViewLayout);
-          }
+        // Don't immediately call the callback - post it as a delayed action
+        // to ensure the listener is properly set up when it's called
+        if (eventListener != null) {
+          new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+              if (eventListener != null && isAdded() && !isDetached()) {
+                eventListener.onCameraStarted();
+              }
+            }
+          });
         }
-      });
+      } else {
+        mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+        mCamera.startPreview();
+      }
+
+      Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
+
+      final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
+
+      ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
+
+      if (viewTreeObserver.isAlive()) {
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+          @Override
+          public void onGlobalLayout() {
+            frameContainerLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+            frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            Activity activity = getActivity();
+            if (isAdded() && activity != null) {
+              final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
+
+              FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
+              camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+              frameCamContainerLayout.setLayoutParams(camViewLayout);
+            }
+          }
+        });
+      }
+    } catch (Exception e) {
+      Log.e(TAG, "Error in onResume", e);
     }
   }
 
@@ -484,28 +501,44 @@ public class CameraActivity extends Fragment {
         if (!storeToFile) {
           String encodedImage = Base64.encodeToString(data, Base64.NO_WRAP);
 
-          eventListener.onPictureTaken(encodedImage);
+          if (eventListener != null) {
+            eventListener.onPictureTaken(encodedImage);
+          } else {
+            Log.e(TAG, "eventListener is null");
+          }
         } else {
           String path = getTempFilePath();
           FileOutputStream out = new FileOutputStream(path);
           out.write(data);
           out.close();
-          eventListener.onPictureTaken(path);
+          if (eventListener != null) {
+            eventListener.onPictureTaken(path);
+          } else {
+            Log.e(TAG, "eventListener is null");
+          }
         }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
       } catch (OutOfMemoryError e) {
-        // most likely failed to allocate memory for rotateBitmap
-        Log.d(TAG, "CameraPreview OutOfMemoryError");
-        // failed to allocate memory
-        eventListener.onPictureTakenError("Picture too large (memory)");
+        Log.d(TAG, "CameraPreview OutOfMemoryError", e);
+        if (eventListener != null) {
+          eventListener.onPictureTakenError("Picture too large (memory)");
+        }
       } catch (IOException e) {
-        Log.d(TAG, "CameraPreview IOException");
-        eventListener.onPictureTakenError("IO Error when extracting exif");
+        Log.d(TAG, "CameraPreview IOException", e);
+        if (eventListener != null) {
+          eventListener.onPictureTakenError("IO Error when extracting exif");
+        }
       } catch (Exception e) {
-        Log.d(TAG, "CameraPreview onPictureTaken general exception");
+        Log.d(TAG, "CameraPreview onPictureTaken general exception", e);
       } finally {
         canTakePicture = true;
-        mCamera.startPreview();
+        if (mCamera != null) {
+          try {
+            mCamera.startPreview();
+          } catch (Exception e) {
+            Log.e(TAG, "Error starting preview in callback", e);
+          }
+        }
       }
     }
   };
@@ -618,6 +651,9 @@ public class CameraActivity extends Fragment {
   }
 
   public void takeSnapshot(final int quality) {
+    if (mCamera == null) {
+      return;
+    }
     mCamera.setPreviewCallback(new Camera.PreviewCallback() {
       @Override
       public void onPreviewFrame(byte[] bytes, Camera camera) {
@@ -663,23 +699,35 @@ public class CameraActivity extends Fragment {
 
       new Thread() {
         public void run() {
-          Camera.Parameters params = mCamera.getParameters();
+          try {
+            if (mCamera == null) {
+              Log.d(TAG, "Camera is null, cannot take picture");
+              canTakePicture = true; // Reset flag if camera is null
+              return;
+            }
 
-          Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
-          params.setPictureSize(size.width, size.height);
-          currentQuality = quality;
+            Camera.Parameters params = mCamera.getParameters();
 
-          if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT && !storeToFile) {
-            // The image will be recompressed in the callback
-            params.setJpegQuality(99);
-          } else {
-            params.setJpegQuality(quality);
+            Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
+            params.setPictureSize(size.width, size.height);
+            currentQuality = quality;
+
+            if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT && !storeToFile) {
+              // The image will be recompressed in the callback
+              params.setJpegQuality(99);
+            } else {
+              params.setJpegQuality(quality);
+            }
+
+            params.setRotation(mPreview.getDisplayOrientation());
+
+            mCamera.setParameters(params);
+            mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
+          } catch (Exception e) {
+            // Reset flag so future attempts can be made
+            canTakePicture = true;
+            Log.e(TAG, "Error taking picture", e);
           }
-
-          params.setRotation(mPreview.getDisplayOrientation());
-
-          mCamera.setParameters(params);
-          mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
         }
       }.start();
     } else {
@@ -706,7 +754,22 @@ public class CameraActivity extends Fragment {
 
       Camera.Parameters cameraParams = mCamera.getParameters();
       if (withFlash) {
-        cameraParams.setFlashMode(withFlash ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
+        List<String> flashModes = cameraParams.getSupportedFlashModes();
+
+        if (flashModes != null) {
+          Log.d(TAG, "Enabling flash on device");
+
+          if (flashModes.contains(Camera.Parameters.FLASH_MODE_TORCH)) {
+            cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+          } else if (flashModes.contains(Camera.Parameters.FLASH_MODE_ON)) {
+            cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+          } else if (flashModes.contains(Camera.Parameters.FLASH_MODE_AUTO)) {
+            cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+          }
+        } else {
+          Log.d(TAG, "Flash not supported on device");
+        }
+
         mCamera.setParameters(cameraParams);
         mCamera.startPreview();
       }
@@ -747,8 +810,21 @@ public class CameraActivity extends Fragment {
         Log.d(TAG, "Starting recording");
         mRecorder.start();
         eventListener.onStartRecordVideo();
-      } catch (IOException e) {
-        eventListener.onStartRecordVideoError(e.getMessage());
+      } catch (IOException ioException) {
+        Log.e(TAG, "Recording failed, file issue", ioException);
+        eventListener.onStartRecordVideoError(ioException.getMessage());
+
+        mRecorder = null;
+      } catch (IllegalStateException stateException) {
+        Log.e(TAG, "Recording failed, audio/video may be in use by another application", stateException);
+        eventListener.onStartRecordVideoError("Failed to start recording, your audio or video may be in use by another application");
+
+        mRecorder = null;
+      } catch (Exception exception) {
+        Log.e(TAG, "Recording failed, unknown", exception);
+        eventListener.onStartRecordVideoError(exception.getMessage());
+
+        mRecorder = null;
       }
     } else {
       Log.d(TAG, "Requiring RECORD_AUDIO permission to continue");

@@ -1,14 +1,23 @@
 # Changelog
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
-- [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.3...master)
-- Nothing yet
+- [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.13.0...master)
+- [#707](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/707) - Fixes to prevent null pointer and runtime errors
+- [#701](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/701) - Fix Camera preview not going to back in Ionic Capacitor
 
-## v0.12.3 - Aug 11, 2021 - LATEST RELEASED VERSION
+## v0.13.0 - July 23, 2024 - LATEST RELEASED VERSION
+- [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.3...v0.13.0)
+- [#699](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/commit/21961100181c97dcbf59e72749d6cf2add7f05ef) - Null pointer exception fixes
+- [#689](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/689) - Improve error handling for Android
+- [#688](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/688) - Fix exceptions thrown around flash types when calling setParameters on Android. We now check supported flash mode types and only enable the modes that are found.
+- [#687](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/687) - Add Android 33+ required permissions for media image and media video permissions
+- [#676](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/676) - Ensure `toBack` behaves correctly on Android
+
+## v0.12.3
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.2...v0.12.3)
 - [#654](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/654) - Fix memory leak when taking multiple snapshots
 
-## v0.12.2 - Apr 15, 2021 - LATEST RELEASED VERSION
+## v0.12.2 - Apr 15, 2021
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.12.1...v0.12.2)
 - [#639](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/639) - Typescript definition fix
 - [#633](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/633) - Fix app crash with `startRecordVideo` after allowing the `RECORD_AUDIO` permission prompt.
@@ -30,7 +39,7 @@
 ## v0.11.2 - February 12, 2020
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.11.1...v0.11.2)
 - [#582](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/582) - Add support for Android devices without Autofocus which can increase the amount of devices for which app installation is allowed by about (~4k at time of)
-- [#583](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/583) - Fix typescript error CameraPreview.d.ts is not a module 
+- [#583](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/583) - Fix typescript error CameraPreview.d.ts is not a module
 
 ## v0.11.1 - November 19, 2019
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.11.0...v0.11.1)
