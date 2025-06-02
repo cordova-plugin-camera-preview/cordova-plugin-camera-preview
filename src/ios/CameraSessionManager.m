@@ -724,4 +724,52 @@
   return nil;
 }
 
+- (void) setupAudioSession {
+    NSError *error = nil;
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+    [[AVAudioSession sharedInstance] setActive:YES error:&error];
+}
+
+- (void) startRecording:(NSString *)filePath {
+    if (self.isRecording) {
+        return;
+    }
+    
+    [self setupAudioSession];
+    
+    if (!self.movieFileOutput) {
+        self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+        if ([self.session canAddOutput:self.movieFileOutput]) {
+            [self.session addOutput:self.movieFileOutput];
+        }
+    }
+    
+    self.videoFilePath = filePath;
+    NSURL *outputURL = [NSURL fileURLWithPath:filePath];
+    
+    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+    self.isRecording = YES;
+}
+
+- (void) stopRecording {
+    if (self.isRecording && self.movieFileOutput.isRecording) {
+        [self.movieFileOutput stopRecording];
+        self.isRecording = NO;
+    }
+}
+
+- (void) captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
+    if (error) {
+        NSLog(@"Error recording video: %@", error);
+        if ([self.delegate respondsToSelector:@selector(onVideoRecordingError:)]) {
+            [self.delegate onVideoRecordingError:error];
+        }
+        return;
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(onVideoRecordingComplete:)]) {
+        [self.delegate onVideoRecordingComplete:outputFileURL.path];
+    }
+}
+
 @end

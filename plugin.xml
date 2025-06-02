@@ -54,6 +54,10 @@
       </feature>
     </config-file>
 
+    <config-file target="*-Info.plist" parent="NSMicrophoneUsageDescription">
+      <string>Allow the app to use your microphone for video recording</string>
+    </config-file>
+
     <header-file src="src/ios/CameraPreview.h" />
     <source-file src="src/ios/CameraPreview.m" />
 

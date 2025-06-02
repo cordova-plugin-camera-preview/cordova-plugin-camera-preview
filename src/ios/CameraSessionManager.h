@@ -52,4 +52,11 @@
 @property (nonatomic, assign) id delegate;
 @property (nonatomic) NSString *currentWhiteBalanceMode;
 @property (nonatomic) NSDictionary *colorTemperatures;
+@property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
+@property (nonatomic) BOOL isRecording;
+@property (nonatomic) NSString *videoFilePath;
+
+- (void) startRecording:(NSString *)filePath;
+- (void) stopRecording;
+- (void) setupAudioSession;
 @end

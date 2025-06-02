@@ -794,4 +794,44 @@
     return filePath;
 }
 
+- (void) startRecordVideo:(CDVInvokedUrlCommand*)command {
+    CDVPluginResult *pluginResult;
+    
+    if (self.sessionManager != nil) {
+        NSString *tempDir = NSTemporaryDirectory();
+        NSString *fileName = [NSString stringWithFormat:@"video_%d.mp4", (int)[[NSDate date] timeIntervalSince1970]];
+        NSString *filePath = [tempDir stringByAppendingPathComponent:fileName];
+        
+        [self.sessionManager startRecording:filePath];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
+    }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) stopRecordVideo:(CDVInvokedUrlCommand*)command {
+    CDVPluginResult *pluginResult;
+    
+    if (self.sessionManager != nil) {
+        [self.sessionManager stopRecording];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Camera not started"];
+    }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) onVideoRecordingComplete:(NSString *)filePath {
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:filePath];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.recordVideoCallbackId];
+}
+
+- (void) onVideoRecordingError:(NSError *)error {
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.localizedDescription];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.recordVideoCallbackId];
+}
+
 @end
