@@ -2,6 +2,7 @@
 
 ## MASTER BRANCH (RECOMMENDED) - UNRELEASED
 - [View Diff](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/compare/v0.13.0...master)
+- [#709](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/709) - Remove unused permissions `READ_MEDIA_IMAGES` and `READ_MEDIA_VIDEOS`
 - [#707](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/707) - Fixes to prevent null pointer and runtime errors
 - [#701](https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview/pull/701) - Fix Camera preview not going to back in Ionic Capacitor
 
