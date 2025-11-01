@@ -3,6 +3,7 @@
 #import <Cordova/CDVInvokedUrlCommand.h>
 #import <GLKit/GLKit.h>
 #import "CameraPreview.h"
+#import <AVFoundation/AVFoundation.h>
 
 #define TMP_IMAGE_PREFIX @"cpcp_capture_"
 
@@ -78,7 +79,9 @@
 
     [self.sessionManager setupSession:defaultCamera completion:^(BOOL started) {
 
-      [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
+    NSDictionary *cameraInfo = @{@"hasUltraWideAngle": @([self getHasUltraWideAngle])};
+
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId messageAsDictionary: cameraInfo];
 
     }];
 
@@ -862,6 +865,28 @@
     } while ([fileMgr fileExistsAtPath:filePath]);
 
     return filePath;
+}
+
+- (BOOL)getHasUltraWideAngle
+{
+  AVCaptureDeviceDiscoverySession *discoverySession = [
+  AVCaptureDeviceDiscoverySession 
+    discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInUltraWideCamera] 
+    mediaType:AVMediaTypeVideo 
+    position:AVCaptureDevicePositionUnspecified];
+
+  NSArray<AVCaptureDevice *> *devices = discoverySession.devices;
+  for (AVCaptureDevice *device in devices) {
+    for (AVCaptureInput *input in captureSession.inputs) {
+        if ([input isKindOfClass:[AVCaptureDeviceInput class]]) {
+            AVCaptureDeviceInput *deviceInput = (AVCaptureDeviceInput *)input;
+            if (deviceInput.device == device) {
+                return YES;
+            }
+        }
+    }
+  }
+  return NO;
 }
 
 @end
