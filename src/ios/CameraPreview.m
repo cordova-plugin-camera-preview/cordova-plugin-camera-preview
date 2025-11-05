@@ -3,7 +3,7 @@
 #import <Cordova/CDVInvokedUrlCommand.h>
 #import <GLKit/GLKit.h>
 #import "CameraPreview.h"
-#import <AVFoundation/AVFoundation.h>
+#import <objc/runtime.h>
 
 #define TMP_IMAGE_PREFIX @"cpcp_capture_"
 
@@ -79,9 +79,19 @@
 
     [self.sessionManager setupSession:defaultCamera completion:^(BOOL started) {
 
-    NSDictionary *cameraInfo = @{@"hasUltraWideAngle": @([self getHasUltraWideAngle])};
+      AVCaptureDevice *device = [self.sessionManager cameraWithPosition:self.sessionManager.defaultCamera];
 
-    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId messageAsDictionary: cameraInfo];
+      NSDictionary *cameraInfo = @{
+        @"modelID": device.modelID,
+        @"deviceType": device.deviceType,
+        @"position": @(device.position),
+        @"zoomRange": @{
+          @"min": @(device.minAvailableVideoZoomFactor),
+          @"max": @(device.maxAvailableVideoZoomFactor),
+        }
+      };
+
+      [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:cameraInfo] callbackId:command.callbackId];
 
     }];
 
@@ -865,28 +875,6 @@
     } while ([fileMgr fileExistsAtPath:filePath]);
 
     return filePath;
-}
-
-- (BOOL)getHasUltraWideAngle
-{
-  AVCaptureDeviceDiscoverySession *discoverySession = [
-  AVCaptureDeviceDiscoverySession 
-    discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInUltraWideCamera] 
-    mediaType:AVMediaTypeVideo 
-    position:AVCaptureDevicePositionUnspecified];
-
-  NSArray<AVCaptureDevice *> *devices = discoverySession.devices;
-  for (AVCaptureDevice *device in devices) {
-    for (AVCaptureInput *input in captureSession.inputs) {
-        if ([input isKindOfClass:[AVCaptureDeviceInput class]]) {
-            AVCaptureDeviceInput *deviceInput = (AVCaptureDeviceInput *)input;
-            if (deviceInput.device == device) {
-                return YES;
-            }
-        }
-    }
-  }
-  return NO;
 }
 
 @end
