@@ -6,21 +6,23 @@ Cordova plugin that allows camera interaction from Javascript and HTML
 
 **Releases are being kept up to date when appropriate. However, this plugin is under constant development. As such it is recommended to use master to always have the latest fixes & features.**
 
-**PR's are greatly appreciated. Maintainer(s) wanted.**
+**PR's are greatly appreciated.**
 
 # Features
 
 <ul>
-  <li>Start a camera preview from HTML code.</li>
-  <li>Maintain HTML interactivity.</li>
-  <li>Drag the preview box.</li>
-  <li>Set camera color effect.</li>
-  <li>Send the preview box to back of the HTML content.</li>
-  <li>Set a custom position for the camera preview box.</li>
-  <li>Set a custom size for the preview box.</li>
-  <li>Set a custom alpha for the preview box.</li>
+  <li>Start a camera preview from HTML code</li>
+  <li>Take Photos and Snapshots</li>
+  <li>Maintain HTML interactivity</li>
+  <li>Drag the preview box</li>
+  <li>Set camera color effect</li>
+  <li>Send the preview box to back of the HTML content</li>
+  <li>Set a custom position for the camera preview box</li>
+  <li>Set a custom size for the preview box</li>
+  <li>Set a custom alpha for the preview box</li>
   <li>Set the focus mode, zoom, color effects, exposure mode, white balance mode and exposure compensation</li>
   <li>Tap to focus</li>
+  <li>Record Videos</li>
 </ul>
 
 # Installation
@@ -52,7 +54,8 @@ meteor add cordova:cordova-plugin-camera-preview@X.X.X
 ```
 
 #### iOS Quirks
-If you are developing for iOS 10+ you must also add the following to your config.xml
+1. It is not possible to use your computers webcam during testing in the simulator, you must device test.
+2. If you are developing for iOS 10+ you must also add the following to your config.xml
 
 ```xml
 <config-file platform="ios" target="*-Info.plist" parent="NSCameraUsageDescription" overwrite="true">
@@ -66,13 +69,9 @@ If you are developing for iOS 10+ you must also add the following to your config
 </gap:config-file>
 ```
 
-#### Android Quirks (older devices)
-When using the plugin for older devices, the camera preview will take the focus inside the app once initialized.
-In order to prevent the app from closing when a user presses the back button, the event for the camera view is disabled.
-If you still want the user to navigate, you can add a listener for the back event for the preview
-(see <code>[onBackButton](#onBackButton)</code>)
+#### Android Quirks
 
-
+1. When using the plugin for older devices, the camera preview will take the focus inside the app once initialized. In order to prevent the app from closing when a user presses the back button, the event for the camera view is disabled. If you still want the user to navigate, you can add a listener for the back event for the preview (see <code>[onBackButton](#onBackButton)</code>)
 
 # Methods
 
@@ -114,7 +113,7 @@ let options = {
 CameraPreview.startCamera(options);
 ```
 
-When setting the toBack to true, remember to add the style below on your app's HTML or body element:
+When setting `toBack` to true, remember to add the style below on your app's HTML or body element:
 
 ```css
 html, body, .ion-app, .ion-content {
@@ -122,7 +121,11 @@ html, body, .ion-app, .ion-content {
 }
 ```
 
-When both tapFocus and tapPhoto are true, the camera will focus, and take a picture as soon as the camera is done focusing.
+When both `tapFocus` and `tapPhoto` are true, the camera will focus, and take a picture as soon as the camera is done focusing.
+
+If you capture large images in Android you may notice that performace is poor, in those cases you can set `disableExifHeaderStripping` to true and instead just add some extra Javascript/HTML to get a proper display of your captured images without risking your application speed.
+
+When capturing large images you may want them to be stored into a file instead of having them base64 encoded, as enconding at least on Android is very expensive. With the feature `storeToFile` enabled the plugin will capture the image into a temporary file inside the application temporary cache (the same place where Cordova will extract your assets). This method is better used with `disableExifHeaderStripping` to get the best possible performance.
 
 ### stopCamera([successCallback, errorCallback])
 
@@ -525,147 +528,36 @@ function takePicture() {
 }
 ```
 
-# storeToFile
+### startRecordVideo(options, cb, [errorCallback])
 
-When capturing large images you may want them to be stored into a file instead of having them
-base64 enconded, as enconding at least on Android is very expensive. With the feature storeToFile enabled
-the plugin will capture the image into a temporary file inside the application temporary cache (the same
-place where Cordova will extract your assets). This method is better used with *disableExifHeaderStripping* 
-to get the best possible performance.
+*Currently this feature is for Android only. A PR for iOS support would be happily accepted*
 
-
-Example:
-
-```html
-<script src="https://raw.githubusercontent.com/blueimp/JavaScript-Load-Image/master/js/load-image.all.min.js"></script>
-
-<p><div id="originalPicture" style="width: 100%"></div></p>
-```
+<info>Start recording video to the cache.</info><br/>
 
 ```javascript
-let options = {
-  x: 0,
-  y: 0,
-  width: window.screen.width,
-  height: window.screen.height,
-  camera: CameraPreview.CAMERA_DIRECTION.BACK,
-  toBack: false,
-  tapPhoto: true,
-  tapFocus: false,
-  previewDrag: false,
-  disableExifHeaderStripping: true,
-  storeToFile: true
-};
-....
-
-function gotRotatedCanvas(canvasimg) {
-  var displayCanvas = $('canvas#display-canvas');
-  loadImage.scale(canvasimg, function(img){
-    displayCanvas.drawImage(img)
-  }, {
-    maxWidth: displayCanvas.width,
-    maxHeight: displayCanvas.height
-  });
+var opts = {
+  cameraDirection: CameraPreview.CAMERA_DIRECTION.BACK,
+  width: (window.screen.width / 2),
+  height: (window.screen.height / 2),
+  quality: 60,
+  withFlash: false
 }
 
-CameraPreview.getSupportedPictureSizes(function(dimensions){
-  dimensions.sort(function(a, b){
-    return (b.width * b.height - a.width * a.height);
-  });
-  var dimension = dimensions[0];
-  CameraPreview.takePicture({width:dimension.width, height:dimension.height, quality: 85}, function(path){
-    var image = 'file://' + path;
-    let holder = document.getElementById('originalPicture');
-    let width = holder.offsetWidth;
-    loadImage(
-      image,
-      function(canvas) {
-        holder.innerHTML = "";
-        if (app.camera === 'front') {
-          // front camera requires we flip horizontally
-          canvas.style.transform = 'scale(1, -1)';
-        }
-        holder.appendChild(canvas);
-      },
-      {
-        maxWidth: width,
-        orientation: true,
-        canvas: true
-      }
-    );
-  });
+CameraPreview.startRecordVideo(opts, function(filePath){
+  console.log(filePath)    
 });
 ```
 
-## disableExifHeaderStripping
+### stopRecordVideo(cb, [errorCallback])
 
-If you want to capture large images you will notice in Android that performace is very bad, in those cases you can set
-this flag, and add some extra Javascript/HTML to get a proper display of your captured images without risking your application speed.
+*Currently this feature is for Android only. A PR for iOS support would be happily accepted*
 
-Example:
-
-```html
-<script src="https://raw.githubusercontent.com/blueimp/JavaScript-Load-Image/master/js/load-image.all.min.js"></script>
-
-<p><div id="originalPicture" style="width: 100%"></div></p>
-```
+<info>Stop recording video and return video file path</info><br/>
 
 ```javascript
-let options = {
-  x: 0,
-  y: 0,
-  width: window.screen.width,
-  height: window.screen.height,
-  camera: CameraPreview.CAMERA_DIRECTION.BACK,
-  toBack: false,
-  tapPhoto: true,
-  tapFocus: false,
-  previewDrag: false,
-  disableExifHeaderStripping: true
-};
-....
-
-function gotRotatedCanvas(canvasimg) {
-  var displayCanvas = $('canvas#display-canvas');
-  loadImage.scale(canvasimg, function(img){
-    displayCanvas.drawImage(img)
-  }, {
-    maxWidth: displayCanvas.width,
-    maxHeight: displayCanvas.height
-  });
-}
-
-CameraPreview.getSupportedPictureSizes(function(dimensions){
-  dimensions.sort(function(a, b){
-    return (b.width * b.height - a.width * a.height);
-  });
-  var dimension = dimensions[0];
-  CameraPreview.takePicture({width:dimension.width, height:dimension.height, quality: 85}, function(base64PictureData){
-    /*
-      base64PictureData is base64 encoded jpeg image. Use this data to store to a file or upload.
-      Its up to the you to figure out the best way to save it to disk or whatever for your application.
-    */
-
-    var image = 'data:image/jpeg;base64,' + imgData;
-    let holder = document.getElementById('originalPicture');
-    let width = holder.offsetWidth;
-    loadImage(
-      image,
-      function(canvas) {
-        holder.innerHTML = "";
-        if (app.camera === 'front') {
-          // front camera requires we flip horizontally
-          canvas.style.transform = 'scale(1, -1)';
-        }
-        holder.appendChild(canvas);
-      },
-      {
-        maxWidth: width,
-        orientation: true,
-        canvas: true
-      }
-    );
-  });
+CameraPreview.stopRecordVideo(function(filePath) {
+  console.log(filePath);
+});
 ```
 
 # Settings
@@ -763,21 +655,6 @@ Note: Use AUTO to allow the device automatically adjusts the exposure once and t
 | SHADE | string | shade | |
 | TWILIGHT | string | twilight | |
 | WARM_FLUORESCENT | string | warm-fluorescent | |
-
-# IOS Quirks
-It is not possible to use your computers webcam during testing in the simulator, you must device test.
-
-# Customize Android Support Library versions (Android only)
-The default `ANDROID_SUPPORT_LIBRARY_VERSION` is set to `26+`.
-If you need a different version, add argument `--variable ANDROID_SUPPORT_LIBRARY_VERSION="{version}"`.
-
-Or edit `config.xml` with following,
-
-```xml
-<plugin name="cordova-plugin-camera-preview" spec="X.X.X">
-  <variable name="ANDROID_SUPPORT_LIBRARY_VERSION" value="26+" />
-</plugin>
-```
 
 # Sample App
 

@@ -2,8 +2,8 @@ package com.cordovaplugincamerapreview;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
+import android.graphics.Bitmap.CompressFormat;
+import android.media.AudioManager;
 import android.util.Base64;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -15,16 +15,24 @@ import android.hardware.Camera.Area;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
-import android.hardware.Camera.Size;
+import android.hardware.Camera.ShutterCallback;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.media.CamcorderProfile;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.DisplayMetrics;
+import android.util.Size;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.support.media.ExifInterface;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import androidx.exifinterface.media.ExifInterface;
 
 
 import java.io.ByteArrayInputStream;
@@ -38,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -60,6 +69,10 @@ public class CameraActivity extends Fragment {
     void onFocusSetError(String message);
     void onBackButton();
     void onCameraStarted();
+    void onStartRecordVideo();
+    void onStartRecordVideoError(String message);
+    void onStopRecordVideo(String file);
+    void onStopRecordVideoError(String error);
   }
 
   private CameraPreviewListener eventListener;
@@ -78,6 +91,7 @@ public class CameraActivity extends Fragment {
   // The first rear facing camera
   private int defaultCameraId;
   public String defaultCamera;
+
   public boolean tapToTakePicture;
   public boolean dragEnabled;
   public boolean tapToFocus;
@@ -99,7 +113,18 @@ public class CameraActivity extends Fragment {
   private SensorManager sensorManager;
   private Sensor sensor;
 
-  public void setEventListener(CameraPreviewListener listener) {
+  public int width;
+  public int height;
+  public int x;
+  public int y;
+
+  private enum RecordingState {INITIALIZING, STARTED, STOPPED}
+
+  private RecordingState mRecordingState = RecordingState.INITIALIZING;
+  private MediaRecorder mRecorder = null;
+  private String recordFilePath;
+
+  public void setEventListener(CameraPreviewListener listener){
     eventListener = listener;
   }
 
@@ -166,16 +191,14 @@ public class CameraActivity extends Fragment {
     mCamera = null;
   }
 
-  private void setupTouchAndBackButton() {
-
-    final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(),
-        new TapGestureDetector());
+  private void setupTouchAndBackButton(){
+    final GestureDetector gestureDetector = new GestureDetector(getActivity().getApplicationContext(), new TapGestureDetector());
 
     getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        containerView.setClickable(true);
-        containerView.setOnTouchListener(new View.OnTouchListener() {
+        frameContainerLayout.setClickable(true);
+        frameContainerLayout.setOnTouchListener(new View.OnTouchListener() {
 
           private int mLastTouchX;
           private int mLastTouchY;
@@ -184,16 +207,16 @@ public class CameraActivity extends Fragment {
 
           @Override
           public boolean onTouch(View v, MotionEvent event) {
-            Log.d(TAG, "onTouch" + event);
-            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) containerView.getLayoutParams();
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) frameContainerLayout.getLayoutParams();
+
 
             boolean isSingleTapTouch = gestureDetector.onTouchEvent(event);
             if (event.getAction() != MotionEvent.ACTION_MOVE && isSingleTapTouch) {
               if (tapToTakePicture && tapToFocus) {
-                setFocusArea((int) event.getX(0), (int) event.getY(0), new AutoFocusCallback() {
+                setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
                   public void onAutoFocus(boolean success, Camera camera) {
                     if (success) {
-                      takePicture(85);
+                      takePicture(0, 0, 85);
                     } else {
                       Log.d(TAG, "onTouch:" + " setFocusArea() did not suceed");
                     }
@@ -201,10 +224,10 @@ public class CameraActivity extends Fragment {
                 });
 
               } else if (tapToTakePicture) {
-                takePicture(85);
+                takePicture(0, 0, 85);
 
               } else if (tapToFocus) {
-                setFocusArea((int) event.getX(0), (int) event.getY(0), new AutoFocusCallback() {
+                setFocusArea((int) event.getX(0), (int) event.getY(0), new Camera.AutoFocusCallback() {
                   public void onAutoFocus(boolean success, Camera camera) {
                     if (success) {
                       // A callback to JS might make sense here.
@@ -221,50 +244,50 @@ public class CameraActivity extends Fragment {
                 int y;
 
                 switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                  if (mLastTouchX == 0 || mLastTouchY == 0) {
-                    mLastTouchX = (int) event.getRawX() - layoutParams.leftMargin;
-                    mLastTouchY = (int) event.getRawY() - layoutParams.topMargin;
-                  } else {
-                    mLastTouchX = (int) event.getRawX();
-                    mLastTouchY = (int) event.getRawY();
-                  }
-                  break;
-                case MotionEvent.ACTION_MOVE:
+                  case MotionEvent.ACTION_DOWN:
+                    if (mLastTouchX == 0 || mLastTouchY == 0) {
+                      mLastTouchX = (int) event.getRawX() - layoutParams.leftMargin;
+                      mLastTouchY = (int) event.getRawY() - layoutParams.topMargin;
+                    } else {
+                      mLastTouchX = (int) event.getRawX();
+                      mLastTouchY = (int) event.getRawY();
+                    }
+                    break;
+                  case MotionEvent.ACTION_MOVE:
 
-                  x = (int) event.getRawX();
-                  y = (int) event.getRawY();
+                    x = (int) event.getRawX();
+                    y = (int) event.getRawY();
 
-                  final float dx = x - mLastTouchX;
-                  final float dy = y - mLastTouchY;
+                    final float dx = x - mLastTouchX;
+                    final float dy = y - mLastTouchY;
 
-                  mPosX += dx;
-                  mPosY += dy;
+                    mPosX += dx;
+                    mPosY += dy;
 
-                  layoutParams.leftMargin = mPosX;
-                  layoutParams.topMargin = mPosY;
+                    layoutParams.leftMargin = mPosX;
+                    layoutParams.topMargin = mPosY;
 
-                  containerView.setLayoutParams(layoutParams);
+                    frameContainerLayout.setLayoutParams(layoutParams);
 
-                  // Remember this touch position for the next move event
-                  mLastTouchX = x;
-                  mLastTouchY = y;
+                    // Remember this touch position for the next move event
+                    mLastTouchX = x;
+                    mLastTouchY = y;
 
-                  break;
-                default:
-                  break;
+                    break;
+                  default:
+                    break;
                 }
               }
             }
             return true;
           }
         });
-        containerView.setFocusableInTouchMode(true);
-        containerView.requestFocus();
-        containerView.setOnKeyListener(new android.view.View.OnKeyListener() {
+
+        frameContainerLayout.setFocusableInTouchMode(true);
+        frameContainerLayout.requestFocus();
+        frameContainerLayout.setOnKeyListener(new android.view.View.OnKeyListener() {
           @Override
           public boolean onKey(android.view.View v, int keyCode, android.view.KeyEvent event) {
-
             if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
               eventListener.onBackButton();
               return true;
@@ -274,7 +297,6 @@ public class CameraActivity extends Fragment {
         });
       }
     });
-
   }
 
   private void setDefaultCameraId() {
@@ -320,6 +342,8 @@ public class CameraActivity extends Fragment {
       stopCurrentCamera();
     }
 
+    Activity activity = getActivity();
+    muteStream(false, activity);
   }
 
   public Camera getCamera() {
@@ -329,7 +353,7 @@ public class CameraActivity extends Fragment {
   public void switchCamera() {
     // Find the total number of cameras available
     numberOfCameras = Camera.getNumberOfCameras();
-    
+
     // check for availability of multiple cameras
     if (numberOfCameras == 1) {
       // There is only one camera available
@@ -421,7 +445,89 @@ public class CameraActivity extends Fragment {
       return getTempDirectoryPath() + "/cpcp_capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
     }
   }
+  
+  /**
+   * This will write exif information to image file.
+   *
+   * @param exif
+   */
+  private void writeExifInfos(ExifInterface exif) {
 
+    Log.d(TAG, "writeExifInfos");
+
+    try {
+
+      double absoluteValueLatitude = Math.abs(latitude);
+      double absoluteValueLongitude = Math.abs(longitude);
+
+      // Converts latitude in degrees minutes seconds
+      int degreesLatitude = (int) Math.floor(absoluteValueLatitude);
+      int minutesLatitude = (int) Math.floor((absoluteValueLatitude - degreesLatitude) * 60);
+      double secondsLatitude = (absoluteValueLatitude - (degreesLatitude + ((double) minutesLatitude / 60))) * 3600000;
+
+      // Converts latitude in degrees minutes seconds
+      int degreesLongitude = (int) Math.floor(absoluteValueLongitude);
+      int minutesLongitude = (int) Math.floor((absoluteValueLongitude - degreesLongitude) * 60);
+      double secondsLongitude = (absoluteValueLongitude - (degreesLongitude + ((double) minutesLongitude / 60))) * 3600000;
+
+      String exifLatitude = degreesLatitude + "/1," + minutesLatitude + "/1," + secondsLatitude + "/1000";
+      String exifLongitude = degreesLongitude + "/1," + minutesLongitude + "/1," + secondsLongitude + "/1000";
+
+      if (latitude > 0) {
+        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "N");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "S");
+      }
+
+      if (longitude > 0) {
+        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "E");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "W");
+      }
+
+      exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, exifLatitude);
+      exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, exifLongitude);
+
+      if (altitude > 0) {
+        exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "0");
+      } else {
+        exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, "1");
+      }
+      exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, String.valueOf(Math.abs(altitude)) + "/1");
+
+      Date gpsDate = new Date(timestamp);
+      SimpleDateFormat gpsDateStampFormater = new SimpleDateFormat("yyyy:MM:dd", Locale.getDefault());
+      SimpleDateFormat gpsTimeStampFormater = new SimpleDateFormat("kk:mm:ss", Locale.getDefault());
+
+      gpsDateStampFormater.setTimeZone(TimeZone.getTimeZone("UTC"));
+      gpsTimeStampFormater.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+      exif.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, gpsDateStampFormater.format(gpsDate));
+      exif.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, gpsTimeStampFormater.format(gpsDate));
+
+      if (trueHeading != Double.NaN || magneticHeading != Double.NaN) {
+        if (trueHeading == Double.NaN || trueHeading < 0) {
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION, String.valueOf(magneticHeading) + "/1");
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "M");
+        } else {
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION, String.valueOf(trueHeading) + "/1");
+          exif.setAttribute(ExifInterface.TAG_GPS_IMG_DIRECTION_REF, "T");
+        }
+      }
+
+      exif.setAttribute(ExifInterface.TAG_SOFTWARE, software);
+
+      exif.saveAttributes();
+    }
+    catch (IOException e) {
+      Log.e("BeMyEyeCamera", "Could not wirte exif :\n" + e);
+      eventListener.onPictureTakenError("Picture too large (memory)");
+    }
+  }
+
+  PictureCallback jpegPictureCallback = new PictureCallback(){
+    public void onPictureTaken(byte[] data, Camera arg1){
+      Log.d(TAG, "CameraPreview jpegPictureCallback");
 
   PictureCallback jpegPictureCallback = new PictureCallback() {
 
@@ -519,14 +625,13 @@ public class CameraActivity extends Fragment {
       byte[] data = params[0];
 
       try {
-
         Log.d(TAG, "RotateImageIfNecessary");
         ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(data));
         if (!disableExifHeaderStripping) {
           int exifOrientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
 
-          Log.d(TAG, "CameraPreview exifOrientation: " + exifOrientation);
-          Matrix matrix = buildMatrixFromExifOrientation(exifOrientation);
+          int rotation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+          int rotationInDegrees = exifToDegrees(rotation);
 
           // Check if matrix has changed. In that case, apply matrix and override data
           if (!matrix.isIdentity()) {
@@ -552,12 +657,13 @@ public class CameraActivity extends Fragment {
           FileOutputStream out = new FileOutputStream(path);
           out.write(data);
           out.close();
-
+          
           if (withExifInfos) {
-            writeExifInfos(path);
+            Log.d(TAG, "about to withExifInfos");
+            ExifInterface exif = new ExifInterface(path);
+            writeExifInfos(exif);
             withExifInfos = false;
           }
-
           eventListener.onPictureTaken(path, width, height, orientation);
         }
         Log.d(TAG, "CameraPreview pictureTakenHandler called back");
@@ -596,11 +702,8 @@ public class CameraActivity extends Fragment {
     setPreviewSizeFromCameraPictureSize();
 
   }
-  static byte[] rotateNV21(final byte[] yuv,
-                           final int width,
-                           final int height,
-                           final int rotation)
-  {
+
+  static byte[] rotateNV21(final byte[] yuv, final int width, final int height, final int rotation){
     if (rotation == 0) return yuv;
     if (rotation % 90 != 0 || rotation < 0 || rotation > 270) {
       throw new IllegalArgumentException("0 <= rotation < 360, rotation % 90 == 0");
@@ -636,6 +739,7 @@ public class CameraActivity extends Fragment {
     }
     return output;
   }
+
   public void takeSnapshot(final int quality) {
     mCamera.setPreviewCallback(new Camera.PreviewCallback() {
       @Override
@@ -706,28 +810,147 @@ public class CameraActivity extends Fragment {
     }
   }
 
-  public void setFocusArea(final int pointX, final int pointY, final AutoFocusCallback callback) {
-    if (mCamera != null) {
+  public void startRecord(final String filePath, final String camera, final int width, final int height, final int quality, final boolean withFlash){
+    Log.d(TAG, "CameraPreview startRecord camera: " + camera + " width: " + width + ", height: " + height + ", quality: " + quality);
+    if(mCamera != null) {
+      Activity activity = getActivity();
+      muteStream(true, activity);
+      if (this.mRecordingState == RecordingState.STARTED) {
+        Log.d(TAG, "Already Recording");
+        return;
+      }
 
+      this.recordFilePath = filePath;
+      int mOrientationHint = calculateOrientationHint();
+      int videoWidth = 0;//set whatever
+      int videoHeight = 0;//set whatever
+
+      Camera.Parameters cameraParams = mCamera.getParameters();
+      if (withFlash) {
+        cameraParams.setFlashMode(withFlash ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF);
+        mCamera.setParameters(cameraParams);
+        mCamera.startPreview();
+      }
+
+      mCamera.unlock();
+      mRecorder = new MediaRecorder();
+
+      try {
+        mRecorder.setCamera(mCamera);
+
+        CamcorderProfile profile;
+        if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_HIGH)) {
+          profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_HIGH);
+        } else {
+          if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_480P)) {
+            profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_480P);
+          } else {
+            if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_720P)) {
+              profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_720P);
+            } else {
+              if (CamcorderProfile.hasProfile(defaultCameraId, CamcorderProfile.QUALITY_1080P)) {
+                profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_1080P);
+              } else {
+                profile = CamcorderProfile.get(defaultCameraId, CamcorderProfile.QUALITY_LOW);
+              }
+            }
+          }
+        }
+
+
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
+        mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mRecorder.setProfile(profile);
+        mRecorder.setOutputFile(filePath);
+        mRecorder.setOrientationHint(mOrientationHint);
+
+        mRecorder.prepare();
+        Log.d(TAG, "Starting recording");
+        mRecorder.start();
+        eventListener.onStartRecordVideo();
+      } catch (IOException e) {
+        eventListener.onStartRecordVideoError(e.getMessage());
+      }
+    } else {
+      Log.d(TAG, "Requiring RECORD_AUDIO permission to continue");
+    }
+  }
+
+  public int calculateOrientationHint() {
+    DisplayMetrics dm = new DisplayMetrics();
+    Camera.CameraInfo info = new Camera.CameraInfo();
+    Camera.getCameraInfo(defaultCameraId, info);
+    int cameraRotationOffset = info.orientation;
+    Activity activity = getActivity();
+
+    activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+    int currentScreenRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+
+    int degrees = 0;
+    switch (currentScreenRotation) {
+      case Surface.ROTATION_0:
+        degrees = 0;
+        break;
+      case Surface.ROTATION_90:
+        degrees = 90;
+        break;
+      case Surface.ROTATION_180:
+        degrees = 180;
+        break;
+      case Surface.ROTATION_270:
+        degrees = 270;
+        break;
+    }
+
+    int orientation;
+    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+      orientation = (cameraRotationOffset + degrees) % 360;
+      if (degrees != 0) {
+        orientation = (360 - orientation) % 360;
+      }
+    } else {
+      orientation = (cameraRotationOffset - degrees + 360) % 360;
+    }
+    Log.w(TAG, "************orientationHint ***********= " + orientation);
+
+    return orientation;
+  }
+
+  public void stopRecord() {
+    Log.d(TAG, "stopRecord");
+    try {
+      mRecorder.stop();
+      mRecorder.reset();   // clear recorder configuration
+      mRecorder.release(); // release the recorder object
+      mRecorder = null;
+      mCamera.lock();
+      Camera.Parameters cameraParams = mCamera.getParameters();
+      cameraParams.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+      mCamera.setParameters(cameraParams);
+      mCamera.startPreview();
+      eventListener.onStopRecordVideo(this.recordFilePath);
+    } catch (Exception e) {
+      eventListener.onStopRecordVideoError(e.getMessage());
+    }
+  }
+
+  public void muteStream(boolean mute, Activity activity) {
+    AudioManager audioManager = ((AudioManager)activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE));
+    int direction = mute ? audioManager.ADJUST_MUTE : audioManager.ADJUST_UNMUTE;
+  }
+
+  public void setFocusArea(final int pointX, final int pointY, final Camera.AutoFocusCallback callback) {
+    if (mCamera != null) {
       mCamera.cancelAutoFocus();
 
       Parameters params = mCamera.getParameters();
 
-      String focusMode = getBestFocusModeForTouchFocus();
-      if (focusMode != null) {
-        params.setFocusMode(focusMode);
-      }
+      Rect focusRect = calculateTapArea(pointX, pointY);
+      parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+      parameters.setFocusAreas(Arrays.asList(new Camera.Area(focusRect, 1000)));
 
-      if (params.getMaxNumFocusAreas() > 0) {
-        Rect tapArea = calculateTapArea(pointX, pointY, 1f);
-        Area area = new Area(tapArea, 1000);
-        params.setFocusAreas(Collections.singletonList(area));
-      }
-
-      if (params.getMaxNumMeteringAreas() > 0) {
-        Rect meteringRect = calculateTapArea(pointX, pointY, 1.5f);
-        Area area = new Area(meteringRect, 1000);
-        params.setMeteringAreas(Collections.singletonList(area));
+      if (parameters.getMaxNumMeteringAreas() > 0) {
+        parameters.setMeteringAreas(Arrays.asList(new Camera.Area(focusRect, 1000)));
       }
 
       try {
@@ -740,8 +963,7 @@ public class CameraActivity extends Fragment {
     }
   }
 
-  private Rect calculateTapArea(float x, float y, float coefficient) {
-
+  private Rect calculateTapArea(float x, float y) {
     if (x < 100) {
       x = 100;
     }
@@ -760,63 +982,20 @@ public class CameraActivity extends Fragment {
         Math.round((y + 100) * 2000 / mPreview.viewHeight - 1000));
   }
 
-  public void setPreviewSizeFromCameraPictureSize() {
+  static Camera.Size getBestResolution(Camera.Parameters cp) {
+    List<Camera.Size> sl = cp.getSupportedVideoSizes();
 
-    Parameters params = mCamera.getParameters();
+    if (sl == null)
+      sl = cp.getSupportedPictureSizes();
 
-    Size pictureSize = params.getPictureSize();
+    Camera.Size large = sl.get(0);
 
-    // Get pictureSize Ratio
-    mPreview.previewRatio = (double) pictureSize.width / pictureSize.height;
-    Log.d(TAG, "previewRatio " + mPreview.previewRatio);
-    getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        mPreview.requestLayout();
-      }
-    });
-
-    // Get best preview size of the same ratio
-    List<Size> supportedPreviewSizes = params.getSupportedPreviewSizes();
-
-    Size optimalPreviewSize = findBestPreviewSize(pictureSize, supportedPreviewSizes);
-
-    if (optimalPreviewSize != null) {
-      params.setPreviewSize(optimalPreviewSize.width, optimalPreviewSize.height);
-      setCameraParameters(params);
-      // Restart camera, otherwise it seems that new previewSize is not applied
-      mCamera.stopPreview();
-      mCamera.startPreview();
-    }
-  }
-
-  private Size findBestPreviewSize(Size pictureSize, List<Size> supportedPreviewSizes) {
-    Size optimalPreviewSize = null;
-
-    for (Size size : supportedPreviewSizes) {
-      double ratio = (double) size.width / size.height;
-      if (ratio == mPreview.previewRatio) {
-        if (optimalPreviewSize == null) {
-          optimalPreviewSize = size;
-        } else if ((double) size.height * size.width > (double) optimalPreviewSize.height * optimalPreviewSize.width) {
-          optimalPreviewSize = size;
-        }
+    for (Camera.Size s : sl) {
+      if ((large.height * large.width) < (s.height * s.width)) {
+        large = s;
       }
     }
-    return optimalPreviewSize;
-  }
 
-  private String getBestFocusModeForTouchFocus() {
-    Parameters params = mCamera.getParameters();
-    List<String> focusModes = params.getSupportedFocusModes();
-    if (focusModes.contains(FOCUS_MODE_AUTO)) {
-      return FOCUS_MODE_AUTO;
-    } else if (focusModes.contains(FOCUS_MODE_MACRO)) {
-      return FOCUS_MODE_MACRO;
-    } else if (focusModes.contains(FOCUS_MODE_FIXED)) {
-      return FOCUS_MODE_FIXED;
-    }
-    return null;
+    return large;
   }
-
 }
