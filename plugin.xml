@@ -19,9 +19,6 @@
     <source-file src="src/android/CustomSurfaceView.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/Preview.java" target-dir="src/com/cordovaplugincamerapreview" />
     <source-file src="src/android/TapGestureDetector.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/camera_activity.xml" target-dir="res/layout" />
-    <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
-    <source-file src="src/android/camera_ids.xml" target-dir="res/values" />
 
 <preference name="ANDROID_SUPPORT_LIBRARY_VERSION" default="26+"/>
     <framework src="androidx.exifinterface:exifinterface:$ANDROID_SUPPORT_LIBRARY_VERSION" />
@@ -53,17 +50,11 @@
       </feature>
     </config-file>
 
-    <header-file src="src/ios/CameraPreview.h" />
-    <source-file src="src/ios/CameraPreview.m" />
-
-     <header-file src="src/ios/TemperatureAndTint.h" />
-    <source-file src="src/ios/TemperatureAndTint.m" />
-
-    <header-file src="src/ios/CameraSessionManager.h" />
-    <source-file src="src/ios/CameraSessionManager.m" />
-
-    <header-file src="src/ios/CameraRenderController.h" />
-    <source-file src="src/ios/CameraRenderController.m" />
+    <dependency id="cordova-plugin-add-swift-support" version="2.0.2"/>
+    <source-file src="src/ios/CameraPreview.swift" />
+    <source-file src="src/ios/TemperatureAndTint.swift" />
+    <source-file src="src/ios/CameraSessionManager.swift" />
+    <source-file src="src/ios/CameraRenderController.swift" />
 
     <framework src="ImageIO.framework" weak="true" />
     <framework src="MobileCoreServices.framework" />

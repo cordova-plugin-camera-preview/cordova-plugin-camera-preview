@@ -4,7 +4,7 @@ var argscheck = require('cordova/argscheck'),
 
 var PLUGIN_NAME = "CameraPreview";
 
-var CameraPreview = function() {};
+var CameraPreview = function () {};
 
 function isFunction(obj) {
   return !!(obj && obj.constructor && obj.call && obj.apply);
@@ -235,6 +235,10 @@ CameraPreview.getCameraCharacteristics = function(onSuccess, onError) {
 };
 
 CameraPreview.onBackButton = function(onSuccess, onError) {
+  exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
+};
+
+CameraPreview.onBackButton = function (onSuccess, onError) {
   exec(onSuccess, onError, PLUGIN_NAME, "onBackButton");
 };
 
