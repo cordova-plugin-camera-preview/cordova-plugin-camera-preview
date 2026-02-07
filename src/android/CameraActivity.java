@@ -297,9 +297,7 @@ public class CameraActivity extends Fragment {
       if(mPreview.mPreviewSize == null){
         mPreview.setCamera(mCamera, cameraCurrentlyLocked);
 
-        // Pre-configure picture parameters so we don't need to call
-        // setParameters() right before takePicture() — that resets the
-        // auto-exposure pipeline and causes the first image to be dark.
+        // Pre-configure picture parameters to reset AE pipeline
         configurePictureParameters();
 
         // Don't immediately call the callback - post it as a delayed action
@@ -686,17 +684,11 @@ public class CameraActivity extends Fragment {
     });
   }
 
-  /**
-   * Pre-configure picture parameters (size, quality, rotation) on the camera
-   * so that takePicture() does NOT need to call setParameters() immediately
-   * before capture. Calling setParameters() resets the auto-exposure/AWB
-   * pipeline, which causes the very first captured image to be dark.
-   */
+  // Pre-configure picture parameters (size, quality, rotation)
   private void configurePictureParameters() {
     if (mCamera == null || mPreview == null) return;
     try {
       Camera.Parameters params = mCamera.getParameters();
-      // Use 0,0 to let getOptimalPictureSize pick the best resolution
       Camera.Size size = getOptimalPictureSize(0, 0, params.getPreviewSize(), params.getSupportedPictureSizes());
       params.setPictureSize(size.width, size.height);
       params.setJpegQuality(85);
@@ -717,11 +709,7 @@ public class CameraActivity extends Fragment {
       }
 
       canTakePicture = false;
-
-      // Run on the UI thread — Camera1 API requires camera operations
-      // on the same thread that opened the camera.
-      // Only update parameters if the requested size/quality differs
-      // from what was pre-configured, to avoid resetting AE.
+      
       Activity activity = getActivity();
       if (activity == null) {
         canTakePicture = true;
