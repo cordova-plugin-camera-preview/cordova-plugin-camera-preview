@@ -297,6 +297,9 @@ public class CameraActivity extends Fragment {
       if(mPreview.mPreviewSize == null){
         mPreview.setCamera(mCamera, cameraCurrentlyLocked);
 
+        // Pre-configure picture parameters to reset AE pipeline
+        configurePictureParameters();
+
         // Don't immediately call the callback - post it as a delayed action
         // to ensure the listener is properly set up when it's called
         if (eventListener != null) {
@@ -312,6 +315,7 @@ public class CameraActivity extends Fragment {
       } else {
         mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
         mCamera.startPreview();
+        configurePictureParameters();
       }
 
       Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
@@ -680,6 +684,22 @@ public class CameraActivity extends Fragment {
     });
   }
 
+  // Pre-configure picture parameters (size, quality, rotation)
+  private void configurePictureParameters() {
+    if (mCamera == null || mPreview == null) return;
+    try {
+      Camera.Parameters params = mCamera.getParameters();
+      Camera.Size size = getOptimalPictureSize(0, 0, params.getPreviewSize(), params.getSupportedPictureSizes());
+      params.setPictureSize(size.width, size.height);
+      params.setJpegQuality(85);
+      params.setRotation(mPreview.getDisplayOrientation());
+      mCamera.setParameters(params);
+      Log.d(TAG, "Picture parameters pre-configured: " + size.width + "x" + size.height);
+    } catch (Exception e) {
+      Log.e(TAG, "Error pre-configuring picture parameters", e);
+    }
+  }
+
   public void takePicture(final int width, final int height, final int quality){
     Log.d(TAG, "CameraPreview takePicture width: " + width + ", height: " + height + ", quality: " + quality);
 
@@ -689,24 +709,35 @@ public class CameraActivity extends Fragment {
       }
 
       canTakePicture = false;
-
-      new Thread() {
+      
+      Activity activity = getActivity();
+      if (activity == null) {
+        canTakePicture = true;
+        return;
+      }
+      activity.runOnUiThread(new Runnable() {
+        @Override
         public void run() {
           try {
             if (mCamera == null) {
               Log.d(TAG, "Camera is null, cannot take picture");
-              canTakePicture = true; // Reset flag if camera is null
+              canTakePicture = true;
               return;
             }
-            
-            Camera.Parameters params = mCamera.getParameters();
 
-            Camera.Size size = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
-            params.setPictureSize(size.width, size.height);
+            Camera.Parameters params = mCamera.getParameters();
             currentQuality = quality;
 
+            // Only update picture size if a specific size was requested
+            if (width > 0 && height > 0) {
+              Camera.Size currentSize = params.getPictureSize();
+              Camera.Size optimalSize = getOptimalPictureSize(width, height, params.getPreviewSize(), params.getSupportedPictureSizes());
+              if (currentSize.width != optimalSize.width || currentSize.height != optimalSize.height) {
+                params.setPictureSize(optimalSize.width, optimalSize.height);
+              }
+            }
+
             if(cameraCurrentlyLocked == Camera.CameraInfo.CAMERA_FACING_FRONT && !storeToFile) {
-              // The image will be recompressed in the callback
               params.setJpegQuality(99);
             } else {
               params.setJpegQuality(quality);
@@ -714,15 +745,40 @@ public class CameraActivity extends Fragment {
 
             params.setRotation(mPreview.getDisplayOrientation());
 
-            mCamera.setParameters(params);
-            mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
+            // Check if parameters actually changed before calling setParameters
+            Camera.Parameters currentParams = mCamera.getParameters();
+            boolean paramsChanged = 
+              currentParams.getJpegQuality() != params.getJpegQuality() ||
+              currentParams.getPictureSize().width != params.getPictureSize().width ||
+              currentParams.getPictureSize().height != params.getPictureSize().height;
+
+            if (paramsChanged) {
+              mCamera.setParameters(params);
+              // If we had to change params, give AE a moment to restabilize
+              new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  try {
+                    if (mCamera != null) {
+                      mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
+                    } else {
+                      canTakePicture = true;
+                    }
+                  } catch (Exception e) {
+                    canTakePicture = true;
+                    Log.e(TAG, "Error taking picture after param change", e);
+                  }
+                }
+              }, 500);
+            } else {
+              mCamera.takePicture(shutterCallback, null, jpegPictureCallback);
+            }
           } catch (Exception e) {
-            // Reset flag so future attempts can be made
             canTakePicture = true;
             Log.e(TAG, "Error taking picture", e);
           }
         }
-      }.start();
+      });
     } else {
       canTakePicture = true;
     }
